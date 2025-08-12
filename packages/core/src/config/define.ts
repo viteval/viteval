@@ -19,5 +19,7 @@ export function defineConfig(config: VitevalConfig) {
       // We default to a very long timeout for evals since they can be slow
       testTimeout: config.eval?.timeout ?? 100000,
     },
+    // @ts-expect-error - TODO: fix this
+    plugins: config.plugins,
   });
 }

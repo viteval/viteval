@@ -1,3 +1,4 @@
+import type { PluginOption } from 'vite';
 import type { ProviderConfig } from '#/internals/provider';
 
 export type VitevalReporterBraintrust = {
@@ -42,4 +43,8 @@ export interface VitevalConfig {
      */
     timeout?: number;
   };
+  /**
+   * Vite plugins to use.
+   */
+  plugins?: PluginOption[];
 }
