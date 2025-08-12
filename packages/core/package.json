@@ -1,6 +1,6 @@
 {
   "name": "@viteval/core",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.0",
   "description": "A LLM evaluation framework for JavaScript and TypeScript built on top of Vitest",
   "type": "module",
   "main": "dist/index.js",

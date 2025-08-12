@@ -9,6 +9,7 @@
     "test": "nx run-many -t test",
     "check": "biome check .",
     "fix": "biome check --write .",
+    "publish": "pnpm run build && pnpm changeset publish",
     "validate": "nx run-many -t validate"
   },
   "devDependencies": {
