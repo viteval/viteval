@@ -50,9 +50,7 @@ jobs:
             ${{ github.ref_name == 'main' && 'chore(release): publish a new release version'  || 'chore(release): publish a new pre-release version' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-          NPM_CONFIG_ACCESS: public
 
       - name: Publish
         if: steps.changesets.outputs.hasChangesets == 'false'
-        run: pnpm publish
+        run: pnpm run publish
