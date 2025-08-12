@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  PNPM_VERSION: 10.14.0
+
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
@@ -14,6 +17,11 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
