@@ -1,4 +1,4 @@
-import type { PluginOption } from 'vite';
+import type { UserConfig } from 'vite';
 import type { ProviderConfig } from '#/internals/provider';
 
 export type VitevalReporterBraintrust = {
@@ -46,5 +46,9 @@ export interface VitevalConfig {
   /**
    * Vite plugins to use.
    */
-  plugins?: PluginOption[];
+  plugins?: UserConfig['plugins'];
+  /**
+   * Vite resolve configuration.
+   */
+  resolve?: UserConfig['resolve'];
 }

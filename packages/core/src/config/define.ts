@@ -7,19 +7,25 @@ import type { VitevalConfig } from './types';
  * @param config - The viteval config.
  * @returns The viteval config.
  */
-export function defineConfig(config: VitevalConfig) {
+export function defineConfig({
+  eval: evalConfig,
+  plugins,
+  resolve,
+  ...config
+}: VitevalConfig) {
   return defineVitestConfig({
     ...config,
     test: {
-      ...config.eval,
+      ...evalConfig,
       provide: {
         config,
       },
       environment: 'node',
       // We default to a very long timeout for evals since they can be slow
-      testTimeout: config.eval?.timeout ?? 100000,
+      testTimeout: evalConfig?.timeout ?? 100000,
     },
+    resolve,
     // @ts-expect-error - TODO: fix this
-    plugins: config.plugins,
+    plugins,
   });
 }
