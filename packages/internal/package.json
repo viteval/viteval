@@ -3,6 +3,14 @@
   "version": "0.0.1",
   "description": "Viteval internal - shared utilities for the Viteval ecosystem",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zrosenbauer/viteval"
+  },
+  "bugs": {
+    "url": "https://github.com/zrosenbauer/viteval/issues"
+  },
+  "homepage": "https://github.com/zrosenbauer/viteval#readme",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
