@@ -1,0 +1,34 @@
+{
+  "Comment: Header (Hash)": {
+    "scope": "yaml",
+    "prefix": "cmth-head",
+    "description": "The top level file within a file or module.",
+    "body": [
+      "#==========================================================================",
+      "# ${TM_FILENAME_BASE}",
+      "#==========================================================================",
+      "#",
+      "# $0",
+      "#"
+    ]
+  },
+  "Comment: Section (Hash)": {
+    "scope": "yaml",
+    "prefix": "cmth-section",
+    "description": "A section within a file or module.",
+    "body": [
+      "#----------------------------------",
+      "# ${TM_FILENAME_BASE}",
+      "#----------------------------------",
+      "#",
+      "# $2$0",
+      "#"
+    ]
+  },
+  "Comment: Subsection (Hash)": {
+    "scope": "yaml",
+    "prefix": "cmth-subsection",
+    "description": "A subsection within a file or module.",
+    "body": ["#------------------", "# $0", "#------------------"]
+  }
+}

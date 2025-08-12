@@ -1,0 +1,60 @@
+{
+  "name": "viteval",
+  "version": "0.0.1-alpha.1",
+  "description": "LLM evaluation framework for JavaScript and TypeScript built on top of Vitest",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "viteval": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./config": {
+      "import": "./dist/config.js",
+      "types": "./dist/config.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "check": "biome check . && biome format --check .",
+    "fix": "biome check --write . && biome format --write .",
+    "validate": "pnpm check && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "@viteval/cli": "workspace:*",
+    "@viteval/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
+    "@tsconfig/node18": "^18.2.4",
+    "@types/node": "^24.2.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [
+    "llm",
+    "evaluation",
+    "testing",
+    "vitest",
+    "ai",
+    "typescript",
+    "javascript"
+  ],
+  "author": "viteval",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zrosenbauer/viteval"
+  },
+  "bugs": {
+    "url": "https://github.com/zrosenbauer/viteval/issues"
+  },
+  "homepage": "https://github.com/zrosenbauer/viteval#readme"
+}

@@ -1,0 +1,24 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Context
+
+You are working on an **LLM Evaluation Framework** - a system for testing and benchmarking Large Language Models with built-in testing using Vitest.
+
+# Project Goals
+
+- **Evaluate LLM Capabilities**: Test reasoning, knowledge, coding, creativity across different models
+- **Safety Testing**: Detect bias, harmful content, and alignment issues
+- **Performance Benchmarking**: Measure speed, accuracy, and consistency
+- **Model Comparison**: Compare different LLMs side-by-side
+- **Extensible Testing**: Allow custom evaluations and metrics
+
+# Core Components
+
+- **Evaluation Engine**: Runs tests against LLMs and collects results
+- **Model Adapters**: Connect to different LLM providers (OpenAI, Anthropic, local models)
+- **Scoring System**: Calculate metrics and generate comparative reports
+- **Test Datasets**: Curated datasets for various evaluation scenarios
+- **Testing Infrastructure**: Vitest-based testing for framework reliability

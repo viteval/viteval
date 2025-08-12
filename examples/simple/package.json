@@ -1,0 +1,19 @@
+{
+  "name": "@viteval/examples/simple",
+  "version": "1.0.0",
+  "description": "Simple example of using viteval",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "eval": "viteval"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "viteval": "workspace:*"
+  },
+  "keywords": [
+    "example",
+    "viteval"
+  ],
+  "author": "zrosenbauer"
+}

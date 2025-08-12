@@ -1,0 +1,33 @@
+{
+  "name": "@viteval/cli",
+  "version": "0.0.1-alpha.0",
+  "description": "Command line interface for viteval - LLM evaluation framework",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "viteval": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "check": "biome check . && biome format --check .",
+    "fix": "biome check --write . && biome format --write .",
+    "validate": "pnpm check && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "@viteval/core": "workspace:*",
+    "@viteval/internal": "workspace:^",
+    "find-up": "^7.0.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
+    "@tsconfig/node18": "^18.2.4",
+    "@types/node": "^24.2.1",
+    "@types/yargs": "^17.0.33",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "Comment: Header": {
+    "scope": "typescript",
+    "prefix": "cmt-head",
+    "description": "The top level file within a file or module.",
+    "body": [
+      "/*",
+      "|==========================================================================",
+      "| ${TM_FILENAME_BASE}",
+      "|==========================================================================",
+      "|",
+      "| $0",
+      "|",
+      "*/"
+    ]
+  },
+  "Comment: Section": {
+    "scope": "typescript",
+    "prefix": "cmt-section",
+    "description": "A section within a file or module.",
+    "body": [
+      "/*",
+      "|----------------------------------",
+      "| ${TM_FILENAME_BASE}",
+      "|----------------------------------",
+      "|",
+      "| $2$0",
+      "|",
+      "*/"
+    ]
+  },
+  "Comment: Subsection": {
+    "scope": "typescript",
+    "prefix": "cmt-subsection",
+    "description": "A subsection within a file or module.",
+    "body": ["/*", "|------------------", "| $0", "|------------------", "*/"]
+  }
+}

@@ -1,0 +1,173 @@
+import type * as TF from 'type-fest';
+
+/**
+ * A score object, contains the name of the scorer, the score and any additional metadata.
+ */
+export interface Score {
+  name: string;
+  score: number | null;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * The arguments passed to a scorer, contains the output and expected output and any additional arguments.
+ */
+export type ScorerArgs<OUTPUT, EXTRA extends Extra> = TF.Merge<
+  EXTRA,
+  {
+    output: OUTPUT;
+    expected?: OUTPUT;
+  }
+>;
+
+export type ScorerAggregationType = 'mean' | 'median' | 'sum';
+
+/**
+ * A scorer function, takes the output and expected output and returns a score.
+ */
+export type Scorer<OUTPUT, EXTRA extends Extra> = (
+  args: ScorerArgs<OUTPUT, EXTRA>
+) => Score | Promise<Score>;
+
+export type TaskArgs<INPUT, EXTRA extends Extra> = TF.Merge<
+  EXTRA,
+  {
+    input: INPUT;
+  }
+>;
+
+/**
+ * A task function, takes the input and expected output and returns a promise or the output.
+ */
+export type Task<INPUT, OUTPUT, EXTRA extends Extra> = (
+  args: TaskArgs<INPUT, EXTRA>
+) => Promise<OUTPUT> | OUTPUT;
+
+/**
+ * A data object, contains the input and expected output and any additional arguments.
+ */
+export type DataItem<
+  INPUT = unknown,
+  OUTPUT = unknown,
+  EXTRA extends Extra = Extra,
+> = TF.Merge<
+  EXTRA,
+  {
+    name?: string;
+    input: INPUT;
+    expected?: OUTPUT;
+  }
+>;
+
+export type Extra = Record<string, unknown>;
+
+/**
+ * A data generator function, returns a promise of data objects.
+ */
+export type DataGenerator<DATA_ITEM extends DataItem = DataItem> =
+  () => Promise<DATA_ITEM[]>;
+
+export type Data<DATA_ITEM extends DataItem = DataItem> =
+  | DATA_ITEM[]
+  | DataGenerator<DATA_ITEM>;
+
+export interface Eval<DATA extends Data> {
+  /**
+   * The description of the evaluation.
+   */
+  description?: string;
+  /**
+   * The data to use for the evaluation.
+   */
+  data: DATA;
+  /**
+   * The task to evaluate.
+   */
+  task: Task<InferDataInput<DATA>, InferDataOutput<DATA>, InferDataExtra<DATA>>;
+  /**
+   * The scorers to use for the evaluation.
+   */
+  scorers: Scorer<InferDataOutput<DATA>, InferDataExtra<DATA>>[];
+  /**
+   * The aggregation type for the evaluation.
+   *
+   * @default 'mean'
+   */
+  aggregation?: ScorerAggregationType;
+  /**
+   * The threshold for the evaluation.
+   *
+   * @default 1.0
+   */
+  threshold?: number;
+  /**
+   * The timeout for the evaluation.
+   *
+   * @default 10000
+   */
+  timeout?: number;
+}
+
+export interface EvalResult {
+  /**
+   * The name of the evaluation.
+   */
+  name: string;
+  /**
+   * The sum of the evaluation.
+   */
+  sum: number;
+  /**
+   * The median of the evaluation.
+   */
+  /**
+   * The mean of the evaluation.
+   */
+  mean: number;
+  /**
+   * The median of the evaluation.
+   */
+  median: number;
+  /**
+   * The threshold for the evaluation.
+   */
+  threshold: number;
+  /**
+   * The aggregation type for the evaluation.
+   */
+  aggregation: ScorerAggregationType;
+  /**
+   * The scores of the evaluation.
+   */
+  scores: Score[];
+  /**
+   * The metadata of the evaluation.
+   */
+  metadata?: Record<string, unknown>;
+}
+
+/*
+|------------------
+| Internals
+|------------------
+*/
+
+type InferDataOutput<DATA extends Data> = InferDataValue<DATA, 'expected'>;
+
+type InferDataInput<DATA extends Data> = InferDataValue<DATA, 'input'>;
+
+type InferDataExtra<DATA extends Data> = Omit<
+  ExtractDataItem<DATA>,
+  'input' | 'expected' | 'output'
+>;
+
+type InferDataValue<
+  DATA extends Data,
+  KEY extends keyof DataItem,
+> = ExtractDataItem<DATA>[KEY];
+
+type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
+  ? DATA[number]
+  : DATA extends DataGenerator<DataItem>
+    ? Awaited<ReturnType<DATA>>[number]
+    : never;
