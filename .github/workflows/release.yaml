@@ -50,6 +50,8 @@ jobs:
             ${{ github.ref_name == 'main' && 'chore(release): publish a new release version'  || 'chore(release): publish a new pre-release version' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish
         if: steps.changesets.outputs.hasChangesets == 'false'
