@@ -10,6 +10,7 @@
     "check": "biome check .",
     "fix": "biome check --write .",
     "publish": "pnpm run build && pnpm changeset publish",
+    "version": "pnpm run changeset -- version && pnpm install --no-frozen-lockfile",
     "validate": "nx run-many -t validate"
   },
   "devDependencies": {
