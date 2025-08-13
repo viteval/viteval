@@ -1,5 +1,12 @@
 # @viteval/core
 
+## 0.1.3
+
+### Patch Changes
+
+- 7e7bd69: feat: Add server configurations for the underlying Vitest node server
+- d99658c: fix: Loosen config types
+
 ## 0.1.2
 
 ### Patch Changes

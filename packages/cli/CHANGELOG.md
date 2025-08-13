@@ -1,5 +1,13 @@
 # @viteval/cli
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [7e7bd69]
+- Updated dependencies [d99658c]
+  - @viteval/core@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
