@@ -1,5 +1,6 @@
 import { hasKey, isObject } from '@viteval/internal';
 import { match } from 'ts-pattern';
+import { afterAll, assert, beforeAll, describe, test } from 'vitest';
 import { getRuntimeConfig } from '#/internals/config';
 import { resolve } from '#/internals/utils';
 import { initializeProvider } from '#/provider/initialize';
@@ -49,12 +50,6 @@ export function evaluate<
     timeout = 10000,
   }: Eval<DATA>
 ) {
-  if (!import.meta.vitest) {
-    throw new Error('vitest is not available');
-  }
-
-  const { afterAll, assert, beforeAll, describe, test } = import.meta.vitest;
-
   return describe(name, async () => {
     const results: EvalResult[] = [];
 
@@ -121,7 +116,6 @@ export function evaluate<
               .with('sum', () => sumScore >= threshold)
               .exhaustive();
 
-            // @ts-expect-error - this is valid
             assert(pass, `Score: ${meanScore} below threshold: ${threshold}`);
           }
         }

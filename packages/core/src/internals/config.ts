@@ -1,3 +1,4 @@
+import { inject } from 'vitest';
 import type { VitevalConfig } from '../config/types';
 
 /**
@@ -6,10 +7,6 @@ import type { VitevalConfig } from '../config/types';
  * @returns The viteval config.
  */
 export function getRuntimeConfig(): VitevalConfig {
-  if (!import.meta.vitest) {
-    throw new Error('vitest is not available');
-  }
-
   // @ts-expect-error - this is valid
-  return import.meta.vitest.inject('config') as VitevalConfig;
+  return inject('config') as VitevalConfig;
 }

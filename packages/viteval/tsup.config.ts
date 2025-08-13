@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/config.ts', 'src/cli.ts'],
+  entry: ['src/index.ts', 'src/config.ts', 'src/cli.ts', 'src/dataset.ts'],
   format: ['esm'],
   dts: true,
   target: 'es2022',

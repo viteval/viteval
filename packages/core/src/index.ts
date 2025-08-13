@@ -1,4 +1,4 @@
-export { defineDataset, evaluate, loadDataset, saveDataset } from './core';
+export { evaluate } from './core';
 export { createScorer, scorers } from './scorer';
 export type {
   Data,

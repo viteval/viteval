@@ -1,4 +1,5 @@
 import path from 'node:path';
+import importSync from 'import-sync';
 import { findConfigFile } from '#/config';
 
 /**

@@ -8,4 +8,4 @@ export type {
   Task,
   TaskArgs,
 } from '@viteval/core';
-export { createScorer, defineDataset, evaluate, scorers } from '@viteval/core';
+export { createScorer, evaluate, scorers } from '@viteval/core';
