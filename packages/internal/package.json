@@ -1,6 +1,6 @@
 {
   "name": "@viteval/internal",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Viteval internal - shared utilities for the Viteval ecosystem",
   "license": "MIT",
   "repository": {
