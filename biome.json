@@ -32,6 +32,9 @@
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
         "noUselessElse": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
       }
     }
   },

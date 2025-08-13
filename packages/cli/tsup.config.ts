@@ -19,7 +19,7 @@ export default defineConfig({
   async onSuccess() {
     const files = await fs.readdir(TEMPLATES_DIR);
     for (const file of files) {
-      if (file.endsWith('.ts') && !file.endsWith('index.ts')) {
+      if (file.endsWith('.template')) {
         await fs.copyFile(
           path.join(TEMPLATES_DIR, file),
           path.join(OUTPUT_DIR, file)

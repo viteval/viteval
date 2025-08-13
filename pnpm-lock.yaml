@@ -223,9 +223,6 @@ importers:
 
   packages/viteval:
     dependencies:
-      '@viteval/cli':
-        specifier: workspace:*
-        version: link:../cli
       '@viteval/core':
         specifier: workspace:*
         version: link:../core

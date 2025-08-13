@@ -31,10 +31,11 @@ export async function createFileFromTemplate(
 export async function readTemplateContents(
   template: TemplateName
 ): Promise<string | null> {
-  const exists = await fileExists(template);
+  const templatePath = path.join(TEMPLATES_DIR, `${template}.template`);
+  const exists = await fileExists(templatePath);
   if (!exists) {
     return null;
   }
 
-  return await fs.readFile(path.join(TEMPLATES_DIR, template), 'utf-8');
+  return await fs.readFile(templatePath, 'utf-8');
 }
