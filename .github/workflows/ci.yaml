@@ -58,7 +58,7 @@ jobs:
       - name: '📦 Install Packages'
         run: pnpm install --frozen-lockfile
 
-      - name: '🔄 Run:${{ matrix.command }}'
+      - name: '🔄 Run: ${{ matrix.command }}'
         run: pnpm ${{ matrix.command }} 
 
   dependabot:
