@@ -93,7 +93,7 @@ evaluate('Color detection', {
 You can define datasets in your codebase and run them with the `viteval data` command or by running the `viteval` command (they automatically run every time you run the `viteval` command).
 
 ```ts
-import { defineDataset } from 'viteval';
+import { defineDataset } from 'viteval/dataset';
 
 const dataset = defineDataset({
    name: 'color-questions',
