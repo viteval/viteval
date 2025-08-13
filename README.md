@@ -27,8 +27,8 @@ AI Evals combined with Vitest into one framework!
 - ✅ Local Dataset: quickly define and generate datasets that are stored locally or in a database.
 - ✅ Scorer framework: easily define and use scorers to evaluate your LLM.
 - ✅ CI ready: easily integrate with your CI pipeline and run evals the same way you run tests.
-- (SOON) Reporters: custom reporters to help you visualize your evals, or upload them to a vendor (i.e. Braintrust).
-- (SOON) Remote Dataset: easily define and use datasets that are stored in a database, S3 bucket, or a vendor (i.e. Braintrust).
+- (SOON) Reporters: custom reporters to help you visualize your evals, or upload them to a vendor 
+- (SOON) Remote Dataset: easily define & use datasets that are stored in a database, S3 bucket, or a vendor
 
 ## Installation
 
