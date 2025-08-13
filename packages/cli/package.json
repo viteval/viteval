@@ -18,15 +18,18 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "types": "tsc --noEmit",
     "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check . && biome format --check .",
-    "fix": "biome check --write . && biome format --write .",
+    "fix": "biome check --write .",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "dependencies": {
     "@viteval/core": "workspace:*",
     "@viteval/internal": "workspace:^",
+    "consola": "^3.4.2",
     "find-up": "^7.0.0",
+    "ts-pattern": "^5.8.0",
     "yargs": "^18.0.0"
   },
   "devDependencies": {

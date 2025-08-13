@@ -26,9 +26,12 @@
       "dependsOn": ["^fix"],
       "cache": true
     },
-    "validate": {
-      "dependsOn": ["check", "test", "build"],
+    "types": {
+      "dependsOn": ["^build", "^types"],
       "cache": true
+    },
+    "validate": {
+      "cache": false
     },
     "@nx/js:tsc": {
       "cache": true,

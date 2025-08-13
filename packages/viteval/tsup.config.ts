@@ -9,8 +9,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: false,
-  // banner: {
-  //   js: '#!/usr/bin/env node',
-  // },
-  // external: ['@viteval/core', '@viteval/cli'], // Don't bundle dependencies
+  external: ['@viteval/core', '@viteval/cli'],
 });
