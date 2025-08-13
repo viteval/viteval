@@ -4,6 +4,7 @@ export default defineConfig({
   entry: [
     'src/index.ts',
     'src/config/index.ts',
+    'src/dataset/index.ts',
     // TODO: add reporters
     // src/reporters/index.ts
   ],

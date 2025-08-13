@@ -1,4 +1,4 @@
-import { defineDataset } from 'viteval';
+import { defineDataset } from 'viteval/dataset';
 
 export default defineDataset({
   name: 'example',

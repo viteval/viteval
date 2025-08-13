@@ -16,6 +16,10 @@
     "./config": {
       "import": "./dist/config.js",
       "types": "./dist/config.d.ts"
+    },
+    "./dataset": {
+      "import": "./dist/dataset.js",
+      "types": "./dist/dataset.d.ts"
     }
   },
   "scripts": {
