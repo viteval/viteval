@@ -1,0 +1,75 @@
+name: 'ci' 
+
+on:
+  pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+env:
+  NODE_VERSION: 24
+  PNPM_VERSION: 10.14.0
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    name: "CI: ${{ matrix.command }}"
+    timeout-minutes: 7
+    if: ${{ !github.event.pull_request.draft }}
+    strategy:
+      fail-fast: false
+      matrix:
+        command: [types, test, check, build]
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: '⬇️ Checkout Code'        
+        uses: actions/checkout@v4
+
+      - name: '💚 Setup Node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: '📋 Setup pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+        
+      - name: '🗂️ Cache pnpm Store'
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: '📁 Cache node_modules'
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+        
+      - name: '📦 Install Packages'
+        run: pnpm install --frozen-lockfile
+
+      - name: '🔄 Run:${{ matrix.command }}'
+        run: pnpm ${{ matrix.command }} 
+
+  dependabot:
+    name: 'Dependabot (auto-merge)'
+    needs: [ci]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}} 
+    steps:
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --squash "$PR_URL" # Use GitHub CLI to automatically merge the PR
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}

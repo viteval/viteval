@@ -20,6 +20,9 @@ export type ScorerArgs<OUTPUT, EXTRA extends Extra> = TF.Merge<
   }
 >;
 
+/**
+ * The aggregation type for a scorer.
+ */
 export type ScorerAggregationType = 'mean' | 'median' | 'sum';
 
 /**
@@ -59,6 +62,9 @@ export type DataItem<
   }
 >;
 
+/**
+ * Extra arguments for a data item.
+ */
 export type Extra = Record<string, unknown>;
 
 /**
@@ -67,10 +73,16 @@ export type Extra = Record<string, unknown>;
 export type DataGenerator<DATA_ITEM extends DataItem = DataItem> =
   () => Promise<DATA_ITEM[]>;
 
+/**
+ * A data object, contains the input and expected output and any additional arguments.
+ */
 export type Data<DATA_ITEM extends DataItem = DataItem> =
   | DATA_ITEM[]
   | DataGenerator<DATA_ITEM>;
 
+/**
+ * An evaluation configuration.
+ */
 export interface Eval<DATA extends Data> {
   /**
    * The description of the evaluation.
@@ -108,6 +120,9 @@ export interface Eval<DATA extends Data> {
   timeout?: number;
 }
 
+/**
+ * A result object, contains the name of the evaluation, the sum, mean, median and threshold.
+ */
 export interface EvalResult {
   /**
    * The name of the evaluation.

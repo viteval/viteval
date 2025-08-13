@@ -7,6 +7,7 @@
     "build": "nx run-many -t build",
     "dev": "nx run-many -t dev",
     "test": "nx run-many -t test",
+    "types": "nx run-many -t types",
     "check": "biome check .",
     "fix": "biome check --write .",
     "publish": "pnpm run build && pnpm changeset publish",

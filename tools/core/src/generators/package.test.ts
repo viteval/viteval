@@ -5,7 +5,10 @@ import type { PackageGeneratorSchema } from './schema';
 
 describe('package generator', () => {
   let tree: Tree;
-  const options: PackageGeneratorSchema = { name: 'test' };
+  const options: PackageGeneratorSchema = {
+    name: 'test',
+    description: 'test',
+  };
 
   beforeEach(() => {
     tree = createTreeWithEmptyWorkspace();
