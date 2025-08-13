@@ -1,5 +1,21 @@
 # viteval
 
+## 0.1.0
+
+### Minor Changes
+
+- 8c267d7: feat: Added `datasets` support for cacheing pre-generated datasets
+
+### Patch Changes
+
+- 62941f3: "feat: expose `createScorer` & general clean up"
+- Updated dependencies [8c267d7]
+- Updated dependencies [62941f3]
+- Updated dependencies [1cc67b1]
+- Updated dependencies [62941f3]
+  - @viteval/core@0.1.0
+  - @viteval/cli@0.1.0
+
 ## 0.0.3
 
 ### Patch Changes
