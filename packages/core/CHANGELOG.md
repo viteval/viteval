@@ -1,5 +1,11 @@
 # @viteval/core
 
+## 0.1.3
+
+### Patch Changes
+
+- d99658c: fix: Loosen config types
+
 ## 0.1.2
 
 ### Patch Changes
