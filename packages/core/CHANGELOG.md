@@ -1,5 +1,12 @@
 # @viteval/core
 
+## 0.1.2
+
+### Patch Changes
+
+- 5d1186d: feat: Add in `deps` for configuring CJS deps and others
+- ae4035e: chore: remove unneeded imports & cleanup
+
 ## 0.1.1
 
 ### Patch Changes
