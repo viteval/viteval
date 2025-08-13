@@ -5,9 +5,10 @@
     "includes": [
       "**",
       "!node_modules",
-      "!dist",
-      "!build",
-      "!coverage",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/coverage/**",
+      "!**/templates/**",
       "!logs",
       "!tmp",
       "!.nx",

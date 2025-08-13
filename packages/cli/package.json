@@ -21,7 +21,7 @@
     "types": "tsc --noEmit",
     "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check . && biome format --check .",
-    "fix": "biome check --write . && biome format --write .",
+    "fix": "biome check --write .",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "dependencies": {
