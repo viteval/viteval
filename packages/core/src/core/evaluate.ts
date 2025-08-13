@@ -1,6 +1,7 @@
+import { hasKey, isObject } from '@viteval/internal';
 import { match } from 'ts-pattern';
 import { afterAll, assert, beforeAll, describe, test } from 'vitest';
-import { getConfig } from '#/config/utils';
+import { getRuntimeConfig } from '#/config/utils';
 import { resolve } from '#/internals/utils';
 import { initializeProvider } from '#/provider/initialize';
 import {
@@ -53,7 +54,7 @@ export function evaluate<
     const results: EvalResult[] = [];
 
     beforeAll(() => {
-      initializeProvider(getConfig().provider);
+      initializeProvider(getRuntimeConfig().provider);
     });
 
     afterAll((suite) => {
@@ -135,6 +136,12 @@ async function formatData<DATA_ITEM extends DataItem>(
   if (typeof data === 'function') {
     return await data();
   }
+
+  // @ts-expect-error - this is valid
+  if (isObject(data) && hasKey(data, 'data')) {
+    return await data.data();
+  }
+
   return data;
 }
 

@@ -78,7 +78,43 @@ export type DataGenerator<DATA_ITEM extends DataItem = DataItem> =
  */
 export type Data<DATA_ITEM extends DataItem = DataItem> =
   | DATA_ITEM[]
-  | DataGenerator<DATA_ITEM>;
+  | DataGenerator<DATA_ITEM>
+  | Dataset<DataGenerator<DATA_ITEM>>;
+
+// TODO: Add support for remote storage i.e. S3, Braintrust, etc.
+export type DatasetStorage = 'local' | 'memory';
+
+/**
+ * A dataset configuration.
+ */
+export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
+  /**
+   * The storage type of the dataset.
+   *
+   * @default 'local'
+   */
+  storage?: DatasetStorage;
+  /**
+   * The name of the dataset.
+   */
+  name: string;
+  /**
+   * The description of the dataset.
+   */
+  description?: string;
+  /**
+   * The data generator of the dataset.
+   */
+  data: DATA;
+}
+
+/**
+ * A dataset, contains the name, storage and data generator.
+ */
+export type Dataset<DATA_FUNC extends DataGenerator> = TF.SetRequired<
+  DatasetConfig<DATA_FUNC>,
+  'storage'
+>;
 
 /**
  * An evaluation configuration.
@@ -161,28 +197,42 @@ export interface EvalResult {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * Infer the output type of a data object.
+ */
+export type InferDataOutput<DATA extends Data> = InferDataValue<
+  DATA,
+  'expected'
+>;
+
+/**
+ * Infer the input type of a data object.
+ */
+export type InferDataInput<DATA extends Data> = InferDataValue<DATA, 'input'>;
+
+/**
+ * Infer the extra type of a data object.
+ */
+export type InferDataExtra<DATA extends Data> = Omit<
+  ExtractDataItem<DATA>,
+  'input' | 'expected' | 'output'
+>;
+
 /*
 |------------------
 | Internals
 |------------------
 */
 
-type InferDataOutput<DATA extends Data> = InferDataValue<DATA, 'expected'>;
-
-type InferDataInput<DATA extends Data> = InferDataValue<DATA, 'input'>;
-
-type InferDataExtra<DATA extends Data> = Omit<
-  ExtractDataItem<DATA>,
-  'input' | 'expected' | 'output'
->;
-
 type InferDataValue<
   DATA extends Data,
   KEY extends keyof DataItem,
 > = ExtractDataItem<DATA>[KEY];
 
-type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
+export type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
   ? DATA[number]
   : DATA extends DataGenerator<DataItem>
     ? Awaited<ReturnType<DATA>>[number]
-    : never;
+    : DATA extends Dataset<DataGenerator<DataItem>>
+      ? Awaited<ReturnType<DATA['data']>>[number]
+      : never;

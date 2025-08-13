@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { createFile, fileExists, type SafeResultStatus } from '#/lib/utils';
+import { createFile, fileExists, type SafeResultStatus } from '@viteval/internal';
 
 const TEMPLATES_DIR = import.meta.dirname;
 
