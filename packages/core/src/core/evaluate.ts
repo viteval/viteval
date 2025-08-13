@@ -1,8 +1,8 @@
 import { match } from 'ts-pattern';
 import { afterAll, assert, beforeAll, describe, test } from 'vitest';
 import { getConfig } from '#/config/utils';
-import { initializeProvider } from '#/internals/provider';
 import { resolve } from '#/internals/utils';
+import { initializeProvider } from '#/provider/initialize';
 import {
   getMeanScore,
   getMedianScore,

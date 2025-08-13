@@ -1,5 +1,5 @@
 {
-  "name": "core",
+  "name": "@tools/core",
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",

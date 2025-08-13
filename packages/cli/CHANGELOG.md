@@ -6,6 +6,7 @@
 
 - Updated dependencies [ce74986]
   - @viteval/core@0.0.3
+  - @viteval/internal@0.0.3
 
 ## 0.0.2
 

@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Logger } from "../logger/types";
-import { deepClone, hasKey } from "./objects";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Logger } from '../logger/types';
+import { deepClone, hasKey } from './objects';
 
 // Mock logger
 const mockLogger: Logger = {
@@ -17,22 +17,22 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("deepClone", () => {
-  it("should deep clone a simple object", () => {
-    const original = { a: 1, b: "test", c: true };
+describe('deepClone', () => {
+  it('should deep clone a simple object', () => {
+    const original = { a: 1, b: 'test', c: true };
     const cloned = deepClone(original);
 
     expect(cloned).toEqual(original);
     expect(cloned).not.toBe(original);
   });
 
-  it("should deep clone nested objects", () => {
+  it('should deep clone nested objects', () => {
     const original = {
       a: 1,
       b: {
         c: 2,
         d: {
-          e: "nested",
+          e: 'nested',
           f: [1, 2, 3],
         },
       },
@@ -46,7 +46,7 @@ describe("deepClone", () => {
     expect(cloned.b.d.f).not.toBe(original.b.d.f);
   });
 
-  it("should deep clone arrays", () => {
+  it('should deep clone arrays', () => {
     const original = [1, 2, { a: 3 }, [4, 5]];
     const cloned = deepClone(original);
 
@@ -56,75 +56,75 @@ describe("deepClone", () => {
     expect(cloned[3]).not.toBe(original[3]);
   });
 
-  it("should handle primitive values", () => {
+  it('should handle primitive values', () => {
     expect(deepClone(42)).toBe(42);
-    expect(deepClone("string")).toBe("string");
+    expect(deepClone('string')).toBe('string');
     expect(deepClone(true)).toBe(true);
     expect(deepClone(null)).toBe(null);
     expect(deepClone(undefined)).toBe(undefined);
   });
 
-  it("should handle Date objects", () => {
-    const date = new Date("2023-01-01");
+  it('should handle Date objects', () => {
+    const date = new Date('2023-01-01');
     const cloned = deepClone(date);
 
     expect(cloned).toEqual(date.toISOString());
   });
 
-  it("should handle objects with Date properties", () => {
+  it('should handle objects with Date properties', () => {
     const original = {
-      timestamp: new Date("2023-01-01"),
-      name: "test",
+      timestamp: new Date('2023-01-01'),
+      name: 'test',
     };
     const cloned = deepClone(original);
 
-    expect(cloned.timestamp).toBe("2023-01-01T00:00:00.000Z");
-    expect(cloned.name).toBe("test");
+    expect(cloned.timestamp).toBe('2023-01-01T00:00:00.000Z');
+    expect(cloned.name).toBe('test');
   });
 
-  it("should fallback to shallow clone when JSON serialization fails", () => {
+  it('should fallback to shallow clone when JSON serialization fails', () => {
     const circular: any = { a: 1 };
     circular.circular = circular;
 
     const cloned = deepClone(circular, mockLogger);
 
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      "Failed to deep clone object, using shallow clone",
-      { error: expect.any(TypeError) },
+      'Failed to deep clone object, using shallow clone',
+      { error: expect.any(TypeError) }
     );
     expect(cloned.a).toBe(1);
     expect(cloned.circular).toBe(circular); // Shallow clone reference
   });
 
-  it("should handle objects with functions (they get removed in JSON serialization)", () => {
+  it('should handle objects with functions (they get removed in JSON serialization)', () => {
     const original = {
       a: 1,
-      fn: () => "test",
-      b: "string",
+      fn: () => 'test',
+      b: 'string',
     };
     const cloned = deepClone(original);
 
     expect(cloned.a).toBe(1);
-    expect(cloned.b).toBe("string");
+    expect(cloned.b).toBe('string');
     expect(cloned.fn).toBeUndefined();
   });
 
-  it("should handle empty objects and arrays", () => {
+  it('should handle empty objects and arrays', () => {
     expect(deepClone({})).toEqual({});
     expect(deepClone([])).toEqual([]);
   });
 
-  it("should handle complex nested structures", () => {
+  it('should handle complex nested structures', () => {
     const original = {
       users: [
-        { id: 1, name: "John", profile: { age: 30, active: true } },
-        { id: 2, name: "Jane", profile: { age: 25, active: false } },
+        { id: 1, name: 'John', profile: { age: 30, active: true } },
+        { id: 2, name: 'Jane', profile: { age: 25, active: false } },
       ],
       metadata: {
         count: 2,
-        filters: ["active", "inactive"],
+        filters: ['active', 'inactive'],
         settings: {
-          theme: "dark",
+          theme: 'dark',
           notifications: true,
         },
       },
@@ -140,11 +140,11 @@ describe("deepClone", () => {
     expect(cloned.metadata.settings).not.toBe(original.metadata.settings);
   });
 
-  it("should handle objects with Symbol properties", () => {
-    const sym = Symbol("test");
+  it('should handle objects with Symbol properties', () => {
+    const sym = Symbol('test');
     const original = {
       a: 1,
-      [sym]: "symbol value",
+      [sym]: 'symbol value',
     };
 
     // deepClone will lose symbols due to JSON serialization
@@ -153,7 +153,7 @@ describe("deepClone", () => {
     expect(deepCloned[sym]).toBeUndefined();
   });
 
-  it("should handle very large objects efficiently", () => {
+  it('should handle very large objects efficiently', () => {
     const large = {};
     for (let i = 0; i < 1000; i++) {
       (large as any)[`prop${i}`] = {
@@ -171,24 +171,24 @@ describe("deepClone", () => {
   });
 });
 
-describe("hasKey", () => {
-  it("should return true if the object has the key", () => {
+describe('hasKey', () => {
+  it('should return true if the object has the key', () => {
     const obj = { a: 1 };
-    expect(hasKey(obj, "a")).toBe(true);
+    expect(hasKey(obj, 'a')).toBe(true);
   });
 
-  it("should return false if the object does not have the key", () => {
+  it('should return false if the object does not have the key', () => {
     const obj = { a: 1 };
-    expect(hasKey(obj, "b")).toBe(false);
+    expect(hasKey(obj, 'b')).toBe(false);
   });
 
-  it("should return false if the object is null", () => {
+  it('should return false if the object is null', () => {
     const obj = null;
-    expect(hasKey(obj as any, "a")).toBe(false);
+    expect(hasKey(obj as any, 'a')).toBe(false);
   });
 
-  it("should return false if the object is undefined", () => {
+  it('should return false if the object is undefined', () => {
     const obj = undefined;
-    expect(hasKey(obj as any, "a")).toBe(false);
+    expect(hasKey(obj as any, 'a')).toBe(false);
   });
 });

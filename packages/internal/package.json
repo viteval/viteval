@@ -1,6 +1,6 @@
 {
   "name": "@viteval/internal",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Viteval internal - shared utilities for the Viteval ecosystem",
   "license": "MIT",
   "repository": {
@@ -28,8 +28,7 @@
     "dev": "tsup --watch",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test": "vitest --typecheck --passWithNoTests"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
