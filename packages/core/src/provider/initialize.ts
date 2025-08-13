@@ -1,18 +1,7 @@
-import { init } from 'autoevals';
+import { init as initAutoevals } from 'autoevals';
 import { OpenAI } from 'openai';
 import { match, P } from 'ts-pattern';
-
-export type OpenAIClientConfig =
-  | {
-      apiKey: string;
-      project?: string;
-      organization?: string;
-    }
-  | { client: OpenAI };
-
-export interface ProviderConfig {
-  openai: OpenAIClientConfig;
-}
+import type { VitevalProviderConfig } from '#/config/types';
 
 /**
  * Initialize the provider.
@@ -20,7 +9,7 @@ export interface ProviderConfig {
  * @param config - The provider config.
  * @returns The provider client.
  */
-export function initializeProvider(config?: ProviderConfig) {
+export function initializeProvider(config?: VitevalProviderConfig) {
   // If the client is already initialized, return
   if (globalThis.__client) {
     return;
@@ -55,7 +44,7 @@ export function initializeProvider(config?: ProviderConfig) {
   }
 
   // @ts-expect-error - `init` is not typed correctly and using old version of openai
-  return init({ client });
+  initAutoevals({ client });
 }
 
 /*
@@ -64,7 +53,7 @@ export function initializeProvider(config?: ProviderConfig) {
 |------------------
 */
 
-function getProviderConfigFromEnv(): ProviderConfig | null {
+function getProviderConfigFromEnv(): VitevalProviderConfig | null {
   const openaiApiKey = process.env.OPENAI_API_KEY;
 
   if (!openaiApiKey) {

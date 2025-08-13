@@ -1,5 +1,17 @@
+import type { OpenAI } from 'openai';
 import type { UserConfig } from 'vite';
-import type { ProviderConfig } from '#/internals/provider';
+
+export type VitevalProviderOpenAIConfig =
+  | {
+      apiKey: string;
+      project?: string;
+      organization?: string;
+    }
+  | { client: OpenAI };
+
+export interface VitevalProviderConfig {
+  openai: VitevalProviderOpenAIConfig;
+}
 
 export type VitevalReporterBraintrust = {
   type: 'braintrust';
@@ -15,7 +27,7 @@ export interface VitevalConfig {
   /**
    * Provider configuration, used to initialize the provider for usage across the tests and evals (OpenAI ONLY).
    */
-  provider?: ProviderConfig;
+  provider?: VitevalProviderConfig;
   /**
    * Reporter configuration.
    *
