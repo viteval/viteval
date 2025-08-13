@@ -15,45 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  setup:
-    name: "Setup: node, pnpm, & install packages"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    timeout-minutes: 5
-    steps:
-      - name: '⬇️ Checkout Code'        
-        uses: actions/checkout@v4
-
-      - name: '💚 Setup Node'
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          
-      - name: '📋 Setup pnpm'
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-        
-      - name: '🗂️ Cache pnpm Store'
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-            
-      - name: '📁 Cache node_modules'
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }} 
-
-      - name: '📦 Install Packages'
-        run: pnpm install --frozen-lockfile
-
   ci:
-    needs: [setup]
     runs-on: ubuntu-latest
     name: "CI: ${{ matrix.command }}"
     timeout-minutes: 7
@@ -91,6 +53,9 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+        
+      - name: '📦 Install Packages'
+        run: pnpm install --frozen-lockfile
 
       - name: '🔄 Run:${{ matrix.command }}'
         run: pnpm ${{ matrix.command }} 
