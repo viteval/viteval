@@ -1,3 +1,4 @@
+import { match, P } from 'ts-pattern';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import type { VitevalConfig } from './types';
 
@@ -11,6 +12,7 @@ export function defineConfig({
   eval: evalConfig,
   plugins,
   resolve,
+  deps,
   ...config
 }: VitevalConfig) {
   return defineVitestConfig({
@@ -23,6 +25,12 @@ export function defineConfig({
       environment: 'node',
       // We default to a very long timeout for evals since they can be slow
       testTimeout: evalConfig?.timeout ?? 100000,
+      deps: {
+        optimizer: match(deps?.optimizer)
+          .with(P.not(P.nullish), (o) => ({ ssr: o, web: o }))
+          .otherwise(() => undefined),
+        interopDefault: deps?.interopDefault,
+      },
     },
     resolve,
     plugins,
