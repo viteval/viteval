@@ -6,8 +6,8 @@ export default defineConfig({
   dts: false,
   clean: true,
   target: 'es2022',
-  splitting: false,
+  splitting: true,
   sourcemap: true,
-  minify: false,
-  external: ['vitest', 'find-up', 'yargs'],
+  minify: true,
+  external: ['vitest', 'find-up', 'yargs', 'consola'],
 });

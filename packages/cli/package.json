@@ -26,6 +26,7 @@
   "dependencies": {
     "@viteval/core": "workspace:*",
     "@viteval/internal": "workspace:^",
+    "consola": "^3.4.2",
     "find-up": "^7.0.0",
     "yargs": "^18.0.0"
   },

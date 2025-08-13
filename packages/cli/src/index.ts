@@ -1,5 +1,6 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { initCommand } from '#/commands/init';
 import { runCommand } from '#/commands/run';
 
 (async () => {
@@ -7,7 +8,7 @@ import { runCommand } from '#/commands/run';
     .scriptName('viteval')
     .usage('$0 <command> [options]')
     .command(runCommand)
-    // .command(testCommand)
+    .command(initCommand)
     .demandCommand(1, 'You must specify a command')
     .help()
     .alias('help', 'h')

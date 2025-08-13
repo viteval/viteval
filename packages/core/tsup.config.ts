@@ -1,7 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/config/index.ts', 'src/reporters/index.ts'],
+  entry: [
+    'src/index.ts',
+    'src/config/index.ts',
+    // TODO: add reporters
+    // src/reporters/index.ts
+  ],
   format: ['esm'],
   dts: true,
   splitting: false,

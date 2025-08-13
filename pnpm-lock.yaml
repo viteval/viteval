@@ -89,6 +89,9 @@ importers:
       '@viteval/internal':
         specifier: workspace:^
         version: link:../internal
+      consola:
+        specifier: ^3.4.2
+        version: 3.4.2
       find-up:
         specifier: ^7.0.0
         version: 7.0.0
