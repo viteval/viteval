@@ -1,5 +1,6 @@
 import type { OpenAI } from 'openai';
 import type { UserConfig } from 'vite';
+import type { DepsOptimizationOptions } from 'vitest/node';
 
 export type VitevalProviderOpenAIConfig =
   | {
@@ -54,6 +55,18 @@ export interface VitevalConfig {
      * Timeout for evals.
      */
     timeout?: number;
+  };
+  deps: {
+    /**
+     * Whether to use the interopDefault plugin.
+     *
+     * @default true
+     */
+    interopDefault?: boolean;
+    /**
+     * Optimizer options.
+     */
+    optimizer?: DepsOptimizationOptions;
   };
   /**
    * Vite plugins to use.
