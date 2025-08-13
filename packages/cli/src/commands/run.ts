@@ -47,12 +47,14 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
+    console.log(root);
     console.log(configFilePath);
 
     const vitest = await createVitest(
       'test',
       {
         config: configFilePath,
+        root,
       },
       {},
       {}
