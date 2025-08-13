@@ -54,6 +54,7 @@
     "mustache": "^4.2.0",
     "openai": "^4.104.0",
     "ts-pattern": "^5.8.0",
+    "vite-node": "^3.2.4",
     "zod": "^4.0.17"
   },
   "devDependencies": {
