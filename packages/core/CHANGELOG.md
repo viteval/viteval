@@ -1,5 +1,11 @@
 # @viteval/core
 
+## 0.1.1
+
+### Patch Changes
+
+- 98365f5: fix: Fix the runner so it can find underlying lib
+
 ## 0.1.0
 
 ### Minor Changes
