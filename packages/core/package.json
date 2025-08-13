@@ -21,10 +21,6 @@
     "./config": {
       "import": "./dist/config/index.js",
       "types": "./dist/config/index.d.ts"
-    },
-    "./reporters": {
-      "import": "./dist/reporters/index.js",
-      "types": "./dist/reporters/index.d.ts"
     }
   },
   "files": [

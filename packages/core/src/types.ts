@@ -108,13 +108,28 @@ export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
   data: DATA;
 }
 
+export type DatasetGeneratorConfig = {
+  /**
+   * Whether to overwrite the dataset if it already exists.
+   *
+   * @default false
+   */
+  overwrite?: boolean;
+};
+
+export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
+  config?: DatasetGeneratorConfig
+) => Promise<Awaited<ReturnType<DATA_FUNC>>>;
+
 /**
  * A dataset, contains the name, storage and data generator.
  */
 export type Dataset<DATA_FUNC extends DataGenerator> = TF.SetRequired<
   DatasetConfig<DATA_FUNC>,
-  'storage'
->;
+  'storage' | 'data'
+> & {
+  data: DatasetGenerator<DATA_FUNC>;
+};
 
 /**
  * An evaluation configuration.

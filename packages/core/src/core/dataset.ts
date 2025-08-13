@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createFile } from '@viteval/internal';
+import { createFile, fileExists } from '@viteval/internal';
 import { findRoot } from '#/internals/utils';
 import type {
   DataGenerator,
@@ -48,28 +48,26 @@ export function defineDataset<DATA_FUNC extends DataGenerator>(
   return {
     name: config.name,
     storage: finalStorage,
-    data: (async () => {
-      const existingDataset = await loadDataset({
-        name: config.name,
-        storage: finalStorage,
-      });
+    data: (async (c) => {
+      if (c?.overwrite !== true) {
+        const existingDataset = await loadDataset({
+          name: config.name,
+          storage: finalStorage,
+        });
 
-      if (existingDataset) {
-        return existingDataset;
+        if (existingDataset) {
+          return existingDataset;
+        }
       }
 
       const result = await config.data();
-
-      if (finalStorage === 'local') {
-        await saveDataset({
-          name: config.name,
-          storage: finalStorage,
-          data: result,
-        });
-      }
-
+      await saveDataset({
+        name: config.name,
+        storage: finalStorage,
+        data: result,
+      });
       return result;
-    }) as DATA_FUNC,
+    }) as Dataset<DATA_FUNC>['data'],
     // @ts-expect-error - allowed, internal only
     ___viteval_type: 'dataset',
   };
@@ -92,7 +90,17 @@ export async function saveDataset(payload: {
 
   if (storage === 'local') {
     const filePath = getDatasetPath(root, name);
-    await createFile(filePath, JSON.stringify(data, null, 2));
+    await createFile(
+      filePath,
+      JSON.stringify(
+        {
+          timestamp: new Date().toISOString(),
+          data,
+        },
+        null,
+        2
+      )
+    );
   } else {
     throw new Error(`Unsupported storage type: ${storage}`);
   }
@@ -113,8 +121,12 @@ export async function loadDataset(payload: {
 
   if (storage === 'local') {
     const filePath = getDatasetPath(root, name);
+    const exists = await fileExists(filePath);
+    if (!exists) {
+      return null;
+    }
     const data = await readFile(filePath, 'utf-8');
-    return JSON.parse(data);
+    return JSON.parse(data).data;
   }
 
   throw new Error(`Unsupported storage type: ${storage}`);

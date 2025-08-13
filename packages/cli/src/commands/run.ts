@@ -1,5 +1,7 @@
 import path from 'node:path';
+// import { defineConfig } from '@viteval/core/config';
 import { findUp } from 'find-up';
+import { match, P } from 'ts-pattern';
 import { createVitest } from 'vitest/node';
 import type { CommandModule } from 'yargs';
 
@@ -47,8 +49,11 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
-    console.log(root);
-    console.log(configFilePath);
+    // TODO: Add a default config file
+    const defaultConfig = match(configFilePath)
+      .with(P.string, () => ({}))
+      .with(P.nullish, () => ({}))
+      .exhaustive();
 
     const vitest = await createVitest(
       'test',
@@ -56,7 +61,7 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         config: configFilePath,
         root,
       },
-      {},
+      defaultConfig,
       {}
     );
 

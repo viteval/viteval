@@ -1,5 +1,5 @@
 {
-  "name": "@viteval/examples/simple",
+  "name": "@examples/simple",
   "version": "1.0.0",
   "description": "Simple example of using viteval",
   "main": "index.js",

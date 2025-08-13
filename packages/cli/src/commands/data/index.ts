@@ -1,0 +1,1 @@
+export { dataCommand } from './command';

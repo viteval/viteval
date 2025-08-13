@@ -29,6 +29,8 @@
     "@viteval/internal": "workspace:^",
     "consola": "^3.4.2",
     "find-up": "^7.0.0",
+    "glob": "^11.0.3",
+    "jiti": "2.5.1",
     "ts-pattern": "^5.8.0",
     "yargs": "^18.0.0"
   },
