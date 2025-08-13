@@ -1,5 +1,6 @@
 import type { OpenAI } from 'openai';
 import type { UserConfig } from 'vite';
+import type { DebuggerOptions, DepsHandlingOptions } from 'vite-node';
 import type { DepsOptimizationOptions } from 'vitest/node';
 
 export type VitevalProviderOpenAIConfig =
@@ -56,6 +57,26 @@ export interface VitevalConfig {
      */
     timeout?: number;
   };
+  /**
+   * Server configuration.
+   */
+  server?: {
+    /**
+     * Sourcemap options.
+     */
+    sourcemap?: boolean | 'inline';
+    /**
+     * Deps handling options.
+     */
+    deps?: DepsHandlingOptions;
+    /**
+     * Debug options.
+     */
+    debug?: DebuggerOptions;
+  };
+  /**
+   * Configuration for the deps optimizer.
+   */
   deps?: {
     /**
      * Whether to use the interopDefault plugin.

@@ -13,12 +13,14 @@ export function defineConfig({
   plugins,
   resolve,
   deps,
+  server,
   ...config
 }: VitevalConfig) {
   return defineVitestConfig({
     ...config,
     test: {
       ...evalConfig,
+      server,
       provide: {
         config,
       },
