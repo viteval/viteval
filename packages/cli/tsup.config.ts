@@ -10,4 +10,5 @@ export default defineConfig({
   sourcemap: true,
   minify: true,
   external: ['vitest', 'find-up', 'yargs', 'consola'],
+  publicDir: 'src/templates',
 });

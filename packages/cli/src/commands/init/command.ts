@@ -1,13 +1,9 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
+import { match } from 'ts-pattern';
 import type { CommandModule } from 'yargs';
 import { createLogger } from '#/lib/logger';
-import {
-  createFile,
-  fileExists,
-  hasPackageJson,
-  type SafeResultStatus,
-} from '#/lib/utils';
+import { createFile, hasPackageJson } from '#/lib/utils';
+import { createFileFromTemplate } from '#/templates';
 
 export const initCommand: CommandModule<
   unknown,
@@ -45,11 +41,18 @@ export const initCommand: CommandModule<
 
     logger.start('Initializing project...');
 
-    const useEnv =
-      argv.envFile ??
-      (await logger.prompt('Do you want to use .env file? (y/n)', {
-        default: 'y',
-      }));
+    const useEnv = await match(argv.envFile)
+      .with(true, () => 'y')
+      .with(false, () => 'n')
+      .with(
+        undefined,
+        async () =>
+          await logger.prompt('Do you want to use .env file? (y/n)', {
+            default: 'y',
+          })
+      )
+      .exhaustive();
+
     const envFilePath = argv.envFilePath ?? '.env';
 
     if (useEnv === 'y') {
@@ -87,32 +90,3 @@ export const initCommand: CommandModule<
     logger.success('Project initialized successfully');
   },
 };
-
-/*
-|------------------
-| Internals
-|------------------
-*/
-
-async function createFileFromTemplate(
-  filePath: string,
-  template: string
-): Promise<SafeResultStatus<'exists' | 'created' | 'error', null>> {
-  const content = await readTemplateContents(template);
-  if (!content) {
-    return { status: 'error', error: new Error('Template not found') };
-  }
-  return await createFile(filePath, content);
-}
-
-async function readTemplateContents(template: string): Promise<string | null> {
-  const exists = await fileExists(template);
-  if (!exists) {
-    return null;
-  }
-
-  return await fs.readFile(
-    path.join(import.meta.dirname, 'templates', template),
-    'utf-8'
-  );
-}

@@ -28,6 +28,7 @@
     "@viteval/internal": "workspace:^",
     "consola": "^3.4.2",
     "find-up": "^7.0.0",
+    "ts-pattern": "^5.8.0",
     "yargs": "^18.0.0"
   },
   "devDependencies": {

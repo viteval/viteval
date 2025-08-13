@@ -95,6 +95,9 @@ importers:
       find-up:
         specifier: ^7.0.0
         version: 7.0.0
+      ts-pattern:
+        specifier: ^5.8.0
+        version: 5.8.0
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
