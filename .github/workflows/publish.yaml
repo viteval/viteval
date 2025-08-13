@@ -48,7 +48,8 @@ jobs:
           createGithubReleases: true
           publish: pnpm run publish
           version: pnpm run version
-          title: ${{ github.ref_name == 'main' && 'chore(release): publish a new stable version'  || 'chore(release): publish a new pre-release version' }}
+          title: >-
+            ${{ github.ref_name == 'main' && 'chore(release):publish a new stable version' || 'chore(release): publish a new pre-release version' }}
           commit: >-
             ${{ github.ref_name == 'main' && 'chore(release): publish a new stable version' || 'chore(release): publish a new pre-release version' }}
         env:
