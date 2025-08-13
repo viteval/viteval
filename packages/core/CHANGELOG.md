@@ -1,5 +1,12 @@
 # @viteval/core
 
+## 0.0.3
+
+### Patch Changes
+
+- ce74986: feat: Add `resolve` config support and attempt to fix plugin support
+  - @viteval/internal@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes
