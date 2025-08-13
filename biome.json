@@ -34,7 +34,11 @@
         "noUselessElse": "error"
       },
       "suspicious": {
-        "noExplicitAny": "error"
+        "noExplicitAny": "error",
+        "noConsole": "error"
+      },
+      "correctness": {
+        "noUnusedImports": "error"
       }
     }
   },

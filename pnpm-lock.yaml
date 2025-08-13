@@ -162,9 +162,6 @@ importers:
       find-up:
         specifier: ^7.0.0
         version: 7.0.0
-      import-sync:
-        specifier: ^2.2.3
-        version: 2.2.3
       js-levenshtein:
         specifier: ^1.1.6
         version: 1.1.6
@@ -1243,10 +1240,6 @@ packages:
   '@eslint/plugin-kit@0.3.5':
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@httptoolkit/esm@3.3.2':
-    resolution: {integrity: sha512-mpB6FdMtn+c17RA6b6PDdsJXBLHG4P8ZJFK7sjS4IZn689kcOwjt90Ct+oxTaYo9pvCSb/GeTSjYEzoBv+bnbQ==}
-    engines: {node: '>=6'}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3158,9 +3151,6 @@ packages:
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
-
-  import-sync@2.2.3:
-    resolution: {integrity: sha512-ZnF84+eGjetsXwYEuFZADO4eCYr1ngBo6UK476Oq4q6dkiDM1TN+6D5iQ5/e3erCyjo7O6xT3xHE6xdtCgDYhw==}
 
   imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
@@ -5880,8 +5870,6 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@httptoolkit/esm@3.3.2': {}
-
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -8028,10 +8016,6 @@ snapshots:
     dependencies:
       parent-module: 1.0.1
       resolve-from: 4.0.0
-
-  import-sync@2.2.3:
-    dependencies:
-      '@httptoolkit/esm': 3.3.2
 
   imurmurhash@0.1.4: {}
 
