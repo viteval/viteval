@@ -48,7 +48,6 @@
     "chalk": "^5.5.0",
     "compute-cosine-similarity": "^1.1.0",
     "find-up": "^7.0.0",
-    "import-sync": "^2.2.3",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
     "linear-sum-assignment": "^1.0.0",
