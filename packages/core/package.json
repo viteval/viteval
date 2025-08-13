@@ -21,10 +21,6 @@
     "./config": {
       "import": "./dist/config/index.js",
       "types": "./dist/config/index.d.ts"
-    },
-    "./reporters": {
-      "import": "./dist/reporters/index.js",
-      "types": "./dist/reporters/index.d.ts"
     }
   },
   "files": [
@@ -47,6 +43,7 @@
     "autoevals": "^0.0.130",
     "chalk": "^5.5.0",
     "compute-cosine-similarity": "^1.1.0",
+    "find-up": "^7.0.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
     "linear-sum-assignment": "^1.0.0",

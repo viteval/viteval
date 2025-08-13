@@ -12,10 +12,18 @@ export default defineConfig({
   dts: false,
   clean: true,
   target: 'es2022',
-  splitting: true,
+  splitting: false,
   sourcemap: true,
   minify: true,
-  external: ['vitest', 'find-up', 'yargs', 'consola'],
+  external: [
+    'vitest',
+    'find-up',
+    'yargs',
+    'consola',
+    'ts-pattern',
+    // '@viteval/core',
+    // '@viteval/internal',
+  ],
   async onSuccess() {
     const files = await fs.readdir(TEMPLATES_DIR);
     for (const file of files) {

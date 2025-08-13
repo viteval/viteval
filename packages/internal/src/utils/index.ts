@@ -1,4 +1,10 @@
 export {
+  createDirectory,
+  createFile,
+  directoryExists,
+  fileExists,
+} from './filesystem';
+export {
   isArray,
   isEmptyObject,
   isFunction,
@@ -7,3 +13,4 @@ export {
   isPlainObject,
 } from './lang';
 export { hasKey } from './objects';
+export { type SafeResultStatus, wrapSafe } from './safe';

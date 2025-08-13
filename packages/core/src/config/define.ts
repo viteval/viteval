@@ -25,7 +25,6 @@ export function defineConfig({
       testTimeout: evalConfig?.timeout ?? 100000,
     },
     resolve,
-    // @ts-expect-error - TODO: fix this
     plugins,
   });
 }

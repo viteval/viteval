@@ -1,8 +1,9 @@
 import path from 'node:path';
+import { createFile } from '@viteval/internal';
 import { match } from 'ts-pattern';
 import type { CommandModule } from 'yargs';
 import { createLogger } from '#/lib/logger';
-import { createFile, hasPackageJson } from '#/lib/utils';
+import { hasPackageJson } from '#/lib/utils';
 import { createFileFromTemplate } from '#/templates';
 
 export const initCommand: CommandModule<

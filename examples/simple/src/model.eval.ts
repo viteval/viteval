@@ -1,4 +1,5 @@
 import { evaluate, scorers } from 'viteval';
+import exampleDataset from './model.dataset';
 
 evaluate('A test eval', {
   description: 'Generate a random number between 0 and 100',
@@ -6,14 +7,5 @@ evaluate('A test eval', {
     return 1;
   },
   scorers: [scorers.exactMatch],
-  data: [
-    {
-      input: 'Generate a random number between 0 and 100',
-      expected: 1,
-    },
-    {
-      input: 'Generate a random number between 0 and 100',
-      expected: 2,
-    },
-  ],
+  data: exampleDataset,
 });

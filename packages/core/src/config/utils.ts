@@ -1,12 +1,16 @@
-import { inject } from 'vitest';
-import type { VitevalConfig } from './types';
+import { findUp } from 'find-up';
 
 /**
- * Get the viteval config from the inject context.
+ * Find the viteval config file in the current working directory or a given root.
  *
- * @returns The viteval config.
+ * @param root - The root directory to search for the config file.
+ * @returns The path to the config file.
  */
-export function getConfig(): VitevalConfig {
-  // @ts-expect-error - this is valid
-  return inject('config') as VitevalConfig;
+export function findConfigFile(root: string) {
+  return findUp(
+    ['ts', 'js', 'mts', 'mjs'].map((ext) => `viteval.config.${ext}`),
+    {
+      cwd: root,
+    }
+  );
 }
