@@ -34,7 +34,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest",
+    "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check . && biome format --check .",
     "fix": "biome check --write . && biome format --write .",
     "validate": "pnpm check && pnpm test && pnpm build"

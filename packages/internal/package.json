@@ -28,8 +28,7 @@
     "dev": "tsup --watch",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test": "vitest --typecheck --passWithNoTests"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
