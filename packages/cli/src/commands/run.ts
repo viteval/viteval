@@ -47,6 +47,8 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
+    console.log(configFilePath);
+
     const vitest = await createVitest(
       'test',
       {

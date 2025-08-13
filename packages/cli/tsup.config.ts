@@ -12,7 +12,7 @@ export default defineConfig({
   dts: false,
   clean: true,
   target: 'es2022',
-  splitting: true,
+  splitting: false,
   sourcemap: true,
   minify: true,
   external: ['vitest', 'find-up', 'yargs', 'consola'],
