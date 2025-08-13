@@ -56,7 +56,7 @@ export interface VitevalConfig {
      */
     timeout?: number;
   };
-  deps: {
+  deps?: {
     /**
      * Whether to use the interopDefault plugin.
      *
