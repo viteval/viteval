@@ -96,7 +96,7 @@ You can define datasets in your codebase and run them with the `viteval data` co
 import { defineDataset } from 'viteval/dataset';
 
 const dataset = defineDataset({
-   name: 'color-questions',
+  name: 'color-questions',
   data: async () => {
     const results = [];
     for (let i = 0; i < 100; i++) {
