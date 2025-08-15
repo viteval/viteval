@@ -1,6 +1,6 @@
 <p align="center">
-<a href="https://vitest.dev">
-<img src="./assets/viteval-icon.png" height="200">
+<a href="https://viteval.dev">
+<img src="./github/assets/viteval-icon.png" height="200">
 </a>
 </p>
 
@@ -8,7 +8,7 @@
 Viteval
 </h1>
 <p align="center">
-AI Evals combined with Vitest into one framework!
+Next generation LLM evaluation framework powered by Vitest.
 <p>
 <p align="center">
   <a href="https://www.npmjs.com/package/viteval"><img src="https://img.shields.io/npm/v/viteval?color=BE54F5&label="></a>

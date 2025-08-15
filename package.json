@@ -12,7 +12,10 @@
     "fix": "biome check --write .",
     "publish": "pnpm run build && pnpm changeset publish",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
-    "validate": "nx run-many -t validate"
+    "validate": "nx run-many -t validate",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
