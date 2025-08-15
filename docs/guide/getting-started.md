@@ -147,4 +147,4 @@ Now that you have your first evaluation running:
 - [Learn about core concepts](/guide/concepts) like datasets, scorers, and tasks
 - [Explore the CLI options](/guide/cli) for different use cases
 - [Check out examples](/examples/) for more complex scenarios
-- [Set up CI/CD integration](/guide/cicd) to run evaluations automatically
+- [Set up CI integration](/guide/advanced/ci) to run evaluations automatically
