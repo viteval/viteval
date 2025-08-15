@@ -1,7 +1,7 @@
 {
   "name": "viteval-workspace",
   "version": "1.0.0",
-  "description": "LLM evaluation framework workspace - contains core, CLI, and main viteval packages",
+  "description": "Next generation LLM evaluation framework powered by Vitest.",
   "private": true,
   "scripts": {
     "build": "nx run-many -t build --parallel --projects=packages/*",

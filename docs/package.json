@@ -1,0 +1,28 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "Documentation for Viteval",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "keywords": [
+    "viteval",
+    "llm",
+    "evaluation",
+    "testing",
+    "vitest"
+  ],
+  "author": "viteval team",
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0",
+  "dependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-group-icons": "^1.6.3",
+    "vitepress-plugin-llms": "^1.7.3"
+  }
+}

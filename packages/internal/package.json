@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zrosenbauer/viteval"
+    "url": "https://github.com/viteval/viteval"
   },
   "bugs": {
-    "url": "https://github.com/zrosenbauer/viteval/issues"
+    "url": "https://github.com/viteval/viteval/issues"
   },
-  "homepage": "https://github.com/zrosenbauer/viteval#readme",
+  "homepage": "https://github.com/viteval/viteval#readme",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
