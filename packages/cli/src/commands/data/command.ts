@@ -28,29 +28,35 @@ export const dataCommand: CommandModule<unknown, { pattern: string }> = {
 
     const rootPath = path.dirname(configFilePath);
     const tsConfig = await readTsConfig(rootPath);
-    const aliases = getAliases(tsConfig);
+    const aliases = getAliases(rootPath, tsConfig);
 
     const datasets = await glob(argv.pattern, {
       cwd: rootPath,
     });
 
-    const jiti = createJiti(`file:${configFilePath}`, {
+    const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
       fsCache: false,
       moduleCache: false,
-      extensions: ['ts', 'js', 'mts', 'mjs'],
       interopDefault: true,
+      sourceMaps: true,
       alias: {
         ...aliases,
       },
       transformOptions: {
+        filename: '',
         ts: true,
       },
     });
 
     const mods: Mod[] = [];
     for (const dataset of datasets) {
-      const datasetFn = await jiti.import<Mod>(path.join(rootPath, dataset), {
+      const resolvedPath = jiti.esmResolve(
+        path.join(rootPath, dataset),
+        rootPath
+      );
+      const datasetFn = await jiti.import<Mod>(resolvedPath, {
         default: true,
+        try: true,
       });
       mods.push(datasetFn);
     }
@@ -90,15 +96,18 @@ export const dataCommand: CommandModule<unknown, { pattern: string }> = {
 
 type Mod = Dataset<() => Promise<DataItem[]>>;
 
-function getAliases(tsConfig?: TsConfigJson | null): Record<string, string> {
+function getAliases(
+  rootPath: string,
+  tsConfig?: TsConfigJson | null
+): Record<string, string> {
   if (!tsConfig?.compilerOptions?.paths) {
     return {};
   }
 
   return Object.fromEntries(
     Object.entries(tsConfig.compilerOptions.paths).map(([key, value]) => [
-      key,
-      value[0],
+      key.replace('/*', ''),
+      path.join(rootPath, value[0].replace('/*', '')),
     ])
   );
 }

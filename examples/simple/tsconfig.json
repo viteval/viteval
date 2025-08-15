@@ -16,9 +16,20 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "#/*": ["./src/*"]
+      "#nested/*": [
+        "./src/nested/*"
+      ],
+      "#/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ]
 }
