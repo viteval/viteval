@@ -4,11 +4,6 @@
     "composite": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.eval.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts", "**/*.eval.ts"]
 }
