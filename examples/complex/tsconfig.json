@@ -16,7 +16,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "node",
+      "node"
     ],
     "paths": {
       "#models/*": [

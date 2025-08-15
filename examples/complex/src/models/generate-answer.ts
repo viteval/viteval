@@ -1,6 +1,6 @@
-import { openai } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 import type { Category } from '#/lib/categories';
+import { openai } from '#/lib/client';
 import { questionPrompt } from '#/lib/prompts';
 
 /**
