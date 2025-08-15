@@ -39,7 +39,7 @@ export function defineConfig({
         .otherwise(() => undefined),
     },
     resolve,
-    // @ts-expect-error - TODO: fix this
-    plugins,
+    // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
+    plugins: plugins as any,
   });
 }
