@@ -13,7 +13,7 @@ export const initCommand: CommandModule<
     envFilePath?: string;
   }
 > = {
-  command: 'init',
+  command: 'init [options]',
   describe: 'Initialize a new project',
   builder: (yargs) => {
     return yargs

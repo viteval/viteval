@@ -1,6 +1,12 @@
-# Built-in Scorers
+# `scorers`
 
-Viteval provides a comprehensive set of pre-built scorers for common evaluation scenarios.
+Viteval provides a comprehensive set of pre-built scorers for common evaluation scenarios, powered by the `autoevals` library.
+
+## Import
+
+```ts
+import { scorers } from 'viteval';
+```
 
 ## Text Similarity
 
@@ -9,8 +15,6 @@ Viteval provides a comprehensive set of pre-built scorers for common evaluation 
 Returns 1 if output exactly matches expected, 0 otherwise.
 
 ```ts
-import { scorers } from 'viteval';
-
 scorers.exactMatch
 ```
 
@@ -67,6 +71,22 @@ scorers.answerSimilarity
 // Expected: "Paris is France's capital city"
 // Score: ~0.95 (same meaning, different wording)
 ```
+
+### `embeddingSimilarity`
+
+Measures semantic similarity using embeddings.
+
+```ts
+scorers.embeddingSimilarity
+```
+
+**Range**: 0.0 - 1.0  
+**Use cases**: Semantic search, content matching
+
+**Features**:
+- Uses state-of-the-art embedding models
+- Captures semantic meaning beyond keywords
+- Language-agnostic comparison
 
 ## Content Quality
 
@@ -321,24 +341,6 @@ scorers.listContains
 // Score: 0.5 (contains half of expected items)
 ```
 
-## Advanced Similarity
-
-### `embeddingSimilarity`
-
-Measures semantic similarity using embeddings.
-
-```ts
-scorers.embeddingSimilarity
-```
-
-**Range**: 0.0 - 1.0  
-**Use cases**: Semantic search, content matching
-
-**Features**:
-- Uses state-of-the-art embedding models
-- Captures semantic meaning beyond keywords
-- Language-agnostic comparison
-
 ## Specialized Scorers
 
 ### `possible`
@@ -379,118 +381,3 @@ scorers.humor
 - Cleverness
 - Timing
 
-## Usage Examples
-
-### Single Scorer
-
-```ts
-evaluate('Color test', {
-  data: async () => [
-    { input: "What color is the sky?", expected: "Blue" }
-  ],
-  task: async (input) => await generateAnswer(input),
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
-});
-```
-
-### Multiple Scorers
-
-```ts
-evaluate('Comprehensive QA', {
-  data: async () => loadQAData(),
-  task: async (input) => await answerQuestion(input),
-  scorers: [
-    scorers.factual,          // Must be factually correct
-    scorers.answerRelevancy,  // Must be relevant to question
-    scorers.moderation,       // Must be safe content
-  ],
-  threshold: 0.85, // Average across all three scorers
-});
-```
-
-### Domain-Specific Evaluation
-
-```ts
-// For code generation
-evaluate('Code generation', {
-  scorers: [
-    scorers.exactMatch,    // Exact syntax match
-    scorers.sql,          // If generating SQL
-  ],
-  // ...
-});
-
-// For creative writing  
-evaluate('Story generation', {
-  scorers: [
-    scorers.answerSimilarity, // Semantic quality
-    scorers.humor,           // If humor is desired
-    scorers.moderation,      // Content safety
-  ],
-  // ...
-});
-
-// For translations
-evaluate('Translation quality', {
-  scorers: [
-    scorers.translation,     // Translation accuracy
-    scorers.answerSimilarity, // Semantic preservation
-  ],
-  // ...
-});
-```
-
-## Scorer Configuration
-
-Some scorers accept configuration options:
-
-```ts
-// Configure embedding model for similarity
-const customSimilarity = scorers.embeddingSimilarity.configure({
-  model: 'text-embedding-3-large',
-  threshold: 0.85,
-});
-
-// Configure moderation categories
-const strictModeration = scorers.moderation.configure({
-  categories: ['hate', 'violence', 'self-harm'],
-  threshold: 0.1, // Very strict
-});
-```
-
-## Best Practices
-
-### Choosing Scorers
-
-- **Exact outputs**: Use `exactMatch` for code, structured data
-- **Approximate text**: Use `levenshtein` for typo tolerance  
-- **Semantic meaning**: Use `answerSimilarity` for paraphrasing
-- **Factual content**: Use `factual` for knowledge-based tasks
-- **Safety-critical**: Always include `moderation` for user-facing content
-
-### Combining Scorers
-
-```ts
-// Balanced evaluation
-scorers: [
-  scorers.factual,         // 33% - correctness
-  scorers.answerSimilarity, // 33% - semantic quality  
-  scorers.moderation,      // 33% - safety
-]
-
-// Weighted by importance (using custom composite scorer)
-const weightedScorer = createCompositeScorer([
-  scorers.factual,
-  scorers.answerSimilarity,
-  scorers.moderation,
-], [0.5, 0.3, 0.2]); // 50% correctness, 30% quality, 20% safety
-```
-
-### Performance Considerations
-
-- **Fast scorers**: `exactMatch`, `levenshtein`, `numericDiff`
-- **Medium speed**: `jsonDiff`, `listContains`, `sql`
-- **Slower scorers**: `factual`, `answerSimilarity`, `moderation` (use AI models)
-
-For high-volume evaluations, consider using faster scorers for initial filtering, then applying slower scorers to a subset.

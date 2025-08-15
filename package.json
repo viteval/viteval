@@ -1,21 +1,18 @@
 {
   "name": "viteval-workspace",
   "version": "1.0.0",
-  "description": "LLM evaluation framework workspace - contains core, CLI, and main viteval packages",
+  "description": "Next generation LLM evaluation framework powered by Vitest.",
   "private": true,
   "scripts": {
-    "build": "nx run-many -t build",
-    "dev": "nx run-many -t dev",
-    "test": "nx run-many -t test",
-    "types": "nx run-many -t types",
-    "check": "biome check .",
-    "fix": "biome check --write .",
+    "build": "nx run-many -t build --parallel --projects=packages/*",
+    "dev": "nx run-many -t dev --parallel --projects=packages/*",
+    "test": "nx run-many -t test --parallel --projects=packages/*",
+    "types": "nx run-many -t types --parallel --projects=packages/*",
+    "check": "nx run-many -t check",
+    "fix": "nx run-many -t fix",
     "publish": "pnpm run build && pnpm changeset publish",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
-    "validate": "nx run-many -t validate",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "validate": "nx run-many -t validate --parallel --projects=packages/*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
@@ -41,7 +38,6 @@
     "tsup": "^8.5.0",
     "typescript": "~5.9.2",
     "vite": "^7.1.2",
-    "vitepress": "^1.6.4",
     "vitest": "^3.2.4"
   },
   "engines": {

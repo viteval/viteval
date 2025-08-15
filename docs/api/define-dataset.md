@@ -1,31 +1,50 @@
-# defineDataset()
+# `defineDataset()`
 
 The `defineDataset()` function creates reusable datasets that can be shared across multiple evaluations.
+
+## Import
+
+```ts
+import { defineDataset } from 'viteval/dataset';
+```
 
 ## Signature
 
 ```ts
-function defineDataset<T = string>(
-  options: DatasetOptions<T>
-): Dataset<T>
+function defineDataset<DATA_FUNC extends DataGenerator>(
+  config: DatasetConfig<DATA_FUNC>
+): Dataset<DATA_FUNC>
 ```
 
 ## Parameters
 
-### `options`
-- **Type**: `DatasetOptions<T>`
+### `config`
+- **Type**: `DatasetConfig<DATA_FUNC>`
 - **Required**: Yes
 - **Description**: Configuration object for the dataset
 
-## DatasetOptions
+## DatasetConfig
 
 ```ts
-interface DatasetOptions<T = string> {
+interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
+  /**
+   * The storage type of the dataset.
+   *
+   * @default 'local'
+   */
+  storage?: DatasetStorage;
+  /**
+   * The name of the dataset.
+   */
   name: string;
-  data: () => Promise<TestCase<T>[]> | TestCase<T>[];
-  cache?: boolean;
-  version?: string;
-  metadata?: Record<string, any>;
+  /**
+   * The description of the dataset.
+   */
+  description?: string;
+  /**
+   * The data generator of the dataset.
+   */
+  data: DATA;
 }
 ```
 
@@ -47,7 +66,7 @@ defineDataset({
 
 Function that generates or loads the dataset.
 
-**Type**: `() => Promise<TestCase<T>[]> | TestCase<T>[]`  
+**Type**: `() => Promise<DataItem<INPUT, OUTPUT, EXTRA>[]>`  
 **Required**: Yes
 
 ```ts
@@ -74,324 +93,85 @@ data: async () => {
       expected: String(a + b),
     });
   }
-  return problems;
+    return problems;
 }
 ```
 
-### `cache` (optional)
+### `storage` (optional)
 
-Whether to cache the dataset after first generation.
+The storage type for the dataset.
 
-**Type**: `boolean`  
-**Default**: `true`
+**Type**: `DatasetStorage`  
+**Default**: `'local'`
 
 ```ts
-// Cache the dataset (default)
-cache: true
+// Local file storage (default)
+storage: 'local'
 
-// Always regenerate
-cache: false
+// Memory storage (not persisted)
+storage: 'memory'
 ```
 
-### `version` (optional)
+### `description` (optional)
 
-Version identifier for the dataset.
+A description of the dataset.
 
 **Type**: `string`
 
 ```ts
-version: '1.2.0'
+description: 'Math problems for basic arithmetic evaluation'
 ```
 
-### `metadata` (optional)
+## DataItem Interface
 
-Additional information about the dataset.
-
-**Type**: `Record<string, any>`
+The data function should return an array of `DataItem` objects:
 
 ```ts
-metadata: {
-  description: 'Math problems for basic arithmetic',
-  author: 'math-team@company.com',
-  size: 1000,
-  difficulty: 'easy',
-}
+type DataItem<
+  INPUT = unknown,
+  OUTPUT = unknown,
+  EXTRA extends Extra = Extra,
+> = TF.Merge<
+  EXTRA,
+  {
+    name?: string;
+    input: INPUT;
+    expected?: OUTPUT;
+  }
+>;
+```
+
+Where `Extra` is:
+```ts
+type Extra = Record<string, unknown>;
 ```
 
 ## Return Value
 
-Returns a `Dataset<T>` object:
+Returns a `Dataset<DATA_FUNC>` object:
 
 ```ts
-interface Dataset<T> {
-  name: string;
-  data(): Promise<TestCase<T>[]>;
-  metadata?: Record<string, any>;
-  version?: string;
-}
+type Dataset<DATA_FUNC extends DataGenerator> = TF.SetRequired<
+  DatasetConfig<DATA_FUNC>,
+  'storage' | 'data'
+> & {
+  data: DatasetGenerator<DATA_FUNC>;
+};
 ```
 
-## Usage in Evaluations
+The `data` property is a function that can be called with optional configuration:
 
 ```ts
-import { defineDataset } from 'viteval/dataset';
-import { evaluate, scorers } from 'viteval';
+type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
+  config?: DatasetGeneratorConfig
+) => Promise<Awaited<ReturnType<DATA_FUNC>>>;
 
-// Define the dataset
-const mathDataset = defineDataset({
-  name: 'basic-math',
-  data: async () => [
-    { input: "2 + 2", expected: "4" },
-    { input: "5 - 3", expected: "2" },
-    { input: "4 * 3", expected: "12" },
-  ],
-});
-
-// Use in evaluation
-evaluate('Math solver', {
-  data: () => mathDataset.data(),
-  task: async (input) => await solveMath(input),
-  scorers: [scorers.exactMatch],
-  threshold: 0.9,
-});
-```
-
-## Examples
-
-### Static Dataset
-
-```ts
-const greetingsDataset = defineDataset({
-  name: 'greetings',
-  data: () => [
-    { input: "Hello", expected: "Hi there!" },
-    { input: "Good morning", expected: "Good morning! How can I help?" },
-    { input: "Goodbye", expected: "Goodbye! Have a great day!" },
-  ],
-  metadata: {
-    language: 'english',
-    type: 'conversational',
-  },
-});
-```
-
-### Generated Dataset
-
-```ts
-const randomQuestionsDataset = defineDataset({
-  name: 'random-questions',
-  data: async () => {
-    const questions = [];
-    const topics = ['science', 'history', 'math', 'literature'];
-    
-    for (let i = 0; i < 500; i++) {
-      const topic = topics[Math.floor(Math.random() * topics.length)];
-      const question = await generateQuestion(topic);
-      const answer = await generateAnswer(question);
-      
-      questions.push({
-        input: question,
-        expected: answer,
-        metadata: { topic, generated: true },
-      });
-    }
-    
-    return questions;
-  },
-  cache: true, // Cache since generation is expensive
-  version: '2.1.0',
-});
-```
-
-### API-Based Dataset
-
-```ts
-const customerQuestionsDataset = defineDataset({
-  name: 'customer-questions',
-  data: async () => {
-    const response = await fetch('https://api.company.com/support/questions', {
-      headers: {
-        'Authorization': `Bearer ${process.env.API_TOKEN}`,
-      },
-    });
-    
-    const data = await response.json();
-    
-    return data.questions.map(q => ({
-      input: q.question,
-      expected: q.approved_answer,
-      metadata: {
-        category: q.category,
-        difficulty: q.difficulty,
-        timestamp: q.created_at,
-      },
-    }));
-  },
-  cache: false, // Don't cache as data changes frequently
-});
-```
-
-### Complex Input Dataset
-
-```ts
-interface ChatContext {
-  messages: Array<{ role: string; content: string }>;
-  expectedResponse: string;
-}
-
-const chatDataset = defineDataset<ChatContext>({
-  name: 'chat-conversations',
-  data: async () => [
-    {
-      input: {
-        messages: [
-          { role: 'user', content: 'What is the weather like?' },
-          { role: 'assistant', content: 'I need your location to check the weather.' },
-          { role: 'user', content: 'San Francisco' },
-        ],
-        expectedResponse: 'Currently in San Francisco it is sunny and 72°F.',
-      },
-      expected: 'Currently in San Francisco it is sunny and 72°F.',
-    },
-  ],
-});
-```
-
-## Dataset Management
-
-### CLI Integration
-
-Generate datasets using the CLI:
-
-```bash
-# Generate all datasets
-viteval data
-
-# Generate specific dataset
-viteval data --name "math-problems"
-
-# Force regeneration (ignore cache)
-viteval data --force --name "customer-questions"
-
-# List all datasets
-viteval data --list
-```
-
-### Programmatic Access
-
-```ts
-// Access dataset info
-console.log(mathDataset.name);      // "basic-math"
-console.log(mathDataset.metadata);  // { description: "...", ... }
-
-// Get data
-const testCases = await mathDataset.data();
-console.log(testCases.length);      // Number of test cases
-```
-
-## Best Practices
-
-### Naming Convention
-
-```ts
-// Good: descriptive, kebab-case
-defineDataset({ name: 'customer-support-questions' });
-defineDataset({ name: 'code-generation-tasks' });
-
-// Avoid: generic or unclear names
-defineDataset({ name: 'data' });
-defineDataset({ name: 'test' });
-```
-
-### Caching Strategy
-
-```ts
-// Cache expensive operations
-defineDataset({
-  name: 'llm-generated-data',
-  data: async () => await generateWithLLM(), // Expensive
-  cache: true,
-});
-
-// Don't cache frequently changing data
-defineDataset({
-  name: 'live-user-queries',
-  data: async () => await fetchLatestQueries(), // Changes often
-  cache: false,
-});
-```
-
-### Versioning
-
-```ts
-// Version datasets when structure changes
-defineDataset({
-  name: 'product-descriptions',
-  version: '2.0.0', // Updated to include new fields
-  data: async () => loadProductData(),
-});
-```
-
-### Error Handling
-
-```ts
-defineDataset({
-  name: 'external-data',
-  data: async () => {
-    try {
-      return await fetchExternalData();
-    } catch (error) {
-      console.warn('Failed to fetch external data, using fallback');
-      return await loadFallbackData();
-    }
-  },
-});
-```
-
-## Common Patterns
-
-### Combining Datasets
-
-```ts
-const combinedDataset = defineDataset({
-  name: 'all-questions',
-  data: async () => {
-    const [math, science, history] = await Promise.all([
-      mathDataset.data(),
-      scienceDataset.data(),
-      historyDataset.data(),
-    ]);
-    
-    return [...math, ...science, ...history];
-  },
-});
-```
-
-### Filtered Datasets
-
-```ts
-const easyMathDataset = defineDataset({
-  name: 'easy-math',
-  data: async () => {
-    const allMath = await mathDataset.data();
-    return allMath.filter(item => 
-      item.metadata?.difficulty === 'easy'
-    );
-  },
-});
-```
-
-### Parameterized Datasets
-
-```ts
-function createMathDataset(operation: string, count: number) {
-  return defineDataset({
-    name: `math-${operation}`,
-    data: async () => generateMathProblems(operation, count),
-    metadata: { operation, count },
-  });
-}
-
-const additionDataset = createMathDataset('addition', 100);
-const multiplicationDataset = createMathDataset('multiplication', 50);
+type DatasetGeneratorConfig = {
+  /**
+   * Whether to overwrite the dataset if it already exists.
+   *
+   * @default false
+   */
+  overwrite?: boolean;
+};
 ```

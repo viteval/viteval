@@ -1,18 +1,24 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
-  entry: [
-    'src/index.ts',
-    'src/config/index.ts',
-    'src/dataset/index.ts',
-    // TODO: add reporters
-    // src/reporters/index.ts
-  ],
+const baseConfig = defineConfig({
   format: ['esm'],
   dts: true,
   splitting: false,
   sourcemap: true,
-  clean: true,
   treeshake: true,
   external: ['vitest', 'openai', 'autoevals'],
 });
+
+export default defineConfig(
+  [
+    { entry: 'src/index.ts', outDir: 'dist/main' },
+    { entry: 'src/config/index.ts', outDir: 'dist/config' },
+    { entry: 'src/dataset/index.ts', outDir: 'dist/dataset' },
+    // TODO: add reporters
+    // src/reporters/index.ts
+  ].map(({ entry, outDir }) => ({
+    ...baseConfig,
+    entry: [entry],
+    outDir,
+  }))
+);

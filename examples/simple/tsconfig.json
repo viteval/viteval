@@ -16,7 +16,6 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "#nested/*": ["./src/nested/*"],
       "#/*": ["./src/*"]
     }
   },

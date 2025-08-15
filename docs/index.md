@@ -18,27 +18,18 @@ hero:
       link: /examples/
 
 features:
-  - title: Vitest-like API
+  - title: Powered by Vitest
     details: Define and run evaluations the same way you run tests, with a familiar and intuitive interface
     icon: ⚡
-  - title: Local & Remote Datasets
-    details: Create datasets locally or pull from databases, APIs, and external sources with built-in caching
-    icon: 📊
-  - title: Flexible Scoring
-    details: Use built-in scorers for common tasks or create custom scoring functions for specific needs
-    icon: 🎯
+  - title: Fully Featured
+    details: Run evals, create datasets, and more with everything you need out of the box
+    icon: ✅
   - title: CI/CD Ready
     details: Integrate seamlessly into your CI pipeline and run evaluations alongside your tests
     icon: 🔄
-  - title: Comprehensive Scorers
-    details: 15+ built-in scorers including factual accuracy, similarity, moderation, and custom options
-    icon: 📏
-  - title: Developer Experience
-    details: TypeScript support, clear error messages, and detailed reporting for efficient debugging
-    icon: 🛠️
 ---
 
-## Quick Example
+## See it in action
 
 ```ts
 import { evaluate, scorers } from 'viteval';
@@ -56,9 +47,3 @@ evaluate('Color detection', {
   threshold: 0.8,
 });
 ```
-
-```bash
-# Run evaluations
-npx viteval
-```
-

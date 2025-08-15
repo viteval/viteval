@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zrosenbauer/viteval"
+    "url": "https://github.com/viteval/viteval"
   },
   "bugs": {
-    "url": "https://github.com/zrosenbauer/viteval/issues"
+    "url": "https://github.com/viteval/viteval/issues"
   },
-  "homepage": "https://github.com/zrosenbauer/viteval#readme",
+  "homepage": "https://github.com/viteval/viteval#readme",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -27,9 +27,9 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "types": "tsc --noEmit",
+    "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check .",
     "fix": "biome check . --write",
-    "test": "vitest --typecheck --passWithNoTests",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "devDependencies": {

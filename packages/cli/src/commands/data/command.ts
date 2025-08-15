@@ -1,95 +1,207 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
+import { ProgressBar } from '@opentf/cli-pbar';
 import type { DataItem, Dataset } from '@viteval/core';
 import { findConfigFile } from '@viteval/core/config';
+import chalk from 'chalk';
 import { glob } from 'glob';
 import { createJiti } from 'jiti';
 import type { TsConfigJson } from 'type-fest';
 import type { CommandModule } from 'yargs';
 import { createLogger } from '#/lib/logger';
+import { hasTSConfig, loadTSConfig, loadVitevalConfig } from '#/lib/utils';
 
-export const dataCommand: CommandModule<unknown, { pattern: string }> = {
+export const dataCommand: CommandModule<
+  unknown,
+  { pattern: string; overwrite?: boolean; verbose?: boolean }
+> = {
   command: 'data [pattern]',
   describe: 'Generate the datasets in your codebase',
   builder: (yargs) => {
-    return yargs.positional('pattern', {
-      describe: 'Dataset file pattern to match',
-      type: 'string',
-      default: '**/*.dataset.{js,ts,mts,mjs}',
-    });
+    return yargs
+      .positional('pattern', {
+        describe: 'Dataset file pattern to match',
+        type: 'string',
+        default: '**/*.dataset.{js,ts,mts,mjs}',
+      })
+      .option('overwrite', {
+        describe: 'Overwrite existing datasets',
+        type: 'boolean',
+        default: true,
+      })
+      .option('verbose', {
+        describe: 'Verbose output',
+        type: 'boolean',
+        default: false,
+      });
   },
   handler: async (argv) => {
-    const configFilePath = await findConfigFile(process.cwd());
     const logger = createLogger();
 
-    if (!configFilePath) {
-      throw new Error('No viteval config file found');
-    }
+    try {
+      const configFilePath = await findConfigFile(process.cwd());
+      if (!configFilePath) {
+        logger.error('No viteval config file found');
+        process.exit(1);
+      }
 
-    const rootPath = path.dirname(configFilePath);
-    const tsConfig = await readTsConfig(rootPath);
-    const aliases = getAliases(rootPath, tsConfig);
+      const rootPath = path.dirname(configFilePath);
+      const tsConfig = await loadTSConfig(rootPath);
+      const aliases = getAliases(rootPath, tsConfig);
+      const vitevalConfig = await loadVitevalConfig(rootPath);
 
-    const datasets = await glob(argv.pattern, {
-      cwd: rootPath,
-    });
+      // If there is a TSConfig but we couldn't load it, throw an error
+      if (!tsConfig && (await hasTSConfig(rootPath))) {
+        logger.error(
+          'Unable to load tsconfig.json file, make sure it is valid JSON'
+        );
+        process.exit(1);
+      }
 
-    const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
-      fsCache: false,
-      moduleCache: false,
-      interopDefault: true,
-      sourceMaps: true,
-      alias: {
-        ...aliases,
-      },
-      transformOptions: {
-        filename: '',
-        ts: true,
-      },
-    });
-
-    const mods: Mod[] = [];
-    for (const dataset of datasets) {
-      const resolvedPath = jiti.esmResolve(
-        path.join(rootPath, dataset),
-        rootPath
-      );
-      const datasetFn = await jiti.import<Mod>(resolvedPath, {
-        default: true,
-        try: true,
+      const datasets = await glob(argv.pattern, {
+        cwd: rootPath,
       });
-      mods.push(datasetFn);
-    }
 
-    const results: {
-      successes: string[];
-      failures: string[];
-    } = {
-      successes: [],
-      failures: [],
-    };
+      const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
+        fsCache: false,
+        moduleCache: false,
+        interopDefault: true,
+        sourceMaps: true,
+        alias: {
+          ...aliases,
+        },
+        transformOptions: {
+          filename: '',
+          ts: true,
+        },
+      });
 
-    await Promise.all(
-      mods.map(async (mod) => {
-        // Just run the data function to generate it
-        try {
-          await mod.data({ overwrite: true });
-          results.successes.push(mod.name);
-        } catch {
-          results.failures.push(mod.name);
+      try {
+        // @ts-expect-error - TODO: fix this
+        if (vitevalConfig?.test?.setupFiles) {
+          await Promise.all(
+            // @ts-expect-error - TODO: fix this
+            vitevalConfig.test.setupFiles.map(async (file) => {
+              const resolvedPath = jiti.esmResolve(
+                path.join(rootPath, file),
+                rootPath
+              );
+              return await jiti.import<Mod>(resolvedPath, {
+                default: true,
+                try: true,
+              });
+            })
+          );
         }
-      })
-    );
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error('Unknown error');
+        logger.error(
+          `Failed loading Viteval setup files${
+            argv.verbose ? `: ${err.message}` : ''
+          }`
+        );
+        process.exit(1);
+      }
 
-    if (results.failures.length > 0) {
-      logger.error(
-        `Failed to generate ${results.failures.length} datasets: ${results.failures.join(', ')}`
+      const mods: Mod[] = [];
+      await Promise.all(
+        datasets.map(async (dataset) => {
+          const resolvedPath = jiti.esmResolve(
+            path.join(rootPath, dataset),
+            rootPath
+          );
+          const datasetFn = await jiti.import<Mod>(resolvedPath, {
+            default: true,
+            try: true,
+          });
+          mods.push(datasetFn);
+        })
       );
-      logger.info(
-        `Successfully generated ${results.successes.length} datasets`
+
+      const results: {
+        successes: Array<{ name: string; error?: null }>;
+        failures: Array<{ name: string; error: Error }>;
+      } = {
+        successes: [],
+        failures: [],
+      };
+
+      const progressBar = new ProgressBar({
+        size: 'MEDIUM',
+        variant: 'PLAIN',
+        prefix: 'Generating datasets',
+        showPercent: false,
+        showCount: true,
+      });
+      progressBar.start();
+
+      await Promise.all(
+        mods.map(async (mod, index) => {
+          // Just run the data function to generate it
+          try {
+            progressBar.add({
+              total: 100,
+              id: index,
+              progress: true,
+              suffix: chalk.cyan(mod.name),
+            });
+            let value = 0;
+            const inc = 1;
+            const wait = 350;
+            const intervalId = setInterval(() => {
+              value += inc;
+              if (value >= 100) {
+                clearInterval(intervalId);
+                return;
+              }
+              progressBar.update({ value }, index);
+            }, wait);
+
+            // import the dataset
+            await mod.data({ overwrite: argv.overwrite });
+            results.successes.push({ name: mod.name });
+
+            clearInterval(intervalId);
+            progressBar.update(
+              {
+                value: 100,
+              },
+              index
+            );
+          } catch (error) {
+            results.failures.push({ name: mod.name, error: error as Error });
+          }
+        })
       );
-    } else {
-      logger.success(`Generated ${results.successes.length} datasets`);
+      progressBar.stop();
+
+      if (results.failures.length > 0) {
+        if (argv.verbose) {
+          logger.error(
+            [
+              `Failed to generate ${results.failures.length} datasets:`,
+              '\n\n',
+              ...results.failures.map(
+                (f) => `  ${chalk.red('>')} ${f.name}: ${f.error.message}`
+              ),
+              '\n',
+            ].join('')
+          );
+        } else {
+          logger.error(
+            `Failed to generate ${results.failures.length} datasets: ${results.failures.map((f) => f.name).join(', ')}`
+          );
+        }
+
+        logger.info(
+          `Successfully generated ${results.successes.length} datasets`
+        );
+      } else {
+        logger.success(`Generated ${results.successes.length} datasets`);
+      }
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error('Unknown error');
+      logger.error(`Failed to generate datasets: ${err.message}`);
+      process.exit(1);
     }
   },
 };
@@ -110,16 +222,4 @@ function getAliases(
       path.join(rootPath, value[0].replace('/*', '')),
     ])
   );
-}
-
-async function readTsConfig(rootPath: string): Promise<TsConfigJson | null> {
-  try {
-    const file = await fs.readFile(
-      path.join(rootPath, 'tsconfig.json'),
-      'utf8'
-    );
-    return JSON.parse(file);
-  } catch {
-    return null;
-  }
 }

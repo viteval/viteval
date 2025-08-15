@@ -1,18 +1,44 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
+import {
+  groupIconMdPlugin,
+  groupIconVitePlugin,
+} from 'vitepress-plugin-group-icons';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Viteval",
-  description: "Next generation LLM evaluation framework powered by Vitest.",
+  title: 'Viteval',
+  lang: 'en-US',
+  description: 'Next generation LLM evaluation framework powered by Vitest.',
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:locale', content: 'en' }],
+    [
+      'meta',
+      {
+        property: 'og:title',
+        content:
+          'Viteval | Next generation LLM evaluation framework powered by Vitest.',
+      },
+    ],
+    ['meta', { property: 'og:site_name', content: 'Viteval' }],
+    // [
+    //   'meta',
+    //   {
+    //     property: 'og:image',
+    //     content: 'https://joggrdocs.github.io/tempo/images/tempo-social.png',
+    //   },
+    // ],
+    ['meta', { property: 'og:url', content: 'https://viteval.dev/' }],
+  ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/evaluate' },
-      { text: 'Examples', link: '/examples/' }
+      { text: 'Examples', link: '/examples/' },
     ],
-
     sidebar: {
       '/guide/': [
         {
@@ -20,55 +46,63 @@ export default defineConfig({
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Core Concepts', link: '/guide/concepts' },
-            { text: 'Configuration', link: '/guide/configuration' },
-            { text: 'CLI Usage', link: '/guide/cli' }
-          ]
+            { text: 'CLI Usage', link: '/guide/cli' },
+          ],
         },
         {
           text: 'Advanced',
-          items: [
-            { text: 'Best Practices', link: '/guide/best-practices' },
-            { text: 'CI/CD Integration', link: '/guide/cicd' },
-            { text: 'Migration Guide', link: '/guide/migration' }
-          ]
-        }
+          items: [{ text: 'CI Integration', link: '/guide/advanced/ci' }],
+        },
       ],
       '/api/': [
         {
           text: 'API Reference',
           items: [
+            { text: 'defineConfig()', link: '/api/configuration' },
             { text: 'evaluate()', link: '/api/evaluate' },
             { text: 'defineDataset()', link: '/api/define-dataset' },
             { text: 'createScorer()', link: '/api/create-scorer' },
-            { text: 'Built-in Scorers', link: '/api/scorers' },
-            { text: 'Configuration', link: '/api/configuration' }
-          ]
-        }
+            { text: 'scorers', link: '/api/scorers' },
+          ],
+        },
       ],
       '/examples/': [
         {
           text: 'Examples',
           items: [
-            { text: 'Overview', link: '/examples/' },
-            { text: 'Basic Evaluation', link: '/examples/basic' },
-            { text: 'Custom Datasets', link: '/examples/datasets' },
-            { text: 'Custom Scorers', link: '/examples/scorers' },
-            { text: 'Advanced Patterns', link: '/examples/advanced' }
-          ]
-        }
-      ]
+            {
+              text: 'Basic',
+              link: 'https://github.com/viteval/viteval/tree/main/examples/basic',
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            },
+            {
+              text: 'Complex',
+              link: 'https://github.com/viteval/viteval/tree/main/examples/complex',
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            },
+          ],
+        },
+      ],
     },
-
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/zrosenbauer/viteval' }
+      { icon: 'github', link: 'https://github.com/viteval/viteval' },
     ],
-
     search: {
-      provider: 'local'
+      provider: 'local',
     },
-
     editLink: {
-      pattern: 'https://github.com/zrosenbauer/viteval/edit/main/docs/:path'
-    }
-  }
-})
+      pattern: 'https://github.com/viteval/viteval/edit/main/docs/:path',
+    },
+  },
+  markdown: {
+    config: (md) => {
+      md.use(groupIconMdPlugin);
+    },
+  },
+  vite: {
+    // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
+    plugins: [groupIconVitePlugin() as any],
+  },
+});

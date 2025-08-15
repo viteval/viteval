@@ -38,7 +38,7 @@ evaluate('Simple eval', {
 });
 ```
 
-### External Datasets
+### Local Datasets
 
 For reusable datasets, use `defineDataset()`:
 
@@ -63,27 +63,9 @@ evaluate('Greeting test', {
 });
 ```
 
-### Data Generation
+### Remote Datasets
 
-Datasets can dynamically generate data:
-
-```ts
-const mathProblems = defineDataset({
-  name: 'math-problems',
-  data: async () => {
-    const problems = [];
-    for (let i = 0; i < 100; i++) {
-      const a = Math.floor(Math.random() * 10);
-      const b = Math.floor(Math.random() * 10);
-      problems.push({
-        input: `What is ${a} + ${b}?`,
-        expected: String(a + b),
-      });
-    }
-    return problems;
-  },
-});
-```
+Coming soon!
 
 ## Tasks
 
@@ -207,28 +189,3 @@ evaluate('My test', {
 ```
 
 For multiple scorers, the threshold applies to the average score across all scorers.
-
-## File Organization
-
-Organize your evaluations with clear naming:
-
-```
-project/
-├── src/
-│   └── evals/
-│       ├── chat.eval.ts      # Chat functionality
-│       ├── search.eval.ts    # Search features
-│       └── datasets/
-│           ├── common.ts     # Shared datasets
-│           └── chat.dataset.ts
-├── tests/
-└── viteval.config.ts
-```
-
-## Best Practices
-
-- **Small, focused evaluations**: Test one capability at a time
-- **Meaningful test data**: Use realistic inputs your users would provide
-- **Appropriate scorers**: Choose scorers that match your use case
-- **Reasonable thresholds**: Start with lower thresholds and increase as you improve
-- **Version your datasets**: Track changes to test data over time

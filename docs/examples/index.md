@@ -2,9 +2,7 @@
 
 This section provides practical examples of using Viteval for different scenarios.
 
-## Quick Examples
-
-### Basic Text Evaluation
+## Basic Text Evaluation
 
 ```ts
 import { evaluate, scorers } from 'viteval';
@@ -22,7 +20,7 @@ evaluate('Simple QA', {
 });
 ```
 
-### Custom Dataset
+## Custom Dataset
 
 ```ts
 import { defineDataset } from 'viteval/dataset';
@@ -51,7 +49,7 @@ evaluate('Math solver', {
 });
 ```
 
-### Multiple Scorers
+## Multiple Scorers
 
 ```ts
 evaluate('Content quality', {
@@ -66,77 +64,18 @@ evaluate('Content quality', {
 });
 ```
 
-## Browse Examples
+## Runnable Examples
+
+There are a number of examples available in the [Viteval GitHub repository](https://github.com/viteval/viteval/tree/main/examples).
 
 <div class="examples-grid">
 
-[**Basic Evaluation**](/examples/basic)  
-Simple text-based evaluations with different scorers
+[**Simple Evaluation**](https://github.com/viteval/viteval/tree/main/examples/basic)
+Simple text-based evaluation
 
-[**Custom Datasets**](/examples/datasets)  
-Creating reusable datasets for your evaluations
-
-[**Custom Scorers**](/examples/scorers)  
-Building custom scoring functions for specific needs
-
-[**Advanced Patterns**](/examples/advanced)  
-Complex evaluation scenarios and best practices
-
+[**Complex Evaluation**](https://github.com/viteval/viteval/tree/main/examples/complex)
+Complex & real-world evaluation
 </div>
-
-## Common Use Cases
-
-### Chat/Conversational AI
-
-```ts
-evaluate('Customer support chat', {
-  data: async () => [
-    {
-      input: "I need help with my order",
-      expected: "I'd be happy to help you with your order. Can you provide your order number?",
-    },
-  ],
-  task: async (input) => await chatBot.respond(input),
-  scorers: [scorers.answerRelevancy, scorers.moderation],
-  threshold: 0.85,
-});
-```
-
-### Code Generation
-
-```ts
-evaluate('Python code generation', {
-  data: async () => [
-    {
-      input: "Write a function to calculate factorial",
-      expected: "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n-1)",
-    },
-  ],
-  task: async (input) => await generateCode(input, 'python'),
-  scorers: [scorers.exactMatch, syntaxChecker],
-  threshold: 0.9,
-});
-```
-
-### Content Summarization
-
-```ts
-evaluate('Article summarization', {
-  data: async () => loadArticlesAndSummaries(),
-  task: async (article) => await summarize(article),
-  scorers: [scorers.summary, scorers.answerSimilarity],
-  threshold: 0.75,
-});
-```
-
-## Running Examples
-
-To run these examples:
-
-1. **Clone the examples**: Each example is available in the `/examples` directory
-2. **Install dependencies**: `npm install` in the example directory  
-3. **Configure your API keys**: Set up `.env` with your LLM provider keys
-4. **Run evaluations**: `npx viteval` in the example directory
 
 <style>
 .examples-grid {

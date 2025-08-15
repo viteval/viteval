@@ -1,6 +1,12 @@
-# Configuration
+# `defineConfig()`
 
 Viteval provides flexible configuration options to customize evaluation behavior, performance, and output.
+
+## Import
+
+```ts
+import { defineConfig } from 'viteval/config'
+```
 
 ## Configuration File
 
@@ -49,33 +55,6 @@ export default defineConfig({
     openai: {
       client: new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     }
-  }
-})
-```
-
-### Reporter Configuration
-
-#### `reporter`
-- **Type:** `'console' | 'json' | VitevalReporterBraintrust`
-- **Default:** `'console'`
-
-Configure output reporter:
-
-```ts
-export default defineConfig({
-  reporter: 'console' // Console output
-})
-
-// or JSON output
-export default defineConfig({
-  reporter: 'json'
-})
-
-// or Braintrust integration
-export default defineConfig({
-  reporter: {
-    type: 'braintrust',
-    apiKey: process.env.BRAINTRUST_API_KEY
   }
 })
 ```
@@ -197,60 +176,8 @@ Configure dependency optimization:
 export default defineConfig({
   deps: {
     optimizer: {
-      ssr: {
-        include: ['some-package']
-      },
-      web: {
-        include: ['web-package']
-      }
+      include: ['some-package']
     }
   }
 })
-```
-
-## Environment-Specific Configuration
-
-```ts
-export default defineConfig({
-  reporter: process.env.CI ? 'json' : 'console',
-  eval: {
-    timeout: process.env.CI ? 180000 : 100000,
-    include: process.env.NODE_ENV === 'development' 
-      ? ['src/**/*.eval.ts']
-      : ['**/*.eval.ts']
-  }
-})
-```
-
-## TypeScript Support
-
-Viteval provides full TypeScript support for configuration:
-
-```ts
-import type { VitevalConfig } from 'viteval/config'
-
-const config: VitevalConfig = {
-  reporter: 'console',
-  eval: {
-    include: ['**/*.eval.ts'],
-    timeout: 100000
-  }
-}
-
-export default config
-```
-
-## CLI Configuration
-
-Override configuration via CLI flags:
-
-```bash
-# Use a specific config file
-viteval run --config viteval.prod.config.ts
-
-# Override root directory
-viteval run --root ./src
-
-# Override pattern
-viteval run "**/*.smoke.eval.ts"
 ```

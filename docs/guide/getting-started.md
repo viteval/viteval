@@ -31,6 +31,14 @@ yarn add viteval
 
 :::
 
+## Initialize a Viteval Project
+
+```bash
+npx viteval init
+```
+
+This will create a `viteval.config.ts` && `viteval.setup.ts` (so you can configure your environment variables) file in your project root.
+
 ## Your First Evaluation
 
 Let's create a simple evaluation to test color detection. Create a file called `color.eval.ts`:
@@ -57,7 +65,7 @@ evaluate('Color detection', {
 });
 ```
 
-## Running Your Evaluation
+### Running Your Evaluation
 
 Run your evaluation using the Viteval CLI:
 
@@ -71,7 +79,7 @@ This will:
 3. Display results with scoring details
 4. Exit with a non-zero code if any evaluation fails
 
-## Understanding the Results
+### Understanding the Results
 
 Viteval will output something like:
 
@@ -84,6 +92,54 @@ Viteval will output something like:
 Evaluations: 1 passed, 0 failed
 ```
 
+## Your First Dataset
+
+Now that you've run your first evaluation, let's create a dataset, that you can use in the evaluation.
+
+```ts
+import { defineDataset } from 'viteval/dataset';
+
+export default defineDataset({
+  name: 'color-dataset',
+  data: async () => [
+    { input: "What color is the sky?", expected: "Blue" },
+    { input: "What color is grass?", expected: "Green" },
+    { input: "What color is snow?", expected: "White" },
+  ],
+});
+```
+
+### Adding the Dataset to the Evaluation
+
+You can then use the dataset in the evaluation by importing it and passing it to the `data` option.
+
+```ts
+import dataset from './color.dataset';
+
+evaluate('Color detection', {
+  data: dataset,
+  task: async (input) => {
+    const result = await generateText({
+      model: 'gpt-4', // Configure your model here
+      prompt: input,
+    });
+    return result.text;
+  },
+  scorers: [scorers.levenshtein],
+  threshold: 0.8,
+});
+```
+
+### Running the Evaluation with the Dataset
+
+Now you can run the evaluation again, and it will use the dataset.
+
+```bash
+npx viteval
+```
+
+If you configured the dataset to be stored locally, it will be stored in the `./viteval/datasets` directory relative to the config file.
+
 ## Next Steps
 
 Now that you have your first evaluation running:
@@ -92,10 +148,3 @@ Now that you have your first evaluation running:
 - [Explore the CLI options](/guide/cli) for different use cases
 - [Check out examples](/examples/) for more complex scenarios
 - [Set up CI/CD integration](/guide/cicd) to run evaluations automatically
-
-## Quick Tips
-
-💡 **File naming**: Use `*.eval.ts` or `*.eval.js` for evaluation files  
-💡 **Async support**: All functions support async/await  
-💡 **Type safety**: Viteval is built with TypeScript for excellent type support  
-💡 **Framework agnostic**: Works with any LLM library or framework

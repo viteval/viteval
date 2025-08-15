@@ -1,14 +1,30 @@
-# evaluate()
+# `evaluate()`
 
-The `evaluate()` function is the core API for defining and running LLM evaluations.
+The `evaluate()` function is the core API for defining and running LLM evaluations using Vitest.
+
+## Import
+
+```ts
+import { evaluate } from 'viteval';
+```
 
 ## Signature
 
 ```ts
-function evaluate<T = string>(
+function evaluate<
+  DATA_ITEM extends DataItem,
+  DATA extends Data<DATA_ITEM>,
+>(
   name: string,
-  options: EvaluationOptions<T>
-): Evaluation<T>
+  {
+    data,
+    aggregation = 'mean',
+    task,
+    scorers,
+    threshold = 1.0,
+    timeout = 10000,
+  }: Eval<DATA>
+)
 ```
 
 ## Parameters
@@ -19,60 +35,103 @@ function evaluate<T = string>(
 - **Description**: A human-readable name for the evaluation
 
 ### `options`
-- **Type**: `EvaluationOptions<T>`
+- **Type**: `Eval<DATA>`
 - **Required**: Yes
 - **Description**: Configuration object for the evaluation
 
-## EvaluationOptions
+## Eval Interface
 
 ```ts
-interface EvaluationOptions<T = string> {
-  data: () => Promise<TestCase<T>[]> | TestCase<T>[];
-  task: (input: T) => Promise<string> | string;
-  scorers: Scorer[];
+interface Eval<DATA extends Data> {
+  /**
+   * The description of the evaluation.
+   */
+  description?: string;
+  /**
+   * The data to use for the evaluation.
+   */
+  data: DATA;
+  /**
+   * The task to evaluate.
+   */
+  task: Task<InferDataInput<DATA>, InferDataOutput<DATA>, InferDataExtra<DATA>>;
+  /**
+   * The scorers to use for the evaluation.
+   */
+  scorers: Scorer<InferDataOutput<DATA>, InferDataExtra<DATA>>[];
+  /**
+   * The aggregation type for the evaluation.
+   *
+   * @default 'mean'
+   */
+  aggregation?: ScorerAggregationType;
+  /**
+   * The threshold for the evaluation.
+   *
+   * @default 1.0
+   */
   threshold?: number;
+  /**
+   * The timeout for the evaluation.
+   *
+   * @default 10000
+   */
   timeout?: number;
-  metadata?: Record<string, any>;
 }
 ```
 
 ### `data`
 
-Function that returns test cases for the evaluation.
+The data to use for the evaluation. Can be an array, function, or dataset.
 
-**Type**: `() => Promise<TestCase<T>[]> | TestCase<T>[]`
+**Type**: `Data<DATA_ITEM>`
+
+```ts
+type Data<DATA_ITEM extends DataItem> =
+  | DATA_ITEM[]
+  | DataGenerator<DATA_ITEM>
+  | Dataset<DataGenerator<DATA_ITEM>>;
+```
 
 ```ts
 // Inline data
-data: async () => [
+data: [
   { input: "What is 2+2?", expected: "4" },
   { input: "What is 3+3?", expected: "6" },
 ]
 
-// From external source
+// From function
 data: async () => {
   const response = await fetch('/api/test-cases');
   return response.json();
 }
 
-// Generated data
-data: async () => {
-  return Array.from({ length: 100 }, (_, i) => ({
-    input: `What is ${i} + 1?`,
-    expected: String(i + 1),
-  }));
-}
+// From dataset
+data: mathDataset
 ```
 
 ### `task`
 
 Function that processes input and returns the model's output.
 
-**Type**: `(input: T) => Promise<string> | string`
+**Type**: `Task<InferDataInput<DATA>, InferDataOutput<DATA>, InferDataExtra<DATA>>`
+
+```ts
+type Task<INPUT, OUTPUT, EXTRA extends Extra> = (
+  args: TaskArgs<INPUT, EXTRA>
+) => Promise<OUTPUT> | OUTPUT;
+
+type TaskArgs<INPUT, EXTRA extends Extra> = TF.Merge<
+  EXTRA,
+  {
+    input: INPUT;
+  }
+>;
+```
 
 ```ts
 // Simple text generation
-task: async (input) => {
+task: async ({ input }) => {
   const result = await generateText({
     model: 'gpt-4',
     prompt: input,
@@ -81,7 +140,7 @@ task: async (input) => {
 }
 
 // With chat messages
-task: async (input) => {
+task: async ({ input }) => {
   const result = await generateText({
     model: 'gpt-4',
     messages: [
@@ -93,8 +152,8 @@ task: async (input) => {
 }
 
 // Structured input
-task: async ({ question, context }) => {
-  return await answerQuestion(question, context);
+task: async ({ input, context }) => {
+  return await answerQuestion(input.question, context);
 }
 ```
 
@@ -102,7 +161,7 @@ task: async ({ question, context }) => {
 
 Array of scorer functions to evaluate the output quality.
 
-**Type**: `Scorer[]`
+**Type**: `Scorer<InferDataOutput<DATA>, InferDataExtra<DATA>>[]`
 
 ```ts
 import { scorers, createScorer } from 'viteval';
@@ -115,7 +174,10 @@ scorers: [scorers.levenshtein, scorers.factual]
 const customScorer = createScorer({
   name: 'length-check',
   score: ({ output, expected }) => {
-    return output.length === expected.length ? 1 : 0;
+    return {
+      score: output.length === expected?.length ? 1 : 0,
+      metadata: { method: 'length_comparison' }
+    };
   },
 });
 
@@ -127,7 +189,7 @@ scorers: [customScorer, scorers.answerSimilarity]
 Minimum average score required for the evaluation to pass.
 
 **Type**: `number`  
-**Default**: `0.8`  
+**Default**: `1.0`  
 **Range**: `0.0` to `1.0`
 
 ```ts
@@ -137,7 +199,7 @@ threshold: 0.9
 // More lenient threshold
 threshold: 0.6
 
-// Perfect scores only
+// Perfect scores only (default)
 threshold: 1.0
 ```
 
@@ -146,7 +208,7 @@ threshold: 1.0
 Maximum time (in milliseconds) for each test case.
 
 **Type**: `number`  
-**Default**: `30000` (30 seconds)
+**Default**: `10000` (10 seconds)
 
 ```ts
 // 1 minute timeout
@@ -159,29 +221,57 @@ timeout: 5000
 timeout: 0
 ```
 
-### `metadata` (optional)
+### `aggregation` (optional)
 
-Additional metadata for the evaluation.
+How to aggregate scores across multiple scorers.
 
-**Type**: `Record<string, any>`
+**Type**: `ScorerAggregationType`  
+**Default**: `'mean'`  
+**Options**: `'mean' | 'median' | 'sum'`
 
 ```ts
-metadata: {
-  model: 'gpt-4',
-  version: '1.2.0',
-  tags: ['chat', 'customer-support'],
-  author: 'team@company.com',
-}
+// Use mean score (default)
+aggregation: 'mean'
+
+// Use median score
+aggregation: 'median'
+
+// Use sum of scores
+aggregation: 'sum'
 ```
 
-## TestCase
+### `description` (optional)
+
+Human-readable description of the evaluation.
+
+**Type**: `string`
 
 ```ts
-interface TestCase<T = string> {
-  input: T;
-  expected: string;
-  metadata?: Record<string, any>;
-}
+description: 'Evaluates math problem solving capabilities'
+```
+
+## DataItem Interface
+
+The data should contain `DataItem` objects:
+
+```ts
+type DataItem<
+  INPUT = unknown,
+  OUTPUT = unknown,
+  EXTRA extends Extra = Extra,
+> = TF.Merge<
+  EXTRA,
+  {
+    name?: string;
+    input: INPUT;
+    expected?: OUTPUT;
+  }
+>;
+```
+
+Where `Extra` is:
+```ts
+type Extra = Record<string, unknown>;
 ```
 
 ### Simple Test Cases
@@ -215,128 +305,21 @@ interface TestCase<T = string> {
 {
   input: "Translate: Hello",
   expected: "Hola",
-  metadata: {
-    language: "spanish",
-    difficulty: "easy",
-  }
+  difficulty: "easy",
+  language: "spanish"
+}
+```
+
+### Named Test Cases
+
+```ts
+{
+  name: "Basic addition",
+  input: "What is 2+2?",
+  expected: "4"
 }
 ```
 
 ## Return Value
 
-Returns an `Evaluation<T>` object that can be used for introspection:
-
-```ts
-const eval = evaluate('My test', { /* options */ });
-
-console.log(eval.name);      // "My test"
-console.log(eval.options);   // EvaluationOptions
-```
-
-## Examples
-
-### Basic Text Evaluation
-
-```ts
-import { evaluate, scorers } from 'viteval';
-
-evaluate('Color questions', {
-  data: async () => [
-    { input: "What color is the sky?", expected: "Blue" },
-    { input: "What color is grass?", expected: "Green" },
-  ],
-  task: async (input) => {
-    return await callLLM(input);
-  },
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
-});
-```
-
-### Structured Input Evaluation
-
-```ts
-interface QuestionContext {
-  question: string;
-  context: string;
-}
-
-evaluate<QuestionContext>('QA with context', {
-  data: async () => [
-    {
-      input: {
-        question: "What is the capital?",
-        context: "France is a country in Europe. Paris is its capital."
-      },
-      expected: "Paris"
-    }
-  ],
-  task: async ({ question, context }) => {
-    return await answerWithContext(question, context);
-  },
-  scorers: [scorers.factual, scorers.answerRelevancy],
-  threshold: 0.85,
-});
-```
-
-### Multiple Scorers with Custom Logic
-
-```ts
-const lengthPenalty = createScorer({
-  name: 'length-penalty',
-  score: ({ output, expected }) => {
-    const ratio = output.length / expected.length;
-    return ratio > 2 ? 0.5 : 1.0; // Penalize overly long responses
-  },
-});
-
-evaluate('Concise answers', {
-  data: async () => loadTestCases(),
-  task: async (input) => await generateAnswer(input),
-  scorers: [
-    scorers.factual,      // Must be factually correct
-    scorers.answerSimilarity, // Must be semantically similar  
-    lengthPenalty,        // Must not be too verbose
-  ],
-  threshold: 0.75, // Average across all three scorers
-});
-```
-
-## Best Practices
-
-- **Descriptive names**: Use clear, specific names for evaluations
-- **Meaningful test data**: Include realistic, diverse test cases
-- **Appropriate scorers**: Choose scorers that match your use case
-- **Reasonable thresholds**: Start low and increase as you improve
-- **Error handling**: Ensure your task function handles edge cases gracefully
-
-## Common Patterns
-
-### Conditional Evaluation
-
-```ts
-const isProduction = process.env.NODE_ENV === 'production';
-
-evaluate('Production safety check', {
-  data: async () => isProduction ? await loadProductionData() : [],
-  task: async (input) => await processInput(input),
-  scorers: [scorers.moderation, scorers.factual],
-  threshold: 0.95,
-});
-```
-
-### Parameterized Evaluations
-
-```ts
-function createMathEvaluation(operation: string, generator: Function) {
-  return evaluate(`Math: ${operation}`, {
-    data: async () => generator(100), // Generate 100 test cases
-    task: async (input) => await solveMathProblem(input),
-    scorers: [scorers.exactMatch],
-    threshold: 0.9,
-  });
-}
-
-createMathEvaluation('addition', generateAdditionProblems);
-createMathEvaluation('multiplication', generateMultiplicationProblems);
-```
+The `evaluate` function returns a Vitest test suite that can be run with the testing framework. The evaluation results are stored in the suite metadata.

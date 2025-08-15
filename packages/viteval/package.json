@@ -1,7 +1,7 @@
 {
   "name": "viteval",
-  "version": "0.1.3",
-  "description": "LLM evaluation framework for JavaScript and TypeScript built on top of Vitest",
+  "version": "0.1.4",
+  "description": "Next generation LLM evaluation framework powered by Vitest.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,8 +27,8 @@
     "dev": "tsup --watch",
     "test": "vitest --typecheck --passWithNoTests",
     "types": "tsc --noEmit",
-    "check": "biome check . && biome format --check .",
-    "fix": "biome check --write . && biome format --write .",
+    "check": "biome check .",
+    "fix": "biome check --write .",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "dependencies": {
@@ -56,10 +56,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zrosenbauer/viteval"
+    "url": "https://github.com/viteval/viteval"
   },
   "bugs": {
-    "url": "https://github.com/zrosenbauer/viteval/issues"
+    "url": "https://github.com/viteval/viteval/issues"
   },
-  "homepage": "https://github.com/zrosenbauer/viteval#readme"
+  "homepage": "https://github.com/viteval/viteval#readme"
 }
