@@ -1,5 +1,11 @@
 # @viteval/cli
 
+## 0.1.4
+
+### Patch Changes
+
+- ee6f429: feat: Add support for automatically parsing the `tsconfig.json` for the `viteval data` command
+
 ## 0.1.3
 
 ### Patch Changes
