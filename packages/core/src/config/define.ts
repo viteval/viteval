@@ -39,6 +39,7 @@ export function defineConfig({
         .otherwise(() => undefined),
     },
     resolve,
+    // @ts-expect-error - TODO: fix this
     plugins,
   });
 }

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+  },
+  "include": [
+    "src/**/*",
+    "viteval.config.ts",
+    "viteval.setup.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+  ]
+}

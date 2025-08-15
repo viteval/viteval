@@ -1,0 +1,30 @@
+{
+  "name": "@examples/complex",
+  "description": "Complex example of using viteval, with a more 'realistic' codebase & examples",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "buildx": "tsc",
+    "question": "tsx src/cli.ts",
+    "eval": "viteval"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.15",
+    "ai": "^5.0.15",
+    "consola": "^3.4.2",
+    "dotenv": "^17.2.1",
+    "viteval": "workspace:*",
+    "yargs": "^18.0.0",
+    "zod": "^4.0.17"
+  },
+  "keywords": [
+    "example",
+    "viteval"
+  ],
+  "author": "zrosenbauer",
+  "devDependencies": {
+    "@types/yargs": "^17.0.33",
+    "tsx": "^4.20.4"
+  }
+}
