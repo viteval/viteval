@@ -10,6 +10,7 @@
     "types": "nx run-many -t types --parallel --projects=packages/*",
     "check": "nx run-many -t check",
     "fix": "nx run-many -t fix",
+    "nuke": "nuka-code",
     "publish": "pnpm run build && pnpm changeset publish",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
     "validate": "nx run-many -t validate --parallel --projects=packages/*"
@@ -32,6 +33,7 @@
     "@vitest/ui": "^3.0.0",
     "jiti": "2.5.1",
     "jsdom": "~26.1.0",
+    "nuka-code": "^0.1.11",
     "nx": "21.3.11",
     "prettier": "^3.6.2",
     "tslib": "^2.3.0",
