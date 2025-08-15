@@ -1,8 +1,10 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { DataItem, Dataset } from '@viteval/core';
 import { findConfigFile } from '@viteval/core/config';
 import { glob } from 'glob';
 import { createJiti } from 'jiti';
+import type { TsConfigJson } from 'type-fest';
 import type { CommandModule } from 'yargs';
 import { createLogger } from '#/lib/logger';
 
@@ -25,25 +27,36 @@ export const dataCommand: CommandModule<unknown, { pattern: string }> = {
     }
 
     const rootPath = path.dirname(configFilePath);
+    const tsConfig = await readTsConfig(rootPath);
+    const aliases = getAliases(rootPath, tsConfig);
 
     const datasets = await glob(argv.pattern, {
       cwd: rootPath,
     });
 
-    const jiti = createJiti(`file:${configFilePath}`, {
+    const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
       fsCache: false,
       moduleCache: false,
-      extensions: ['ts', 'js', 'mts', 'mjs'],
       interopDefault: true,
+      sourceMaps: true,
+      alias: {
+        ...aliases,
+      },
       transformOptions: {
+        filename: '',
         ts: true,
       },
     });
 
     const mods: Mod[] = [];
     for (const dataset of datasets) {
-      const datasetFn = await jiti.import<Mod>(path.join(rootPath, dataset), {
+      const resolvedPath = jiti.esmResolve(
+        path.join(rootPath, dataset),
+        rootPath
+      );
+      const datasetFn = await jiti.import<Mod>(resolvedPath, {
         default: true,
+        try: true,
       });
       mods.push(datasetFn);
     }
@@ -82,3 +95,31 @@ export const dataCommand: CommandModule<unknown, { pattern: string }> = {
 };
 
 type Mod = Dataset<() => Promise<DataItem[]>>;
+
+function getAliases(
+  rootPath: string,
+  tsConfig?: TsConfigJson | null
+): Record<string, string> {
+  if (!tsConfig?.compilerOptions?.paths) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(tsConfig.compilerOptions.paths).map(([key, value]) => [
+      key.replace('/*', ''),
+      path.join(rootPath, value[0].replace('/*', '')),
+    ])
+  );
+}
+
+async function readTsConfig(rootPath: string): Promise<TsConfigJson | null> {
+  try {
+    const file = await fs.readFile(
+      path.join(rootPath, 'tsconfig.json'),
+      'utf8'
+    );
+    return JSON.parse(file);
+  } catch {
+    return null;
+  }
+}
