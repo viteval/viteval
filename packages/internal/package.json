@@ -27,9 +27,9 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "types": "tsc --noEmit",
+    "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check .",
     "fix": "biome check . --write",
-    "test": "vitest --typecheck --passWithNoTests",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "devDependencies": {

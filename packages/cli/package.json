@@ -20,17 +20,21 @@
     "dev": "tsup --watch",
     "types": "tsc --noEmit",
     "test": "vitest --typecheck --passWithNoTests",
-    "check": "biome check . && biome format --check .",
+    "check": "biome check .",
     "fix": "biome check --write .",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "dependencies": {
+    "@opentf/cli-pbar": "^0.7.2",
     "@viteval/core": "workspace:*",
     "@viteval/internal": "workspace:^",
+    "c12": "^3.2.0",
+    "chalk": "^5.5.0",
     "consola": "^3.4.2",
     "find-up": "^7.0.0",
     "glob": "^11.0.3",
     "jiti": "2.5.1",
+    "ora": "^8.2.0",
     "ts-pattern": "^5.8.0",
     "type-fest": "^4.41.0",
     "yargs": "^18.0.0"

@@ -27,8 +27,8 @@
     "dev": "tsup --watch",
     "test": "vitest --typecheck --passWithNoTests",
     "types": "tsc --noEmit",
-    "check": "biome check . && biome format --check .",
-    "fix": "biome check --write . && biome format --write .",
+    "check": "biome check .",
+    "fix": "biome check --write .",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "dependencies": {

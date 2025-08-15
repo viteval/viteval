@@ -3,8 +3,8 @@
   "version": "0.1.3",
   "description": "A LLM evaluation framework for JavaScript and TypeScript built on top of Vitest",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/main/index.js",
+  "types": "dist/main/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/zrosenbauer/viteval"
@@ -15,8 +15,8 @@
   "homepage": "https://github.com/zrosenbauer/viteval#readme",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/main/index.js",
+      "types": "./dist/main/index.d.ts"
     },
     "./config": {
       "import": "./dist/config/index.js",
@@ -35,9 +35,9 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "types": "tsc --noEmit",
-    "test": "vitest --typecheck --passWithNoTests",
-    "check": "biome check . && biome format --check .",
-    "fix": "biome check --write . && biome format --write .",
+    "test": "vitest --typecheck",
+    "check": "biome check .",
+    "fix": "biome check --write .",
     "validate": "pnpm check && pnpm test && pnpm build"
   },
   "dependencies": {

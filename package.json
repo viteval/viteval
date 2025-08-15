@@ -4,15 +4,15 @@
   "description": "LLM evaluation framework workspace - contains core, CLI, and main viteval packages",
   "private": true,
   "scripts": {
-    "build": "nx run-many -t build",
-    "dev": "nx run-many -t dev",
-    "test": "nx run-many -t test",
-    "types": "nx run-many -t types",
-    "check": "biome check .",
-    "fix": "biome check --write .",
+    "build": "nx run-many -t build --parallel --projects=packages/*",
+    "dev": "nx run-many -t dev --parallel --projects=packages/*",
+    "test": "nx run-many -t test --parallel --projects=packages/*",
+    "types": "nx run-many -t types --parallel --projects=packages/*",
+    "check": "nx run-many -t check",
+    "fix": "nx run-many -t fix",
     "publish": "pnpm run build && pnpm changeset publish",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
-    "validate": "nx run-many -t validate"
+    "validate": "nx run-many -t validate --parallel --projects=packages/*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
