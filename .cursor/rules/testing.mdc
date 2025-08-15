@@ -23,7 +23,7 @@ You MUST follow all rules within the <rules> tag or you WILL BE FIRED!
 
 <rules>
 - you MUST ALWAYS use vitest as your testing framework
-- you MUST ALWAYS output the unit test file relative to the file you are testing with the format `[FILENAME].spec.ts`
+- you MUST ALWAYS output the unit test file relative to the file you are testing with the format `[FILENAME].test.ts`
 - you MUST ALWAYS output the file using the format `[FILENAME].test.ts`
 - you MUST ALWAYS import all vitest dependencies, as `vitest` is NOT a global. For example: `import { vi, describe, expect, it } from 'vitest';`
 - you MUST ALWAYS directly use the `vitest` cli by using it within `pnpm`, for example `pnpm vitest --run`
