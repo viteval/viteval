@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://viteval.dev">
-<img src="./github/assets/viteval-icon.png" height="200">
+<img src="./.github/assets/viteval-icon.png" height="200">
 </a>
 </p>
 
@@ -14,10 +14,9 @@ Next generation LLM evaluation framework powered by Vitest.
   <a href="https://www.npmjs.com/package/viteval"><img src="https://img.shields.io/npm/v/viteval?color=BE54F5&label="></a>
 <p>
 
-<!-- TODO: add documentation -->
-<!-- <p align="center">
- <a href="https://viteval.dev">Documentation</a> | <a href="https://viteval.dev/guide/">Getting Started</a> | <a href="https://viteval.dev/guide/#examples">Examples</a> | <a href="https://viteval.dev/guide/why">Why Viteval?</a>
-</p> -->
+<p align="center">
+ <a href="https://viteval.dev">Documentation</a> | <a href="https://viteval.dev/guide/">Getting Started</a> | <a href="https://viteval.dev/examples">Examples</a> | <a href="https://viteval.dev/guide/why">Why Viteval?</a>
+</p>
 <br>
 <br>
 
