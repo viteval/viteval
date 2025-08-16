@@ -93,6 +93,7 @@ export default defineConfig({
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/viteval/viteval' },
+      { icon: 'discord', link: 'https://discord.gg/2MFYxEdJQB' },
     ],
     search: {
       provider: 'local',

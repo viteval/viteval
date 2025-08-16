@@ -47,3 +47,27 @@ evaluate('Color detection', {
   threshold: 0.8,
 });
 ```
+
+---
+
+<div class="flex flex-col items-center justify-center mt-10">
+<div class="i-mdi:heart-outline size-8 block text-center ml-auto mr-auto"></div>
+<p class="text-center mt-1 mx-auto">
+  Vitest is free and open source, <br/>
+  made possible by wonderful sponsors.
+</p>
+</div>
+
+<div class="w-full">
+  <div class="flex flex-col items-center justify-center mt-10 w-full">
+    <div class="px-2 py-0 bg-gray-800 w-full rounded-t-lg mb-1">
+      <p class="text-center font-bold">Special Sponsors</p>
+    </div>
+    <a href="https://joggr.ai?utm_source=viteval&utm_medium=banner&utm_campaign=web" target="_blank" rel="noopener noreferrer" class="bg-gray-800 cursor-pointer hover:bg-gray-700 w-full rounded-b-lg">
+      <div class="flex flex-row items-center justify-center px-10 py-16">
+        <img src="/assets/joggr.png" alt="Joggr" class="w-[300px] h-auto" />
+      </div>
+    </a>
+  </div>
+</div>
+
