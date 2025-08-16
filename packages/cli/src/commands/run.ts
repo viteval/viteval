@@ -6,7 +6,7 @@ import { createVitest } from 'vitest/node';
 import type { CommandModule } from 'yargs';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
-  command: 'run <pattern> [options]',
+  command: 'run [pattern] [options]',
   describe: 'Run evaluations',
   aliases: ['*'],
   builder: (yargs) => {

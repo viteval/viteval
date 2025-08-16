@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "buildx": "tsc",
-    "question": "tsx src/cli.ts",
+    "build": "tsc",
+    "question": "tsx ./src/cli.ts",
     "eval": "viteval"
   },
   "dependencies": {
