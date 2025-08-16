@@ -20,13 +20,13 @@ hero:
 features:
   - title: Powered by Vitest
     details: Define and run evaluations the same way you run tests, with a familiar and intuitive interface
-    icon: <div class="i-mdi-alarm"></div>
+    icon: <div class="i-logos:vitest"></div>
   - title: Fully Featured
     details: Run evals, create datasets, and more with everything you need out of the box
-    icon: ✅
+    icon: <div class="i-material-icon-theme:test-ts"></div>
   - title: CI/CD Ready
     details: Integrate seamlessly into your CI pipeline and run evaluations alongside your tests
-    icon: 🔄
+    icon: <div class="i-logos:github-actions"></div>
 ---
 
 ## See it in action

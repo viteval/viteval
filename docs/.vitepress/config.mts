@@ -1,6 +1,4 @@
-import { presetWind3 } from '@unocss/preset-wind3';
-import { presetAttributify, presetIcons } from 'unocss';
-import Unocss from 'unocss/vite';
+import UnoCSS from 'unocss/vite';
 import { defineConfig } from 'vitepress';
 import {
   groupIconMdPlugin,
@@ -109,25 +107,6 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [
-      // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
-      groupIconVitePlugin() as any,
-      llmstxt(),
-      Unocss({
-        shortcuts: [
-          [
-            'btn',
-            'px-4 py-1 rounded inline-flex justify-center gap-2 text-white leading-30px children:mya !no-underline cursor-pointer disabled:cursor-default disabled:bg-gray-600 disabled:opacity-50',
-          ],
-        ],
-        presets: [
-          presetWind3(),
-          presetAttributify(),
-          presetIcons({
-            scale: 1.2,
-          }),
-        ],
-      }),
-    ],
+    plugins: [UnoCSS(), groupIconVitePlugin(), llmstxt()],
   },
 });
