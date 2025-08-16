@@ -20,7 +20,7 @@ hero:
 features:
   - title: Powered by Vitest
     details: Define and run evaluations the same way you run tests, with a familiar and intuitive interface
-    icon: ⚡
+    icon: <div class="i-mdi-alarm"></div>
   - title: Fully Featured
     details: Run evals, create datasets, and more with everything you need out of the box
     icon: ✅

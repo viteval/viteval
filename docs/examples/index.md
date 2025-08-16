@@ -70,7 +70,7 @@ There are a number of examples available in the [Viteval GitHub repository](http
 
 <div class="examples-grid">
 
-[**Simple Evaluation**](https://github.com/viteval/viteval/tree/main/examples/basic)
+[**Simple Evaluation**](https://github.com/viteval/viteval/tree/main/examples/simple)
 Simple text-based evaluation
 
 [**Complex Evaluation**](https://github.com/viteval/viteval/tree/main/examples/complex)

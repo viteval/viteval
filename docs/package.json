@@ -19,7 +19,11 @@
   "license": "MIT",
   "packageManager": "pnpm@10.14.0",
   "dependencies": {
+    "@iconify-json/carbon": "^1.2.13",
+    "@iconify-json/logos": "^1.2.9",
+    "@unocss/preset-wind3": "^66.4.2",
     "typescript": "^5.9.2",
+    "unocss": "^66.4.2",
     "vite": "^7.1.2",
     "vitepress": "^1.6.4",
     "vitepress-plugin-group-icons": "^1.6.3",

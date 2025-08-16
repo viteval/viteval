@@ -1,14 +1,20 @@
+import { presetWind3 } from '@unocss/preset-wind3';
+import { presetAttributify, presetIcons } from 'unocss';
+import Unocss from 'unocss/vite';
 import { defineConfig } from 'vitepress';
 import {
   groupIconMdPlugin,
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons';
+import llmstxt from 'vitepress-plugin-llms';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: 'Viteval',
   lang: 'en-US',
+  appearance: 'force-dark',
   description: 'Next generation LLM evaluation framework powered by Vitest.',
+  cleanUrls: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { property: 'og:type', content: 'website' }],
@@ -32,6 +38,7 @@ export default defineConfig({
     ['meta', { property: 'og:url', content: 'https://viteval.dev/' }],
   ],
   themeConfig: {
+    logo: '/assets/viteval.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
@@ -71,8 +78,8 @@ export default defineConfig({
           text: 'Examples',
           items: [
             {
-              text: 'Basic',
-              link: 'https://github.com/viteval/viteval/tree/main/examples/basic',
+              text: 'Simple',
+              link: 'https://github.com/viteval/viteval/tree/main/examples/simple',
               target: '_blank',
               rel: 'noopener noreferrer',
             },
@@ -102,7 +109,25 @@ export default defineConfig({
     },
   },
   vite: {
-    // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
-    plugins: [groupIconVitePlugin() as any],
+    plugins: [
+      // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
+      groupIconVitePlugin() as any,
+      llmstxt(),
+      Unocss({
+        shortcuts: [
+          [
+            'btn',
+            'px-4 py-1 rounded inline-flex justify-center gap-2 text-white leading-30px children:mya !no-underline cursor-pointer disabled:cursor-default disabled:bg-gray-600 disabled:opacity-50',
+          ],
+        ],
+        presets: [
+          presetWind3(),
+          presetAttributify(),
+          presetIcons({
+            scale: 1.2,
+          }),
+        ],
+      }),
+    ],
   },
 });
