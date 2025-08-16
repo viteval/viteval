@@ -1,5 +1,16 @@
 # @viteval/cli
 
+## 0.2.0
+
+### Minor Changes
+
+- 4ddfa01: feat: Allow the `data` command to load the Viteval setup files and config
+
+### Patch Changes
+
+- Updated dependencies [4ddfa01]
+  - @viteval/core@0.1.4
+
 ## 0.1.4
 
 ### Patch Changes
