@@ -43,52 +43,48 @@
  *   in custom container, badges, etc.
  * -------------------------------------------------------------------------- */
 
-:root {
-  --vp-c-brand-1: var(#be54f5);
-  --vp-c-brand-2: var(#be54f5);
-  --vp-c-brand-3: var(#be54f5);
-  --vp-c-brand-soft: var(#be54f5);
-}
-
-.dark {
-  --vp-c-brand-1: #be54f5;
+/* :root {
+  --vp-c-brand-1: #a02adb;
   --vp-c-brand-2: #be54f5;
-  --vp-c-brand-3: #be54f5;
-  --vp-c-brand-soft: #be54f5;
-}
+  --vp-c-brand-3: #d98eff;
+  --vp-c-brand-soft: rgba(100, 108, 255, 0.14);
+} */
 
-/**
- * Component: Button
- * -------------------------------------------------------------------------- */
-/* 
+.dark,
 :root {
+  --vp-c-brand-1: #be54f5;
+  --vp-c-brand-2: #cd71fb;
+  --vp-c-brand-3: #d586fc;
+  --vp-c-brand-soft: rgba(191, 84, 245, 0.05);
+
   --vp-button-brand-border: transparent;
   --vp-button-brand-text: var(--vp-c-white);
-  --vp-button-brand-bg: var(--vp-c-brand-3);
+  --vp-button-brand-bg: var(--vp-c-brand-1);
   --vp-button-brand-hover-border: transparent;
   --vp-button-brand-hover-text: var(--vp-c-white);
   --vp-button-brand-hover-bg: var(--vp-c-brand-2);
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text: var(--vp-c-white);
   --vp-button-brand-active-bg: var(--vp-c-brand-1);
-} */
+}
 
 /**
  * Component: Home
  * -------------------------------------------------------------------------- */
 
-:root {
+:root,
+.dark {
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(
     120deg,
-    #650993 30%,
-    #be54f5
+    #fcc82a,
+    #be54f5 70%
   );
 
   --vp-home-hero-image-background-image: linear-gradient(
     -45deg,
-    #53007d 50%,
-    #be54f5 50%
+    #6f0aa1 50%,
+    #be54f5 70%
   );
   --vp-home-hero-image-filter: blur(44px);
 }

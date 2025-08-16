@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Viteval"
-  text: "Next generation LLM evaluation framework powered by Vitest."
+  text: "Next Generation Testing Framework"
   tagline: Define, run, and debug LLM evaluations with a familiar API
   image:
     src: /assets/viteval.png
