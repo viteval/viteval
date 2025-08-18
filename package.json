@@ -12,6 +12,7 @@
     "check": "nx run-many -t check",
     "fix": "nx run-many -t fix",
     "nuke": "nuka-code",
+    "gen": "nx generate",
     "publish": "pnpm run build && pnpm changeset publish",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
     "validate": "nx run-many -t validate --parallel --projects=packages/*"

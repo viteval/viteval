@@ -1,0 +1,8 @@
+version: 0.1
+pull:
+  analysis:
+    check: error
+    confidence_threshold: 30
+  autofix:
+    enabled: true
+    confidence_threshold: 80
