@@ -13,6 +13,9 @@ export default defineConfig({
   appearance: 'force-dark',
   description: 'Next generation LLM evaluation framework powered by Vitest.',
   cleanUrls: true,
+  sitemap: {
+    hostname: 'https://viteval.dev',
+  },
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { property: 'og:type', content: 'website' }],
