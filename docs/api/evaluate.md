@@ -319,7 +319,3 @@ type Extra = Record<string, unknown>;
   expected: "4"
 }
 ```
-
-## Return Value
-
-The `evaluate` function returns a Vitest test suite that can be run with the testing framework. The evaluation results are stored in the suite metadata.

@@ -53,7 +53,7 @@ evaluate('Color detection', {
 <div class="flex flex-col items-center justify-center mt-10">
 <div class="i-mdi:heart-outline size-8 block text-center ml-auto mr-auto"></div>
 <p class="text-center mt-1 mx-auto">
-  Vitest is free and open source, <br/>
+  Viteval is free and open source, <br/>
   made possible by wonderful sponsors.
 </p>
 </div>
