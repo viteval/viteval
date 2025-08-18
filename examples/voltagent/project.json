@@ -1,0 +1,8 @@
+{
+  "name": "voltagent",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "examples/voltagent/src",
+  "// targets": "to see all targets run: nx show project voltagent --web",
+  "targets": {}
+}
