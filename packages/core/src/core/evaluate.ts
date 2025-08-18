@@ -47,14 +47,15 @@ export function evaluate<
     task,
     scorers,
     threshold = 1.0,
-    timeout = 10000,
+    timeout,
   }: Eval<DATA>
 ) {
   return describe(name, async () => {
     const results: EvalResult[] = [];
+    const config = getRuntimeConfig();
 
     beforeAll(() => {
-      initializeProvider(getRuntimeConfig().provider);
+      initializeProvider(config.provider);
     });
 
     afterAll((suite) => {
@@ -68,7 +69,7 @@ export function evaluate<
       test(
         formatTestName(dataItem),
         {
-          timeout,
+          timeout: timeout ?? config.eval?.timeout ?? 10000,
         },
         async () => {
           // @ts-expect-error - this is valid
