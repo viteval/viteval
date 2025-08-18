@@ -25,3 +25,13 @@ pnpm nx generate core:package my-package
 ```
 
 This will create a new package (e.g. `my-package`) in the `packages` directory.
+
+#### `generate-example`
+
+You can generate a new example project by running:
+
+```bash
+pnpm nx generate core:example my-example
+```
+
+This will create a new example project (e.g. `my-example`) in the `examples` directory.

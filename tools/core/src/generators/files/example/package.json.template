@@ -1,12 +1,13 @@
 {
-  "name": "@examples/simple",
-  "description": "Viteval example - simple",
+  "name": "@viteval/<%= name %>",
+  "version": "0.0.1",
+  "description": "Viteval example - <%= description %>",
   "private": true,
   "type": "module",
   "scripts": {
     "eval": "viteval"
   },
-  "dependencies": {
+  "devDependencies": {
     "dotenv": "^17.2.1",
     "viteval": "workspace:*"
   }

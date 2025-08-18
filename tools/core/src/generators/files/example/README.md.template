@@ -1,15 +1,15 @@
-# `<%= name %>`
+# Example `<%= name %>`
 
 <%= description %>
 
 ## 🚀 Quick Start
 
 ```bash
-pnpm install @voltagent/<%= name %>
+npm install
 ```
 
-```typescript
-// TODO: Add in an example
+```bash
+npm run eval
 ```
 
 ## 📄 License
