@@ -69,7 +69,7 @@ export function evaluate<
       test(
         formatTestName(dataItem),
         {
-          timeout: timeout ?? config.eval?.timeout ?? 10000,
+          timeout: timeout ?? config.eval?.timeout ?? 25000,
         },
         async () => {
           // @ts-expect-error - this is valid
