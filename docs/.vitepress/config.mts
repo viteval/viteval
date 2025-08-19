@@ -37,6 +37,21 @@ export default defineConfig({
     //   },
     // ],
     ['meta', { property: 'og:url', content: 'https://viteval.dev/' }],
+    [
+      'script',
+      {
+        async: '',
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-FEVDX1MG6E',
+      },
+    ],
+    [
+      'script',
+      {},
+      `window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-FEVDX1MG6E');`,
+    ],
   ],
   themeConfig: {
     logo: '/assets/viteval.png',
