@@ -1,5 +1,11 @@
 # @viteval/core
 
+## 0.1.5
+
+### Patch Changes
+
+- f42a1cc: fix: Allow `timeout` to be passed through root config & increate to 25s as default
+
 ## 0.1.4
 
 ### Patch Changes
