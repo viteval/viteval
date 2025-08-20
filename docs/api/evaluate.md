@@ -22,7 +22,7 @@ function evaluate<
     task,
     scorers,
     threshold = 1.0,
-    timeout = 10000,
+    timeout,
   }: Eval<DATA>
 )
 ```
@@ -74,7 +74,7 @@ interface Eval<DATA extends Data> {
   /**
    * The timeout for the evaluation.
    *
-   * @default 10000
+   * @default Value provided to `timeout`, or if not supplied, the runtime configuration value (`config.eval?.timeout`), or 25000ms if none provided.
    */
   timeout?: number;
 }
@@ -208,7 +208,7 @@ threshold: 1.0
 Maximum time (in milliseconds) for each test case.
 
 **Type**: `number`  
-**Default**: `10000` (10 seconds)
+**Default**: Value provided to `timeout`, or if not supplied, the runtime configuration value (`config.eval?.timeout`), or 25000ms if none provided.
 
 ```ts
 // 1 minute timeout
