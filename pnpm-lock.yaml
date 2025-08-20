@@ -126,15 +126,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/viteval
 
-  examples/simple:
-    dependencies:
-      dotenv:
-        specifier: ^17.2.1
-        version: 17.2.1
-      viteval:
-        specifier: workspace:*
-        version: link:../../packages/viteval
-
   examples/vercel-ai:
     dependencies:
       '@ai-sdk/openai':

@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "@internal/docs",
   "version": "1.0.0",
   "description": "Documentation for Viteval",
   "main": "index.js",
