@@ -83,6 +83,7 @@ export function evaluate<
               // @ts-expect-error - this is valid
               const result = scorer({
                 ...params,
+                input,
                 output: taskResult,
               });
 

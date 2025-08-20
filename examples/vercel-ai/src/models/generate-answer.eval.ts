@@ -7,7 +7,7 @@ evaluate('Generate an answer to a question', {
     const answer = await generateAnswer(input, category);
     return answer;
   },
-  scorers: [scorers.levenshtein],
+  scorers: [scorers.answerCorrectness],
   threshold: 0.5,
   data: dataset,
 });
