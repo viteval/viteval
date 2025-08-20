@@ -1,6 +1,6 @@
 {
-  "name": "@examples/simple",
-  "description": "Viteval example - simple",
+  "name": "@examples/basic",
+  "description": "Viteval example - A basic example showing the basics of Viteval",
   "private": true,
   "type": "module",
   "scripts": {

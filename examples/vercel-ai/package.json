@@ -1,6 +1,6 @@
 {
   "name": "@examples/complex",
-  "description": "Viteval example - complex example with a more 'realistic' code & evals",
+  "description": "Viteval example - A real-world example using Vercel AI SDK",
   "private": true,
   "type": "module",
   "scripts": {

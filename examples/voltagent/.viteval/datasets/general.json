@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-08-20T15:47:31.616Z",
+  "data": [
+    {
+      "input": "Which treaty formally ended World War I between Germany and the Allied Powers in 1919?",
+      "expected": "The Treaty of Versailles"
+    },
+    {
+      "input": "What is the smallest bone in the human body?",
+      "expected": "The stapes (stirrup) bone in the middle ear."
+    },
+    {
+      "input": "What is the largest internal organ in the human body?",
+      "expected": "Liver"
+    },
+    {
+      "input": "What is the chemical symbol for gold?",
+      "expected": "Au"
+    },
+    {
+      "input": "Which country is home to the ancient city of Petra?",
+      "expected": "Jordan"
+    },
+    {
+      "input": "What is the largest planet in our Solar System?",
+      "expected": "Jupiter"
+    },
+    {
+      "input": "What is the capital city of Canada?",
+      "expected": "Ottawa"
+    },
+    {
+      "input": "What is the largest moon in the Solar System?",
+      "expected": "Ganymede"
+    },
+    {
+      "input": "By volume, which gas accounts for about 78% of Earth's atmosphere?",
+      "expected": "Nitrogen"
+    },
+    {
+      "input": "In which country is the ancient Incan citadel Machu Picchu located?",
+      "expected": "Peru"
+    }
+  ]
+}

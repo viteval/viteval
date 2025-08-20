@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-08-20T15:49:28.716Z",
+  "data": [
+    {
+      "input": "Which six countries have coastlines on the Black Sea?",
+      "expected": "Turkey, Bulgaria, Romania, Ukraine, Russia, and Georgia."
+    },
+    {
+      "input": "In which country are the rock-hewn churches of Lalibela located?",
+      "expected": "Ethiopia"
+    },
+    {
+      "input": "What are the only two landlocked countries in South America?",
+      "expected": "Bolivia and Paraguay"
+    },
+    {
+      "input": "Which country is the only one in the world that is crossed by both the Equator and the Tropic of Capricorn?",
+      "expected": "Brazil"
+    },
+    {
+      "input": "Which African country is entirely surrounded by South Africa?",
+      "expected": "Lesotho"
+    },
+    {
+      "input": "In which country would you find the ancient city of Petra?",
+      "expected": "Jordan"
+    },
+    {
+      "input": "Which strait separates the Iberian Peninsula from North Africa and connects the Atlantic Ocean to the Mediterranean Sea?",
+      "expected": "Strait of Gibraltar"
+    },
+    {
+      "input": "Which three countries border Lake Victoria?",
+      "expected": "Tanzania, Uganda, and Kenya"
+    },
+    {
+      "input": "The Petronas Twin Towers are located in which city and country?",
+      "expected": "Kuala Lumpur, Malaysia"
+    },
+    {
+      "input": "What is the largest country in Africa by land area?",
+      "expected": "Algeria"
+    }
+  ]
+}
