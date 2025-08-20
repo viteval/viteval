@@ -1,5 +1,11 @@
 # @viteval/core
 
+## 0.1.6
+
+### Patch Changes
+
+- 56cf589: fix: Add missing input for LLM scorers
+
 ## 0.1.5
 
 ### Patch Changes
