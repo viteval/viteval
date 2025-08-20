@@ -1,23 +1,12 @@
 {
   "name": "@internal/docs",
-  "version": "1.0.0",
   "description": "Documentation for Viteval",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",
     "preview": "vitepress preview"
   },
-  "keywords": [
-    "viteval",
-    "llm",
-    "evaluation",
-    "testing",
-    "vitest"
-  ],
-  "author": "viteval team",
-  "license": "MIT",
-  "packageManager": "pnpm@10.14.0",
   "dependencies": {
     "@iconify-json/carbon": "^1.2.13",
     "@iconify-json/logos": "^1.2.9",
