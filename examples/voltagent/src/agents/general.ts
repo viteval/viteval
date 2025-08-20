@@ -12,7 +12,7 @@ export interface QuestionAnsweringOutput {
   confidence: number;
 }
 
-export const questionAnsweringAgent = new Agent({
+export const generalAgent = new Agent({
   name: 'question-answering-agent',
   instructions: `You are a helpful question-answering agent. 
 Your job is to answer questions accurately and concisely.

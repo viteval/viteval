@@ -7,6 +7,7 @@
     "build": "nx run-many -t build --parallel --projects=packages/*",
     "build:docs": "nx run-many -t build --parallel --p docs",
     "dev": "nx run-many -t dev --parallel --projects=packages/*",
+    "dev:docs": "nx dev docs",
     "test": "nx run-many -t test --parallel --projects=packages/*",
     "types": "nx run-many -t types --parallel --projects=packages/*",
     "check": "nx run-many -t check",

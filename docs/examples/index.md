@@ -60,7 +60,7 @@ evaluate('Content quality', {
     scorers.answerSimilarity, // Must be semantically similar
     scorers.moderation,     // Must be safe content
   ],
-  threshold: 0.8,
+  threshold: 0.8, // an average of the scores is used to determine if threshold is met
 });
 ```
 
@@ -70,11 +70,15 @@ There are a number of examples available in the [Viteval GitHub repository](http
 
 <div class="examples-grid">
 
-[**Simple Evaluation**](https://github.com/viteval/viteval/tree/main/examples/simple)
-Simple text-based evaluation
+[**Basic Evaluation**](https://github.com/viteval/viteval/tree/main/examples/basic)
+Basic evaluation with Viteval
 
-[**Complex Evaluation**](https://github.com/viteval/viteval/tree/main/examples/complex)
-Complex & real-world evaluation
+[**Vercel AI SDK**](https://github.com/viteval/viteval/tree/main/examples/vercel-ai)
+Real-world evaluation with Vercel AI SDK
+
+[**Voltagent**](https://github.com/viteval/viteval/tree/main/examples/voltagent)
+Real-world evaluation with Voltagent
+
 </div>
 
 <style>

@@ -1,63 +1,39 @@
+import { openai } from '@ai-sdk/openai';
+import { generateObject } from 'ai';
 import { defineDataset } from 'viteval/dataset';
+import { z } from 'zod';
+import { categories } from '#/lib/categories';
 
 export default defineDataset({
-  name: 'supervisor-routing',
+  name: 'supervisor',
   data: async () => {
-    return [
-      {
-        input: {
-          userQuery: 'What is the capital of Spain?',
-        },
-        expected: {
-          expectedAgent: 'questionAnswering',
-          shouldContain: 'Madrid',
-        },
-      },
-      {
-        input: {
-          userQuery: 'Calculate 25 + 17',
-        },
-        expected: {
-          expectedAgent: 'math',
-          shouldContain: '42',
-        },
-      },
-      {
-        input: {
-          userQuery: 'Who invented the telephone?',
-        },
-        expected: {
-          expectedAgent: 'questionAnswering',
-          shouldContain: 'Alexander Graham Bell',
-        },
-      },
-      {
-        input: {
-          userQuery: 'What is 15 × 8?',
-        },
-        expected: {
-          expectedAgent: 'math',
-          shouldContain: '120',
-        },
-      },
-      {
-        input: {
-          userQuery: 'Explain the concept of gravity',
-        },
-        expected: {
-          expectedAgent: 'questionAnswering',
-          shouldContain: 'force',
-        },
-      },
-      {
-        input: {
-          userQuery: 'Solve: 100 ÷ 5 + 3',
-        },
-        expected: {
-          expectedAgent: 'math',
-          shouldContain: '23',
-        },
-      },
-    ];
+    return await Promise.all(
+      categories.map(async ({ name, description }) => {
+        const { object } = await generateObject({
+          model: openai('gpt-5'),
+          system: `
+          You are an expert at generating test data. You will generate a question and the expected answer based on the provided category.
+          Be succinct in you questions and answers. The question should be a single sentence, and the answer should be a single sentence or less.
+          `,
+          prompt: `
+          Generate a question for this category: 
+          
+          # Category
+          name: ${name}
+          description: ${description}
+          `,
+          schema: z.object({
+            question: z.string().describe('The question to answer'),
+            answer: z.string().describe('The answer to the question'),
+          }),
+        });
+
+        return {
+          input: object.question,
+          expected: object.answer,
+          category: name,
+        };
+      })
+    );
   },
 });

@@ -1,1 +1,2 @@
-export { type AnswerPayload, answer } from '#/main';
+export { default as generateAnswer } from '#/generate-answer';
+export type { Category } from '#/lib/categories';

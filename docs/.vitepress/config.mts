@@ -94,14 +94,20 @@ export default defineConfig({
           text: 'Examples',
           items: [
             {
-              text: 'Simple',
-              link: 'https://github.com/viteval/viteval/tree/main/examples/simple',
+              text: 'Basic',
+              link: 'https://github.com/viteval/viteval/tree/main/examples/basic',
               target: '_blank',
               rel: 'noopener noreferrer',
             },
             {
-              text: 'Complex',
-              link: 'https://github.com/viteval/viteval/tree/main/examples/complex',
+              text: 'Vercel AI SDK',
+              link: 'https://github.com/viteval/viteval/tree/main/examples/vercel-ai',
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            },
+            {
+              text: 'Voltagent',
+              link: 'https://github.com/viteval/viteval/tree/main/examples/voltagent',
               target: '_blank',
               rel: 'noopener noreferrer',
             },

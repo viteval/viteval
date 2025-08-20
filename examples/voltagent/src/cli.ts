@@ -2,8 +2,8 @@ import consola from 'consola';
 import dotenv from 'dotenv';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import generateAnswer from '#/generate-answer';
 import { categories } from '#/lib/categories';
-import generateAnswer from '#models/generate-answer';
 
 dotenv.config();
 
@@ -25,6 +25,7 @@ dotenv.config();
             })),
             required: true,
           });
+
           const question = await consola.prompt('What is the question?', {
             type: 'text',
             placeholder: 'What is the capital of France?',

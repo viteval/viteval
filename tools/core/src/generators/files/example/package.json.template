@@ -1,5 +1,5 @@
 {
-  "name": "@viteval/<%= name %>",
+  "name": "@examples/<%= name %>",
   "version": "0.0.1",
   "description": "Viteval example - <%= description %>",
   "private": true,

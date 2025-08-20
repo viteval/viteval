@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-08-20T15:49:00.813Z",
+  "data": [
+    {
+      "input": "Which Chinese dynasty constructed most of the Great Wall segments that survive today?",
+      "expected": "The Ming dynasty (1368–1644)."
+    },
+    {
+      "input": "How did the Black Death (1347–1351) change European society and the economy?",
+      "expected": "It killed roughly one-third to one-half of Europe’s population, creating severe labor shortages that drove wages up and increased bargaining power for peasants and artisans. These pressures accelerated the decline of serfdom and feudal obligations, contributed to peasant uprisings (e.g., the Jacquerie in 1358 and the English Peasants’ Revolt in 1381), and encouraged shifts in land use and improved diets for survivors. The crisis weakened the prestige and authority of the Catholic Church, spurred scapegoating and persecution of Jews and other marginalized groups, and left a lasting cultural imprint in art and literature (memento mori, danse macabre) emphasizing mortality."
+    },
+    {
+      "input": "Which treaty ended the Thirty Years' War, and in what year was it signed?",
+      "expected": "The Peace of Westphalia (Treaties of Münster and Osnabrück), 1648."
+    },
+    {
+      "input": "What were the main causes and consequences of the Haitian Revolution (1791–1804)?",
+      "expected": "The Haitian Revolution was driven by the brutality of plantation slavery in Saint-Domingue, the colony’s rigid racial caste system, and the spread of Enlightenment and French Revolutionary ideals that emboldened both enslaved people and free people of color to demand rights and freedom. It began with a massive slave uprising in 1791 and was shaped by complex civil wars and foreign interventions by Spain and Britain. Leaders like Toussaint Louverture consolidated power after the French National Convention abolished slavery in 1794, but Napoleon’s 1802 attempt to reimpose slavery led to renewed war; Louverture was captured and died in France. Under Jean-Jacques Dessalines, the revolutionary forces defeated the French at Vertières in 1803 and declared Haiti’s independence on January 1, 1804. Consequences included the creation of the first Black-led sovereign state and the second independent republic in the Americas, the permanent abolition of slavery in Haiti, and a shock to slaveholding societies that hastened abolitionist movements. Internationally, France’s colonial setbacks aided the 1803 Louisiana Purchase, while Haiti faced diplomatic isolation and a crippling indemnity to France (imposed in 1825) that burdened its economy for generations."
+    },
+    {
+      "input": "What were the major decisions of the Council of Trent (1545–1563), and how did they shape the Catholic Reformation?",
+      "expected": "- Reaffirmed doctrine: upheld Scripture and Tradition together as authorities; confirmed the seven sacraments; defined transubstantiation; taught justification involves grace and faith working through love; fixed the biblical canon including the deuterocanonical books.\n- Reformed discipline: mandated bishops’ residence and visitations; required diocesan seminaries to train clergy; enforced clerical celibacy; curtailed simony, pluralism, and abuses tied to indulgences.\n- Standardized worship and teaching: authorized the Vulgate as the official Latin Bible; produced the Roman Catechism; standardized the Roman Missal (Tridentine Mass) and Breviary under post-Tridentine popes.\n- Policed reading: issued the (Tridentine) Index of Prohibited Books.\nImpact: These measures clarified Catholic doctrine, professionalized the clergy, unified liturgy and teaching, and energized the Catholic Reformation, helping Catholicism regain strength in parts of Europe and shape practice into the modern era."
+    },
+    {
+      "input": "Which treaty formally ended World War I between Germany and the Allied Powers, and name two of its key provisions.",
+      "expected": "The Treaty of Versailles (signed June 28, 1919). Two key provisions: heavy reparations imposed on Germany, and strict military limitations, including capping the army at 100,000 and banning an air force and submarines."
+    },
+    {
+      "input": "Which 1648 agreements ended the Thirty Years' War and are often cited as foundational to the modern state system?",
+      "expected": "The Peace of Westphalia—the Treaties of Münster and Osnabrück (1648)."
+    },
+    {
+      "input": "Who led the Haitian Revolution, and why is it historically significant?",
+      "expected": "The Haitian Revolution was led primarily by Toussaint Louverture and, after his capture, by Jean-Jacques Dessalines, who declared independence in 1804. It is historically significant as the only successful slave revolt in history, creating the first Black republic and the second independent state in the Americas; it abolished slavery in Haiti, dealt a major blow to French colonial ambitions in the Americas, contributed to Napoleon’s decision to sell Louisiana to the United States, and inspired abolitionist and anti-colonial movements worldwide."
+    },
+    {
+      "input": "Name two key leaders of the Haitian Revolution and the year Haiti declared independence.",
+      "expected": "Toussaint Louverture and Jean-Jacques Dessalines; 1804."
+    },
+    {
+      "input": "Who was Mansa Musa, and what were the key effects of his 1324–1325 hajj on West Africa and the broader Mediterranean world?",
+      "expected": "Mansa Musa (r. c. 1312–1337) was the tenth ruler of the Mali Empire. His pilgrimage to Mecca in 1324–25 dramatically showcased Mali's gold wealth; his generous almsgiving in Cairo created a temporary gold glut and price inflation there, noted by the chronicler al-Umari. The journey forged diplomatic ties with Mamluk Egypt, raised Mali's profile across the Islamic world and in Europe (reflected in later maps like the 1375 Catalan Atlas), and helped attract scholars and artisans to Mali, traditionally including the Andalusi figure al-Sahili. In its wake, Musa sponsored mosque construction and Islamic learning in cities such as Timbuktu and Gao (e.g., Djinguereber Mosque), strengthened trans-Saharan trade networks, and further integrated West Africa into Afro-Eurasian economic and intellectual exchanges."
+    }
+  ]
+}

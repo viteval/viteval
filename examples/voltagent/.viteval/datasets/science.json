@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-08-20T15:49:06.176Z",
+  "data": [
+    {
+      "input": "A 5.0 kg block is pushed up a rough incline that makes a 20° angle with the horizontal with an initial speed of 8.0 m/s. The coefficient of kinetic friction between the block and the incline is 0.30. How far up the incline does the block travel before momentarily coming to rest? Use g = 9.8 m/s^2.",
+      "expected": "Using energy or kinematics with constant deceleration: a = −g(sinθ + μk cosθ). Then 0 = v0^2 + 2 a s ⇒ s = v0^2 / [2 g (sinθ + μk cosθ)]. Plugging in: sin20° ≈ 0.3420, cos20° ≈ 0.9397, so sinθ + μk cosθ ≈ 0.3420 + 0.30×0.9397 ≈ 0.6239. Thus s ≈ 64 / (2×9.8×0.6239) ≈ 64 / 12.23 ≈ 5.23 m. Answer: about 5.23 m up the incline."
+    },
+    {
+      "input": "How much heat energy is required to raise the temperature of 100 g of liquid water from 20.0°C to 80.0°C? Assume the specific heat capacity of water is 4.18 J g^-1 °C^-1.",
+      "expected": "Q = m·c·ΔT = (100 g) × (4.18 J g^-1 °C^-1) × (60.0°C) = 25,080 J (≈ 25.1 kJ)."
+    },
+    {
+      "input": "In a Young’s double-slit experiment, the slit separation is 0.50 mm and the screen is 2.0 m away. The apparatus is illuminated with 600 nm light. What is the distance between adjacent bright fringes on the screen? (Answer in millimeters.)",
+      "expected": "Using Δy = λL/d: Δy = (600×10^-9 m)(2.0 m)/(0.50×10^-3 m) = 1.2×10^-6 / 5.0×10^-4 = 2.4×10^-3 m = 2.4 mm."
+    },
+    {
+      "input": "A 1.00 L buffer is prepared by mixing 0.10 mol acetic acid (pKa = 4.76) and 0.10 mol sodium acetate. What is the initial pH? If 0.010 mol of HCl is added (assume no volume change), what is the new pH?",
+      "expected": "Initial pH = 4.76 + log(0.10/0.10) = 4.76. Adding HCl converts acetate to acetic acid: acetate = 0.10 − 0.010 = 0.090 mol; acetic acid = 0.10 + 0.010 = 0.110 mol. New pH = 4.76 + log(0.090/0.110) = 4.76 + log(0.818) ≈ 4.76 − 0.087 ≈ 4.67."
+    },
+    {
+      "input": "Calculate the energy of a single photon with wavelength 500 nm. Give the answer in both joules and electronvolts.",
+      "expected": "3.97e-19 J (~2.48 eV)"
+    },
+    {
+      "input": "A 2.0 kg block slides up a frictionless plane inclined at 30 degrees to the horizontal. If its initial speed is 10.0 m/s along the plane, how far up the incline does it travel before coming to rest? Use g = 9.8 m/s^2.",
+      "expected": "Using energy/kinematics along the incline: s = v^2 / (2 g sinθ). With v = 10.0 m/s, θ = 30°, g = 9.8 m/s^2: s = 100 / (2×9.8×0.5) = 100 / 9.8 ≈ 10.2 m. It travels about 10.2 meters."
+    },
+    {
+      "input": "Road salt melts ice by lowering water’s freezing point. Explain the mechanism behind freezing-point depression, write the relevant equation, and estimate the freezing point of a 1.0 molal aqueous NaCl solution assuming ideal behavior and complete dissociation. Use Kf(water) = 1.86 °C·kg/mol.",
+      "expected": "Dissolved solute particles lower the chemical potential of the liquid water relative to ice; equilibrium (freezing) is reached only at a lower temperature. This colligative effect is described by ΔTf = i·Kf·m. For NaCl (i ≈ 2), m = 1.0 m, Kf = 1.86 °C·kg/mol: ΔTf = 2 × 1.86 × 1.0 = 3.72 °C. The solution’s freezing point ≈ 0.00 − 3.72 = −3.72 °C (ideal assumption)."
+    },
+    {
+      "input": "Earth’s solar constant is S0 = 1361 W/m^2. If the planet’s Bond albedo decreases from 0.30 to 0.29, estimate the change in globally averaged absorbed solar radiation and the corresponding instantaneous top-of-atmosphere radiative forcing. Then estimate the equilibrium global-mean surface temperature change assuming a climate sensitivity λ = 0.8 K per W/m^2. State magnitudes, signs, and units.",
+      "expected": "Absorbed solar radiation ASR = (1 − α) S0/4. S0/4 = 340.25 W/m^2. Initial ASR = 0.70 × 340.25 = 238.18 W/m^2. Final ASR = 0.71 × 340.25 = 241.58 W/m^2. Change ΔASR = +3.40 W/m^2, which is the instantaneous TOA radiative forcing (positive, warming). Equilibrium temperature change ΔT ≈ λ ΔF = 0.8 × 3.40 ≈ +2.72 K (warming)."
+    },
+    {
+      "input": "You prepare 1.00 L of an aqueous buffer that is 0.10 M in acetic acid (pKa = 4.76 at 25 °C) and 0.10 M in sodium acetate. (a) What is the initial pH? (b) If 10.0 mL of 1.00 M HCl is added, what is the new pH (assume volumes are additive and temperature constant)?",
+      "expected": "(a) Use Henderson–Hasselbalch: pH = pKa + log([A−]/[HA]) = 4.76 + log(0.10/0.10) = 4.76. (b) Moles initially: HA = 0.100 mol, A− = 0.100 mol. Adding 0.0100 mol HCl converts A− → HA: new moles A− = 0.100 − 0.0100 = 0.0900 mol; HA = 0.100 + 0.0100 = 0.110 mol. pH = 4.76 + log(0.0900/0.110) = 4.76 + log(0.818) ≈ 4.76 − 0.087 ≈ 4.67. Volume change cancels in the ratio, so pH ≈ 4.67."
+    },
+    {
+      "input": "An object is launched from level ground with an initial speed of 20.0 m/s at an angle of 30.0° above the horizontal. Neglect air resistance and take g = 9.80 m/s^2. What are (a) the maximum height reached and (b) the horizontal range?",
+      "expected": "v0x = 20.0 cos 30° = 17.32 m/s; v0y = 20.0 sin 30° = 10.0 m/s. (a) Maximum height H = v0y^2/(2g) = 100/(19.6) = 5.10 m. (b) Range R = v0^2 sin(2θ)/g = 400 sin 60° / 9.80 = 35.3 m."
+    }
+  ]
+}
