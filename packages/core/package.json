@@ -37,8 +37,7 @@
     "types": "tsc --noEmit",
     "test": "vitest --typecheck",
     "check": "biome check .",
-    "fix": "biome check --write .",
-    "validate": "pnpm check && pnpm test && pnpm build"
+    "fix": "biome check --write ."
   },
   "dependencies": {
     "@vitest/runner": "^3.2.4",

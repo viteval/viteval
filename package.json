@@ -16,7 +16,7 @@
     "gen": "nx generate",
     "publish": "pnpm run build && pnpm changeset publish",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
-    "validate": "nx run-many -t validate --parallel --projects=packages/*"
+    "agents": "CI=true nx run-many --tui=false --parallel --projects=packages/* -t"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
