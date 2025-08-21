@@ -1,8 +1,8 @@
 {
-  "name": "internals",
+  "name": "viteval",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/internals/src",
+  "sourceRoot": "packages/viteval/src",
   "targets": {
     "validate": {
       "command": "echo \"Running validation\"",

@@ -28,8 +28,7 @@
     "test": "vitest --typecheck --passWithNoTests",
     "types": "tsc --noEmit",
     "check": "biome check .",
-    "fix": "biome check --write .",
-    "validate": "pnpm check && pnpm test && pnpm build"
+    "fix": "biome check --write ."
   },
   "dependencies": {
     "@viteval/cli": "workspace:*",

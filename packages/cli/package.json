@@ -22,7 +22,7 @@
     "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check .",
     "fix": "biome check --write .",
-    "validate": "pnpm check && pnpm test && pnpm build"
+    "agents": "CI=true nx run --tui=false"
   },
   "dependencies": {
     "@opentf/cli-pbar": "^0.7.2",

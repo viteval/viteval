@@ -1,8 +1,8 @@
 {
-  "name": "internals",
+  "name": "core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/internals/src",
+  "sourceRoot": "packages/core/src",
   "targets": {
     "validate": {
       "command": "echo \"Running validation\"",

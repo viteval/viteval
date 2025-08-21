@@ -29,8 +29,7 @@
     "types": "tsc --noEmit",
     "test": "vitest --typecheck --passWithNoTests",
     "check": "biome check .",
-    "fix": "biome check . --write",
-    "validate": "pnpm check && pnpm test && pnpm build"
+    "fix": "biome check . --write"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
