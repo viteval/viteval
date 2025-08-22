@@ -4,6 +4,7 @@ const baseConfig = defineConfig({
   format: ['esm'],
   dts: true,
   splitting: false,
+  config: 'tsconfig.build.json',
   sourcemap: true,
   treeshake: true,
   external: ['vitest', 'openai', 'autoevals'],

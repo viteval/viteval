@@ -5,7 +5,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -16,10 +15,20 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "#/*": ["./src/*"]
+      "#/*": [
+        "./src/*"
+      ]
     },
-    "types": ["vitest/importMeta"]
+    "types": [
+      "vitest/importMeta"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "references": [
+    {
+      "path": "./tsconfig.build.json"
+    },
+    {
+      "path": "./tsconfig.dev.json"
+    }
+  ]
 }
