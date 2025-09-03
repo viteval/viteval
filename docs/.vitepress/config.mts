@@ -74,7 +74,10 @@ export default defineConfig({
         },
         {
           text: 'Advanced',
-          items: [{ text: 'CI Integration', link: '/guide/advanced/ci' }],
+          items: [
+            { text: 'CI Integration', link: '/guide/advanced/ci' },
+            { text: 'Reporters', link: '/guide/advanced/reporters' },
+          ],
         },
       ],
       '/api/': [

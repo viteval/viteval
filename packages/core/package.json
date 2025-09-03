@@ -25,6 +25,10 @@
     "./dataset": {
       "import": "./dist/dataset/index.js",
       "types": "./dist/dataset/index.d.ts"
+    },
+    "./reporters": {
+      "import": "./dist/reporters/index.js",
+      "types": "./dist/reporters/index.d.ts"
     }
   },
   "files": [

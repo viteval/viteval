@@ -15,12 +15,14 @@ export interface VitevalProviderConfig {
   openai: VitevalProviderOpenAIConfig;
 }
 
-export type VitevalReporterBraintrust = {
-  type: 'braintrust';
-  apiKey: string;
-};
+// TODO: Add support for braintrust reporter
+// export type VitevalReporterBraintrust = {
+//   type: 'braintrust';
+//   apiKey: string;
+// };
 
-export type VitevalReporter = 'console' | 'json' | VitevalReporterBraintrust;
+// TODO: Add support via the config file for reporter
+export type VitevalReporter = 'default' | 'json' | 'file'; // | VitevalReporterBraintrust;
 
 /**
  * Viteval configuration.
@@ -31,10 +33,10 @@ export interface VitevalConfig {
    */
   provider?: VitevalProviderConfig;
   /**
-   * Reporter configuration.
-   *
-   * @default 'console'
+   * Reporters to use.
    */
+  reporters?: VitevalReporter[];
+  /** @deprecated Use reporters instead */
   reporter?: VitevalReporter;
   /**
    * Test configuration.

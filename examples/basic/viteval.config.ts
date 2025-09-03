@@ -1,7 +1,7 @@
 import { defineConfig } from 'viteval/config';
 
 export default defineConfig({
-  reporter: 'console',
+  reporters: ['default', 'file'],
   eval: {
     include: ['src/**/*.eval.ts'],
     setupFiles: ['./viteval.setup.ts'],

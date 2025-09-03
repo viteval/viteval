@@ -15,8 +15,7 @@ export default defineConfig(
     { entry: 'src/index.ts', outDir: 'dist/main' },
     { entry: 'src/config/index.ts', outDir: 'dist/config' },
     { entry: 'src/dataset/index.ts', outDir: 'dist/dataset' },
-    // TODO: add reporters
-    // src/reporters/index.ts
+    { entry: 'src/reporters/index.ts', outDir: 'dist/reporters' },
   ].map(({ entry, outDir }) => ({
     ...baseConfig,
     entry: [entry],

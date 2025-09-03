@@ -12,6 +12,7 @@ export function defineConfig({
   eval: evalConfig,
   plugins,
   resolve,
+  reporters,
   deps,
   server,
   ...config
@@ -20,6 +21,7 @@ export function defineConfig({
     ...config,
     test: {
       ...evalConfig,
+      reporters,
       server,
       provide: {
         config,
