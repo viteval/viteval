@@ -2,16 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "types": [
-      "vitest/importMeta"
-    ]
+    "types": ["vitest/importMeta"]
   },
-  "include": [
-    "src/**/*",
-    "**/*.test.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*", "**/*.test.ts"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -15,13 +15,9 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "#/*": [
-        "./src/*"
-      ]
+      "#/*": ["./src/*"]
     },
-    "types": [
-      "vitest/importMeta"
-    ]
+    "types": ["vitest/importMeta"]
   },
   "references": [
     {
