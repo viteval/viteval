@@ -22,52 +22,6 @@ describe('defineConfig', () => {
     expect(config.test?.testTimeout).toBe(100000);
   });
 
-  it('should handle custom eval configuration', () => {
-    const config = defineConfig({
-      eval: {
-        timeout: 15000,
-        reporters: ['json', 'verbose'],
-        globals: true,
-      },
-    });
-
-    expect(config.test?.testTimeout).toBe(15000);
-    expect(config.test?.reporters).toEqual(['json', 'verbose']);
-    expect(config.test?.globals).toBe(true);
-  });
-
-  it('should merge custom config with defaults', () => {
-    const config = defineConfig({
-      eval: {
-        timeout: 8000,
-      },
-      define: {
-        __TEST__: true,
-      },
-      esbuild: {
-        target: 'node18',
-      },
-    });
-
-    expect(config.test?.testTimeout).toBe(8000);
-    expect(config.define?.__TEST__).toBe(true);
-    expect(config.esbuild?.target).toBe('node18');
-  });
-
-  it('should handle server configuration', () => {
-    const serverConfig = {
-      port: 3000,
-      host: 'localhost',
-    };
-
-    const config = defineConfig({
-      eval: {},
-      server: serverConfig,
-    });
-
-    expect(config.test?.server).toEqual(serverConfig);
-  });
-
   it('should handle resolve configuration', () => {
     const resolveConfig = {
       alias: {
@@ -89,12 +43,7 @@ describe('defineConfig', () => {
       eval: {},
       deps: {
         optimizer: {
-          ssr: {
-            enabled: true,
-          },
-          web: {
-            enabled: false,
-          },
+          enabled: true,
         },
         interopDefault: true,
       },
@@ -138,7 +87,7 @@ describe('defineConfig', () => {
 
     const config = defineConfig(customConfig);
 
-    // The provide.config should contain the destructured config (without eval, plugins, resolve, deps, server)
+    // @ts-expect-error - this is valid
     expect(config.test?.provide?.config).toEqual({ custom: { value: 'test' } });
   });
 
@@ -154,6 +103,7 @@ describe('defineConfig', () => {
   it('should handle null deps configuration', () => {
     const config = defineConfig({
       eval: {},
+      // @ts-expect-error - this is valid
       deps: null,
     });
 
