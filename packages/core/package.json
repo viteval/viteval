@@ -1,6 +1,6 @@
 {
   "name": "@viteval/core",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Core - Next generation LLM evaluation framework powered by Vitest.",
   "type": "module",
   "main": "dist/main/index.js",
