@@ -34,7 +34,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "types": "tsc --noEmit",
+    "types": "tsc --noEmit --project tsconfig.build.json",
     "test": "vitest --typecheck",
     "check": "biome check .",
     "fix": "biome check --write ."
