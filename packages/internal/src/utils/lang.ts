@@ -77,3 +77,13 @@ export function isEmptyObject(obj: unknown): obj is EmptyObject {
 
   return true;
 }
+
+/**
+ * Check if a value is a promise
+ *
+ * @param value - The value to check
+ * @returns True if the value is a promise, false otherwise
+ */
+export function isPromise<T>(value: unknown): value is Promise<T> {
+  return typeof value === 'object' && value !== null && 'then' in value;
+}
