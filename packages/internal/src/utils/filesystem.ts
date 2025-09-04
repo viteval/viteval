@@ -60,7 +60,10 @@ export async function createDirectory(filePath: string) {
  * @param content - The content to write to the file
  * @returns True if the file was created, false if it already exists
  */
-export async function createFile(filePath: string, content: string): Promise<boolean> {
+export async function createFile(
+  filePath: string,
+  content: string
+): Promise<boolean> {
   const R = await withResult(async () => {
     const exists = await fileExists(filePath);
     if (exists) {
