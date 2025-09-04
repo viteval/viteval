@@ -1,6 +1,7 @@
 ---
 "@viteval/core": patch
 "@viteval/cli": patch
+"@viteval/ui": patch
 ---
 
 ## UI [alpha]
