@@ -1,5 +1,13 @@
 # @viteval/core
 
+## 0.3.1
+
+### Patch Changes
+
+- 94c3934: Add a wrapper to prevent `resolveConfig` from throwing an error, and add logging for debugging.
+- Updated dependencies [94c3934]
+  - @viteval/internal@0.3.1
+
 ## 0.2.0
 
 ### Minor Changes
