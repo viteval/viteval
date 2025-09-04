@@ -1,6 +1,6 @@
 {
   "name": "viteval",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
   "type": "module",
   "main": "dist/index.js",
