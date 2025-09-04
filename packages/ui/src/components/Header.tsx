@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react'
+import { Badge } from './ui/badge'
 
 export default function Header() {
   return (
@@ -8,6 +9,9 @@ export default function Header() {
         <h1 className="text-xl text-white">
           <span className="font-bold">Viteval</span>: Evaluation Results
         </h1>
+        <Badge>
+          alpha
+        </Badge>
       </div>
       <nav className="flex flex-row items-center gap-4">
         <div className="flex items-center gap-4">
@@ -20,19 +24,19 @@ export default function Header() {
             <Icon icon="mdi:book-open" width={18} />
             Docs
           </a>
-          
-          <div className="w-px h-5 bg-border"></div>
-          
+
+          <div className="w-px h-5 bg-border" />
+
           <div className="flex items-center gap-2">
-          <a
-            href="https://github.com/viteval/viteval"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 hover:text-primary transition-colors"
-            title="GitHub"
-          >
-            <Icon icon="mdi:github" width={20} />
-          </a>
+            <a
+              href="https://github.com/viteval/viteval"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 hover:text-primary transition-colors"
+              title="GitHub"
+            >
+              <Icon icon="mdi:github" width={20} />
+            </a>
             <a
               href="https://discord.gg/2MFYxEdJQB"
               target="_blank"

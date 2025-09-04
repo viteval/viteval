@@ -1,11 +1,7 @@
 import { createRouter as createTanstackRouter } from '@tanstack/react-router'
 
-// Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
-process.env.VITEVAL_ROOT_PATH = '../../examples/basic'
-
-// Create a new router instance
 export const createRouter = () => {
   return createTanstackRouter({
     routeTree,
@@ -14,7 +10,6 @@ export const createRouter = () => {
   })
 }
 
-// Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
     router: ReturnType<typeof createRouter>

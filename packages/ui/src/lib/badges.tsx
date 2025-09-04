@@ -14,6 +14,6 @@ export function getSuccessBadge(success: boolean) {
 }
 
 export function getScoreBadge(score: number, threshold: number) {
-  const variant = score >= threshold ? 'default' : 'destructive'
+  const variant = score >= threshold ? 'success' : 'destructive'
   return <Badge variant={variant}>{score.toFixed(3)}</Badge>
 }

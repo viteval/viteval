@@ -1,8 +1,8 @@
-import { getScoreBadge, getStatusBadge } from '../lib/badges'
-import { formatDuration, formatTimestampFromNumber } from '../lib/utils'
+import { getStatusBadge } from '../lib/badges'
+import { formatDuration } from '../lib/utils'
 import type { EvalResult, EvalResults, EvalSuite, Score } from '../types'
 import { Badge } from './ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
   Table,
   TableBody,
@@ -61,10 +61,6 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
               <div className="text-sm text-muted-foreground">Duration</div>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">
-            Started: {formatTimestampFromNumber(results.startTime)} •
-            Completed: {formatTimestampFromNumber(results.endTime)}
-          </div>
         </CardContent>
       </Card>
       {results.evalResults.map((suite: EvalSuite) => (
@@ -72,8 +68,10 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {suite.name}
-              {getStatusBadge(suite.status)}
             </CardTitle>
+            <CardAction>
+              {getStatusBadge(suite.status)}
+            </CardAction>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -94,7 +92,6 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
                 <div className="text-sm text-muted-foreground">Mean Score</div>
               </div>
             </div>
-
             <Table>
               <TableCaption>
                 Individual evaluation results for {suite.name}
@@ -113,7 +110,7 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
                 {suite.evalResults.map((evalResult: EvalResult) => (
                   <TableRow key={evalResult.name}>
                     <TableCell className="font-medium">{evalResult.name}</TableCell>
-                    <TableCell>{getScoreBadge(evalResult.mean, evalResult.threshold)}</TableCell>
+                    <TableCell>{evalResult.mean.toFixed(3)}</TableCell>
                     <TableCell>{evalResult.median.toFixed(3)}</TableCell>
                     <TableCell>{evalResult.sum}</TableCell>
                     <TableCell>{evalResult.threshold}</TableCell>
