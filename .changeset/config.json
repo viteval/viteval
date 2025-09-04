@@ -3,6 +3,7 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "linked": [],
+  "fixed": [["viteval", "@viteval/*"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
