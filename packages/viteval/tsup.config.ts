@@ -9,5 +9,4 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: false,
-  // external: ['@viteval/core', '@viteval/cli'],
 });

@@ -7,7 +7,7 @@ const baseConfig = defineConfig({
   config: 'tsconfig.build.json',
   sourcemap: true,
   treeshake: true,
-  external: ['vitest', 'openai', 'autoevals'],
+  external: ['vitest', 'openai', 'autoevals', '@viteval/internal'],
 });
 
 export default defineConfig(
