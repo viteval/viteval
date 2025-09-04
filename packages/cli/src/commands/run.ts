@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
 import type { DangerouslyAllowAny } from '@viteval/internal';
+import consola from 'consola';
 import { findUp } from 'find-up';
 import { match, P } from 'ts-pattern';
 import {
@@ -10,7 +11,6 @@ import {
   resolveConfig,
 } from 'vitest/node';
 import type { CommandModule } from 'yargs';
-import { startDevServer } from '#/lib/dev-server';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
   command: 'run [pattern] [options]',
@@ -71,6 +71,7 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       config: configFilePath,
       root,
       reporters,
+      watch: false,
     });
 
     try {
@@ -78,6 +79,9 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       // and won't close the process automatically
       await vitest.start();
       if (argv.ui) {
+        process.env.VITEVAL_ROOT_PATH = root;
+        const { startDevServer } = await import('../lib/dev-server');
+        consola.info('View the results at http://localhost:3000');
         await startDevServer();
       }
     } finally {

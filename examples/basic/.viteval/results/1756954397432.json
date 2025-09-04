@@ -1,0 +1,73 @@
+{
+  "success": false,
+  "numTotalEvalSuites": 1,
+  "numPassedEvalSuites": 0,
+  "numFailedEvalSuites": 1,
+  "numTotalEvals": 3,
+  "numPassedEvals": 1,
+  "numFailedEvals": 2,
+  "startTime": 1756954397458,
+  "evalResults": [
+    {
+      "name": "A test eval",
+      "filepath": "src/model.eval.ts",
+      "status": "failed",
+      "startTime": 1756954398558,
+      "endTime": 1756954398670,
+      "duration": 112,
+      "evalResults": [
+        {
+          "name": "Generate a random number between 0 and 100",
+          "sum": 1,
+          "median": 1,
+          "mean": 1,
+          "threshold": 1,
+          "aggregation": "mean",
+          "scores": [
+            {
+              "name": "ExactMatch",
+              "score": 1
+            }
+          ]
+        },
+        {
+          "name": "Generate a random number between 0 and 100",
+          "sum": 0,
+          "median": 0,
+          "mean": 0,
+          "threshold": 1,
+          "aggregation": "mean",
+          "scores": [
+            {
+              "name": "ExactMatch",
+              "score": 0
+            }
+          ]
+        },
+        {
+          "name": "Generate a random number between 0 and 100",
+          "sum": 0,
+          "median": 0,
+          "mean": 0,
+          "threshold": 1,
+          "aggregation": "mean",
+          "scores": [
+            {
+              "name": "ExactMatch",
+              "score": 0
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "meanScore": 0.3333333333333333,
+        "medianScore": 0.3333333333333333,
+        "sumScore": 1,
+        "passedCount": 1,
+        "totalCount": 3
+      }
+    }
+  ],
+  "endTime": 1756954398670,
+  "duration": 1212
+}

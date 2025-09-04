@@ -9,6 +9,9 @@
     "serve": "vite preview",
     "test": "vitest run"
   },
+  "files": [
+    ".output"
+  ],
   "dependencies": {
     "@iconify-json/mdi": "^1.2.3",
     "@iconify/react": "^6.0.1",
