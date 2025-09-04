@@ -10,6 +10,7 @@ import {
   resolveConfig,
 } from 'vitest/node';
 import type { CommandModule } from 'yargs';
+import { startDevServer } from '#/lib/dev-server';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
   command: 'run [pattern] [options]',
@@ -27,6 +28,12 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         describe: 'Reporter to use',
         type: 'array',
         choices: ['default', 'json', 'file'],
+      })
+      .option('ui', {
+        alias: 'u',
+        describe: 'Start the UI server',
+        type: 'boolean',
+        default: false,
       })
       .option('root', {
         alias: 'x',
@@ -70,6 +77,9 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       // this will set process.exitCode to 1 if tests failed,
       // and won't close the process automatically
       await vitest.start();
+      if (argv.ui) {
+        await startDevServer();
+      }
     } finally {
       await vitest.close();
     }
@@ -83,10 +93,13 @@ interface EvalOptions {
   config?: string;
   watch?: boolean;
   outputPath?: string;
+  ui?: boolean;
 }
 
 function getReporters(argv: EvalOptions, config: ResolvedConfig) {
-  const argReporters = (argv.reporters ?? []) as VitevalReporter[];
+  const argReporters = (
+    argv.ui ? ['default', 'file'] : (argv.reporters ?? [])
+  ) as VitevalReporter[];
   if (argReporters.length > 0) {
     return buildReporters(
       argReporters.map((reporter) => ({
