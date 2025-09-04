@@ -27,7 +27,7 @@
   "dependencies": {
     "@opentf/cli-pbar": "^0.7.2",
     "@viteval/core": "workspace:*",
-    "@viteval/internal": "workspace:^",
+    "@viteval/internal": "workspace:*",
     "@viteval/ui": "workspace:*",
     "c12": "^3.2.0",
     "chalk": "^5.5.0",

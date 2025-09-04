@@ -32,7 +32,9 @@
   },
   "dependencies": {
     "@viteval/cli": "workspace:*",
-    "@viteval/core": "workspace:*"
+    "@viteval/core": "workspace:*",
+    "@viteval/internal": "workspace:*",
+    "@viteval/ui": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
