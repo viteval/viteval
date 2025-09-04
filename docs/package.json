@@ -10,13 +10,13 @@
   "dependencies": {
     "@iconify-json/carbon": "^1.2.13",
     "@iconify-json/logos": "^1.2.9",
-    "@iconify-json/material-icon-theme": "^1.2.22",
+    "@iconify-json/material-icon-theme": "^1.2.26",
     "@iconify-json/mdi": "^1.2.3",
-    "@unocss/preset-wind3": "^66.4.2",
+    "@unocss/preset-wind3": "^66.5.0",
     "typescript": "^5.9.2",
-    "unocss": "^66.4.2",
+    "unocss": "^66.5.0",
     "vitepress": "2.0.0-alpha.11",
     "vitepress-plugin-group-icons": "^1.6.3",
-    "vitepress-plugin-llms": "^1.7.3"
+    "vitepress-plugin-llms": "^1.7.4"
   }
 }

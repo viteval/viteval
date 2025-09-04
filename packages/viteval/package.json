@@ -37,9 +37,9 @@
     "@viteval/ui": "workspace:*"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.4",
+    "@biomejs/biome": "^2.2.2",
     "@tsconfig/node18": "^18.2.4",
-    "@types/node": "^24.2.1",
+    "@types/node": "^24.3.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
