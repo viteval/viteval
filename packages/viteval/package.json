@@ -1,6 +1,6 @@
 {
   "name": "viteval",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
   "type": "module",
   "main": "dist/index.js",
@@ -32,7 +32,9 @@
   },
   "dependencies": {
     "@viteval/cli": "workspace:*",
-    "@viteval/core": "workspace:*"
+    "@viteval/core": "workspace:*",
+    "@viteval/internal": "workspace:*",
+    "@viteval/ui": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",

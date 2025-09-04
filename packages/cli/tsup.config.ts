@@ -21,8 +21,9 @@ export default defineConfig({
     'yargs',
     'consola',
     'ts-pattern',
-    // '@viteval/core',
-    // '@viteval/internal',
+    '@viteval/core',
+    '@viteval/internal',
+    '@viteval/ui',
   ],
   async onSuccess() {
     const files = await fs.readdir(TEMPLATES_DIR);

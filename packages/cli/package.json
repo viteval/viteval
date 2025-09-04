@@ -1,6 +1,6 @@
 {
   "name": "@viteval/cli",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Command line interface for Viteval - Next generation LLM evaluation framework powered by Vitest.",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
   "dependencies": {
     "@opentf/cli-pbar": "^0.7.2",
     "@viteval/core": "workspace:*",
-    "@viteval/internal": "workspace:^",
+    "@viteval/internal": "workspace:*",
     "@viteval/ui": "workspace:*",
     "c12": "^3.2.0",
     "chalk": "^5.5.0",
