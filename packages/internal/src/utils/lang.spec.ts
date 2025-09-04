@@ -361,7 +361,6 @@ describe('isArray', () => {
   });
 });
 
-
 describe('isPromise', () => {
   it('should return true for promises', () => {
     expect(isPromise(Promise.resolve('hello'))).toBe(true);

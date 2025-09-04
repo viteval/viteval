@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
-import { withResult, type DangerouslyAllowAny } from '@viteval/internal';
+import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
 import consola from 'consola';
 import { findUp } from 'find-up';
 import { match, P } from 'ts-pattern';
@@ -67,12 +67,17 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       });
     });
 
-    if (configResolutionResult.status === 'error' && process.env.VITEVAL_DEBUG_MODE === 'true') {
+    if (
+      configResolutionResult.status === 'error' &&
+      process.env.VITEVAL_DEBUG_MODE === 'true'
+    ) {
       consola.error('Failed to resolve config');
       consola.error(configResolutionResult.result);
     }
 
-    const vitestConfig = configResolutionResult.ok ? configResolutionResult.result.vitestConfig : undefined;
+    const vitestConfig = configResolutionResult.ok
+      ? configResolutionResult.result.vitestConfig
+      : undefined;
 
     const reporters = getReporters(argv, vitestConfig);
 

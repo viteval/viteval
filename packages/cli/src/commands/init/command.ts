@@ -62,7 +62,7 @@ export const initCommand: CommandModule<
         'OPENAI_API_KEY=""\n'
       );
 
-      if (result.status === 'exists') {
+      if (!result) {
         logger.info('.env file already exists, skipping...');
       }
 
@@ -70,7 +70,7 @@ export const initCommand: CommandModule<
         path.join(cwd, 'viteval.setup.ts'),
         'viteval.setup.ts'
       );
-      if (setupResult.status === 'exists') {
+      if (!setupResult) {
         logger.info('viteval.setup.ts file already exists, skipping...');
       }
     }
@@ -79,12 +79,12 @@ export const initCommand: CommandModule<
       path.join(cwd, 'viteval.config.ts'),
       'viteval.config.ts'
     );
-    if (configResult.status === 'exists') {
+    if (!configResult) {
       logger.info('viteval.config.ts file already exists, skipping...');
     }
 
     const dotDir = await createFile(path.join(cwd, '.viteval/.gitkeep'), '');
-    if (dotDir.status === 'created') {
+    if (dotDir) {
       logger.info('Created .viteval directory');
     }
 
