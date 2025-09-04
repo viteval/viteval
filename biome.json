@@ -13,7 +13,8 @@
       "!tmp",
       "!.nx",
       "!pnpm-*",
-      "!original/**"
+      "!original/**",
+      "!**/*.gen.ts"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },

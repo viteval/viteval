@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
 import type { DangerouslyAllowAny } from '@viteval/internal';
+import consola from 'consola';
 import { findUp } from 'find-up';
 import { match, P } from 'ts-pattern';
 import {
@@ -27,6 +28,12 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         describe: 'Reporter to use',
         type: 'array',
         choices: ['default', 'json', 'file'],
+      })
+      .option('ui', {
+        alias: 'u',
+        describe: 'Start the UI server',
+        type: 'boolean',
+        default: false,
       })
       .option('root', {
         alias: 'x',
@@ -64,12 +71,19 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       config: configFilePath,
       root,
       reporters,
+      watch: false,
     });
 
     try {
       // this will set process.exitCode to 1 if tests failed,
       // and won't close the process automatically
       await vitest.start();
+      if (argv.ui) {
+        process.env.VITEVAL_ROOT_PATH = root;
+        const { startDevServer } = await import('../lib/dev-server');
+        consola.info('View the results at http://localhost:3000');
+        await startDevServer();
+      }
     } finally {
       await vitest.close();
     }
@@ -83,10 +97,13 @@ interface EvalOptions {
   config?: string;
   watch?: boolean;
   outputPath?: string;
+  ui?: boolean;
 }
 
 function getReporters(argv: EvalOptions, config: ResolvedConfig) {
-  const argReporters = (argv.reporters ?? []) as VitevalReporter[];
+  const argReporters = (
+    argv.ui ? ['default', 'file'] : (argv.reporters ?? [])
+  ) as VitevalReporter[];
   if (argReporters.length > 0) {
     return buildReporters(
       argReporters.map((reporter) => ({

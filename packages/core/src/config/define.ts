@@ -40,6 +40,7 @@ export function defineConfig({
         })
         .otherwise(() => undefined),
     },
+    // @ts-expect-error - ignore for now as we are getting TS errors locally but not in CI, so adding a fix for now
     resolve,
     // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
     plugins: plugins as any,

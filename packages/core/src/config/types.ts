@@ -1,5 +1,5 @@
 import type { OpenAI } from 'openai';
-import type { UserConfig } from 'vite';
+import type { AliasOptions, UserConfig } from 'vite';
 import type { DebuggerOptions, DepsHandlingOptions } from 'vite-node';
 import type { DepsOptimizationOptions } from 'vitest/node';
 
@@ -98,5 +98,7 @@ export interface VitevalConfig {
   /**
    * Vite resolve configuration.
    */
-  resolve?: UserConfig['resolve'];
+  resolve?: {
+    alias?: AliasOptions;
+  };
 }
