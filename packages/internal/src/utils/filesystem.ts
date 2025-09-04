@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { wrapSafe } from './safe';
+import { withResult } from './result';
 
 /**
  * Check if a file exists
@@ -36,16 +36,22 @@ export async function directoryExists(filePath: string) {
  * @returns True if the directory was created, false if it already exists
  */
 export async function createDirectory(filePath: string) {
-  return await wrapSafe(async () => {
+  const R = await withResult(async () => {
     const dirPath = path.dirname(filePath);
     const exists = await directoryExists(dirPath);
     if (exists) {
-      return { status: 'exists', data: null };
+      return false;
     }
 
     await fs.mkdir(dirPath, { recursive: true });
-    return { status: 'created', data: null };
+    return true;
   });
+
+  if (R.ok) {
+    return R.result;
+  }
+
+  return false;
 }
 
 /**
@@ -54,17 +60,26 @@ export async function createDirectory(filePath: string) {
  * @param content - The content to write to the file
  * @returns True if the file was created, false if it already exists
  */
-export async function createFile(filePath: string, content: string) {
-  return await wrapSafe(async () => {
+export async function createFile(
+  filePath: string,
+  content: string
+): Promise<boolean> {
+  const R = await withResult(async () => {
     const exists = await fileExists(filePath);
     if (exists) {
-      return { status: 'exists', data: null };
+      return false;
     }
 
     // We initialize the directory to avoid errors
     await createDirectory(filePath);
 
     await fs.writeFile(filePath, content);
-    return { status: 'created', data: null };
+    return true;
   });
+
+  if (R.ok) {
+    return R.result;
+  }
+
+  return false;
 }

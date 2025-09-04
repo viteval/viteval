@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { createFile, fileExists, type SafeResultStatus } from '@viteval/internal';
+import { createFile, fileExists, } from '@viteval/internal';
 
 const TEMPLATES_DIR = import.meta.dirname;
 
@@ -15,7 +15,7 @@ export type TemplateName = 'viteval.config.ts' | 'viteval.setup.ts';
 export async function createFileFromTemplate(
   filePath: string,
   template: TemplateName
-): Promise<SafeResultStatus<'exists' | 'created' | 'error', null>> {
+) {
   const content = await readTemplateContents(template);
   if (!content) {
     return { status: 'error', error: new Error('Template not found') };

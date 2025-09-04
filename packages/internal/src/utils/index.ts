@@ -11,6 +11,7 @@ export {
   isNil,
   isObject,
   isPlainObject,
+  isPromise,
 } from './lang';
 export { hasKey } from './objects';
-export { type SafeResultStatus, wrapSafe } from './safe';
+export { type Result, withResult } from './result';

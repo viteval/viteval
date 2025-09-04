@@ -23,7 +23,7 @@ describe('defineConfig', () => {
   });
 
   it('should handle resolve configuration', () => {
-    const resolveConfig = {
+    const resolveConf = {
       alias: {
         '@': '/src',
         '#': '/lib',
@@ -32,10 +32,10 @@ describe('defineConfig', () => {
 
     const config = defineConfig({
       eval: {},
-      resolve: resolveConfig,
+      resolve: resolveConf,
     });
 
-    expect(config.resolve).toEqual(resolveConfig);
+    expect(config.resolve).toEqual(resolveConf);
   });
 
   it('should handle deps configuration with optimizer', () => {

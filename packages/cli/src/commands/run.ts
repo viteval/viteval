@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
-import type { DangerouslyAllowAny } from '@viteval/internal';
+import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
 import consola from 'consola';
 import { findUp } from 'find-up';
 import { match, P } from 'ts-pattern';
@@ -60,10 +60,24 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
-    const { vitestConfig } = await resolveConfig({
-      config: configFilePath,
-      root,
+    const configResolutionResult = await withResult(async () => {
+      return await resolveConfig({
+        config: configFilePath,
+        root,
+      });
     });
+
+    if (
+      configResolutionResult.status === 'error' &&
+      process.env.VITEVAL_DEBUG_MODE === 'true'
+    ) {
+      consola.error('Failed to resolve config');
+      consola.error(configResolutionResult.result);
+    }
+
+    const vitestConfig = configResolutionResult.ok
+      ? configResolutionResult.result.vitestConfig
+      : undefined;
 
     const reporters = getReporters(argv, vitestConfig);
 
@@ -100,7 +114,7 @@ interface EvalOptions {
   ui?: boolean;
 }
 
-function getReporters(argv: EvalOptions, config: ResolvedConfig) {
+function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
   const argReporters = (
     argv.ui ? ['default', 'file'] : (argv.reporters ?? [])
   ) as VitevalReporter[];
@@ -124,7 +138,7 @@ function getReporters(argv: EvalOptions, config: ResolvedConfig) {
     );
   }
 
-  if (config.reporters && config.reporters.length > 0) {
+  if (config && config.reporters && config.reporters.length > 0) {
     const formattedReporters = config.reporters
       .flatMap((reporter) =>
         match(reporter)

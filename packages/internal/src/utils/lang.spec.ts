@@ -8,6 +8,7 @@ import {
   isNil,
   isObject,
   isPlainObject,
+  isPromise,
 } from './lang';
 
 describe('isNil', () => {
@@ -357,5 +358,19 @@ describe('isArray', () => {
     expect(isArray(1)).toBe(false);
     expect(isArray('string')).toBe(false);
     expect(isArray(true)).toBe(false);
+  });
+});
+
+describe('isPromise', () => {
+  it('should return true for promises', () => {
+    expect(isPromise(Promise.resolve('hello'))).toBe(true);
+  });
+
+  it('should return false for non-promises', () => {
+    expect(isPromise(null)).toBe(false);
+    expect(isPromise(undefined)).toBe(false);
+    expect(isPromise('string')).toBe(false);
+    expect(isPromise(42)).toBe(false);
+    expect(isPromise(true)).toBe(false);
   });
 });
