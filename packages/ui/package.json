@@ -1,6 +1,16 @@
 {
   "name": "@viteval/ui",
-  "private": true,
+  "version": "0.0.1",
+  "description": "Viteval UI - local UI for viewing the results of your evals",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viteval/viteval"
+  },
+  "bugs": {
+    "url": "https://github.com/viteval/viteval/issues"
+  },
+  "homepage": "https://github.com/viteval/viteval#readme",
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
