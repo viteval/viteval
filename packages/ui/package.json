@@ -1,6 +1,6 @@
 {
   "name": "@viteval/ui",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "description": "Viteval UI - local UI for viewing the results of your evals",
   "license": "MIT",
   "repository": {
