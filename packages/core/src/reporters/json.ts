@@ -63,6 +63,10 @@ export interface JsonEvalSuite {
    */
   name: string;
   /**
+   * Filepath of the evaluation suite
+   */
+  filepath: string;
+  /**
    * Whether the suite passed (all evals met threshold)
    */
   status: 'passed' | 'failed';
@@ -172,7 +176,8 @@ export default class JsonReporter implements Reporter {
   }
 
   private processTestSuite(file: DangerouslyAllowAny) {
-    const suiteName = file.name || file.filepath || 'Unknown Suite';
+    const suiteName =
+      file.tasks?.[0]?.name || file.name || file.filepath || 'Unknown Suite';
     const startTime = file.result?.startTime || Date.now();
     const endTime = file.result?.endTime || Date.now();
     const duration = endTime - startTime;
@@ -204,6 +209,7 @@ export default class JsonReporter implements Reporter {
 
     const suiteResult: JsonEvalSuite = {
       name: suiteName,
+      filepath: path.relative(process.cwd(), file.filepath),
       status: suitePassed ? 'passed' : 'failed',
       startTime,
       endTime,
