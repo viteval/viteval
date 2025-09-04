@@ -463,6 +463,12 @@ importers:
       '@viteval/core':
         specifier: workspace:*
         version: link:../core
+      '@viteval/internal':
+        specifier: workspace:*
+        version: link:../internal
+      '@viteval/ui':
+        specifier: workspace:*
+        version: link:../ui
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.1.4
