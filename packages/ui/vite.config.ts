@@ -12,6 +12,7 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart({
+      target: 'node-listener',
       customViteReactPlugin: true,
     }),
     viteReact(),
