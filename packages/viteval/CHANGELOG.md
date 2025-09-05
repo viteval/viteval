@@ -1,5 +1,15 @@
 # viteval
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [9db42c7]
+  - @viteval/internal@0.3.2
+  - @viteval/core@0.3.2
+  - @viteval/cli@0.3.2
+  - @viteval/ui@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
