@@ -1,48 +1,8 @@
 {
   "name": "@viteval/core",
-  "version": "0.3.1",
   "description": "Core - Next generation LLM evaluation framework powered by Vitest.",
-  "type": "module",
-  "main": "dist/main/index.js",
-  "types": "dist/main/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/viteval/viteval"
-  },
-  "bugs": {
-    "url": "https://github.com/viteval/viteval/issues"
-  },
-  "homepage": "https://github.com/viteval/viteval#readme",
-  "exports": {
-    ".": {
-      "import": "./dist/main/index.js",
-      "types": "./dist/main/index.d.ts"
-    },
-    "./config": {
-      "import": "./dist/config/index.js",
-      "types": "./dist/config/index.d.ts"
-    },
-    "./dataset": {
-      "import": "./dist/dataset/index.js",
-      "types": "./dist/dataset/index.d.ts"
-    },
-    "./reporters": {
-      "import": "./dist/reporters/index.js",
-      "types": "./dist/reporters/index.d.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "types": "tsc --noEmit --project tsconfig.build.json",
-    "test": "vitest --typecheck",
-    "check": "biome check .",
-    "fix": "biome check --write ."
-  },
+  "version": "0.3.1",
+  "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@vitest/runner": "^3.2.4",
     "@viteval/internal": "workspace:^",
@@ -73,5 +33,40 @@
     "typescript": "^5.9.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/main/index.d.ts",
+      "import": "./dist/main/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js"
+    },
+    "./dataset": {
+      "types": "./dist/dataset/index.d.ts",
+      "import": "./dist/dataset/index.js"
+    },
+    "./reporters": {
+      "types": "./dist/reporters/index.d.ts",
+      "import": "./dist/reporters/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "main": "dist/main/index.js",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "build": "tsup",
+    "check": "biome check .",
+    "dev": "tsup --watch",
+    "fix": "biome check --write .",
+    "test": "vitest --typecheck",
+    "types": "tsc --noEmit --project tsconfig.build.json"
+  },
+  "type": "module",
+  "types": "dist/main/index.d.ts"
 }

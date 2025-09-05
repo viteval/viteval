@@ -1,13 +1,13 @@
 {
   "name": "@examples/basic",
   "description": "Viteval example - A basic example showing the basics of Viteval",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "eval": "viteval"
-  },
   "dependencies": {
     "dotenv": "^17.2.2",
     "viteval": "workspace:*"
-  }
+  },
+  "private": true,
+  "scripts": {
+    "eval": "viteval"
+  },
+  "type": "module"
 }

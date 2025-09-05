@@ -1,36 +1,8 @@
 {
   "name": "@viteval/ui",
-  "version": "0.3.1",
   "description": "Viteval UI - local UI for viewing the results of your evals",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/viteval/viteval"
-  },
-  "bugs": {
-    "url": "https://github.com/viteval/viteval/issues"
-  },
-  "homepage": "https://github.com/viteval/viteval#readme",
-  "type": "module",
-  "scripts": {
-    "dev": "vite dev --port 3000",
-    "start": "node .output/server/index.mjs",
-    "build": "vite build && tsup",
-    "serve": "vite preview",
-    "test": "vitest run --passWithNoTests"
-  },
-  "main": "dist/server.mjs",
-  "module": "dist/server.mjs",
-  "types": "dist/server.d.ts",
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/server.d.ts",
-      "import": "./dist/server.mjs"
-    }
-  },
+  "version": "0.3.1",
+  "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@iconify-json/mdi": "^1.2.3",
     "@iconify/react": "^6.0.1",
@@ -67,5 +39,28 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.5",
     "web-vitals": "^5.1.0"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "license": "MIT",
+  "main": "dist/server.mjs",
+  "module": "dist/server.mjs",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "build": "vite build && tsup",
+    "dev": "vite dev --port 3000",
+    "serve": "vite preview",
+    "start": "node .output/server/index.mjs",
+    "test": "vitest run --passWithNoTests"
+  },
+  "type": "module",
+  "types": "dist/server.d.ts"
 }

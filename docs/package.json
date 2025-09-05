@@ -1,12 +1,6 @@
 {
   "name": "@internal/docs",
   "description": "Documentation for Viteval",
-  "private": true,
-  "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview"
-  },
   "dependencies": {
     "@iconify-json/carbon": "^1.2.13",
     "@iconify-json/logos": "^1.2.9",
@@ -18,5 +12,11 @@
     "vitepress": "2.0.0-alpha.11",
     "vitepress-plugin-group-icons": "^1.6.3",
     "vitepress-plugin-llms": "^1.7.4"
+  },
+  "private": true,
+  "scripts": {
+    "build": "vitepress build",
+    "dev": "vitepress dev",
+    "preview": "vitepress preview"
   }
 }

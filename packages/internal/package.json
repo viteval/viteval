@@ -1,41 +1,36 @@
 {
   "name": "@viteval/internal",
-  "version": "0.3.1",
   "description": "Viteval internal - shared utilities for the Viteval ecosystem",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/viteval/viteval"
-  },
-  "bugs": {
-    "url": "https://github.com/viteval/viteval/issues"
-  },
-  "homepage": "https://github.com/viteval/viteval#readme",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    }
-  },
-  "main": "dist/index.mjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.mts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "types": "tsc --noEmit",
-    "test": "vitest --typecheck --passWithNoTests",
-    "check": "biome check .",
-    "fix": "biome check . --write"
-  },
+  "version": "0.3.1",
+  "bugs": "https://github.com/viteval/viteval/issues",
   "devDependencies": {
     "@types/node": "^24.3.1",
     "tsup": "^8.5.0",
     "type-fest": "^4.41.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "license": "MIT",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "build": "tsup",
+    "check": "biome check .",
+    "dev": "tsup --watch",
+    "fix": "biome check . --write",
+    "test": "vitest --typecheck --passWithNoTests",
+    "types": "tsc --noEmit"
+  },
+  "types": "dist/index.d.mts"
 }
