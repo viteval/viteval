@@ -26,7 +26,7 @@ Next generation LLM evaluation framework powered by Vitest.
 - ✅ Local Dataset: quickly define and generate datasets that are stored locally or in a database.
 - ✅ Scorer framework: easily define and use scorers to evaluate your LLM.
 - ✅ CI ready: easily integrate with your CI pipeline and run evals the same way you run tests.
-- (SOON) UI for viewing the results of Evals (including historical runs)
+- 🧪 UI for viewing the results of Evals (alpha)
 - (SOON) Report Exports: custom reporters to help you visualize your evals, or upload them to a 3rd party 
 - (SOON) Remote Datasets: easily define & use datasets that are stored in a database, S3 bucket, or a 3rd party
 
