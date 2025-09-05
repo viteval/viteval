@@ -17,6 +17,7 @@
       "vite/client"
     ],
     "allowJs": true,
+    "esModuleInterop": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
