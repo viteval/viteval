@@ -1,13 +1,6 @@
 {
   "name": "@examples/voltagent",
   "description": "Viteval example - A real-world example using Voltagent",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "question": "tsx ./src/cli.ts",
-    "eval": "viteval"
-  },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.24",
     "@voltagent/core": "^0.1.86",
@@ -22,5 +15,12 @@
     "@types/yargs": "^17.0.33",
     "dotenv": "^17.2.2",
     "viteval": "workspace:*"
-  }
+  },
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "eval": "viteval",
+    "question": "tsx ./src/cli.ts"
+  },
+  "type": "module"
 }

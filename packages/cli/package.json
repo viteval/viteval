@@ -1,29 +1,11 @@
 {
   "name": "@viteval/cli",
-  "version": "0.3.1",
   "description": "Command line interface for Viteval - Next generation LLM evaluation framework powered by Vitest.",
-  "type": "module",
-  "main": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/viteval/viteval"
-  },
-  "bugs": {
-    "url": "https://github.com/viteval/viteval/issues"
-  },
-  "homepage": "https://github.com/viteval/viteval#readme",
+  "version": "0.3.1",
   "bin": {
     "viteval": "dist/index.js"
   },
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "types": "tsc --noEmit",
-    "test": "vitest --typecheck --passWithNoTests",
-    "check": "biome check .",
-    "fix": "biome check --write .",
-    "agents": "CI=true nx run --tui=false"
-  },
+  "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@opentf/cli-pbar": "^0.7.2",
     "@viteval/core": "workspace:*",
@@ -48,5 +30,18 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "main": "dist/index.js",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "agents": "CI=true nx run --tui=false",
+    "build": "tsup",
+    "check": "biome check .",
+    "dev": "tsup --watch",
+    "fix": "biome check --write .",
+    "test": "vitest --typecheck --passWithNoTests",
+    "types": "tsc --noEmit"
+  },
+  "type": "module"
 }

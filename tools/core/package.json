@@ -1,12 +1,12 @@
 {
   "name": "@tools/core",
-  "private": true,
-  "type": "commonjs",
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
   "dependencies": {
     "@nx/devkit": "21.4.1",
     "tslib": "^2.3.0"
   },
-  "generators": "./generators.json"
+  "generators": "./generators.json",
+  "main": "./src/index.js",
+  "private": true,
+  "type": "commonjs",
+  "types": "./src/index.d.ts"
 }

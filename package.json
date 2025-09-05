@@ -1,23 +1,7 @@
 {
   "name": "viteval-workspace",
-  "version": "1.0.0",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
-  "private": true,
-  "scripts": {
-    "build": "nx run-many -t build --parallel --projects=packages/*",
-    "build:docs": "nx run-many -t build --parallel --p docs",
-    "dev": "nx run-many -t dev --parallel --projects=packages/*",
-    "dev:docs": "nx dev docs",
-    "test": "nx run-many -t test --parallel --projects=packages/*",
-    "types": "nx run-many -t types --parallel --projects=packages/*",
-    "check": "nx run-many -t check",
-    "fix": "nx run-many -t fix",
-    "nuke": "nuka-code",
-    "gen": "nx generate",
-    "publish": "pnpm run build && pnpm changeset publish",
-    "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
-    "agents": "CI=true nx run-many --tui=false --parallel --projects=packages/* -t"
-  },
+  "version": "1.0.0",
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
     "@changesets/cli": "^2.29.6",
@@ -39,6 +23,7 @@
     "nuka-code": "^0.1.12",
     "nx": "21.4.1",
     "prettier": "^3.6.2",
+    "syncpack": "^13.0.4",
     "tslib": "^2.3.0",
     "tsup": "^8.5.0",
     "typescript": "~5.9.2",
@@ -49,5 +34,22 @@
     "node": ">=22.0.0",
     "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@10.14.0"
+  "packageManager": "pnpm@10.14.0",
+  "private": true,
+  "scripts": {
+    "agents": "CI=true nx run-many --tui=false --parallel --projects=packages/* -t",
+    "build": "nx run-many -t build --parallel --projects=packages/*",
+    "build:docs": "nx run-many -t build --parallel --p docs",
+    "check": "nx run-many -t check",
+    "dev": "nx run-many -t dev --parallel --projects=packages/*",
+    "dev:docs": "nx dev docs",
+    "fix": "nx run-many -t fix",
+    "gen": "nx generate",
+    "nuke": "nuka-code",
+    "publish": "pnpm run build && pnpm changeset publish",
+    "sp": "syncpack",
+    "test": "nx run-many -t test --parallel --projects=packages/*",
+    "types": "nx run-many -t types --parallel --projects=packages/*",
+    "version": "pnpm changeset version && pnpm install --no-frozen-lockfile"
+  }
 }

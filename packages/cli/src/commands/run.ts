@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
 import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
+import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
 import { findUp } from 'find-up';
 import { match, P } from 'ts-pattern';
@@ -92,11 +93,14 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       // this will set process.exitCode to 1 if tests failed,
       // and won't close the process automatically
       await vitest.start();
+
+      // start the UI server if the --ui flag is passed
       if (argv.ui) {
-        process.env.VITEVAL_ROOT_PATH = root;
-        const { startDevServer } = await import('../lib/dev-server');
-        consola.info('View the results at http://localhost:3000');
-        await startDevServer();
+        const server = createVitevalServer({
+          debug: process.env.VITEVAL_DEBUG_MODE === 'true',
+        });
+        const port = await server.start();
+        consola.info(`View the results at http://localhost:${port}`);
       }
     } finally {
       await vitest.close();
@@ -138,7 +142,7 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
     );
   }
 
-  if (config && config.reporters && config.reporters.length > 0) {
+  if (config?.reporters && config.reporters.length > 0) {
     const formattedReporters = config.reporters
       .flatMap((reporter) =>
         match(reporter)

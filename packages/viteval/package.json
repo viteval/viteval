@@ -1,35 +1,12 @@
 {
   "name": "viteval",
-  "version": "0.3.1",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "version": "0.3.1",
+  "author": "viteval",
   "bin": {
     "viteval": "./dist/cli.js"
   },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./config": {
-      "import": "./dist/config.js",
-      "types": "./dist/config.d.ts"
-    },
-    "./dataset": {
-      "import": "./dist/dataset.js",
-      "types": "./dist/dataset.d.ts"
-    }
-  },
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "test": "vitest --typecheck --passWithNoTests",
-    "types": "tsc --noEmit",
-    "check": "biome check .",
-    "fix": "biome check --write ."
-  },
+  "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@viteval/cli": "workspace:*",
     "@viteval/core": "workspace:*",
@@ -44,23 +21,41 @@
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
+    },
+    "./dataset": {
+      "types": "./dist/dataset.d.ts",
+      "import": "./dist/dataset.js"
+    }
+  },
+  "homepage": "https://github.com/viteval/viteval#readme",
   "keywords": [
-    "llm",
-    "evaluation",
-    "testing",
-    "vitest",
     "ai",
+    "evaluation",
+    "javascript",
+    "llm",
+    "testing",
     "typescript",
-    "javascript"
+    "vitest"
   ],
-  "author": "viteval",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/viteval/viteval"
+  "main": "dist/index.js",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "build": "tsup",
+    "check": "biome check .",
+    "dev": "tsup --watch",
+    "fix": "biome check --write .",
+    "test": "vitest --typecheck --passWithNoTests",
+    "types": "tsc --noEmit"
   },
-  "bugs": {
-    "url": "https://github.com/viteval/viteval/issues"
-  },
-  "homepage": "https://github.com/viteval/viteval#readme"
+  "type": "module",
+  "types": "dist/index.d.ts"
 }

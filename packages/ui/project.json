@@ -1,0 +1,12 @@
+{
+  "name": "ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/ui/src",
+  "targets": {
+    "validate": {
+      "command": "echo \"Running validation\"",
+      "dependsOn": ["test", "types", "check"]
+    }
+  }
+}
