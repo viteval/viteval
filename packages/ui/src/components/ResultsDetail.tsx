@@ -1,8 +1,13 @@
+import { ChevronDown, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
 import { getStatusBadge } from '../lib/badges'
 import { formatDuration } from '../lib/utils'
 import type { EvalResult, EvalResults, EvalSuite, Score } from '../types'
+import { ValueRenderer } from './ValueRenderer'
 import { Badge } from './ui/badge'
+import { Button } from './ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Collapsible, CollapsibleContent } from './ui/collapsible'
 import {
   Table,
   TableBody,
@@ -17,6 +22,89 @@ interface ResultsDetailProps {
   results: EvalResults
   loading?: boolean
   error?: string | null
+}
+
+
+function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const hasDetails = evalResult.input !== undefined || evalResult.expected !== undefined || evalResult.output !== undefined
+
+  return (
+    <>
+      <TableRow
+        className={hasDetails ? "cursor-pointer hover:bg-muted/50" : ""}
+        onClick={() => hasDetails && setIsOpen(!isOpen)}
+      >
+        <TableCell className="font-medium">
+          <div className="flex items-center gap-2">
+            {hasDetails && (
+              <Button variant="ghost" size="sm" className="h-4 w-4 p-0">
+                {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Button>
+            )}
+            {evalResult.name}
+          </div>
+        </TableCell>
+        <TableCell>{evalResult.mean.toFixed(3)}</TableCell>
+        <TableCell>{evalResult.median.toFixed(3)}</TableCell>
+        <TableCell>{evalResult.sum}</TableCell>
+        <TableCell>{evalResult.threshold}</TableCell>
+        <TableCell>
+          <div className="flex gap-1 flex-wrap">
+            {evalResult.scores.map((score: Score, scoreIndex) => (
+              <Badge key={`${score.name}-${scoreIndex}`} variant="outline" className="text-xs">
+                {score.name}: {score.score}
+              </Badge>
+            ))}
+          </div>
+        </TableCell>
+      </TableRow>
+      {hasDetails && isOpen && (
+        <TableRow>
+          <TableCell colSpan={6} className="p-0">
+            <Collapsible open={isOpen}>
+              <CollapsibleContent>
+                <div className="bg-muted/30 p-4 space-y-4">
+                  {evalResult.input !== undefined && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">Input:</h4>
+                      <div className="overflow-auto">
+                        <ValueRenderer value={evalResult.input} />
+                      </div>
+                    </div>
+                  )}
+                  {evalResult.expected !== undefined && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">Expected Output:</h4>
+                      <div className="overflow-auto">
+                        <ValueRenderer value={evalResult.expected} />
+                      </div>
+                    </div>
+                  )}
+                  {evalResult.output !== undefined && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">Actual Output:</h4>
+                      <div className="overflow-auto">
+                        <ValueRenderer value={evalResult.output} />
+                      </div>
+                    </div>
+                  )}
+                  {evalResult.metadata && Object.keys(evalResult.metadata).length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
+                      <div className="overflow-auto">
+                        <ValueRenderer value={evalResult.metadata} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  )
 }
 
 export default function ResultsDetail({ results, loading = false, error }: ResultsDetailProps) {
@@ -94,7 +182,7 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
             </div>
             <Table>
               <TableCaption>
-                Individual evaluation results for {suite.name}
+                Individual evaluation results for {suite.name}. Click on rows with details to expand.
               </TableCaption>
               <TableHeader>
                 <TableRow>
@@ -108,22 +196,7 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
               </TableHeader>
               <TableBody>
                 {suite.evalResults.map((evalResult: EvalResult) => (
-                  <TableRow key={evalResult.name}>
-                    <TableCell className="font-medium">{evalResult.name}</TableCell>
-                    <TableCell>{evalResult.mean.toFixed(3)}</TableCell>
-                    <TableCell>{evalResult.median.toFixed(3)}</TableCell>
-                    <TableCell>{evalResult.sum}</TableCell>
-                    <TableCell>{evalResult.threshold}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        {evalResult.scores.map((score: Score, scoreIndex) => (
-                          <Badge key={`${score.name}-${scoreIndex}`} variant="outline" className="text-xs">
-                            {score.name}: {score.score}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <EvalResultRow key={evalResult.name} evalResult={evalResult} />
                 ))}
               </TableBody>
             </Table>
