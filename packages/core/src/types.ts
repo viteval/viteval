@@ -207,6 +207,18 @@ export interface EvalResult {
    */
   scores: Score[];
   /**
+   * The input provided to the task.
+   */
+  input?: unknown;
+  /**
+   * The expected output for the task.
+   */
+  expected?: unknown;
+  /**
+   * The actual output from the task.
+   */
+  output?: unknown;
+  /**
    * The metadata of the evaluation.
    */
   metadata?: Record<string, unknown>;

@@ -11,6 +11,10 @@ export interface EvalResult {
   threshold: number
   aggregation: string
   scores: Score[]
+  input?: unknown
+  expected?: unknown
+  output?: unknown
+  metadata?: Record<string, unknown>
 }
 
 export interface EvalSuite {
