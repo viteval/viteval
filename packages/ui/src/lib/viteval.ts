@@ -202,6 +202,7 @@ class VitevalFileReader {
         timestamp: id,
         size: stats.size,
         summary: {
+          status: results.status,
           success: results.success,
           numTotalEvalSuites: results.numTotalEvalSuites,
           numPassedEvalSuites: results.numPassedEvalSuites,

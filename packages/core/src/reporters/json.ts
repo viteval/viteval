@@ -163,7 +163,7 @@ export default class JsonReporter implements Reporter {
   onInit() {
     this.results.startTime = Date.now();
     this.results.status = 'running';
-    
+
     // Write initial file with 'running' status
     this.writeResults();
   }
@@ -182,7 +182,9 @@ export default class JsonReporter implements Reporter {
     this.results.success = this.results.numFailedEvalSuites === 0;
 
     // Write final results to file
-    this.writeResults();
+    if (this.outputFile) {
+      this.writeResults();
+    }
   }
 
   private processTestSuite(file: DangerouslyAllowAny) {
@@ -230,7 +232,7 @@ export default class JsonReporter implements Reporter {
     };
 
     this.results.evalResults.push(suiteResult);
-    
+
     // Write updated results after each suite completes
     this.writeResults();
   }

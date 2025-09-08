@@ -3,6 +3,7 @@ import { getSuccessBadge } from '../lib/badges'
 import { formatDuration, formatFileSize, formatTimestamp } from '../lib/utils'
 import type { ResultFile } from '../types'
 import { Card, CardContent } from './ui/card'
+import { Badge } from './ui/badge'
 
 interface ResultsListProps {
   results: ResultFile[]
@@ -58,7 +59,12 @@ export default function ResultsList({ results, loading = false, error }: Results
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Duration</div>
-                        <div className="font-medium">{formatDuration(file.summary.duration)}</div>
+                        <div className="font-medium">
+                          {file.summary.status === 'running' && !file.summary.duration 
+                            ? 'In progress...' 
+                            : formatDuration(file.summary.duration || 0)
+                          }
+                        </div>
                       </div>
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Total Evals</div>
@@ -80,7 +86,14 @@ export default function ResultsList({ results, loading = false, error }: Results
                   )}
                 </div>
 
-                {file.summary && getSuccessBadge(file.summary.success)}
+                <div className="flex gap-2 items-center">
+                  {file.summary?.status === 'running' && (
+                    <Badge variant="outline" className="text-yellow-600 border-yellow-600 animate-pulse">
+                      Running
+                    </Badge>
+                  )}
+                  {file.summary && getSuccessBadge(file.summary.success)}
+                </div>
               </div>
             </CardContent>
           </Card>

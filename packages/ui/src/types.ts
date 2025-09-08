@@ -67,6 +67,7 @@ export interface ResultFile {
   timestamp: string;
   size: number;
   summary: {
+    status?: 'running' | 'finished';
     success: boolean;
     numTotalEvalSuites: number;
     numPassedEvalSuites: number;

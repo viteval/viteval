@@ -138,7 +138,7 @@ export const dataCommand: CommandModule<
         mods.map(async (mod, index) => {
           // Just run the data function to generate it
           try {
-            progressBar.add({
+            const progressBarItem = progressBar.add({
               total: 100,
               id: index,
               progress: true,
@@ -153,7 +153,7 @@ export const dataCommand: CommandModule<
                 clearInterval(intervalId);
                 return;
               }
-              progressBar.update({ value }, index);
+              progressBarItem.update({ value });
             }, wait);
 
             // import the dataset
@@ -161,12 +161,9 @@ export const dataCommand: CommandModule<
             results.successes.push({ name: mod.name });
 
             clearInterval(intervalId);
-            progressBar.update(
-              {
-                value: 100,
-              },
-              index
-            );
+            progressBarItem.update({
+              value: 100,
+            });
           } catch (error) {
             results.failures.push({ name: mod.name, error: error as Error });
           }

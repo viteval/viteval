@@ -23,11 +23,18 @@ function ResultsPage() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      void router.invalidate()
-    }, 20000)
+    const interval = setInterval(async () => {
+      // Poll for new/updated results every 5 seconds
+      try {
+        const freshResults = await listResults({ data: { afterId: undefined, limit: Math.max(allResults.length, 10) } });
+        setAllResults(freshResults.results);
+        setNextCursor(freshResults.next);
+      } catch (error) {
+        console.error('Failed to poll for results:', error);
+      }
+    }, 5000)
     return () => clearInterval(interval)
-  }, [router])
+  }, [allResults.length])
 
   useEffect(() => {
     if (!initialized) {
