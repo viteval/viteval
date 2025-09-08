@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react'
+import { Link } from '@tanstack/react-router'
 import { Badge } from './ui/badge'
 
 export default function Header() {
@@ -7,12 +8,20 @@ export default function Header() {
       <div className="flex items-center gap-3">
         <img src="/logo192.png" alt="Viteval" className="w-8 h-8" />
         <h1 className="text-xl text-white">
-          <span className="font-bold">Viteval</span>: Evaluation Results
+          <span className="font-bold">Viteval</span>
         </h1>
         <Badge>
           alpha
         </Badge>
       </div>
+      <nav className="flex flex-row items-center gap-4">
+        <Link to="/">
+          Results
+        </Link>
+        <Link to="/datasets">
+          Datasets
+        </Link>
+      </nav>
       <nav className="flex flex-row items-center gap-4">
         <div className="flex items-center gap-4">
           <a
@@ -24,9 +33,7 @@ export default function Header() {
             <Icon icon="mdi:book-open" width={18} />
             Docs
           </a>
-
           <div className="w-px h-5 bg-border" />
-
           <div className="flex items-center gap-2">
             <a
               href="https://github.com/viteval/viteval"

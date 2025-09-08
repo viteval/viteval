@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { getStatusBadge } from '../lib/badges'
 import { formatDuration } from '../lib/utils'
 import type { EvalResult, EvalResults, EvalSuite, Score } from '../types'
-import { ValueRenderer } from './ValueRenderer'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -17,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
+import { ValueRenderer } from './ValueRenderer'
 
 interface ResultsDetailProps {
   results: EvalResults
@@ -68,33 +68,25 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                   {evalResult.input !== undefined && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Input:</h4>
-                      <div className="overflow-auto">
-                        <ValueRenderer value={evalResult.input} />
-                      </div>
+                      <ValueRenderer value={evalResult.input} label="Input" />
                     </div>
                   )}
                   {evalResult.expected !== undefined && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Expected Output:</h4>
-                      <div className="overflow-auto">
-                        <ValueRenderer value={evalResult.expected} />
-                      </div>
+                      <ValueRenderer value={evalResult.expected} label="Expected output" />
                     </div>
                   )}
                   {evalResult.output !== undefined && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Actual Output:</h4>
-                      <div className="overflow-auto">
-                        <ValueRenderer value={evalResult.output} />
-                      </div>
+                      <ValueRenderer value={evalResult.output} label="Actual output" />
                     </div>
                   )}
                   {evalResult.metadata && Object.keys(evalResult.metadata).length > 0 && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
-                      <div className="overflow-auto">
-                        <ValueRenderer value={evalResult.metadata} />
-                      </div>
+                      <ValueRenderer value={evalResult.metadata} label="Metadata" />
                     </div>
                   )}
                 </div>
@@ -182,11 +174,11 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
             </div>
             <Table>
               <TableCaption>
-                Individual evaluation results for {suite.name}. Click on rows with details to expand.
+                Click on a row to view the details
               </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Eval Name</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Mean</TableHead>
                   <TableHead>Median</TableHead>
                   <TableHead>Sum</TableHead>

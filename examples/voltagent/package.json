@@ -2,10 +2,10 @@
   "name": "@examples/voltagent",
   "description": "Viteval example - A real-world example using Voltagent",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.24",
+    "@ai-sdk/openai": "^2.0.27",
     "@voltagent/core": "^0.1.86",
     "@voltagent/vercel-ai": "^1.0.0",
-    "ai": "^5.0.32",
+    "ai": "^5.0.37",
     "consola": "^3.4.2",
     "envalid": "^8.1.0",
     "yargs": "^18.0.0",

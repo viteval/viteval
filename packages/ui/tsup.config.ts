@@ -24,6 +24,8 @@ export default defineConfig({
       path.join(import.meta.dirname, 'dist', '.output'),
       {
         recursive: true,
+        // dereference: true,
+        verbatimSymlinks: true,
       }
     );
   },

@@ -76,3 +76,29 @@ export interface ResultFile {
     endTime: number
   } | null
 }
+
+export interface DatasetSummary {
+  id: string
+  name: string
+  description?: string
+  itemCount: number
+  createdAt?: string
+  storage: string
+}
+
+export interface DatasetItem {
+  id: string
+  name?: string
+  input: unknown
+  expected?: unknown
+  metadata?: Record<string, unknown>
+}
+
+export interface DatasetFile {
+  id: string
+  name: string
+  description?: string
+  createdAt?: string
+  storage: string
+  items: DatasetItem[]
+}

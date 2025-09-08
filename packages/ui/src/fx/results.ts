@@ -4,30 +4,30 @@ import { vitevalReader } from '../lib/viteval';
 
 export const listResults = createServerFn({
   method: 'GET',
-}).handler(async () => {
-  return await vitevalReader.list();
-});
+})
+  .validator(
+    z.object({ afterId: z.string().optional(), limit: z.number().optional() })
+  )
+  .handler(async (ctx) => {
+    return await vitevalReader.listResults(ctx.data);
+  });
 
 export const getResult = createServerFn({
   method: 'GET',
 })
   .validator(z.object({ id: z.string() }))
   .handler(async (ctx) => {
-    try {
-      const resultId = ctx.data.id;
+    const resultId = ctx.data.id;
 
-      if (!resultId) {
-        return null;
-      }
-
-      const results = await vitevalReader.read(resultId);
-
-      if (!results) {
-        return null;
-      }
-
-      return results;
-    } catch (_error) {
-      return null;
+    if (!resultId) {
+      throw new Error('Result not found');
     }
+
+    const results = await vitevalReader.readResult(resultId);
+
+    if (!results) {
+      throw new Error('Result not found');
+    }
+
+    return results;
   });
