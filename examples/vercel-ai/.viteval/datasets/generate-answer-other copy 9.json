@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-08-15T18:53:06.244Z",
+  "data": [
+    {
+      "input": "What is the capital of Australia?",
+      "expected": "Canberra.",
+      "category": "geography"
+    },
+    {
+      "input": "In what year did the Berlin Wall fall?",
+      "expected": "1989.",
+      "category": "history"
+    },
+    {
+      "input": "Which organelle is primarily responsible for ATP production in eukaryotic cells?",
+      "expected": "Mitochondria.",
+      "category": "science"
+    },
+    {
+      "input": "Solve the system: 2x + y = 7 and x - y = 1.",
+      "expected": "x = 8/3, y = 5/3.",
+      "category": "math"
+    },
+    {
+      "input": "What is the largest planet in our solar system?",
+      "expected": "Jupiter.",
+      "category": "general"
+    }
+  ]
+}
