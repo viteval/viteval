@@ -15,10 +15,12 @@ export default function Header() {
         </Badge>
       </div>
       <nav className="flex flex-row items-center gap-4">
-        <Link to="/">
+        <Link to="/" className="flex items-center gap-2">
+          <Icon icon="mdi:chart-box" width={18} />
           Results
         </Link>
-        <Link to="/datasets">
+        <Link to="/datasets" className="flex items-center gap-2">
+          <Icon icon="mdi:database" width={18} />
           Datasets
         </Link>
       </nav>

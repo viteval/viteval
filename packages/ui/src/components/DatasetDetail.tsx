@@ -16,7 +16,6 @@ import {
 } from './ui/table'
 import { ValueRenderer } from './ValueRenderer'
 
-
 interface DatasetDetailProps {
   dataset: DatasetFile
   loading?: boolean
@@ -44,60 +43,23 @@ export default function DatasetDetail({ dataset, loading = false, error }: Datas
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Dataset Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{dataset.items.length}</div>
-              <div className="text-sm text-muted-foreground">Items</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">
-                {dataset.items.filter(item => item.input !== undefined).length}
-              </div>
-              <div className="text-sm text-muted-foreground">With Input</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">
-                {dataset.items.filter(item => item.expected !== undefined).length}
-              </div>
-              <div className="text-sm text-muted-foreground">With Expected</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">
-                <Badge variant="outline">{dataset.storage}</Badge>
-              </div>
-              <div className="text-sm text-muted-foreground">Storage</div>
-            </div>
-          </div>
-          {dataset.createdAt && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              Created: {new Date(dataset.createdAt).toLocaleString()}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Dataset Items</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableCaption>
-              Dataset contains {dataset.items.length} items. Click on rows to view details.
+              Click on a row to view details
             </TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Input Preview</TableHead>
-                <TableHead>Expected Preview</TableHead>
-                <TableHead>Metadata Keys</TableHead>
+                <TableHead>Input</TableHead>
+                <TableHead>Expected</TableHead>
+                <TableHead>Metadata</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dataset.items.map((item, index) => (
+              {dataset.data.map((item, index) => (
                 <DatasetItemRow key={item.id || index} item={item} index={index} />
               ))}
             </TableBody>

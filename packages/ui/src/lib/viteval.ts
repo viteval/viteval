@@ -7,14 +7,16 @@ import type {
   ResultFile,
 } from '../types';
 
+interface ListOptions {
+  next?: string;
+  limit?: number;
+}
+
 class VitevalFileReader {
   private readonly rootPath: string;
 
   constructor(rootPath?: string) {
     this.rootPath = rootPath || process.env.VITEVAL_ROOT_PATH || process.cwd();
-
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log('VitevalFileReader rootPath:', this.rootPath);
   }
 
   /**
@@ -23,7 +25,7 @@ class VitevalFileReader {
    * @returns Object with results array and next cursor
    */
   public async listResults(
-    options: { afterId?: string; limit?: number } = {}
+    options: ListOptions = {}
   ): Promise<{ results: ResultFile[]; next?: string }> {
     const fileIds = await this.list(
       'results',
@@ -55,7 +57,7 @@ class VitevalFileReader {
    */
   public async readResult(id: string): Promise<EvalResults | null> {
     const content = await this.read(`results/${id}.json`);
-    return content ? (JSON.parse(content) as EvalResults) : null;
+    return content ? JSON.parse(content) : null;
   }
 
   /**
@@ -64,7 +66,7 @@ class VitevalFileReader {
    * @returns Object with results array and next cursor
    */
   public async listDatasets(
-    options: { afterId?: string; limit?: number } = {}
+    options: ListOptions = {}
   ): Promise<{ results: DatasetSummary[]; next?: string }> {
     const fileIds = await this.list('datasets', options, (a, b) =>
       a.localeCompare(b)
@@ -96,16 +98,29 @@ class VitevalFileReader {
    */
   public async readDataset(id: string): Promise<DatasetFile | null> {
     const content = await this.read(`datasets/${id}.json`);
-    return content ? (JSON.parse(content) as DatasetFile) : null;
+    const d = content ? JSON.parse(content) : null;
+
+    if (!d) {
+      return null;
+    }
+
+    return {
+      ...d,
+      path: path.relative(
+        this.rootPath,
+        path.join(this.getVitevalDirectory(), 'datasets', `${id}.json`)
+      ),
+      storage: 'local',
+    };
   }
 
   private async list(
     dirPath: string,
-    options: { afterId?: string; limit?: number },
+    options: ListOptions,
     sortFn: (a: string, b: string) => number
   ): Promise<{ results: string[]; next?: string }> {
     try {
-      const { afterId, limit = 50 } = options;
+      const { next, limit = 10 } = options;
       const fullPath = path.join(this.getVitevalDirectory(), dirPath);
 
       if (!(await exists(fullPath))) {
@@ -119,8 +134,8 @@ class VitevalFileReader {
 
       // Find starting index after the provided ID
       let startIndex = 0;
-      if (afterId) {
-        const afterIndex = fileIds.indexOf(afterId);
+      if (next) {
+        const afterIndex = fileIds.indexOf(next);
         if (afterIndex !== -1) {
           startIndex = afterIndex + 1;
         }
@@ -130,14 +145,15 @@ class VitevalFileReader {
       const paginatedResults = fileIds.slice(startIndex, startIndex + limit);
 
       // Determine next cursor
-      const next =
+      const lastItem = fileIds[fileIds.length - 1];
+      const nextItem =
         startIndex + limit < fileIds.length
           ? paginatedResults[paginatedResults.length - 1]
           : undefined;
 
       return {
         results: paginatedResults,
-        next,
+        next: lastItem !== nextItem ? nextItem : undefined,
       };
     } catch (_error) {
       return { results: [] };
@@ -216,7 +232,8 @@ class VitevalFileReader {
         id,
         name: data.name || id,
         description: data.description,
-        itemCount: data.items ? data.items.length : 0,
+        path: path.relative(this.rootPath, filePath),
+        itemCount: data.data ? data.data.length : 0,
         createdAt: data.createdAt,
         storage: data.storage || 'local',
       };

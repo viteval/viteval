@@ -9,6 +9,10 @@ import type { EvalResult } from '#/types';
  */
 export interface JsonEvalResults {
   /**
+   * Status of the evaluation run
+   */
+  status: 'running' | 'finished';
+  /**
    * Whether all evaluations passed their thresholds
    */
   success: boolean;
@@ -143,6 +147,7 @@ export default class JsonReporter implements Reporter {
   constructor(options: { outputFile?: string } = {}) {
     this.outputFile = options.outputFile || null;
     this.results = {
+      status: 'running',
       success: true,
       numTotalEvalSuites: 0,
       numPassedEvalSuites: 0,
@@ -157,11 +162,16 @@ export default class JsonReporter implements Reporter {
 
   onInit() {
     this.results.startTime = Date.now();
+    this.results.status = 'running';
+    
+    // Write initial file with 'running' status
+    this.writeResults();
   }
 
   onFinished(files: DangerouslyAllowAny[] = []) {
     this.results.endTime = Date.now();
     this.results.duration = this.results.endTime - this.results.startTime;
+    this.results.status = 'finished';
 
     // Process each test file/suite
     for (const file of files) {
@@ -171,7 +181,7 @@ export default class JsonReporter implements Reporter {
     // Calculate final metrics
     this.results.success = this.results.numFailedEvalSuites === 0;
 
-    // Write results to file
+    // Write final results to file
     this.writeResults();
   }
 
@@ -220,6 +230,9 @@ export default class JsonReporter implements Reporter {
     };
 
     this.results.evalResults.push(suiteResult);
+    
+    // Write updated results after each suite completes
+    this.writeResults();
   }
 
   private extractEvalResults(file: DangerouslyAllowAny): EvalResult[] {

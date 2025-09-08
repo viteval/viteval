@@ -20,7 +20,7 @@ export const getDataset = createServerFn({
     const dataset = await vitevalReader.readDataset(data.id);
 
     if (!dataset) {
-      throw new Error('Dataset not found');
+      return null;
     }
 
     return dataset;

@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark'
 import { toast } from 'sonner'
 import { Button } from './ui/button'
 
@@ -73,8 +73,7 @@ export function ValueRenderer({ value, className = '', label = 'Value' }: ValueR
       setCopied(true)
       toast.success(`${label} copied to clipboard`)
       setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
+    } catch (_err) {
       toast.error('Failed to copy to clipboard')
     }
   }
@@ -83,7 +82,7 @@ export function ValueRenderer({ value, className = '', label = 'Value' }: ValueR
 
   if (isJson) {
     return (
-      <div 
+      <div
         className={wrapperClass}
         onMouseEnter={() => setShowCopyButton(true)}
         onMouseLeave={() => setShowCopyButton(false)}
@@ -122,11 +121,11 @@ export function ValueRenderer({ value, className = '', label = 'Value' }: ValueR
 
   // Check if content has markdown code blocks
   const hasCodeBlocks = content.includes('```')
-  
+
   // For simple strings/primitives without markdown, render in a styled container
   if (!hasCodeBlocks && !content.includes('`') && !content.includes('#') && !content.includes('*')) {
     return (
-      <div 
+      <div
         className={wrapperClass}
         onMouseEnter={() => setShowCopyButton(true)}
         onMouseLeave={() => setShowCopyButton(false)}
@@ -156,7 +155,7 @@ export function ValueRenderer({ value, className = '', label = 'Value' }: ValueR
 
   // Render as markdown for content with markdown formatting
   return (
-    <div 
+    <div
       className={`${wrapperClass} prose prose-sm dark:prose-invert max-w-none ${className}`}
       onMouseEnter={() => setShowCopyButton(true)}
       onMouseLeave={() => setShowCopyButton(false)}
