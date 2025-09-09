@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createFile, fileExists, withResult } from '@viteval/internal';
-import type { DataItem, DatasetStorage } from '#/types';
+import type { DataItem, DatasetStorage, Extra } from '#/types';
 
 export interface DatasetStorageConfig {
   name: string;
@@ -14,7 +14,7 @@ export interface DatasetStorageConfig {
  * @param payload - The payload for the dataset storage
  * @returns The dataset storage
  */
-export function createDatasetStorage<INPUT, OUTPUT>(
+export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
   payload: DatasetStorageConfig
 ) {
   const { name, root, storage } = payload;
@@ -33,7 +33,7 @@ export function createDatasetStorage<INPUT, OUTPUT>(
      * Save the dataset to the storage
      * @param data - The dataset to save
      */
-    async save(data: DataItem<INPUT, OUTPUT>[]): Promise<void> {
+    async save(data: DataItem<INPUT, OUTPUT, EXTRA>[]): Promise<void> {
       const filePath = getDatasetPath(root, name);
       await createFile(
         filePath,
@@ -51,14 +51,14 @@ export function createDatasetStorage<INPUT, OUTPUT>(
      * Load the dataset from the storage
      * @returns The dataset
      */
-    async load(): Promise<DataItem<INPUT, OUTPUT>[] | null> {
+    async load(): Promise<DataItem<INPUT, OUTPUT, EXTRA>[] | null> {
       const R = await withResult(async () => {
         const filePath = getDatasetPath(root, name);
         if (!(await this.exists())) {
           return null;
         }
         const data = await readFile(filePath, 'utf-8');
-        return JSON.parse(data).data as DataItem<INPUT, OUTPUT>[];
+        return JSON.parse(data).data as DataItem<INPUT, OUTPUT, EXTRA>[];
       });
 
       if (R.status === 'error') {

@@ -16,9 +16,10 @@
   },
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --project tsconfig.lib.json",
     "eval": "viteval",
-    "question": "tsx ./src/cli.ts"
+    "question": "tsx ./src/cli.ts",
+    "types": "tsc --noEmit --project tsconfig.lib.json"
   },
   "type": "module"
 }

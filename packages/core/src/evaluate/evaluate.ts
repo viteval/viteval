@@ -162,7 +162,7 @@ async function formatData<DATA_ITEM extends DataItem>(
 
   if (isDataset(data)) {
     const d = await data.load({ create: true });
-    return d as DATA_ITEM[];
+    return d as unknown as DATA_ITEM[];
   }
 
   return data;

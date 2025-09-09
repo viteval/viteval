@@ -65,8 +65,8 @@
   "module": "dist/server.mjs",
   "repository": "viteval/viteval",
   "scripts": {
-    "build:ui": "vite build",
     "build:server": "tsup",
+    "build:ui": "vite build",
     "dev": "vite dev --port 3000",
     "serve": "vite preview",
     "start": "node .output/server/index.mjs",
