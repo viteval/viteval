@@ -6,6 +6,7 @@ import { categories } from '#/lib/categories';
 
 export default defineDataset({
   name: 'generate-answer',
+  storage: 'memory',
   data: async () => {
     return await Promise.all(
       categories.map(async ({ name, description }) => {

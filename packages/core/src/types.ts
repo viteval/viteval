@@ -124,11 +124,37 @@ export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
 /**
  * A dataset, contains the name, storage and data generator.
  */
-export type Dataset<DATA_FUNC extends DataGenerator> = TF.SetRequired<
-  DatasetConfig<DATA_FUNC>,
-  'storage' | 'data'
-> & {
-  data: DatasetGenerator<DATA_FUNC>;
+export type Dataset<
+  DATA_FUNC extends DataGenerator,
+  DATA_ITEM extends DataItem = DataItem<
+    InferDataInput<DATA_FUNC>,
+    InferDataOutput<DATA_FUNC>
+  >,
+> = Omit<TF.SetRequired<DatasetConfig<DATA_FUNC>, 'storage'>, 'data'> & {
+  /**
+   * Check if the dataset exists in the storage.
+   *
+   * @returns True if the dataset exists, false otherwise.
+   */
+  exists(): Promise<boolean>;
+  /**
+   * Load the dataset from the storage (optionally create the dataset if it doesn't exist).
+   *
+   * @param options - The options for the load.
+   * @param options.create - Whether to create the dataset if it doesn't exist.
+   * @returns The dataset.
+   */
+  load(options: { create: true }): Promise<DATA_ITEM[]>;
+  load(options: { create: false }): Promise<DATA_ITEM[] | null>;
+  load(options?: { create?: boolean }): Promise<DATA_ITEM[] | null>;
+  /**
+   * Save the dataset to the storage if it doesn't exist (optionally overwrite the dataset if it already exists).
+   *
+   * @param options - The options for the save.
+   * @param options.overwrite - Whether to overwrite the dataset if it already exists.
+   * @returns The dataset.
+   */
+  save(options?: { overwrite?: boolean }): Promise<void>;
 };
 
 /**
@@ -256,10 +282,10 @@ type InferDataValue<
   KEY extends keyof DataItem,
 > = ExtractDataItem<DATA>[KEY];
 
-export type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
+type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
   ? DATA[number]
   : DATA extends DataGenerator<DataItem>
     ? Awaited<ReturnType<DATA>>[number]
     : DATA extends Dataset<DataGenerator<DataItem>>
-      ? Awaited<ReturnType<DATA['data']>>[number]
+      ? Exclude<Awaited<ReturnType<DATA['load']>>, null>[number]
       : never;

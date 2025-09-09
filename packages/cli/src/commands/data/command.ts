@@ -26,9 +26,10 @@ export const dataCommand: CommandModule<
       .option('overwrite', {
         describe: 'Overwrite existing datasets',
         type: 'boolean',
-        default: true,
+        default: false,
       })
       .option('verbose', {
+        alias: 'V',
         describe: 'Verbose output',
         type: 'boolean',
         default: false,
@@ -120,9 +121,11 @@ export const dataCommand: CommandModule<
       const results: {
         successes: Array<{ name: string; error?: null }>;
         failures: Array<{ name: string; error: Error }>;
+        skipped: Array<{ name: string }>;
       } = {
         successes: [],
         failures: [],
+        skipped: [],
       };
 
       const progressBar = new ProgressBar({
@@ -136,6 +139,19 @@ export const dataCommand: CommandModule<
 
       await Promise.all(
         mods.map(async (mod, index) => {
+          // If we are not overwriting, check if the dataset exists
+          // and skip it if it does
+          if (argv.overwrite !== true) {
+            try {
+              if (await mod.exists()) {
+                results.skipped.push({ name: mod.name });
+                return;
+              }
+            } catch {
+              // Do nothing
+            }
+          }
+
           // Just run the data function to generate it
           const progressBarItem = progressBar.add({
             total: 100,
@@ -157,7 +173,7 @@ export const dataCommand: CommandModule<
 
           try {
             // import the dataset
-            await mod.data({ overwrite: argv.overwrite });
+            await mod.save({ overwrite: argv.overwrite });
             results.successes.push({ name: mod.name });
 
             clearInterval(intervalId);
@@ -198,12 +214,17 @@ export const dataCommand: CommandModule<
           `Successfully generated ${results.successes.length} datasets`
         );
       } else {
+        logger.info(
+          `Skipped ${results.skipped.length} datasets as they already exist`
+        );
         logger.success(`Generated ${results.successes.length} datasets`);
       }
+      logger.log('');
       process.exit(0);
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Unknown error');
       logger.error(`Failed to generate datasets: ${err.message}`);
+      logger.log('');
       process.exit(1);
     }
   },
