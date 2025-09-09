@@ -49,8 +49,8 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/server.d.ts",
-      "import": "./dist/server.mjs"
+      "types": "./server.d.ts",
+      "import": "./server.mjs"
     }
   },
   "files": [
