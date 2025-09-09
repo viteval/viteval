@@ -23,6 +23,14 @@ describe('createScorer', () => {
     });
   });
 
+  it('should create a scorer with a name', () => {
+    const scorer = createScorer({
+      name: 'test-scorer',
+      score: () => ({ score: 1.0 }),
+    });
+    expect(scorer.name).toBe('test-scorer');
+  });
+
   it('should create scorer with asynchronous score function', async () => {
     const scorer = createScorer({
       name: 'async-scorer',

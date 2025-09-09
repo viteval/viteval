@@ -19,12 +19,19 @@ export interface ScorerConfig<OUTPUT, EXTRA extends Extra> {
 export function createScorer<OUTPUT, EXTRA extends Extra>(
   config: ScorerConfig<OUTPUT, EXTRA>
 ): Scorer<OUTPUT, EXTRA> {
-  return async (args) => {
-    const result = await config.score(args);
-    return {
-      name: config.name,
-      score: result.score,
-      metadata: result.metadata,
-    };
-  };
+  return Object.defineProperty(
+    async (args: ScorerArgs<OUTPUT, EXTRA>) => {
+      const result = await config.score(args);
+      return {
+        name: config.name,
+        score: result.score,
+        metadata: result.metadata,
+      };
+    },
+    'name',
+    {
+      value: config.name,
+      writable: false,
+    }
+  );
 }
