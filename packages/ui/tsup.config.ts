@@ -1,5 +1,3 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
@@ -10,21 +8,12 @@ export default defineConfig({
     };
   },
   bundle: false,
-  outDir: 'dist',
+  outDir: '.',
   format: ['esm'],
   dts: true,
-  clean: true,
+  clean: false,
   target: 'esnext',
   splitting: false,
   sourcemap: true,
   minify: true,
-  async onSuccess() {
-    await fs.cp(
-      path.join(import.meta.dirname, '.output'),
-      path.join(import.meta.dirname, 'dist', '.output'),
-      {
-        recursive: true,
-      }
-    );
-  },
 });

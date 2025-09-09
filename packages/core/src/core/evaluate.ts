@@ -101,6 +101,13 @@ export function evaluate<
           const medianScore = getMedianScore(scores);
           const sumScore = getSumScore(scores);
 
+          const {
+            input: _input,
+            expected: _expected,
+            output: _output,
+            ...metadata
+          } = params;
+
           results.push({
             name,
             sum: sumScore,
@@ -109,6 +116,10 @@ export function evaluate<
             threshold,
             aggregation,
             scores: scoresWithName,
+            input: dataItem.input,
+            expected: dataItem.expected,
+            output: taskResult,
+            metadata,
           });
 
           if (threshold) {

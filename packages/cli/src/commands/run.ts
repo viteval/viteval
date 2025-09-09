@@ -4,6 +4,7 @@ import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
 import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
 import { findUp } from 'find-up';
+import open from 'open';
 import { match, P } from 'ts-pattern';
 import {
   createVitest,
@@ -37,7 +38,6 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         default: false,
       })
       .option('root', {
-        alias: 'x',
         describe: 'Root directory to run evaluations from',
         type: 'string',
       })
@@ -90,17 +90,21 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
     });
 
     try {
+      // start the UI server if the --ui flag is passed
+      const serverResult = argv.ui
+        ? createVitevalServer({
+            debug: process.env.VITEVAL_DEBUG_MODE === 'true',
+          }).start()
+        : undefined;
+
       // this will set process.exitCode to 1 if tests failed,
       // and won't close the process automatically
       await vitest.start();
 
-      // start the UI server if the --ui flag is passed
-      if (argv.ui) {
-        const server = createVitevalServer({
-          debug: process.env.VITEVAL_DEBUG_MODE === 'true',
-        });
-        const port = await server.start();
-        consola.info(`View the results at http://localhost:${port}`);
+      if (serverResult) {
+        const serverPort = await serverResult;
+        await open(`http://localhost:${serverPort}`);
+        consola.info(`View the results at http://localhost:${serverPort}`);
       }
     } finally {
       await vitest.close();

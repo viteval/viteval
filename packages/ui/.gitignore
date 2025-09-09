@@ -10,3 +10,8 @@ count.txt
 .output
 .vinxi
 todos.json
+
+# build output
+.server.d.ts
+.server.mjs
+.server.mjs.map

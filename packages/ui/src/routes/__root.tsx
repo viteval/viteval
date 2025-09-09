@@ -1,4 +1,5 @@
 import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import { Toaster } from 'sonner'
 import Header from '../components/Header'
 import appCss from '../styles.css?url'
 
@@ -37,6 +38,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <Header />
         {children}
+        <Toaster 
+          position="bottom-right"
+          toastOptions={{
+            className: 'font-sans',
+            style: {
+              background: '#18181b',
+              color: '#fafafa',
+              border: '1px solid #27272a',
+            },
+          }}
+        />
         <Scripts />
       </body>
     </html>

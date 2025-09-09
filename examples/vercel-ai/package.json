@@ -2,8 +2,8 @@
   "name": "@examples/complex",
   "description": "Viteval example - A real-world example using Vercel AI SDK",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.24",
-    "ai": "^5.0.32",
+    "@ai-sdk/openai": "^2.0.27",
+    "ai": "^5.0.37",
     "consola": "^3.4.2",
     "dotenv": "^17.2.2",
     "viteval": "workspace:*",

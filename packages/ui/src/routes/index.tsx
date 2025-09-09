@@ -1,41 +1,56 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useEffect } from 'react';
-import { listResults } from '@/fx/results'
-import ResultsList from '../components/ResultsList'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { Database, FileText } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/')({
-  loader: async () => {
-    try {
-      const results = await listResults()
-      return { results, error: null }
-    } catch (error) {
-      return { results: [], error: error instanceof Error ? error.message : 'Failed to load results' }
-    }
-  },
-  shouldReload: () => true,
-  component: ResultsPage,
+  component: HomePage,
 });
 
-function ResultsPage() {
-  const { results, error } = Route.useLoaderData();
-  const router = useRouter()
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      void router.invalidate()
-    }, 20000)
-    return () => clearInterval(interval)
-  }, [router])
-
+function HomePage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Results</h1>
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold tracking-tight mb-2">ViteVal</h1>
         <p className="text-muted-foreground">
-          View and analyze your evaluation results
+          Choose what you'd like to view
         </p>
       </div>
-      <ResultsList results={results} error={error} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <FileText className="h-5 w-5" />
+              Results
+            </CardTitle>
+            <CardDescription>
+              View and analyze your evaluation results
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link to="/results">View Results</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Database className="h-5 w-5" />
+              Datasets
+            </CardTitle>
+            <CardDescription>
+              Manage and explore your datasets
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link to="/datasets">View Datasets</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
