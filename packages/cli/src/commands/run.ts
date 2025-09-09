@@ -81,12 +81,18 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
 
     const reporters = getReporters(argv, vitestConfig);
 
+    // We don't want to have the field present as it causes issues with Vitest's config merging
+    const cliConfig: DangerouslyAllowAny = {};
+    if (argv.pattern) {
+      cliConfig.include = [argv.pattern];
+    }
+
     const vitest = await createVitest('test', {
       config: configFilePath,
       root,
       reporters,
       watch: false,
-      include: argv.pattern ? [argv.pattern] : undefined,
+      ...cliConfig,
     });
 
     try {

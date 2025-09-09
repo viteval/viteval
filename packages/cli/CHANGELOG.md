@@ -1,5 +1,16 @@
 # @viteval/cli
 
+## 0.5.1
+
+### Patch Changes
+
+- 6cf2472: add error when no match for datasets
+- 1105e91: fix: add pattern for filtering evals
+- Updated dependencies [6e0cc43]
+  - @viteval/core@0.5.1
+  - @viteval/internal@0.5.1
+  - @viteval/ui@0.5.1
+
 ## 0.5.0
 
 ### Patch Changes
