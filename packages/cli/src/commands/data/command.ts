@@ -62,6 +62,12 @@ export const dataCommand: CommandModule<
         cwd: rootPath,
       });
 
+      if (datasets.length === 0) {
+        throw new Error(
+          `No datasets found matching pattern, "${argv.pattern}"`
+        );
+      }
+
       const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
         fsCache: false,
         moduleCache: false,
