@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-09-08T23:12:43.332Z",
+  "data": [
+    {
+      "input": "What is the capital of Canada?",
+      "expected": "Ottawa.",
+      "category": "geography"
+    },
+    {
+      "input": "In what year did the Berlin Wall fall?",
+      "expected": "1989",
+      "category": "history"
+    },
+    {
+      "input": "What gas do plants primarily absorb from the atmosphere for photosynthesis?",
+      "expected": "Carbon dioxide.",
+      "category": "science"
+    },
+    {
+      "input": "Solve for x: 3x − 5 = 16.",
+      "expected": "x = 7.",
+      "category": "math"
+    },
+    {
+      "input": "What is the capital of France?",
+      "expected": "Paris.",
+      "category": "general"
+    }
+  ]
+}

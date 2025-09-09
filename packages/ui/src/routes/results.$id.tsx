@@ -5,7 +5,7 @@ import ResultsDetail from '../components/ResultsDetail'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 
-export const Route = createFileRoute('/$id')({
+export const Route = createFileRoute('/results/$id')({
   loader: async ({ params }) => {
     try {
       const results = await getResult({

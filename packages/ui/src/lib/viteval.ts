@@ -7,10 +7,6 @@ import type {
   ResultFile,
 } from '../types';
 
-interface ListOptions {
-  next?: string;
-  limit?: number;
-}
 
 class VitevalFileReader {
   private readonly rootPath: string;
@@ -20,21 +16,17 @@ class VitevalFileReader {
   }
 
   /**
-   * List result files with pagination
-   * @param options - Pagination options
-   * @returns Object with results array and next cursor
+   * List all result files
+   * @returns Array of result files
    */
-  public async listResults(
-    options: ListOptions = {}
-  ): Promise<{ results: ResultFile[]; next?: string }> {
+  public async listResults(): Promise<ResultFile[]> {
     const fileIds = await this.list(
       'results',
-      options,
       (a, b) => Number.parseInt(b, 10) - Number.parseInt(a, 10)
     );
 
     const results = await Promise.all(
-      fileIds.results.map(async (id) => {
+      fileIds.map(async (id) => {
         const filePath = path.join(
           this.getVitevalDirectory(),
           'results',
@@ -44,10 +36,7 @@ class VitevalFileReader {
       })
     );
 
-    return {
-      results: results.filter((file): file is ResultFile => file !== null),
-      next: fileIds.next,
-    };
+    return results.filter((file): file is ResultFile => file !== null);
   }
 
   /**
@@ -61,19 +50,16 @@ class VitevalFileReader {
   }
 
   /**
-   * List datasets with pagination
-   * @param options - Pagination options
-   * @returns Object with results array and next cursor
+   * List all datasets
+   * @returns Array of dataset summaries
    */
-  public async listDatasets(
-    options: ListOptions = {}
-  ): Promise<{ results: DatasetSummary[]; next?: string }> {
-    const fileIds = await this.list('datasets', options, (a, b) =>
+  public async listDatasets(): Promise<DatasetSummary[]> {
+    const fileIds = await this.list('datasets', (a, b) =>
       a.localeCompare(b)
     );
 
     const results = await Promise.all(
-      fileIds.results.map(async (id) => {
+      fileIds.map(async (id) => {
         const filePath = path.join(
           this.getVitevalDirectory(),
           'datasets',
@@ -83,12 +69,9 @@ class VitevalFileReader {
       })
     );
 
-    return {
-      results: results.filter(
-        (dataset): dataset is DatasetSummary => dataset !== null
-      ),
-      next: fileIds.next,
-    };
+    return results.filter(
+      (dataset): dataset is DatasetSummary => dataset !== null
+    );
   }
 
   /**
@@ -116,15 +99,13 @@ class VitevalFileReader {
 
   private async list(
     dirPath: string,
-    options: ListOptions,
     sortFn: (a: string, b: string) => number
-  ): Promise<{ results: string[]; next?: string }> {
+  ): Promise<string[]> {
     try {
-      const { next, limit = 10 } = options;
       const fullPath = path.join(this.getVitevalDirectory(), dirPath);
-
+      
       if (!(await exists(fullPath))) {
-        return { results: [] };
+        return [];
       }
 
       const fileIds = (await fs.readdir(fullPath))
@@ -132,31 +113,9 @@ class VitevalFileReader {
         .map((file) => file.replace('.json', ''))
         .sort(sortFn);
 
-      // Find starting index after the provided ID
-      let startIndex = 0;
-      if (next) {
-        const afterIndex = fileIds.indexOf(next);
-        if (afterIndex !== -1) {
-          startIndex = afterIndex + 1;
-        }
-      }
-
-      // Slice the results for pagination
-      const paginatedResults = fileIds.slice(startIndex, startIndex + limit);
-
-      // Determine next cursor
-      const lastItem = fileIds[fileIds.length - 1];
-      const nextItem =
-        startIndex + limit < fileIds.length
-          ? paginatedResults[paginatedResults.length - 1]
-          : undefined;
-
-      return {
-        results: paginatedResults,
-        next: lastItem !== nextItem ? nextItem : undefined,
-      };
+      return fileIds;
     } catch (_error) {
-      return { results: [] };
+      return [];
     }
   }
 
@@ -180,6 +139,7 @@ class VitevalFileReader {
       return null;
     }
   }
+
 
   private getVitevalDirectory(): string {
     return path.join(this.rootPath, '.viteval');

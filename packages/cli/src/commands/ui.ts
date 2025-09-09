@@ -36,12 +36,12 @@ export const uiCommand: CommandModule<unknown, UIOptions> = {
       const port = await server.start();
       const url = `http://localhost:${port}`;
 
-      consola.success(`View the results at ${url}`);
-
       if (argv.open) {
-        consola.info('Opening browser...');
+        consola.info('Opening the browser...');
         await open(url);
       }
+
+      consola.success(`View the results at ${url}`);
 
       // Keep the process running
       process.on('SIGINT', async () => {

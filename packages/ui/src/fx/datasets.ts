@@ -5,11 +5,8 @@ import { vitevalReader } from '../lib/viteval';
 export const getDatasets = createServerFn({
   method: 'GET',
 })
-  .validator(
-    z.object({ afterId: z.string().optional(), limit: z.number().optional() })
-  )
-  .handler(async (ctx) => {
-    return await vitevalReader.listDatasets(ctx.data);
+  .handler(async () => {
+    return await vitevalReader.listDatasets();
   });
 
 export const getDataset = createServerFn({

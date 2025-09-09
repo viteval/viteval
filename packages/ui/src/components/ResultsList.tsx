@@ -2,8 +2,9 @@ import { Link } from '@tanstack/react-router'
 import { getSuccessBadge } from '../lib/badges'
 import { formatDuration, formatFileSize, formatTimestamp } from '../lib/utils'
 import type { ResultFile } from '../types'
-import { Card, CardContent } from './ui/card'
 import { Badge } from './ui/badge'
+import { Card, CardContent } from './ui/card'
+
 
 interface ResultsListProps {
   results: ResultFile[]
@@ -39,7 +40,7 @@ export default function ResultsList({ results, loading = false, error }: Results
   return (
     <div className="space-y-4">
       {results.map((file) => (
-        <Link to="/$id" params={{ id: file.timestamp }} key={file.path} className="block">
+        <Link to="/results/$id" params={{ id: file.timestamp }} key={file.path} className="block">
           <Card
             key={file.path}
             className="hover:shadow-md transition-shadow hover:bg-muted"
@@ -60,8 +61,8 @@ export default function ResultsList({ results, loading = false, error }: Results
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Duration</div>
                         <div className="font-medium">
-                          {file.summary.status === 'running' && !file.summary.duration 
-                            ? 'In progress...' 
+                          {file.summary.status === 'running' && !file.summary.duration
+                            ? 'In progress...'
                             : formatDuration(file.summary.duration || 0)
                           }
                         </div>

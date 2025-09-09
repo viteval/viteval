@@ -19,14 +19,18 @@ export default defineConfig({
   sourcemap: true,
   minify: true,
   async onSuccess() {
-    await fs.cp(
-      path.join(import.meta.dirname, '.output'),
-      path.join(import.meta.dirname, 'dist', '.output'),
-      {
-        recursive: true,
-        // dereference: true,
-        verbatimSymlinks: true,
-      }
-    );
+    try {
+      await fs.cp(
+        path.join(import.meta.dirname, '.output'),
+        path.join(import.meta.dirname, 'dist', '.output'),
+        {
+          recursive: true,
+          // dereference: true,
+          verbatimSymlinks: true,
+        }
+      );
+    } finally {
+      // do nothing
+    }
   },
 });

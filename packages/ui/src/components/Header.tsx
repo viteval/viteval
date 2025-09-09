@@ -5,7 +5,7 @@ import { Badge } from './ui/badge'
 export default function Header() {
   return (
     <header className="p-4 flex gap-2 bg-card text-card-foreground justify-between border-b border-border">
-      <div className="flex items-center gap-3">
+      <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
         <img src="/logo192.png" alt="Viteval" className="w-8 h-8" />
         <h1 className="text-xl text-white">
           <span className="font-bold">Viteval</span>
@@ -13,9 +13,9 @@ export default function Header() {
         <Badge>
           alpha
         </Badge>
-      </div>
+      </Link>
       <nav className="flex flex-row items-center gap-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/results" className="flex items-center gap-2">
           <Icon icon="mdi:chart-box" width={18} />
           Results
         </Link>

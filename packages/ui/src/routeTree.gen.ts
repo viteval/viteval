@@ -9,24 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IdRouteImport } from './routes/$id'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultsIndexRouteImport } from './routes/results.index'
 import { Route as DatasetsIndexRouteImport } from './routes/datasets.index'
+import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as DatasetsIdRouteImport } from './routes/datasets.$id'
 
-const IdRoute = IdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultsIndexRoute = ResultsIndexRouteImport.update({
+  id: '/results/',
+  path: '/results/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DatasetsIndexRoute = DatasetsIndexRouteImport.update({
   id: '/datasets/',
   path: '/datasets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultsIdRoute = ResultsIdRouteImport.update({
+  id: '/results/$id',
+  path: '/results/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DatasetsIdRoute = DatasetsIdRouteImport.update({
@@ -37,47 +43,50 @@ const DatasetsIdRoute = DatasetsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$id': typeof IdRoute
   '/datasets/$id': typeof DatasetsIdRoute
+  '/results/$id': typeof ResultsIdRoute
   '/datasets': typeof DatasetsIndexRoute
+  '/results': typeof ResultsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$id': typeof IdRoute
   '/datasets/$id': typeof DatasetsIdRoute
+  '/results/$id': typeof ResultsIdRoute
   '/datasets': typeof DatasetsIndexRoute
+  '/results': typeof ResultsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$id': typeof IdRoute
   '/datasets/$id': typeof DatasetsIdRoute
+  '/results/$id': typeof ResultsIdRoute
   '/datasets/': typeof DatasetsIndexRoute
+  '/results/': typeof ResultsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$id' | '/datasets/$id' | '/datasets'
+  fullPaths: '/' | '/datasets/$id' | '/results/$id' | '/datasets' | '/results'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$id' | '/datasets/$id' | '/datasets'
-  id: '__root__' | '/' | '/$id' | '/datasets/$id' | '/datasets/'
+  to: '/' | '/datasets/$id' | '/results/$id' | '/datasets' | '/results'
+  id:
+    | '__root__'
+    | '/'
+    | '/datasets/$id'
+    | '/results/$id'
+    | '/datasets/'
+    | '/results/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  IdRoute: typeof IdRoute
   DatasetsIdRoute: typeof DatasetsIdRoute
+  ResultsIdRoute: typeof ResultsIdRoute
   DatasetsIndexRoute: typeof DatasetsIndexRoute
+  ResultsIndexRoute: typeof ResultsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/$id': {
-      id: '/$id'
-      path: '/$id'
-      fullPath: '/$id'
-      preLoaderRoute: typeof IdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -85,11 +94,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/results/': {
+      id: '/results/'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/datasets/': {
       id: '/datasets/'
       path: '/datasets'
       fullPath: '/datasets'
       preLoaderRoute: typeof DatasetsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/results/$id': {
+      id: '/results/$id'
+      path: '/results/$id'
+      fullPath: '/results/$id'
+      preLoaderRoute: typeof ResultsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/datasets/$id': {
@@ -104,9 +127,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  IdRoute: IdRoute,
   DatasetsIdRoute: DatasetsIdRoute,
+  ResultsIdRoute: ResultsIdRoute,
   DatasetsIndexRoute: DatasetsIndexRoute,
+  ResultsIndexRoute: ResultsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
