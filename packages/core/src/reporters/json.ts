@@ -11,7 +11,7 @@ export interface JsonEvalResults {
   /**
    * Status of the evaluation run
    */
-  status: 'running' | 'finished';
+  status: 'running' | 'finished' | 'error';
   /**
    * Whether all evaluations passed their thresholds
    */
@@ -163,6 +163,9 @@ export default class JsonReporter implements Reporter {
   onInit() {
     this.results.startTime = Date.now();
     this.results.status = 'running';
+
+    // Register cleanup handlers for process termination
+    this.registerCleanupHandlers();
 
     // Write initial file with 'running' status
     this.writeResults();
@@ -333,5 +336,32 @@ export default class JsonReporter implements Reporter {
     } catch (error) {
       throw new Error(`Failed to write evaluation results: ${error}`);
     }
+  }
+
+  private registerCleanupHandlers() {
+    const cleanup = () => {
+      // Only update to error if still running (not already finished)
+      if (this.results.status === 'running') {
+        this.results.status = 'error';
+        this.results.endTime = Date.now();
+        this.results.duration = this.results.endTime - this.results.startTime;
+        this.writeResults();
+      }
+    };
+
+    // Handle various termination signals
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+    process.on('SIGHUP', cleanup);
+    process.on('uncaughtException', (error) => {
+      console.error('Uncaught exception:', error);
+      cleanup();
+      process.exit(1);
+    });
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled rejection at:', promise, 'reason:', reason);
+      cleanup();
+      process.exit(1);
+    });
   }
 }

@@ -39,12 +39,16 @@ export default function ResultsList({ results, loading = false, error }: Results
 
   return (
     <div className="space-y-4">
-      {results.map((file) => (
-        <Link to="/results/$id" params={{ id: file.timestamp }} key={file.path} className="block">
-          <Card
-            key={file.path}
-            className="hover:shadow-md transition-shadow hover:bg-muted"
-          >
+      {results.map((file) => {
+        const isError = file.summary?.status === 'error';
+        const CardWrapper = isError ? 'div' : Link;
+        const cardProps = isError ? {} : { to: "/results/$id", params: { id: file.timestamp }, className: "block" };
+        
+        return (
+          <CardWrapper key={file.path} {...cardProps}>
+            <Card
+              className={isError ? "opacity-75" : "hover:shadow-md transition-shadow hover:bg-muted cursor-pointer"}
+            >
             <CardContent className="px-4 py-0">
               <div className="flex items-start justify-between">
                 <div className="flex-1 space-y-2">
@@ -93,13 +97,19 @@ export default function ResultsList({ results, loading = false, error }: Results
                       Running
                     </Badge>
                   )}
-                  {file.summary && getSuccessBadge(file.summary.success)}
+                  {file.summary?.status === 'error' && (
+                    <Badge variant="destructive">
+                      Error
+                    </Badge>
+                  )}
+                  {file.summary && file.summary.status !== 'error' && getSuccessBadge(file.summary.success)}
                 </div>
               </div>
             </CardContent>
-          </Card>
-        </Link>
-      ))}
+            </Card>
+          </CardWrapper>
+        )
+      })}
     </div>
   )
 }

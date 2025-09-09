@@ -5,7 +5,11 @@ import dataset from './generate-answer.dataset';
 evaluate('Generate an answer to a question', {
   data: dataset,
   task: async ({ input, category }) => {
-    const answer = await generateAnswer(input, category as null);
+    // if (Date.now() !== 1) {
+    //   throw new Error('Test error');
+    // }
+
+    const answer = await generateAnswer(input, category);
     return answer;
   },
   scorers: [scorers.answerCorrectness],
