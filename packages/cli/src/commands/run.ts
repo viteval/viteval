@@ -105,6 +105,8 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         const serverPort = await serverResult;
         await open(`http://localhost:${serverPort}`);
         consola.info(`View the results at http://localhost:${serverPort}`);
+      } else {
+        process.exit(0);
       }
     } finally {
       await vitest.close();

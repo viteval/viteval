@@ -137,25 +137,25 @@ export const dataCommand: CommandModule<
       await Promise.all(
         mods.map(async (mod, index) => {
           // Just run the data function to generate it
-          try {
-            const progressBarItem = progressBar.add({
-              total: 100,
-              id: index,
-              progress: true,
-              suffix: chalk.cyan(mod.name),
-            });
-            let value = 0;
-            const inc = 1;
-            const wait = 350;
-            const intervalId = setInterval(() => {
-              value += inc;
-              if (value >= 100) {
-                clearInterval(intervalId);
-                return;
-              }
-              progressBarItem.update({ value });
-            }, wait);
+          const progressBarItem = progressBar.add({
+            total: 100,
+            id: index,
+            progress: true,
+            suffix: chalk.cyan(mod.name),
+          });
+          let value = 0;
+          const inc = 1;
+          const wait = 350;
+          const intervalId = setInterval(() => {
+            value += inc;
+            if (value >= 100) {
+              clearInterval(intervalId);
+              return;
+            }
+            progressBarItem.update({ value });
+          }, wait);
 
+          try {
             // import the dataset
             await mod.data({ overwrite: argv.overwrite });
             results.successes.push({ name: mod.name });
@@ -166,9 +166,14 @@ export const dataCommand: CommandModule<
             });
           } catch (error) {
             results.failures.push({ name: mod.name, error: error as Error });
+            clearInterval(intervalId);
+            progressBarItem.update({
+              value: 100,
+            });
           }
         })
       );
+
       progressBar.stop();
 
       if (results.failures.length > 0) {
@@ -195,6 +200,7 @@ export const dataCommand: CommandModule<
       } else {
         logger.success(`Generated ${results.successes.length} datasets`);
       }
+      process.exit(0);
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Unknown error');
       logger.error(`Failed to generate datasets: ${err.message}`);
