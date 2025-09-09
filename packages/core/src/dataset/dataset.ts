@@ -1,8 +1,11 @@
 import { findRoot } from '#/internals/utils';
 import type {
   DataGenerator,
+  DataItem,
   Dataset,
   DatasetConfig,
+  Extra,
+  InferDataExtra,
   InferDataInput,
   InferDataOutput,
 } from '#/types';
@@ -39,12 +42,17 @@ import { createDatasetStorage } from './storage';
  * @param config - The configuration of the dataset.
  * @returns The dataset.
  */
-export function defineDataset<DATA_FUNC extends DataGenerator>(
-  config: DatasetConfig<DATA_FUNC>
-): Dataset<DATA_FUNC> {
-  type INPUT = InferDataInput<DATA_FUNC>;
-  type OUTPUT = InferDataOutput<DATA_FUNC>;
-
+export function defineDataset<
+  DATA_FUNC extends DataGenerator,
+  INPUT = InferDataInput<DATA_FUNC>,
+  OUTPUT = InferDataOutput<DATA_FUNC>,
+  EXTRA extends Extra = InferDataExtra<DATA_FUNC>,
+  DATA_ITEM extends DataItem<INPUT, OUTPUT, EXTRA> = DataItem<
+    INPUT,
+    OUTPUT,
+    EXTRA
+  >,
+>(config: DatasetConfig<DATA_FUNC>): Dataset<DATA_FUNC, DATA_ITEM> {
   const finalStorage = config.storage ?? 'local';
   return {
     name: config.name,
@@ -54,19 +62,19 @@ export function defineDataset<DATA_FUNC extends DataGenerator>(
         return false;
       }
 
-      const storage = createDatasetStorage<INPUT, OUTPUT>({
+      const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
         name: config.name,
         root: await findRoot(process.cwd()),
         storage: finalStorage,
       });
       return await storage.exists();
     },
-    load: (async (options) => {
+    async load(options) {
       if (finalStorage === 'memory') {
-        return await config.data();
+        return (await config.data()) as DATA_ITEM[];
       }
 
-      const storage = createDatasetStorage<INPUT, OUTPUT>({
+      const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
         name: config.name,
         root: await findRoot(process.cwd()),
         storage: finalStorage,
@@ -75,18 +83,18 @@ export function defineDataset<DATA_FUNC extends DataGenerator>(
 
       if (options?.create === true && !data) {
         const newData = await config.data();
-        await storage.save(newData);
-        return newData;
+        await storage.save(newData as DATA_ITEM[]);
+        return newData as DATA_ITEM[];
       }
 
-      return data;
-    }) as Dataset<DATA_FUNC>['load'],
+      return data as DATA_ITEM[];
+    },
     async save(options) {
       if (finalStorage === 'memory') {
         return;
       }
 
-      const storage = createDatasetStorage<INPUT, OUTPUT>({
+      const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
         name: config.name,
         root: await findRoot(process.cwd()),
         storage: finalStorage,
@@ -97,7 +105,7 @@ export function defineDataset<DATA_FUNC extends DataGenerator>(
       }
 
       const data = await config.data();
-      await storage.save(data);
+      await storage.save(data as DATA_ITEM[]);
     },
     // @ts-expect-error - allowed, internal only
     ___viteval_type: 'dataset',

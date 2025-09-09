@@ -7,7 +7,9 @@
   },
   "private": true,
   "scripts": {
-    "eval": "viteval"
+    "build": "tsc",
+    "eval": "viteval",
+    "types": "tsc --noEmit"
   },
   "type": "module"
 }

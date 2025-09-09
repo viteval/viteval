@@ -58,7 +58,7 @@ export type DataItem<
   {
     name?: string;
     input: INPUT;
-    expected?: OUTPUT;
+    expected: OUTPUT;
   }
 >;
 
@@ -128,9 +128,22 @@ export type Dataset<
   DATA_FUNC extends DataGenerator,
   DATA_ITEM extends DataItem = DataItem<
     InferDataInput<DATA_FUNC>,
-    InferDataOutput<DATA_FUNC>
+    InferDataOutput<DATA_FUNC>,
+    InferDataExtra<DATA_FUNC>
   >,
-> = Omit<TF.SetRequired<DatasetConfig<DATA_FUNC>, 'storage'>, 'data'> & {
+> = {
+  /**
+   * The storage type of the dataset.
+   */
+  storage: DatasetStorage;
+  /**
+   * The name of the dataset.
+   */
+  name: string;
+  /**
+   * The description of the dataset.
+   */
+  description?: string;
   /**
    * Check if the dataset exists in the storage.
    *

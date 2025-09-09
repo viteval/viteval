@@ -49,7 +49,9 @@
     "publish": "pnpm run build && pnpm changeset publish",
     "sp": "syncpack",
     "test": "nx run-many -t test --parallel --projects=packages/*",
-    "types": "nx run-many -t types --parallel --projects=packages/*",
+    "types": "nx run-many -t types --parallel",
+    "types:packages": "nx run-many -t types --parallel --projects=packages/*",
+    "types:examples": "nx run-many -t types --parallel --projects=examples/*",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile"
   }
 }
