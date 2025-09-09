@@ -1,7 +1,7 @@
 {
   "name": "@viteval/cli",
   "description": "Command line interface for Viteval - Next generation LLM evaluation framework powered by Vitest.",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "bin": {
     "viteval": "dist/index.js"
   },
