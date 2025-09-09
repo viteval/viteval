@@ -1,5 +1,16 @@
 # viteval
 
+## 0.4.2
+
+### Patch Changes
+
+- a179bd1: stablize the datasets, add support for memory, and better CLI handling for datasets
+- Updated dependencies [a179bd1]
+  - @viteval/core@0.4.2
+  - @viteval/cli@0.4.2
+  - @viteval/internal@0.4.2
+  - @viteval/ui@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
