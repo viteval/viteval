@@ -142,7 +142,7 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
           <TableCell colSpan={4} className="p-0">
             <Collapsible open={isOpen}>
               <CollapsibleContent>
-                <div className="bg-muted/30 p-4 space-y-4">
+                <div className="bg-zinc-950 p-4 space-y-4">
                   {item.input !== undefined && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Input:</h4>

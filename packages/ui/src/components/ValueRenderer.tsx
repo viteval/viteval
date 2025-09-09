@@ -4,7 +4,10 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark'
 import { toast } from 'sonner'
-import { Button } from './ui/button'
+import { ValueObjectViewer } from './ValueObjectViewer'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 interface ValueRendererProps {
   value: unknown
@@ -82,39 +85,51 @@ export function ValueRenderer({ value, className = '', label = 'Value' }: ValueR
 
   if (isJson) {
     return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: allow it 
       <div
         className={wrapperClass}
         onMouseEnter={() => setShowCopyButton(true)}
         onMouseLeave={() => setShowCopyButton(false)}
       >
-        <SyntaxHighlighter
-          language="json"
-          style={oneDark}
-          customStyle={{
-            margin: 0,
-            borderRadius: '0.375rem',
-            fontSize: '0.75rem',
-            lineHeight: '1rem',
-            paddingRight: showCopyButton ? '3rem' : undefined,
-          }}
-          className={className}
-        >
-          {content}
-        </SyntaxHighlighter>
-        {showCopyButton && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-            className="absolute top-2 right-2 h-6 w-6 p-0 bg-zinc-800 hover:bg-zinc-700 transition-opacity opacity-0 group-hover:opacity-100"
-          >
-            {copied ? (
-              <Check className="h-3 w-3 text-green-500" />
-            ) : (
-              <Copy className="h-3 w-3 text-zinc-300" />
+        <Tabs defaultValue="json" className="container -mx-8 px-8">
+          <TabsList>
+            <TabsTrigger value="json" className='cursor-pointer hover:bg-zinc-900'>JSON</TabsTrigger>
+            <TabsTrigger value="md-viewer" className='cursor-pointer hover:bg-zinc-900'>Markdown Viewer</TabsTrigger>
+          </TabsList>
+          <TabsContent value="json">
+            <SyntaxHighlighter
+              language="json"
+              style={oneDark}
+              customStyle={{
+                margin: 0,
+                borderRadius: '0.375rem',
+                fontSize: '0.75rem',
+                lineHeight: '1rem',
+                paddingRight: showCopyButton ? '3rem' : undefined,
+              }}
+              className={className}
+            >
+              {content}
+            </SyntaxHighlighter>
+            {showCopyButton && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopy}
+                className="absolute top-2 right-2 h-6 w-6 p-0 bg-zinc-800 hover:bg-zinc-700 transition-opacity opacity-0 group-hover:opacity-100"
+              >
+                {copied ? (
+                  <Check className="h-3 w-3 text-green-500" />
+                ) : (
+                  <Copy className="h-3 w-3 text-zinc-300" />
+                )}
+              </Button>
             )}
-          </Button>
-        )}
+          </TabsContent>
+          <TabsContent value="md-viewer">
+            <ValueObjectViewer obj={value as object} />
+          </TabsContent>
+        </Tabs>
       </div>
     )
   }

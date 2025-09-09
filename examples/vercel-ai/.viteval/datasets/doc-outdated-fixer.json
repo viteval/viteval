@@ -1,0 +1,368 @@
+{
+  "timestamp": "2025-09-09T20:47:20.199Z",
+  "data": [
+    {
+      "name": "deprecated-endpoint",
+      "input": {
+        "doc": {
+          "path": "docs/api/user_management.md",
+          "content": "# User Management API\n\n## Get User Profile (Deprecated)\n\n**Endpoint:** `/api/v1/getUserProfile`\n\n**Method:** `GET`\n\nRetrieve details for a specific user.\n\n**Parameters:**\n\n- `userid` (string, required): The unique identifier of the user\n- `includeSensitive` (boolean, optional): Whether to include sensitive information in the response (`true` or `false`). Default: `false`.\n\n**Response:**\n\n- `name`: User's full name\n- `email`: User's email address\n- `dateJoined`: Date the user joined\n- `details`: Detailed profile information (if `includeSensitive` is `true`)\n\n**Example Request:**\n\n```http\nGET /api/v1/getUserProfile?userid=12345&includeSensitive=true\n```\n\n> **Note:** This endpoint is available for backward compatibility. For new implementations, refer to `/api/v2/user/profile`.\n"
+        },
+        "analysis": [
+          {
+            "summary": "The documentation references the deprecated `/api/v1/getUserProfile` endpoint, which has been replaced by `/api/v2/user/profile`.",
+            "path": "docs/api/user_management.md",
+            "startLine": 4,
+            "endLine": 5
+          },
+          {
+            "summary": "Parameter names `userid` and `includeSensitive` are outdated; the new endpoint uses `user_id` and `expand_sensitive` respectively.",
+            "path": "docs/api/user_management.md",
+            "startLine": 8,
+            "endLine": 10
+          },
+          {
+            "summary": "The example request demonstrates usage of the deprecated endpoint and old parameter names.",
+            "path": "docs/api/user_management.md",
+            "startLine": 19,
+            "endLine": 22
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 101,
+            "ownerId": 55,
+            "repo": "internal-api-docs",
+            "owner": "api-team",
+            "filename": "docs/api/user_management.md",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 16,
+            "additions": 14,
+            "deletions": 12,
+            "patch": null
+          }
+        ]
+      },
+      "expected": "{\"confidence\":98,\"changes\":[\"Updated endpoint from `/api/v1/getUserProfile` to `/api/v2/user/profile` throughout the documentation.\",\"Renamed parameter `userid` to `user_id` and `includeSensitive` to `expand_sensitive` to match new API.\",\"Updated example request and all parameter descriptions to use the new parameter names and endpoint.\",\"Clarified that the v2 endpoint must be used for all new integrations.\"],\"summary\":\"The documentation has been updated to reference the current `/api/v2/user/profile` endpoint and the correct parameter names. Deprecated references and old parameters were replaced to ensure accuracy.\",\"content\":\"# User Management API\\n\\n## Get User Profile\\n\\n**Endpoint:** `/api/v2/user/profile`\\n\\n**Method:** `GET`\\n\\nRetrieve details for a specific user using the latest API version.\\n\\n**Parameters:**\\n\\n- `user_id` (string, required): The unique identifier of the user\\n- `expand_sensitive` (boolean, optional): Include sensitive information in the response (`true` or `false`). Default: `false`.\\n\\n**Response:**\\n\\n- `name`: User's full name\\n- `email`: User's email address\\n- `date_joined`: Date the user joined\\n- `details`: Detailed profile information (only if `expand_sensitive` is `true`)\\n\\n**Example Request:**\\n\\n```http\\nGET /api/v2/user/profile?user_id=12345&expand_sensitive=true\\n```\\n\\n> **Note:** The previous endpoint `/api/v1/getUserProfile` is deprecated. All new integrations must use `/api/v2/user/profile` and the updated parameter names.\"}"
+    },
+    {
+      "name": "outdated-package-version",
+      "input": {
+        "doc": {
+          "path": "docs/setup.md",
+          "content": "# Project Setup Guide\n\nWelcome to the Project Setup Guide. Please follow the instructions below to get started with your development environment.\n\n## Prerequisites\n- Node.js >= 12.0.0\n- npm >= 6.0.0\n\n## Installation Steps\n1. Clone the repository:\n   ```sh\n   git clone https://github.com/example/project.git\n   cd project\n   ```\n2. Install dependencies:\n   ```sh\n   npm install my-library@2.3.0\n   npm install\n   ```\n\n## Configuration\nCreate a file named `config.json` in the project root with the following content:\n```json\n{\n  \"useSSL\": true,\n  \"apiToken\": \"your-token-here\"\n}\n```\n\n- `useSSL`: Enables SSL (true/false).\n- `apiToken`: Your API authentication token.\n\n## Running the Application\nTo start the application, run:\n```sh\nnpm start\n```\n\nThe application should now be running at http://localhost:3000.\n"
+        },
+        "analysis": [
+          {
+            "summary": "The setup instructions reference my-library version 2.3.0, but the latest stable version is 4.1.0, which may contain critical updates or bug fixes.",
+            "path": "docs/setup.md",
+            "startLine": 12,
+            "endLine": 13
+          },
+          {
+            "summary": "The configuration file example uses the deprecated 'useSSL' option, which has been replaced by 'secureConnection' in recent versions of the software.",
+            "path": "docs/setup.md",
+            "startLine": 18,
+            "endLine": 22
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 321,
+            "ownerId": 9,
+            "repo": "example",
+            "owner": "example",
+            "filename": "docs/setup.md",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 9,
+            "additions": 7,
+            "deletions": 2,
+            "patch": "@@ -12,11 +12,14 @@\n-   npm install my-library@2.3.0\n+   npm install my-library@4.1.0\n    npm install\n@@ -18,8 +18,11 @@\n-{\n-  \"useSSL\": true,\n+{\n+  \"secureConnection\": true,\n   \"apiToken\": \"your-token-here\"\n }\n \n-- `useSSL`: Enables SSL (true/false).\n+- `secureConnection`: Enables SSL connection (true/false).\n- `apiToken`: Your API authentication token.\n"
+          }
+        ]
+      },
+      "expected": "{\"confidence\":98,\"changes\":[\"Updated my-library version from 2.3.0 to 4.1.0 in installation instructions.\",\"Replaced deprecated 'useSSL' config option with 'secureConnection'.\",\"Updated configuration section explanations to match current option names.\"],\"summary\":\"References to outdated package versions and deprecated configuration options were updated to ensure compatibility with the latest software releases. The setup guide now reflects current best practices and avoids deprecated patterns.\",\"content\":\"# Project Setup Guide\\n\\nWelcome to the Project Setup Guide. Please follow the instructions below to get started with your development environment.\\n\\n## Prerequisites\\n- Node.js >= 12.0.0\\n- npm >= 6.0.0\\n\\n## Installation Steps\\n1. Clone the repository:\\n   ```sh\\n   git clone https://github.com/example/project.git\\n   cd project\\n   ```\\n2. Install dependencies:\\n   ```sh\\n   npm install my-library@4.1.0\\n   npm install\\n   ```\\n\\n## Configuration\\nCreate a file named `config.json` in the project root with the following content:\\n```json\\n{\\n  \\\"secureConnection\\\": true,\\n  \\\"apiToken\\\": \\\"your-token-here\\\"\\n}\\n```\\n\\n- `secureConnection`: Enables SSL connection (true/false).\\n- `apiToken`: Your API authentication token.\\n\\n## Running the Application\\nTo start the application, run:\\n```sh\\nnpm start\\n```\\n\\nThe application should now be running at http://localhost:3000.\\n\"}"
+    },
+    {
+      "name": "obsolete-syntax",
+      "input": {
+        "doc": {
+          "path": "docs/getting_started/my_script_examples.md",
+          "content": "# Getting Started with MyScript\n\nThis guide will help you learn the basics of defining functions and working with lists in Python.\n\n## Example: Doubling numbers in a list\n\nHere’s how you can double each number in a list using a simple function and the traditional `map` syntax in Python 2.x:\n\n```python\n# Define a function to double the number\ndef double(x):\n    return x * 2\n\n# Using map to double all numbers in a list\nnumbers = [1, 2, 3, 4]\ndoubled = map(double, numbers)\nprint doubled  # Output: [2, 4, 6, 8]\n```\n\nYou can also use the `filter` function to get only even numbers:\n\n```python\ndef is_even(x):\n    return x % 2 == 0\n\nnumbers = [1, 2, 3, 4, 5, 6]\nevens = filter(is_even, numbers)\nprint evens  # Output: [2, 4, 6]\n```\n\nNote: In Python 2.x, the `print` statement does not require parentheses."
+        },
+        "analysis": [
+          {
+            "summary": "The documentation provides code examples using Python 2.x syntax: `map()` and `filter()` returning lists, and print as a statement without parentheses, all of which are outdated in Python 3.x.",
+            "path": "docs/getting_started/my_script_examples.md",
+            "startLine": 7,
+            "endLine": 30
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 1,
+            "ownerId": 101,
+            "repo": "my_script_repo",
+            "owner": "acme_co",
+            "filename": "docs/getting_started/my_script_examples.md",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 9,
+            "additions": 9,
+            "deletions": 9,
+            "patch": "@@ -7,13 +7,18 @@\n-Here’s how you can double each number in a list using a simple function and the traditional `map` syntax in Python 2.x:\n-\n-```python\n-# Define a function to double the number\n-def double(x):\n-    return x * 2\n-\n-# Using map to double all numbers in a list\n-numbers = [1, 2, 3, 4]\n-doubled = map(double, numbers)\n-print doubled  # Output: [2, 4, 6, 8]\n-```\n-\n-You can also use the `filter` function to get only even numbers:\n-\n-```python\n-def is_even(x):\n-    return x % 2 == 0\n-\n-numbers = [1, 2, 3, 4, 5, 6]\n-evens = filter(is_even, numbers)\n-print evens  # Output: [2, 4, 6]\n-```\n-\n-Note: In Python 2.x, the `print` statement does not require parentheses.\n+\n+Here’s how you can double each number in a list using a simple function and modern Python 3.X features:\n+\n+```python\n+# Define a function to double the number\ndef double(x):\n+    return x * 2\n+\n+# Using map and converting the result to a list in Python 3\n+numbers = [1, 2, 3, 4]\n+doubled = list(map(double, numbers))\n+print(doubled)  # Output: [2, 4, 6, 8]\n+```\n+\n+Alternatively, you can use list comprehensions for a more Pythonic approach:\n+```python\n+numbers = [1, 2, 3, 4]\ndoubled = [x * 2 for x in numbers]\n+print(doubled)  # Output: [2, 4, 6, 8]\n+```\n+\n+You can also use the `filter` function to get only even numbers. Remember to convert the result to a list:\n+\n+```python\ndef is_even(x):\n+    return x % 2 == 0\n+\nnumbers = [1, 2, 3, 4, 5, 6]\nevans = list(filter(is_even, numbers))\n+print(evans)  # Output: [2, 4, 6]\n+```\n+"
+          }
+        ]
+      },
+      "expected": "{\"confidence\":98,\"changes\":[\"Updated all print statements to use parentheses for Python 3 compatibility.\",\"Wrapped calls to `map()` and `filter()` with `list()` to reflect Python 3 behavior.\",\"Added examples using list comprehensions as the modern idiomatic alternative.\",\"Removed notes about Python 2.x print statement syntax.\",\"Clarified code comments for Python 3.\"],\"summary\":\"The documentation was outdated due to use of Python 2.x syntax (print as a statement, map/filter without list conversion) and omission of list comprehensions. All code examples were modernized for Python 3.x and enhanced for clarity.\",\"content\":\"# Getting Started with MyScript\\n\\nThis guide will help you learn the basics of defining functions and working with lists in Python.\\n\\n## Example: Doubling numbers in a list\\n\\nHere’s how you can double each number in a list using a simple function and modern Python 3.X features:\\n\\n```python\\n# Define a function to double the number\\ndef double(x):\\n    return x * 2\\n\\n# Using map and converting the result to a list in Python 3\\nnumbers = [1, 2, 3, 4]\\ndoubled = list(map(double, numbers))\\nprint(doubled)  # Output: [2, 4, 6, 8]\\n```\\n\\nAlternatively, you can use list comprehensions for a more Pythonic approach:\\n\\n```python\\nnumbers = [1, 2, 3, 4]\\ndoubled = [x * 2 for x in numbers]\\nprint(doubled)  # Output: [2, 4, 6, 8]\\n```\\n\\nYou can also use the `filter` function to get only even numbers. Remember to convert the result to a list:\\n\\n```python\\ndef is_even(x):\\n    return x % 2 == 0\\n\\nnumbers = [1, 2, 3, 4, 5, 6]\\nevans = list(filter(is_even, numbers))\\nprint(evans)  # Output: [2, 4, 6]\\n```\\n\"}"
+    },
+    {
+      "name": "renamed-env-vars",
+      "input": {
+        "doc": {
+          "path": "docs/configuration.md",
+          "content": "# Application Configuration\n\nThe application relies on a set of environment variables to configure its behavior. Ensure the following variables are set in your environment before starting the application:\n\n- `APP_DB_HOST`: The hostname or IP address of the database server.\n- `APP_DB_PORT`: The port number the database server is listening on (defaults to `5432`).\n- `APP_SECRET_KEY`: A unique key used for session encryption.\n- `APP_DEBUG_ENABLED`: Set to `true` to enable debug mode.\n\nExample:\n\n```bash\nexport APP_DB_HOST=localhost\nexport APP_DB_PORT=5432\nexport APP_SECRET_KEY=my_secret\nexport APP_DEBUG_ENABLED=true\n```\n\n**Note:**\nIf you are deploying to production, ensure that `APP_DEBUG_ENABLED` is set to `false` and `APP_SECRET_KEY` is a secure, random value.\n"
+        },
+        "analysis": [
+          {
+            "summary": "Environment variable names were updated in the latest release but the documentation still uses the old names (e.g., uses APP_DB_HOST instead of APPLICATION_DATABASE_HOST).",
+            "path": "src/config_loader.py",
+            "startLine": 10,
+            "endLine": 24
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 3210,
+            "ownerId": 876,
+            "repo": "example-app",
+            "owner": "acme-corp",
+            "filename": "src/config_loader.py",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 8,
+            "additions": 4,
+            "deletions": 4,
+            "patch": "@@ -10,10 +10,10 @@\n-DB_HOST = os.getenv('APP_DB_HOST', 'localhost')\n-DB_PORT = os.getenv('APP_DB_PORT', 5432)\n-SECRET_KEY = os.getenv('APP_SECRET_KEY')\n-DEBUG = os.getenv('APP_DEBUG_ENABLED', 'false') == 'true'\n+DB_HOST = os.getenv('APPLICATION_DATABASE_HOST', 'localhost')\n+DB_PORT = os.getenv('APPLICATION_DATABASE_PORT', 5432)\n+SECRET_KEY = os.getenv('APPLICATION_SECRET_KEY')\n+DEBUG = os.getenv('APPLICATION_ENABLE_DEBUG', 'false') == 'true'"
+          }
+        ]
+      },
+      "expected": "{\"confidence\":95,\"changes\":[\"Update all references to the old environment variable names (APP_DB_HOST, APP_DB_PORT, APP_SECRET_KEY, APP_DEBUG_ENABLED) to the new naming convention (APPLICATION_DATABASE_HOST, APPLICATION_DATABASE_PORT, APPLICATION_SECRET_KEY, APPLICATION_ENABLE_DEBUG).\",\"Update example shell snippet with new variable names.\",\"Update instruction and note sections to reference the correct new environment variable names.\"],\"summary\":\"The documentation is outdated because it references old environment variable names that have been replaced with new ones. All mention of the APP_* variables should be updated to the APPLICATION_* equivalents for accuracy.\",\"content\":\"# Application Configuration\\n\\nThe application relies on a set of environment variables to configure its behavior. Ensure the following variables are set in your environment before starting the application:\\n\\n- `APPLICATION_DATABASE_HOST`: The hostname or IP address of the database server.\\n- `APPLICATION_DATABASE_PORT`: The port number the database server is listening on (defaults to `5432`).\\n- `APPLICATION_SECRET_KEY`: A unique key used for session encryption.\\n- `APPLICATION_ENABLE_DEBUG`: Set to `true` to enable debug mode.\\n\\nExample:\\n\\n```bash\\nexport APPLICATION_DATABASE_HOST=localhost\\nexport APPLICATION_DATABASE_PORT=5432\\nexport APPLICATION_SECRET_KEY=my_secret\\nexport APPLICATION_ENABLE_DEBUG=true\\n```\\n\\n**Note:**\\nIf you are deploying to production, ensure that `APPLICATION_ENABLE_DEBUG` is set to `false` and `APPLICATION_SECRET_KEY` is a secure, random value.\\n\"}"
+    },
+    {
+      "name": "missing-ui-elements",
+      "input": {
+        "doc": {
+          "path": "docs/tutorials/getting_started.md",
+          "content": "# Getting Started with TaskMaster\n\nWelcome to TaskMaster! This tutorial will guide you through the basic steps to create your first project and start managing tasks efficiently.\n\n## Step 1: Creating a New Project\n\n1. From the dashboard, click the **'New Project'** button located at the top left corner of the screen.\n2. In the popup window, enter the project name and click **'Create'**.\n\n## Step 2: Adding Tasks\n\n1. With your project open, locate the **Tasks Sidebar** on the right side.\n2. Click the **'Add Task'** field at the bottom of the sidebar.\n3. Press **Enter** or click the **'+' icon** to add your task.\n\n## Step 3: Assigning Team Members\n\n1. In the **Project Members** panel (visible beneath the project title bar), click the **'Invite'** button.\n2. Enter your team member's email address and press **Send Invitation**.\n\n## Step 4: Tracking Progress\n\n1. Switch to the **Dashboard View** by clicking the switch at the top center labeled **'Dashboard'**.\n2. Here, you can see progress bars for each project and task completion percentages.\n\nCongrats! You're ready to manage projects with TaskMaster."
+        },
+        "analysis": [
+          {
+            "summary": "References to the 'New Project' button at the top left are outdated; the UI was redesigned and now project creation is accessed via the sidebar.",
+            "path": "src/components/Dashboard.tsx",
+            "startLine": 34,
+            "endLine": 56
+          },
+          {
+            "summary": "The tutorial mentions a right-side 'Tasks Sidebar', but tasks are now managed in a central panel below the project overview after the redesign.",
+            "path": "src/layouts/ProjectView.tsx",
+            "startLine": 12,
+            "endLine": 41
+          },
+          {
+            "summary": "There is no longer a separate 'Project Members' panel beneath the project title; member management is now under the 'Team' tab.",
+            "path": "src/components/TeamManagement.tsx",
+            "startLine": 18,
+            "endLine": 40
+          },
+          {
+            "summary": "References to switching to 'Dashboard View' via a top center switch are outdated. Dashboards now must be accessed from the main left sidebar.",
+            "path": "src/components/NavBar.tsx",
+            "startLine": 21,
+            "endLine": 47
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 101,
+            "ownerId": 34,
+            "repo": "taskmaster",
+            "owner": "acme-corp",
+            "filename": "src/components/Dashboard.tsx",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 30,
+            "additions": 18,
+            "deletions": 12,
+            "patch": "@@ ...\n- // Top left \"New Project\" button removed; now using sidebar panel for creation.\n+ // Project creation now handled in the Projects sidebar."
+          },
+          {
+            "repoId": 101,
+            "ownerId": 34,
+            "repo": "taskmaster",
+            "owner": "acme-corp",
+            "filename": "src/layouts/ProjectView.tsx",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 20,
+            "additions": 11,
+            "deletions": 9,
+            "patch": "@@ ...\n- // Tasks Sidebar (right) removed in redesign; tasks shown in center below overview.\n+ // Tasks panel now central under project overview."
+          },
+          {
+            "repoId": 101,
+            "ownerId": 34,
+            "repo": "taskmaster",
+            "owner": "acme-corp",
+            "filename": "src/components/TeamManagement.tsx",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 15,
+            "additions": 10,
+            "deletions": 5,
+            "patch": "@@ ...\n- // Project Members panel removed; replaced by Team tab.\n+ // Team management now located under the 'Team' tab."
+          },
+          {
+            "repoId": 101,
+            "ownerId": 34,
+            "repo": "taskmaster",
+            "owner": "acme-corp",
+            "filename": "src/components/NavBar.tsx",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 27,
+            "additions": 14,
+            "deletions": 13,
+            "patch": "@@ ...\n- // Top center dashboard switch removed; dashboard now in left sidebar menu.\n+ // Dashboard accessed from left sidebar navigation."
+          }
+        ]
+      },
+      "expected": "{\"confidence\":98,\"changes\":[\"Updated project creation instructions to reference the sidebar instead of top left button.\",\"Changed task management location from right sidebar to central panel.\",\"Revised instructions for team member management to use the 'Team' tab.\",\"Updated Dashboard access steps to use the left sidebar instead of top center switch.\"],\"summary\":\"The documentation referenced several outdated UI elements (such as a top-left 'New Project' button, a right-side Tasks Sidebar, a 'Project Members' panel, and a top-center dashboard switch) that were removed or moved in the redesign. All steps have been updated to reflect the current TaskMaster interface.\",\"content\":\"# Getting Started with TaskMaster\\n\\nWelcome to TaskMaster! This tutorial will guide you through the basic steps to create your first project and start managing tasks efficiently.\\n\\n## Step 1: Creating a New Project\\n\\n1. Open the sidebar by clicking the **Projects** icon on the left navigation menu.\\n2. Click the **'Create Project'** button at the bottom of the sidebar.\\n3. In the dialog, enter the project name and confirm by clicking **'Create'**.\\n\\n## Step 2: Adding Tasks\\n\\n1. With your project open, scroll to the **Tasks** panel located below the project overview section in the main area.\\n2. Use the **'Add a new task'** field at the top of the Tasks panel.\\n3. Press **Enter** or click the **'+' icon** to add your task.\\n\\n## Step 3: Assigning Team Members\\n\\n1. Navigate to the **Team** tab within your project (accessible from the project's top navigation bar).\\n2. Click the **'Invite Member'** button.\\n3. Enter your team member's email address and click **'Send Invitation'**.\\n\\n## Step 4: Tracking Progress\\n\\n1. To view project dashboards, select the **Dashboard** option from the left sidebar navigation menu.\\n2. Here, you can see progress bars for each project and task completion percentages.\\n\\nCongrats! You're ready to manage projects with TaskMaster.\"}"
+    },
+    {
+      "name": "outdated-dependencies",
+      "input": {
+        "doc": {
+          "path": "docs/installation.md",
+          "content": "# Installation Guide\n\nFollow these steps to set up the project.\n\n## Prerequisites\n\n- Python 3.8 or later\n- Node.js 12.x or later\n\n## Step 1: Install Python Dependencies\n\nWe recommend using `pipenv` for dependency management. If you don't have it:\n\n```bash\npip install --user pipenv\n```\n\nThen install dependencies:\n\n```bash\npipenv install --dev\n```\n\nIf you experience issues with `pipenv`, you can fall back to using requirements.txt:\n\n```bash\npip install --user -r requirements.txt\n```\n\nNote: All packages are pulled from PyPI, but in case of issues, you may switch to the legacy Python Package Index mirror (https://pypi.python.org).\n\n## Step 2: Install JavaScript Dependencies\n\nInstall front-end dependencies using the `bower` package manager:\n\n```bash\nbower install\n```\n\n> You may need to install `bower` globally first:\n\n```bash\nnpm install -g bower\n```\n\nAlternatively, for older setups, use:\n\n```bash\nyarn install\n```\n"
+        },
+        "analysis": [
+          {
+            "summary": "`pipenv` is no longer the recommended standard for Python dependency management; `pip` and `venv` are preferred.",
+            "path": "docs/installation.md",
+            "startLine": 10,
+            "endLine": 19
+          },
+          {
+            "summary": "Reference to the legacy Python Package Index mirror (https://pypi.python.org) is outdated, as it is deprecated.",
+            "path": "docs/installation.md",
+            "startLine": 21,
+            "endLine": 22
+          },
+          {
+            "summary": "`bower` is obsolete and should not be recommended for JavaScript dependency management; `npm` or `yarn` are now standard.",
+            "path": "docs/installation.md",
+            "startLine": 25,
+            "endLine": 34
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 32456,
+            "ownerId": 78910,
+            "repo": "example-project",
+            "owner": "openai",
+            "filename": "docs/installation.md",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 19,
+            "additions": 20,
+            "deletions": 17,
+            "patch": null
+          }
+        ]
+      },
+      "expected": "{\"confidence\":98,\"changes\":[\"Replaced instructions using pipenv with pip and venv.\",\"Removed reference to deprecated PyPI mirror.\",\"Replaced bower usage with npm/yarn for front-end dependencies.\",\"Clarified Node.js version requirement to be currently supported.\",\"Updated installation steps to reflect standard tooling.\"],\"summary\":\"The original documentation referred to deprecated or non-recommended tools (pipenv, bower, and a legacy PyPI mirror) for dependency management, all of which have been updated to modern, widely recommended alternatives.\",\"content\":\"# Installation Guide\\n\\nFollow these steps to set up the project.\\n\\n## Prerequisites\\n\\n- Python 3.8 or later\\n- Node.js 16.x or later\\n\\n## Step 1: Install Python Dependencies\\n\\nWe recommend using Python's built-in `venv` module and `pip` for dependency management. \\n\\nCreate and activate a virtual environment:\\n\\n```bash\\npython3 -m venv .venv\\nsource .venv/bin/activate  # On Windows use: .venv\\\\Scripts\\\\activate\\n```\\n\\nThen install dependencies:\\n\\n```bash\\npip install --upgrade pip\\npip install -r requirements.txt\\n```\\n\\nAll packages are sourced from the official PyPI (https://pypi.org/).\\n\\n## Step 2: Install JavaScript Dependencies\\n\\nInstall front-end dependencies using `npm` or `yarn`:\\n\\n```bash\\nnpm install\\n# or\\nyarn install\\n```\\n\\n> `bower` is no longer supported; all dependencies have been migrated to npm/yarn.\\n\"}"
+    },
+    {
+      "name": "legacy-auth-flow",
+      "input": {
+        "doc": {
+          "path": "docs/authentication.md",
+          "content": "# Authentication Guide\n\nOur API uses OAuth 2.0 for user authentication. Follow the steps below to obtain an access token and authenticate your requests.\n\n## Step 1: Obtain a Request Token\nSend a POST request to `/oauth/request_token` with your API key and secret. For example:\n\n```\nPOST /oauth/request_token\nContent-Type: application/x-www-form-urlencoded\n\nclient_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET\n```\n\nThe server will return a temporary request token.\n\n## Step 2: Redirect the User\nRedirect the user to the following URL to authorize your application:\n\n```\nhttps://example.com/oauth/authorize?request_token=REQUEST_TOKEN\n```\n\nAfter authorization, the user will be redirected back to your site with a `verifier` parameter.\n\n## Step 3: Exchange the Request Token\nExchange the request token and verifier for an access token:\n\n```\nPOST /oauth/access_token\nContent-Type: application/x-www-form-urlencoded\n\nrequest_token=REQUEST_TOKEN&verifier=VERIFIER\n```\n\nThe server will return an `access_token` and `refresh_token`.\n\n---\n\nPlease note: all tokens must be kept confidential. Tokens are valid for 30 days and must be renewed by repeating the above steps."
+        },
+        "analysis": [
+          {
+            "summary": "The documentation describes an old OAuth 2.0 flow using request tokens and verifiers, which has been replaced by the Authorization Code flow with PKCE for enhanced security.",
+            "path": "docs/authentication.md",
+            "startLine": 1,
+            "endLine": 33
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 42,
+            "ownerId": 101,
+            "repo": "example-api",
+            "owner": "exampleorg",
+            "filename": "docs/authentication.md",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 20,
+            "additions": 18,
+            "deletions": 13,
+            "patch": "diff --git a/docs/authentication.md b/docs/authentication.md\nindex 58ebcae..3cde332 100644\n--- a/docs/authentication.md\n+++ b/docs/authentication.md\n@@ -1,27 +1,33 @@\n-# Authentication Guide\n-\n-Our API uses OAuth 2.0 for user authentication. Follow the steps below to obtain an access token and authenticate your requests.\n-\n-## Step 1: Obtain a Request Token\n-Send a POST request to `/oauth/request_token` with your API key and secret. For example:\n-\n-```\n-POST /oauth/request_token\n-Content-Type: application/x-www-form-urlencoded\n-\n-client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET\n-```\n-\n-The server will return a temporary request token.\n-\n-## Step 2: Redirect the User\n-Redirect the user to the following URL to authorize your application:\n-\n-```\n-https://example.com/oauth/authorize?request_token=REQUEST_TOKEN\n-```\n-\n-After authorization, the user will be redirected back to your site with a `verifier` parameter.\n-\n-## Step 3: Exchange the Request Token\n-Exchange the request token and verifier for an access token:\n-\n-```\n-POST /oauth/access_token\n-Content-Type: application/x-www-form-urlencoded\n-\n-request_token=REQUEST_TOKEN&verifier=VERIFIER\n-```\n-\n-The server will return an `access_token` and `refresh_token`.\n-\n----\n-\n-Please note: all tokens must be kept confidential. Tokens are valid for 30 days and must be renewed by repeating the above steps.\n+# Authentication Guide\n+\n+Our API uses OAuth 2.1 for user authentication, following the Authorization Code flow with Proof Key for Code Exchange (PKCE) for improved security. Follow the steps below to obtain an access token and authenticate your requests.\n+\n+## Step 1: Create a Code Verifier and Challenge\n+Generate a secure random string as the `code_verifier` and derive a base64-encoded SHA256 hash as the `code_challenge`.\n+\n+## Step 2: Redirect the User to Authorize\n+Redirect the user to the following URL for authorization:\n+\n+```\n+https://example.com/oauth/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&code_challenge=CODE_CHALLENGE&code_challenge_method=S256&scope=read write\n+```\n+\n+After authorization, the user will be redirected back to your application with a `code` parameter.\n+\n+## Step 3: Exchange Authorization Code for Tokens\n+Exchange the authorization code for access and refresh tokens by sending a POST request:\n+\n+```\n+POST /oauth/token\n+Content-Type: application/x-www-form-urlencoded\n+\n+grant_type=authorization_code&code=CODE&redirect_uri=YOUR_REDIRECT_URI&client_id=YOUR_CLIENT_ID&code_verifier=CODE_VERIFIER\n+```\n+\n+The server will return an `access_token` and a `refresh_token`.\n+\n+---\n+\n+**Note:** Keep all tokens confidential. Access tokens are valid for 1 hour, and refresh tokens should be used to obtain new access tokens without requiring user re-authentication. The legacy request token and verifier flow is no longer supported."
+          }
+        ]
+      },
+      "expected": "{\"confidence\":94,\"changes\":[\"Updated the flow from the deprecated OAuth request token/verifier pattern to the OAuth 2.1 Authorization Code flow with PKCE.\",\"Replaced references to `/oauth/request_token` and `/oauth/access_token` endpoints with `/oauth/token`.\",\"Included details on generating and using `code_verifier` and `code_challenge`.\",\"Updated token validity, removal of request tokens and verifier parameters, and changed redirect instructions.\",\"Added explicit note about deprecation of the old flow.\"],\"summary\":\"The outdated documentation described the old request token and verifier flow from OAuth 1.0/OAuth 2.0, which has been superseded by the Authorization Code flow with PKCE. The corrected documentation provides updated guidance reflecting current security standards and endpoint behaviors.\",\"content\":\"# Authentication Guide\\n\\nOur API uses OAuth 2.1 for user authentication, following the Authorization Code flow with Proof Key for Code Exchange (PKCE) for improved security. Follow the steps below to obtain an access token and authenticate your requests.\\n\\n## Step 1: Create a Code Verifier and Challenge\\nGenerate a secure random string as the `code_verifier` and derive a base64-encoded SHA256 hash as the `code_challenge`.\\n\\n## Step 2: Redirect the User to Authorize\\nRedirect the user to the following URL for authorization:\\n\\n```\\nhttps://example.com/oauth/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&code_challenge=CODE_CHALLENGE&code_challenge_method=S256&scope=read write\\n```\\n\\nAfter authorization, the user will be redirected back to your application with a `code` parameter.\\n\\n## Step 3: Exchange Authorization Code for Tokens\\nExchange the authorization code for access and refresh tokens by sending a POST request:\\n\\n```\\nPOST /oauth/token\\nContent-Type: application/x-www-form-urlencoded\\n\\ngrant_type=authorization_code&code=CODE&redirect_uri=YOUR_REDIRECT_URI&client_id=YOUR_CLIENT_ID&code_verifier=CODE_VERIFIER\\n```\\n\\nThe server will return an `access_token` and a `refresh_token`.\\n\\n---\\n\\n**Note:** Keep all tokens confidential. Access tokens are valid for 1 hour, and refresh tokens should be used to obtain new access tokens without requiring user re-authentication. The legacy request token and verifier flow is no longer supported.\"}"
+    },
+    {
+      "name": "outdated-schema",
+      "input": {
+        "doc": {
+          "path": "docs/database/schema/tables/user_accounts.md",
+          "content": "# Table: user_accounts\n\nThis table stores essential information about each user registered in the application.\n\n| Column Name    | Type        | Description                      |\n|---------------|-------------|----------------------------------|\n| id            | INTEGER     | Primary key                      |\n| username      | VARCHAR(50) | Unique username                  |\n| email         | VARCHAR(100)| User email address               |\n| password_hash | VARCHAR(255)| Hashed password                  |\n| is_active     | BOOLEAN     | Indicates if account is active   |\n| created_at    | TIMESTAMP   | Account creation timestamp       |\n\n## Notes\n- The `username` column is unique across the table.\n- Rows are soft-deleted via setting `is_active` to `FALSE` but not physically removed.\n"
+        },
+        "analysis": [
+          {
+            "summary": "The documentation does not include the recently added `last_login_at` column, which tracks the user's last login time.",
+            "path": "src/models/user_accounts.sql",
+            "startLine": 10,
+            "endLine": 11
+          },
+          {
+            "summary": "The documentation is missing the `account_type` column, introduced to distinguish between user roles (e.g., admin, standard).",
+            "path": "src/models/user_accounts.sql",
+            "startLine": 12,
+            "endLine": 13
+          },
+          {
+            "summary": "The `is_active` field behavior has been updated: rows are now physically deleted rather than soft-deleted, making the current note inaccurate.",
+            "path": "src/models/user_accounts.sql",
+            "startLine": 25,
+            "endLine": 26
+          }
+        ],
+        "diff": [
+          {
+            "repoId": 45,
+            "ownerId": 7,
+            "repo": "app-backend",
+            "owner": "acmecorp",
+            "filename": "src/models/user_accounts.sql",
+            "previousFilename": null,
+            "status": "modified",
+            "changes": 4,
+            "additions": 4,
+            "deletions": 0,
+            "patch": "@@ -10,6 +10,8 @@\n   id INTEGER PRIMARY KEY,\n   username VARCHAR(50) UNIQUE,\n   email VARCHAR(100) NOT NULL,\n   password_hash VARCHAR(255) NOT NULL,\n   is_active BOOLEAN NOT NULL DEFAULT TRUE,\n   created_at TIMESTAMP NOT NULL,\n+  last_login_at TIMESTAMP,\n+  account_type VARCHAR(20) NOT NULL DEFAULT 'standard'\n );\n"
+          }
+        ]
+      },
+      "expected": "{\"confidence\":100,\"changes\":[\"Added `last_login_at` and `account_type` columns to the schema documentation table.\",\"Updated the note about row deletion to reflect that rows are now physically deleted instead of soft-deleted.\"],\"summary\":\"The documentation was missing two recently added columns (`last_login_at`, `account_type`) and contained an outdated note about row deletion mechanics. The corrected documentation now accurately reflects the current schema and deletion behavior.\",\"content\":\"# Table: user_accounts\\n\\nThis table stores essential information about each user registered in the application.\\n\\n| Column Name    | Type        | Description                                     |\\n|---------------|-------------|-------------------------------------------------|\\n| id            | INTEGER     | Primary key                                     |\\n| username      | VARCHAR(50) | Unique username                                 |\\n| email         | VARCHAR(100)| User email address                              |\\n| password_hash | VARCHAR(255)| Hashed password                                 |\\n| is_active     | BOOLEAN     | Indicates if account is active                  |\\n| created_at    | TIMESTAMP   | Account creation timestamp                      |\\n| last_login_at | TIMESTAMP   | Timestamp of last successful user login         |\\n| account_type  | VARCHAR(20) | The type of account ('standard', 'admin', etc.) |\\n\\n## Notes\\n- The `username` column is unique across the table.\\n- User accounts are now physically deleted when removed, rather than being soft-deleted via `is_active`.\"}"
+    }
+  ]
+}
