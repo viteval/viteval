@@ -39,7 +39,6 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^5.0.2",
     "jsdom": "^26.0.0",
-    "rimraf": "^6.0.1",
     "tsup": "^8.5.0",
     "typescript": "^5.7.2",
     "unplugin-icons": "^22.2.0",
@@ -63,9 +62,6 @@
   "module": "dist/server.mjs",
   "repository": "viteval/viteval",
   "scripts": {
-    "build": "pnpm clean && pnpm build:ui && pnpm build:server && pnpm copy:output",
-    "clean": "rimraf dist",
-    "copy:output": "cp -r .output dist/.output",
     "build:ui": "vite build",
     "build:server": "tsup",
     "dev": "vite dev --port 3000",

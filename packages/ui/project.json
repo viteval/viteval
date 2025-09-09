@@ -4,6 +4,10 @@
   "projectType": "library",
   "sourceRoot": "packages/ui/src",
   "targets": {
+    "build": {
+      "command": "echo \"Building UI\"",
+      "dependsOn": ["build:ui", "build:server"]
+    },
     "validate": {
       "command": "echo \"Running validation\"",
       "dependsOn": ["test", "types", "check"]
