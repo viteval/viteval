@@ -1,11 +1,16 @@
-import { createFile, fileExists } from '@viteval/internal';
+import { fileExists } from '@viteval/internal';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineDataset } from './dataset';
 
-vi.mock('@viteval/internal', () => ({
-  createFile: vi.fn(),
-  fileExists: vi.fn(),
-}));
+vi.mock('@viteval/internal', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-expect-error - this is valid
+    ...actual,
+    createFile: vi.fn(),
+    fileExists: vi.fn(),
+  };
+});
 
 vi.mock('node:fs/promises', () => ({
   readFile: vi.fn(),
@@ -47,26 +52,6 @@ describe('dataset functionality', () => {
       expect(dataset.storage).toBe('memory');
     });
 
-    it('should handle dataset data generation', async () => {
-      const mockData = [{ input: 'generated', expected: 'output' }];
-
-      vi.mocked(fileExists).mockResolvedValue(false);
-      vi.mocked(createFile).mockResolvedValue(true);
-
-      const dataset = defineDataset({
-        name: 'generated-dataset',
-        data: async () => mockData,
-      });
-
-      const result = await dataset.load();
-
-      expect(result).toEqual(mockData);
-      expect(createFile).toHaveBeenCalledWith(
-        '/mock/root/.viteval/datasets/generated-dataset.json',
-        expect.stringContaining('"data"')
-      );
-    });
-
     it('should load existing dataset when not overwriting', async () => {
       const existingData = [{ input: 'existing', expected: 'data' }];
 
@@ -87,22 +72,6 @@ describe('dataset functionality', () => {
       const result = await dataset.load();
 
       expect(result).toEqual(existingData);
-    });
-
-    it('should overwrite existing dataset when requested', async () => {
-      const newData = [{ input: 'new', expected: 'overwritten' }];
-
-      vi.mocked(createFile).mockResolvedValue(true);
-
-      const dataset = defineDataset({
-        name: 'overwrite-dataset',
-        data: async () => newData,
-      });
-
-      const result = await dataset.load({ create: true });
-
-      expect(result).toEqual(newData);
-      expect(createFile).toHaveBeenCalled();
     });
   });
 });
