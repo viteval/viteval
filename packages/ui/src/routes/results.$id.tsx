@@ -79,7 +79,7 @@ function ResultDetailPage() {
           </p>
         </div>
         <Button variant="outline" asChild>
-          <Link to="/">← Back to Results</Link>
+          <Link to="/results">← Back to Results</Link>
         </Button>
       </div>
       <ResultsDetail results={results} error={error} />
