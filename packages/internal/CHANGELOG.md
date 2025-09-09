@@ -1,5 +1,11 @@
 # @viteval/internal
 
+## 0.4.1
+
+### Patch Changes
+
+- 71ee1af: fix issue with datasets on error
+
 ## 0.4.0
 
 ## 0.3.2

@@ -1,5 +1,13 @@
 # @viteval/core
 
+## 0.4.1
+
+### Patch Changes
+
+- 71ee1af: fix issue with datasets on error
+- Updated dependencies [71ee1af]
+  - @viteval/internal@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
