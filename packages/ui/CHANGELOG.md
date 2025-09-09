@@ -1,5 +1,11 @@
 # @viteval/ui
 
+## 0.5.0
+
+### Minor Changes
+
+- 4b2822a: add new UI for viewing the contents of a JSON object as markdown
+
 ## 0.4.3
 
 ### Patch Changes
