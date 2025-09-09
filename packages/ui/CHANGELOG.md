@@ -1,5 +1,11 @@
 # @viteval/ui
 
+## 0.4.3
+
+### Patch Changes
+
+- 5ad0932: fixed issue with types for datasets
+
 ## 0.4.2
 
 ## 0.4.1

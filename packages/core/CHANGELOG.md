@@ -1,5 +1,12 @@
 # @viteval/core
 
+## 0.4.3
+
+### Patch Changes
+
+- 5ad0932: fixed issue with types for datasets
+  - @viteval/internal@0.4.3
+
 ## 0.4.2
 
 ### Patch Changes
