@@ -36,7 +36,7 @@ export interface EvalSuite {
 }
 
 export interface EvalResults {
-  status: 'running' | 'finished';
+  status: 'running' | 'finished' | 'error';
   success: boolean;
   numTotalEvalSuites: number;
   numPassedEvalSuites: number;
@@ -67,7 +67,7 @@ export interface ResultFile {
   timestamp: string;
   size: number;
   summary: {
-    status?: 'running' | 'finished';
+    status?: 'running' | 'finished' | 'error';
     success: boolean;
     numTotalEvalSuites: number;
     numPassedEvalSuites: number;
