@@ -7,6 +7,8 @@ describe('resolve', () => {
   });
 
   it('handles promise values', async () => {
-    await expect(new Promise((resolve) => resolve('test'))).resolves.toBe('test');
+    await expect(new Promise((resolve) => resolve('test'))).resolves.toBe(
+      'test'
+    );
   });
 });
