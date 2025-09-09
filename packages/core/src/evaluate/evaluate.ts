@@ -62,7 +62,7 @@ export function evaluate<
     const config = getRuntimeConfig();
 
     beforeAll(async () => {
-      initializeProvider(config.provider); 
+      initializeProvider(config.provider);
     });
 
     afterAll((suite) => {
