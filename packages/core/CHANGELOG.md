@@ -1,5 +1,12 @@
 # @viteval/core
 
+## 0.5.1
+
+### Patch Changes
+
+- 6e0cc43: fix the "name" field for a scorer
+  - @viteval/internal@0.5.1
+
 ## 0.5.0
 
 ### Patch Changes
