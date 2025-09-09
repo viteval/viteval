@@ -23,7 +23,6 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       .positional('pattern', {
         describe: 'Eval file pattern to match',
         type: 'string',
-        default: '**/*.eval.{js,ts,mts,mjs}',
       })
       .option('reporters', {
         alias: 'r',
@@ -87,6 +86,7 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       root,
       reporters,
       watch: false,
+      include: argv.pattern ? [argv.pattern] : undefined,
     });
 
     try {
