@@ -54,7 +54,10 @@
     }
   },
   "files": [
-    "dist"
+    ".output",
+    "server.d.ts",
+    "server.mjs",
+    "server.mjs.map"
   ],
   "homepage": "https://github.com/viteval/viteval#readme",
   "license": "MIT",
