@@ -1,14 +1,12 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { createFile, fileExists } from '@viteval/internal';
 import { findRoot } from '#/internals/utils';
 import type {
   DataGenerator,
-  DataItem,
   Dataset,
   DatasetConfig,
-  DatasetStorage,
+  InferDataInput,
+  InferDataOutput,
 } from '#/types';
+import { createDatasetStorage } from './storage';
 
 /**
  * Define a dataset.
@@ -44,100 +42,64 @@ import type {
 export function defineDataset<DATA_FUNC extends DataGenerator>(
   config: DatasetConfig<DATA_FUNC>
 ): Dataset<DATA_FUNC> {
+  type INPUT = InferDataInput<DATA_FUNC>;
+  type OUTPUT = InferDataOutput<DATA_FUNC>;
+
   const finalStorage = config.storage ?? 'local';
   return {
     name: config.name,
     storage: finalStorage,
-    data: (async (c) => {
-      if (c?.overwrite !== true) {
-        const existingDataset = await loadDataset({
-          name: config.name,
-          storage: finalStorage,
-        });
-
-        if (existingDataset) {
-          return existingDataset;
-        }
+    async exists() {
+      if (finalStorage === 'memory') {
+        return false;
       }
 
-      const result = await config.data();
-      await saveDataset({
+      const storage = createDatasetStorage<INPUT, OUTPUT>({
         name: config.name,
+        root: await findRoot(process.cwd()),
         storage: finalStorage,
-        data: result,
       });
-      return result;
-    }) as Dataset<DATA_FUNC>['data'],
+      return await storage.exists();
+    },
+    load: (async (options) => {
+      if (finalStorage === 'memory') {
+        return await config.data();
+      }
+
+      const storage = createDatasetStorage<INPUT, OUTPUT>({
+        name: config.name,
+        root: await findRoot(process.cwd()),
+        storage: finalStorage,
+      });
+      const data = await storage.load();
+
+      if (options?.create === true && !data) {
+        const newData = await config.data();
+        await storage.save(newData);
+        return newData;
+      }
+
+      return data;
+    }) as Dataset<DATA_FUNC>['load'],
+    async save(options) {
+      if (finalStorage === 'memory') {
+        return;
+      }
+
+      const storage = createDatasetStorage<INPUT, OUTPUT>({
+        name: config.name,
+        root: await findRoot(process.cwd()),
+        storage: finalStorage,
+      });
+
+      if (options?.overwrite !== true && (await storage.exists())) {
+        return;
+      }
+
+      const data = await config.data();
+      await storage.save(data);
+    },
     // @ts-expect-error - allowed, internal only
     ___viteval_type: 'dataset',
   };
-}
-
-/**
- * Save a dataset to a file.
- *
- * @param payload - The payload of the dataset.
- * @returns The dataset.
- */
-export async function saveDataset(payload: {
-  name: string;
-  storage: DatasetStorage;
-  data: DataItem<unknown, unknown>[];
-}) {
-  const { name, storage, data } = payload;
-
-  const root = await findRoot(process.cwd());
-
-  if (storage === 'local') {
-    const filePath = getDatasetPath(root, name);
-    await createFile(
-      filePath,
-      JSON.stringify(
-        {
-          timestamp: new Date().toISOString(),
-          data,
-        },
-        null,
-        2
-      )
-    );
-  } else {
-    throw new Error(`Unsupported storage type: ${storage}`);
-  }
-}
-
-/**
- * Load a dataset from a file.
- *
- * @param payload - The payload of the dataset.
- * @returns The dataset.
- */
-export async function loadDataset(payload: {
-  name: string;
-  storage: DatasetStorage;
-}): Promise<DataItem<unknown, unknown>[] | null> {
-  const { name, storage } = payload;
-  const root = await findRoot(process.cwd());
-
-  if (storage === 'local') {
-    const filePath = getDatasetPath(root, name);
-    const exists = await fileExists(filePath);
-    if (!exists) {
-      return null;
-    }
-    const data = await readFile(filePath, 'utf-8');
-    return JSON.parse(data).data;
-  }
-
-  throw new Error(`Unsupported storage type: ${storage}`);
-}
-
-/*
-|------------------
-| Internals
-|------------------
-*/
-
-function getDatasetPath(root: string, name: string) {
-  return path.join(root, '.viteval', 'datasets', `${name}.json`);
 }

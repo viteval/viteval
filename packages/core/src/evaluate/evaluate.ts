@@ -9,7 +9,14 @@ import {
   getMedianScore,
   getSumScore,
 } from '#/scorer/aggregation';
-import type { Data, DataItem, Eval, EvalResult } from '#/types';
+import type {
+  Data,
+  DataGenerator,
+  DataItem,
+  Dataset,
+  Eval,
+  EvalResult,
+} from '#/types';
 
 /**
  * Evaluate an LLM model, task, workflow or other related system.
@@ -54,8 +61,8 @@ export function evaluate<
     const results: EvalResult[] = [];
     const config = getRuntimeConfig();
 
-    beforeAll(() => {
-      initializeProvider(config.provider);
+    beforeAll(async () => {
+      initializeProvider(config.provider); 
     });
 
     afterAll((suite) => {
@@ -63,7 +70,9 @@ export function evaluate<
       suite.meta.results = results;
     });
 
-    for (const dataItem of await formatData(data)) {
+    const formattedData = await formatData(data);
+
+    for (const dataItem of formattedData) {
       const { input, ...params } = dataItem;
       const name = formatTestName(dataItem);
       test(
@@ -147,15 +156,23 @@ async function formatData<DATA_ITEM extends DataItem>(
   data: Data<DATA_ITEM>
 ): Promise<DATA_ITEM[]> {
   if (typeof data === 'function') {
-    return await data();
+    const d = await data();
+    return d as DATA_ITEM[];
   }
 
-  // @ts-expect-error - this is valid
-  if (isObject(data) && hasKey(data, 'data')) {
-    return await data.data();
+  if (isDataset(data)) {
+    const d = await data.load({ create: true });
+    return d as DATA_ITEM[];
   }
 
   return data;
+}
+
+function isDataset(
+  data: Data<DataItem>
+): data is Dataset<DataGenerator<DataItem>> {
+  // @ts-expect-error - this is valid
+  return isObject(data) && hasKey(data, 'load');
 }
 
 function formatTestName(dataItem: DataItem): string {

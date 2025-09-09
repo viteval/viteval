@@ -1,6 +1,6 @@
 import { createFile, fileExists } from '@viteval/internal';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineDataset, loadDataset, saveDataset } from './dataset';
+import { defineDataset } from './dataset';
 
 vi.mock('@viteval/internal', () => ({
   createFile: vi.fn(),
@@ -34,7 +34,7 @@ describe('dataset functionality', () => {
 
       expect(dataset.name).toBe('test-dataset');
       expect(dataset.storage).toBe('local');
-      expect(typeof dataset.data).toBe('function');
+      expect(typeof dataset.load).toBe('function');
     });
 
     it('should use custom storage type', () => {
@@ -51,18 +51,14 @@ describe('dataset functionality', () => {
       const mockData = [{ input: 'generated', expected: 'output' }];
 
       vi.mocked(fileExists).mockResolvedValue(false);
-      vi.mocked(createFile).mockResolvedValue({
-        status: 'created',
-        // @ts-expect-error - data is of type unknown
-        data: undefined,
-      });
+      vi.mocked(createFile).mockResolvedValue(true);
 
       const dataset = defineDataset({
         name: 'generated-dataset',
         data: async () => mockData,
       });
 
-      const result = await dataset.data();
+      const result = await dataset.load();
 
       expect(result).toEqual(mockData);
       expect(createFile).toHaveBeenCalledWith(
@@ -88,7 +84,7 @@ describe('dataset functionality', () => {
         data: async () => [{ input: 'new', expected: 'data' }],
       });
 
-      const result = await dataset.data();
+      const result = await dataset.load();
 
       expect(result).toEqual(existingData);
     });
@@ -96,100 +92,17 @@ describe('dataset functionality', () => {
     it('should overwrite existing dataset when requested', async () => {
       const newData = [{ input: 'new', expected: 'overwritten' }];
 
-      vi.mocked(createFile).mockResolvedValue({
-        status: 'created',
-        // @ts-expect-error - data is of type unknown
-        data: undefined,
-      });
+      vi.mocked(createFile).mockResolvedValue(true);
 
       const dataset = defineDataset({
         name: 'overwrite-dataset',
         data: async () => newData,
       });
 
-      const result = await dataset.data({ overwrite: true });
+      const result = await dataset.load({ create: true });
 
       expect(result).toEqual(newData);
       expect(createFile).toHaveBeenCalled();
-    });
-  });
-
-  describe('saveDataset', () => {
-    it('should save dataset to local storage', async () => {
-      const testData = [{ input: 'save', expected: 'test' }];
-
-      vi.mocked(createFile).mockResolvedValue({
-        status: 'created',
-        // @ts-expect-error - data is of type unknown
-        data: undefined,
-      });
-
-      await saveDataset({
-        name: 'save-test',
-        storage: 'local',
-        data: testData,
-      });
-
-      expect(createFile).toHaveBeenCalledWith(
-        expect.stringContaining('save-test.json'),
-        expect.stringContaining('"data"')
-      );
-    });
-
-    it('should throw error for unsupported storage type', async () => {
-      const testData = [{ input: 'test', expected: 'data' }];
-
-      await expect(
-        saveDataset({
-          name: 'test',
-          // @ts-expect-error - testing invalid storage type
-          storage: 'unsupported',
-          data: testData,
-        })
-      ).rejects.toThrow('Unsupported storage type: unsupported');
-    });
-  });
-
-  describe('loadDataset', () => {
-    it('should load dataset from local storage', async () => {
-      const testData = [{ input: 'load', expected: 'test' }];
-
-      vi.mocked(fileExists).mockResolvedValue(true);
-      const mockReadFile = await import('node:fs/promises');
-      vi.mocked(mockReadFile.readFile).mockResolvedValue(
-        JSON.stringify({
-          timestamp: new Date().toISOString(),
-          data: testData,
-        })
-      );
-
-      const result = await loadDataset({
-        name: 'load-test',
-        storage: 'local',
-      });
-
-      expect(result).toEqual(testData);
-    });
-
-    it('should return null when dataset does not exist', async () => {
-      vi.mocked(fileExists).mockResolvedValue(false);
-
-      const result = await loadDataset({
-        name: 'nonexistent',
-        storage: 'local',
-      });
-
-      expect(result).toBeNull();
-    });
-
-    it('should throw error for unsupported storage type', async () => {
-      await expect(
-        loadDataset({
-          name: 'test',
-          // @ts-expect-error - testing invalid storage type
-          storage: 'unsupported',
-        })
-      ).rejects.toThrow('Unsupported storage type: unsupported');
     });
   });
 });

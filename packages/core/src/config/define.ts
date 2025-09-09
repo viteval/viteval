@@ -26,6 +26,7 @@ export function defineConfig({
       provide: {
         config,
       },
+      disableConsoleIntercept: true,
       environment: 'node',
       // We default to a very long timeout for evals since they can be slow
       testTimeout: evalConfig?.timeout ?? 100000,

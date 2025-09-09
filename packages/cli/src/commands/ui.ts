@@ -46,6 +46,7 @@ export const uiCommand: CommandModule<unknown, UIOptions> = {
       // Keep the process running
       process.on('SIGINT', async () => {
         consola.info('Shutting down...');
+        consola.log('');
         process.exit(0);
       });
 
@@ -53,6 +54,7 @@ export const uiCommand: CommandModule<unknown, UIOptions> = {
       await new Promise(() => {});
     } catch (error) {
       consola.error('Failed to start:', error);
+      consola.log('');
       process.exit(1);
     }
   },

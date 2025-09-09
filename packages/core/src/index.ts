@@ -1,4 +1,4 @@
-export { evaluate } from './core';
+export { evaluate } from './evaluate';
 export { createScorer, scorers } from './scorer';
 export type {
   Data,
