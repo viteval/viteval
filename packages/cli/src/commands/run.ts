@@ -94,7 +94,6 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       const serverResult = argv.ui
         ? createVitevalServer({
             debug: process.env.VITEVAL_DEBUG_MODE === 'true',
-            open: false,
           }).start()
         : undefined;
 
