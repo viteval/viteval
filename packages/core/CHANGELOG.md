@@ -1,5 +1,12 @@
 # @viteval/core
 
+## 0.4.2
+
+### Patch Changes
+
+- a179bd1: stablize the datasets, add support for memory, and better CLI handling for datasets
+  - @viteval/internal@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
