@@ -1,7 +1,7 @@
 {
   "name": "viteval",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "author": "viteval",
   "bin": {
     "viteval": "./dist/cli.js"

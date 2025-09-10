@@ -1,5 +1,11 @@
 # @viteval/ui
 
+## 0.5.3
+
+### Patch Changes
+
+- d3a8019: Change the name to not just be "Markdown Viewer" but "Field Viewer"
+
 ## 0.5.2
 
 ### Patch Changes
