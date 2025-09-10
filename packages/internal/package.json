@@ -1,7 +1,7 @@
 {
   "name": "@viteval/internal",
   "description": "Viteval internal - shared utilities for the Viteval ecosystem",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "bugs": "https://github.com/viteval/viteval/issues",
   "devDependencies": {
     "@types/node": "^24.3.1",
