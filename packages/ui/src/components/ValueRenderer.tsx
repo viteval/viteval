@@ -4,9 +4,9 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark'
 import { toast } from 'sonner'
-import { ValueObjectViewer } from './ValueObjectViewer'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ValueObjectViewer } from './ValueObjectViewer'
 
 
 interface ValueRendererProps {
@@ -94,7 +94,7 @@ export function ValueRenderer({ value, className = '', label = 'Value' }: ValueR
         <Tabs defaultValue="json" className="container -mx-8 px-8">
           <TabsList>
             <TabsTrigger value="json" className='cursor-pointer hover:bg-zinc-900'>JSON</TabsTrigger>
-            <TabsTrigger value="md-viewer" className='cursor-pointer hover:bg-zinc-900'>Markdown Viewer</TabsTrigger>
+            <TabsTrigger value="md-viewer" className='cursor-pointer hover:bg-zinc-900'>Field Viewer</TabsTrigger>
           </TabsList>
           <TabsContent value="json">
             <SyntaxHighlighter
