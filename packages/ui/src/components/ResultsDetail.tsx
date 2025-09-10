@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { getStatusBadge } from '../lib/badges'
 import { formatDuration } from '../lib/utils'
 import type { EvalResult, EvalResults, EvalSuite, Score } from '../types'
+import ScoresRenderer from './ScoresRenderer'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -73,20 +74,26 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                   )}
                   {evalResult.expected !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Expected Output:</h4>
-                      <ValueRenderer value={evalResult.expected} label="Expected output" />
+                      <h4 className="font-semibold text-sm mb-2">Expected:</h4>
+                      <ValueRenderer value={evalResult.expected} label="Expected" />
                     </div>
                   )}
                   {evalResult.output !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Actual Output:</h4>
-                      <ValueRenderer value={evalResult.output} label="Actual output" />
+                      <h4 className="font-semibold text-sm mb-2">Output:</h4>
+                      <ValueRenderer value={evalResult.output} label="Output" />
                     </div>
                   )}
                   {evalResult.metadata && Object.keys(evalResult.metadata).length > 0 && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
                       <ValueRenderer value={evalResult.metadata} label="Metadata" />
+                    </div>
+                  )}
+                  {evalResult.scores.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">Scores:</h4>
+                      <ScoresRenderer scores={evalResult.scores} />
                     </div>
                   )}
                 </div>

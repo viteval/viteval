@@ -151,8 +151,8 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
                   )}
                   {item.expected !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Expected Output:</h4>
-                      <ValueRenderer value={item.expected} label="Expected output" />
+                      <h4 className="font-semibold text-sm mb-2">Expected:</h4>
+                      <ValueRenderer value={item.expected} label="Expected" />
                     </div>
                   )}
                   {item.metadata && Object.keys(item.metadata).length > 0 && (
