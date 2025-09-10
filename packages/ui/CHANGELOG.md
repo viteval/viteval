@@ -1,5 +1,11 @@
 # @viteval/ui
 
+## 0.5.2
+
+### Patch Changes
+
+- 99b8d5c: add ability to view the scores
+
 ## 0.5.1
 
 ## 0.5.0

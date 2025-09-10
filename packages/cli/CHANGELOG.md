@@ -1,5 +1,15 @@
 # @viteval/cli
 
+## 0.5.2
+
+### Patch Changes
+
+- b344023: fix config merging/resolve due to undefined field
+- Updated dependencies [99b8d5c]
+  - @viteval/ui@0.5.2
+  - @viteval/core@0.5.2
+  - @viteval/internal@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes
