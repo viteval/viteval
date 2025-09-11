@@ -11,7 +11,7 @@ import { createScorer } from 'viteval';
 ## Signature
 
 ```ts
-function createScorer<OUTPUT, EXTRA extends Extra>(
+function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
   config: ScorerConfig<OUTPUT, EXTRA>
 ): Scorer<OUTPUT, EXTRA>
 ```
@@ -26,7 +26,7 @@ function createScorer<OUTPUT, EXTRA extends Extra>(
 ## ScorerConfig
 
 ```ts
-interface ScorerConfig<OUTPUT, EXTRA extends Extra> {
+interface ScorerConfig<OUTPUT, EXTRA extends Extra = Extra> {
   name: string;
   score: (
     args: ScorerArgs<OUTPUT, EXTRA>
@@ -82,7 +82,7 @@ The function should return a score between 0 and 1, where:
 Returns a `Scorer<OUTPUT, EXTRA>` function that can be used in evaluations:
 
 ```ts
-type Scorer<OUTPUT, EXTRA extends Extra> = (
+type Scorer<OUTPUT, EXTRA extends Extra = Extra> = (
   args: ScorerArgs<OUTPUT, EXTRA>
 ) => Score | Promise<Score>;
 ```
