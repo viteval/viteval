@@ -1,13 +1,20 @@
+import type * as TF from 'type-fest';
 import type { Extra, Score, Scorer, ScorerArgs } from '#/types';
 
 /**
  * A scorer config for creating a custom scorer.
  */
-export interface ScorerConfig<OUTPUT, EXTRA extends Extra> {
+export interface ScorerConfig<OUTPUT, EXTRA extends Extra = Extra> {
+  /**
+   * The name of the scorer.
+   */
   name: string;
+  /**
+   * The score function.
+   */
   score: (
     args: ScorerArgs<OUTPUT, EXTRA>
-  ) => Omit<Score, 'name'> | Promise<Omit<Score, 'name'>>;
+  ) => ScoreResult | Promise<ScoreResult>;
 }
 
 /**
@@ -16,7 +23,7 @@ export interface ScorerConfig<OUTPUT, EXTRA extends Extra> {
  * @param config - The scorer config.
  * @returns The scorer.
  */
-export function createScorer<OUTPUT, EXTRA extends Extra>(
+export function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
   config: ScorerConfig<OUTPUT, EXTRA>
 ): Scorer<OUTPUT, EXTRA> {
   return Object.defineProperty(
@@ -35,3 +42,5 @@ export function createScorer<OUTPUT, EXTRA extends Extra>(
     }
   );
 }
+
+type ScoreResult = TF.Simplify<TF.SetOptional<Score, 'name'>>;

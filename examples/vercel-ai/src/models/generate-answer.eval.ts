@@ -5,7 +5,7 @@ import dataset from './generate-answer.dataset';
 evaluate('Generate an answer to a question', {
   data: dataset,
   task: async ({ input, category }) => {
-    const answer = await generateAnswer(input, category as null);
+    const answer = await generateAnswer(input, category);
     return answer;
   },
   scorers: [scorers.answerCorrectness],

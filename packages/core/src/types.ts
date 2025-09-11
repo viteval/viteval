@@ -16,7 +16,7 @@ export type ScorerArgs<OUTPUT, EXTRA extends Extra> = TF.Merge<
   EXTRA,
   {
     output: OUTPUT;
-    expected?: OUTPUT;
+    expected: OUTPUT;
   }
 >;
 
