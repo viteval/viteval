@@ -62,7 +62,7 @@ type ScorerArgs<OUTPUT, EXTRA extends Extra> = TF.Merge<
   EXTRA,
   {
     output: OUTPUT;
-    expected?: OUTPUT;
+    expected: OUTPUT;
   }
 >;
 
@@ -82,7 +82,7 @@ The function should return a score between 0 and 1, where:
 Returns a `Scorer<OUTPUT, EXTRA>` function that can be used in evaluations:
 
 ```ts
-type Scorer<OUTPUT, EXTRA extends Extra> = (
+type Scorer<OUTPUT, EXTRA extends Extra = Extra> = (
   args: ScorerArgs<OUTPUT, EXTRA>
 ) => Score | Promise<Score>;
 ```
