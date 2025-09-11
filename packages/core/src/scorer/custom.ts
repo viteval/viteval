@@ -1,3 +1,4 @@
+import type * as TF from 'type-fest';
 import type { Extra, Score, Scorer, ScorerArgs } from '#/types';
 
 /**
@@ -13,7 +14,7 @@ export interface ScorerConfig<OUTPUT, EXTRA extends Extra = Extra> {
    */
   score: (
     args: ScorerArgs<OUTPUT, EXTRA>
-  ) => Omit<Score, 'name'> | Promise<Omit<Score, 'name'>>;
+  ) => ScoreResult | Promise<ScoreResult>;
 }
 
 /**
@@ -41,3 +42,5 @@ export function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
     }
   );
 }
+
+type ScoreResult = TF.Simplify<TF.SetOptional<Score, 'name'>>;
