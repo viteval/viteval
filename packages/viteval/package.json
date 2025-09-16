@@ -4,7 +4,7 @@
   "version": "0.5.4",
   "author": "viteval",
   "bin": {
-    "viteval": "./dist/cli.js"
+    "viteval": "./cli.mjs"
   },
   "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
