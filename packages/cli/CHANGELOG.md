@@ -1,5 +1,14 @@
 # @viteval/cli
 
+## 0.5.5
+
+### Patch Changes
+
+- f44eff9: fix: bad shebang in CLI
+  - @viteval/core@0.5.5
+  - @viteval/internal@0.5.5
+  - @viteval/ui@0.5.5
+
 ## 0.5.4
 
 ### Patch Changes
