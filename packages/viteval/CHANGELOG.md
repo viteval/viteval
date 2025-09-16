@@ -1,5 +1,16 @@
 # viteval
 
+## 0.5.4
+
+### Patch Changes
+
+- 6ce6275: fix: Add shebang to make sure executable using node and update docs to show the correct init
+- Updated dependencies [7e85743]
+  - @viteval/core@0.5.4
+  - @viteval/cli@0.5.4
+  - @viteval/internal@0.5.4
+  - @viteval/ui@0.5.4
+
 ## 0.5.3
 
 ### Patch Changes
