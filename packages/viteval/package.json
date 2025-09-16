@@ -11,15 +11,15 @@
     "@viteval/cli": "workspace:*",
     "@viteval/core": "workspace:*",
     "@viteval/internal": "workspace:*",
-    "@viteval/ui": "workspace:*"
+    "@viteval/ui": "workspace:*",
+    "vitest": "^3.2.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.3",
     "@tsconfig/node18": "^18.2.4",
     "@types/node": "^24.3.1",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.2"
   },
   "exports": {
     ".": {
