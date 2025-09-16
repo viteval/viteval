@@ -1,7 +1,7 @@
 {
   "name": "@viteval/core",
   "description": "Core - Next generation LLM evaluation framework powered by Vitest.",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@vitest/runner": "^3.2.4",
