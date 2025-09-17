@@ -17,7 +17,7 @@ Create a `viteval.config.ts` file in your project root:
 import { defineConfig } from 'viteval/config'
 
 export default defineConfig({
-  reporter: 'console',
+  reporter: 'default',
   eval: {
     include: ['src/**/*.eval.ts'],
     setupFiles: ['./viteval.setup.ts'],
