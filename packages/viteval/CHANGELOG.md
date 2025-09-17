@@ -1,5 +1,37 @@
 # viteval
 
+## 0.5.6
+
+### Patch Changes
+
+- Updated dependencies [73db907]
+  - @viteval/cli@0.5.6
+  - @viteval/core@0.5.6
+  - @viteval/internal@0.5.6
+  - @viteval/ui@0.5.6
+
+## 0.5.5
+
+### Patch Changes
+
+- f44eff9: fix: bad shebang in CLI
+- Updated dependencies [f44eff9]
+  - @viteval/cli@0.5.5
+  - @viteval/core@0.5.5
+  - @viteval/internal@0.5.5
+  - @viteval/ui@0.5.5
+
+## 0.5.4
+
+### Patch Changes
+
+- 6ce6275: fix: Add shebang to make sure executable using node and update docs to show the correct init
+- Updated dependencies [7e85743]
+  - @viteval/core@0.5.4
+  - @viteval/cli@0.5.4
+  - @viteval/internal@0.5.4
+  - @viteval/ui@0.5.4
+
 ## 0.5.3
 
 ### Patch Changes

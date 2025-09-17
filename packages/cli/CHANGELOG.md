@@ -1,5 +1,32 @@
 # @viteval/cli
 
+## 0.5.6
+
+### Patch Changes
+
+- 73db907: fix: bad input due to API change for reporter
+  - @viteval/core@0.5.6
+  - @viteval/internal@0.5.6
+  - @viteval/ui@0.5.6
+
+## 0.5.5
+
+### Patch Changes
+
+- f44eff9: fix: bad shebang in CLI
+  - @viteval/core@0.5.5
+  - @viteval/internal@0.5.5
+  - @viteval/ui@0.5.5
+
+## 0.5.4
+
+### Patch Changes
+
+- Updated dependencies [7e85743]
+  - @viteval/core@0.5.4
+  - @viteval/internal@0.5.4
+  - @viteval/ui@0.5.4
+
 ## 0.5.3
 
 ### Patch Changes
