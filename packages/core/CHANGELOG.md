@@ -1,5 +1,11 @@
 # @viteval/core
 
+## 0.5.6
+
+### Patch Changes
+
+- @viteval/internal@0.5.6
+
 ## 0.5.5
 
 ### Patch Changes
