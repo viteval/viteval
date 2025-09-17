@@ -1,5 +1,14 @@
 # @viteval/cli
 
+## 0.5.6
+
+### Patch Changes
+
+- 73db907: fix: bad input due to API change for reporter
+  - @viteval/core@0.5.6
+  - @viteval/internal@0.5.6
+  - @viteval/ui@0.5.6
+
 ## 0.5.5
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@viteval/ui",
   "description": "Viteval UI - local UI for viewing the results of your evals",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@iconify-json/mdi": "^1.2.3",
