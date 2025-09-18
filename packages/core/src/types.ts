@@ -263,6 +263,17 @@ export interface EvalResult {
   metadata?: Record<string, unknown>;
 }
 
+export interface EvalResults {
+  results: EvalResult[];
+  status: 'running' | 'finished';
+  passed: number;
+  failed: number;
+  total: number;
+  startTime: Date;
+  endTime: Date;
+  duration: number;
+}
+
 /**
  * Infer the output type of a data object.
  */
