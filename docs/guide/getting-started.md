@@ -33,9 +33,21 @@ yarn add viteval
 
 ## Initialize a Viteval Project
 
-```bash
+::: code-group
+
+```bash [npm]
 npx viteval init
 ```
+
+```bash [pnpm]
+pnpm viteval init
+```
+
+```bash [yarn]
+yarn viteval init
+```
+
+:::
 
 This will create a `viteval.config.ts` && `viteval.setup.ts` (so you can configure your environment variables) file in your project root.
 

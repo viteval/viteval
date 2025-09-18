@@ -1,5 +1,24 @@
 # @viteval/core
 
+## 0.5.6
+
+### Patch Changes
+
+- @viteval/internal@0.5.6
+
+## 0.5.5
+
+### Patch Changes
+
+- @viteval/internal@0.5.5
+
+## 0.5.4
+
+### Patch Changes
+
+- 7e85743: default the generic in createScorer to allow for simpler creation
+  - @viteval/internal@0.5.4
+
 ## 0.5.3
 
 ### Patch Changes
