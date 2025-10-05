@@ -53,4 +53,22 @@ viteval run --reporters default file
 ## Custom Reporters
 
 > [!CAUTION]
-> Custom reporters are not yet supported, if interested please let us know by [creating an issue](https://github.com/viteval/viteval/issues/new).
+## Custom reporters
+
+You can point Viteval to any Vitest-compatible reporter module. When you pass a relative path it will be resolved against your project root:
+
+```ts title="viteval.config.ts"
+import { defineConfig } from 'viteval/config';
+
+export default defineConfig({
+  reporters: ['./src/reporters/voltops-reporter.ts'],
+});
+```
+
+Or via the CLI:
+
+```bash
+viteval run --reporters ./src/reporters/voltops-reporter.ts
+```
+
+You can also supply a package name (for example `@acme/viteval-reporter`) after installing it in your project.

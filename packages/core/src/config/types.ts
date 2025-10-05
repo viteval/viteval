@@ -22,7 +22,11 @@ export interface VitevalProviderConfig {
 // };
 
 // TODO: Add support via the config file for reporter
-export type VitevalReporter = 'default' | 'json' | 'file'; // | VitevalReporterBraintrust;
+export type VitevalReporter =
+  | 'default'
+  | 'json'
+  | 'file'
+  | (string & {}); // custom reporter module path or name
 
 /**
  * Viteval configuration.

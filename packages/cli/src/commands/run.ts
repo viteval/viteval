@@ -26,9 +26,10 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       })
       .option('reporters', {
         alias: 'r',
-        describe: 'Reporter to use',
-        type: 'array',
-        choices: ['default', 'json', 'file'],
+        describe:
+          'Reporter(s) to use (built-in: default, json, file, or a custom module path/package name)',
+        type: 'string',
+        array: true,
       })
       .option('ui', {
         alias: 'u',
@@ -79,7 +80,7 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       ? configResolutionResult.result.vitestConfig
       : undefined;
 
-    const reporters = getReporters(argv, vitestConfig);
+    const reporters = getReporters(argv, vitestConfig, root);
 
     // We don't want to have the field present as it causes issues with Vitest's config merging
     const cliConfig: DangerouslyAllowAny = {};
@@ -132,10 +133,14 @@ interface EvalOptions {
   ui?: boolean;
 }
 
-function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
+function getReporters(
+  argv: EvalOptions,
+  config: ResolvedConfig | undefined,
+  root: string
+) {
   const argReporters = (
     argv.ui ? ['default', 'file'] : (argv.reporters ?? [])
-  ) as VitevalReporter[];
+  ).map((value) => String(value));
   if (argReporters.length > 0) {
     return buildReporters(
       argReporters.map((reporter) => ({
@@ -152,42 +157,48 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
               : formatOutputFile('.viteval/results/<timestamp>.json'),
           }))
           .otherwise(() => ({})),
-      }))
+      })),
+      root
     );
   }
 
   if (config?.reporters && config.reporters.length > 0) {
-    const formattedReporters = config.reporters
-      .flatMap((reporter) =>
-        match(reporter)
-          .with(P.array(), (r) => {
-            return r.filter((r) => typeof r === 'string');
-          })
-          .otherwise(() => null)
-      )
-      .filter((reporter) => reporter !== null) as VitevalReporter[];
+    const formattedReporters = config.reporters.flatMap((reporter) => {
+      if (Array.isArray(reporter)) {
+        return reporter.filter(
+          (entry): entry is string => typeof entry === 'string'
+        );
+      }
+
+      return typeof reporter === 'string' ? [reporter] : [];
+    });
 
     return buildReporters(
       formattedReporters.map((reporter) => ({
         reporter,
         options: {},
-      }))
+      })),
+      root
     );
   }
 
-  return buildReporters([
-    {
-      reporter: 'default',
-      options: {},
-    },
-  ]);
+  return buildReporters(
+    [
+      {
+        reporter: 'default',
+        options: {},
+      },
+    ],
+    root
+  );
 }
 
 function buildReporters(
   input: Array<{
-    reporter: VitevalReporter;
+    reporter: string;
     options: Record<string, DangerouslyAllowAny>;
-  }>
+  }>,
+  root: string
 ) {
   const reporters: Array<Reporter | string> = [];
 
@@ -203,8 +214,10 @@ function buildReporters(
               : options.outputFile,
         })
       );
+    } else if (reporter === 'default') {
+      reporters.push('default');
     } else {
-      reporters.push(reporter);
+      reporters.push(resolveReporterReference(reporter, root));
     }
   }
 
@@ -213,4 +226,12 @@ function buildReporters(
 
 function formatOutputFile(outputFile: string) {
   return outputFile.replace('<timestamp>', Date.now().toString());
+}
+
+function resolveReporterReference(reporter: string, root: string) {
+  if (reporter.startsWith('.') || reporter.startsWith('/')) {
+    return path.resolve(root, reporter);
+  }
+
+  return reporter;
 }
