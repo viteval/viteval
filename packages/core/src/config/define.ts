@@ -22,7 +22,8 @@ export function defineConfig({
     test: {
       ...evalConfig,
       reporters,
-      server,
+      // biome-ignore lint/suspicious/noExplicitAny: Vitest 4.x changed server types
+      server: server as any,
       provide: {
         config,
       },

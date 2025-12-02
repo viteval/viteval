@@ -2,19 +2,19 @@
   "name": "@examples/voltagent",
   "description": "Viteval example - A real-world example using Voltagent",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.27",
+    "@ai-sdk/openai": "^2.0.76",
     "@ai-sdk/provider": "^2.0.0",
-    "@voltagent/core": "^0.1.86",
+    "@voltagent/core": "^1.2.13",
     "@voltagent/vercel-ai": "^1.0.0",
-    "ai": "^5.0.39",
+    "ai": "^5.0.106",
     "consola": "^3.4.2",
-    "envalid": "^8.1.0",
+    "envalid": "^8.1.1",
     "yargs": "^18.0.0",
-    "zod": "^4.1.5"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@types/yargs": "^17.0.33",
-    "dotenv": "^17.2.2",
+    "@types/yargs": "^17.0.35",
+    "dotenv": "^17.2.3",
     "viteval": "workspace:*"
   },
   "private": true,

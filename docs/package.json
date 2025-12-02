@@ -2,16 +2,16 @@
   "name": "@internal/docs",
   "description": "Documentation for Viteval",
   "dependencies": {
-    "@iconify-json/carbon": "^1.2.13",
-    "@iconify-json/logos": "^1.2.9",
-    "@iconify-json/material-icon-theme": "^1.2.27",
+    "@iconify-json/carbon": "^1.2.14",
+    "@iconify-json/logos": "^1.2.10",
+    "@iconify-json/material-icon-theme": "^1.2.44",
     "@iconify-json/mdi": "^1.2.3",
-    "@unocss/preset-wind3": "^66.5.1",
-    "typescript": "^5.9.2",
-    "unocss": "^66.5.1",
+    "@unocss/preset-wind3": "^66.5.10",
+    "typescript": "^5.9.3",
+    "unocss": "^66.5.10",
     "vitepress": "2.0.0-alpha.11",
-    "vitepress-plugin-group-icons": "^1.6.3",
-    "vitepress-plugin-llms": "^1.7.4"
+    "vitepress-plugin-group-icons": "^1.6.5",
+    "vitepress-plugin-llms": "^1.9.3"
   },
   "private": true,
   "scripts": {
