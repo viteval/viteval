@@ -171,9 +171,6 @@ importers:
       '@voltagent/core':
         specifier: ^1.2.13
         version: 1.2.13(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13)
-      '@voltagent/vercel-ai':
-        specifier: ^1.0.0
-        version: 1.0.0(@voltagent/core@1.2.13(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13))(zod@4.1.13)
       ai:
         specifier: ^5.0.106
         version: 5.0.106(zod@4.1.13)
@@ -3736,12 +3733,6 @@ packages:
 
   '@voltagent/internal@0.0.12':
     resolution: {integrity: sha512-S7ANIskxtCc+n0YzwULfvnzPyEC7YvvV+0chgpV+rW5EQbvLuzKSSrC5gmrSgzDNi+WgODysM3acZ2F9MuhLeQ==}
-
-  '@voltagent/vercel-ai@1.0.0':
-    resolution: {integrity: sha512-ooknKRG0G79YuHJAPuZ5Xoy1oiirq0XfyS5ncKO2+yMqasRSn5phd8wHq5x4nVwRFMY1mulo3YZJ2QGQLj1mIg==}
-    peerDependencies:
-      '@voltagent/core': ^0.1.71
-      zod: ^3.25.0
 
   '@vue/compiler-core@3.5.25':
     resolution: {integrity: sha512-vay5/oQJdsNHmliWoZfHPoVZZRmnSWhug0BYT34njkYTPqClh3DNWLkZNJBVSjsNMrg0CCrBfoKkjZQPM/QVUw==}
@@ -11361,15 +11352,6 @@ snapshots:
   '@voltagent/internal@0.0.12':
     dependencies:
       type-fest: 4.41.0
-
-  '@voltagent/vercel-ai@1.0.0(@voltagent/core@1.2.13(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13))(zod@4.1.13)':
-    dependencies:
-      '@ai-sdk/openai': 2.0.76(zod@4.1.13)
-      '@voltagent/core': 1.2.13(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13)
-      ai: 5.0.106(zod@4.1.13)
-      ts-pattern: 5.9.0
-      type-fest: 4.41.0
-      zod: 4.1.13
 
   '@vue/compiler-core@3.5.25':
     dependencies:
