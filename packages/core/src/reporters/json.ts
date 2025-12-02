@@ -143,9 +143,13 @@ export interface JsonEvalSuite {
 export default class JsonReporter implements Reporter {
   private results: JsonEvalResults;
   private outputFile: string | null;
+  private processedSuites: Map<string, JsonEvalSuite>;
+  private processedTests: Map<string, EvalResult[]>;
 
   constructor(options: { outputFile?: string } = {}) {
     this.outputFile = options.outputFile || null;
+    this.processedSuites = new Map();
+    this.processedTests = new Map();
     this.results = {
       status: 'running',
       success: true,
@@ -168,6 +172,52 @@ export default class JsonReporter implements Reporter {
     this.writeResults();
   }
 
+  onTaskUpdate(packs: DangerouslyAllowAny[]) {
+    // Handle individual test completions
+    for (const pack of packs) {
+      const task = pack[1];
+      if (!task) continue;
+
+      // Extract eval results from the task if available
+      const evalResults = this.extractTaskEvalResults(task);
+      if (evalResults.length > 0) {
+        const suiteId = task.file?.filepath || task.suite?.id || 'unknown';
+
+        // Store test results for the suite
+        if (!this.processedTests.has(suiteId)) {
+          this.processedTests.set(suiteId, []);
+        }
+        const existingResults = this.processedTests.get(suiteId);
+        if (existingResults) {
+          existingResults.push(...evalResults);
+        }
+
+        // Update incremental results
+        this.updateIncrementalResults();
+      }
+    }
+  }
+
+  onTestFinished(test: DangerouslyAllowAny) {
+    // Alternative hook for when a test finishes
+    const evalResults = this.extractTaskEvalResults(test);
+    if (evalResults.length > 0) {
+      const suiteId = test.file?.filepath || test.suite?.id || 'unknown';
+
+      // Store test results for the suite
+      if (!this.processedTests.has(suiteId)) {
+        this.processedTests.set(suiteId, []);
+      }
+      const existingResults = this.processedTests.get(suiteId);
+      if (existingResults) {
+        existingResults.push(...evalResults);
+      }
+
+      // Update incremental results
+      this.updateIncrementalResults();
+    }
+  }
+
   onFinished(files: DangerouslyAllowAny[] = []) {
     this.results.endTime = Date.now();
     this.results.duration = this.results.endTime - this.results.startTime;
@@ -188,27 +238,58 @@ export default class JsonReporter implements Reporter {
   }
 
   private processTestSuite(file: DangerouslyAllowAny) {
+    const suiteId = file.filepath;
     const suiteName =
       file.tasks?.[0]?.name || file.name || file.filepath || 'Unknown Suite';
     const startTime = file.result?.startTime || Date.now();
     const endTime = file.result?.endTime || Date.now();
     const duration = endTime - startTime;
 
-    // Extract eval results from suite meta
-    const evalResults: EvalResult[] = this.extractEvalResults(file);
+    // Get eval results from both suite meta and accumulated test results
+    const suiteMetaResults = this.extractEvalResults(file);
+    const accumulatedResults = this.processedTests.get(suiteId) || [];
+
+    // Merge results, preferring accumulated results if available
+    const evalResults: EvalResult[] =
+      accumulatedResults.length > 0 ? accumulatedResults : suiteMetaResults;
 
     if (evalResults.length === 0) {
       // This might be a regular test suite, not an eval suite
       return;
     }
 
-    this.results.numTotalEvalSuites++;
-    this.results.numTotalEvals += evalResults.length;
+    // Check if we've already processed this suite
+    if (!this.processedSuites.has(suiteId)) {
+      this.results.numTotalEvalSuites++;
+      this.results.numTotalEvals += evalResults.length;
+    } else {
+      // Update existing suite - recalculate metrics
+      const existingSuite = this.processedSuites.get(suiteId);
+      if (!existingSuite) return;
+      this.results.numTotalEvals -= existingSuite.evalResults.length;
+      this.results.numTotalEvals += evalResults.length;
+    }
 
     // Calculate suite-level metrics
     const summary = this.calculateSuiteSummary(evalResults);
     const suitePassed = this.isSuitePassed(file, evalResults);
 
+    // Update passed/failed counts
+    if (this.processedSuites.has(suiteId)) {
+      const oldSuite = this.processedSuites.get(suiteId);
+      if (!oldSuite) return;
+      // Subtract old counts
+      if (oldSuite.status === 'passed') {
+        this.results.numPassedEvalSuites--;
+      } else {
+        this.results.numFailedEvalSuites--;
+      }
+      this.results.numPassedEvals -= oldSuite.summary.passedCount;
+      this.results.numFailedEvals -=
+        oldSuite.summary.totalCount - oldSuite.summary.passedCount;
+    }
+
+    // Add new counts
     if (suitePassed) {
       this.results.numPassedEvalSuites++;
       this.results.numPassedEvals += summary.passedCount;
@@ -231,7 +312,11 @@ export default class JsonReporter implements Reporter {
       message: this.extractErrorMessage(file),
     };
 
-    this.results.evalResults.push(suiteResult);
+    // Store suite result
+    this.processedSuites.set(suiteId, suiteResult);
+
+    // Update results array
+    this.results.evalResults = Array.from(this.processedSuites.values());
 
     // Write updated results after each suite completes
     this.writeResults();
@@ -246,6 +331,52 @@ export default class JsonReporter implements Reporter {
       [];
 
     return Array.isArray(results) ? results : [];
+  }
+
+  private extractTaskEvalResults(task: DangerouslyAllowAny): EvalResult[] {
+    // Extract eval results from a task/test
+    const results =
+      task.meta?.results ||
+      task.result?.meta?.results ||
+      task.context?.meta?.results ||
+      [];
+
+    return Array.isArray(results) ? results : [];
+  }
+
+  private updateIncrementalResults() {
+    // Recalculate totals from accumulated results
+    let totalEvals = 0;
+    let passedEvals = 0;
+    let failedEvals = 0;
+
+    // Calculate from accumulated test results
+    for (const [_, evalResults] of this.processedTests) {
+      totalEvals += evalResults.length;
+
+      for (const result of evalResults) {
+        const score =
+          result.aggregation === 'mean'
+            ? result.mean
+            : result.aggregation === 'median'
+              ? result.median
+              : result.sum;
+
+        if (score >= result.threshold) {
+          passedEvals++;
+        } else {
+          failedEvals++;
+        }
+      }
+    }
+
+    // Update global counts
+    this.results.numTotalEvals = totalEvals;
+    this.results.numPassedEvals = passedEvals;
+    this.results.numFailedEvals = failedEvals;
+
+    // Write incremental results
+    this.writeResults();
   }
 
   private calculateSuiteSummary(evalResults: EvalResult[]) {
