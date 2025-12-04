@@ -1,5 +1,15 @@
 # @viteval/cli
 
+## 0.5.7
+
+### Patch Changes
+
+- 778e2ba: deps: update core packages to latest version
+- Updated dependencies [778e2ba]
+  - @viteval/internal@0.5.7
+  - @viteval/core@0.5.7
+  - @viteval/ui@0.5.7
+
 ## 0.5.6
 
 ### Patch Changes

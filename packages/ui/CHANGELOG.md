@@ -1,5 +1,11 @@
 # @viteval/ui
 
+## 0.5.7
+
+### Patch Changes
+
+- 778e2ba: deps: update core packages to latest version
+
 ## 0.5.6
 
 ## 0.5.5
