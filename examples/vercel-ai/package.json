@@ -2,17 +2,17 @@
   "name": "@examples/complex",
   "description": "Viteval example - A real-world example using Vercel AI SDK",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.27",
-    "ai": "^5.0.37",
+    "@ai-sdk/openai": "^2.0.76",
+    "ai": "^5.0.106",
     "consola": "^3.4.2",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "viteval": "workspace:*",
     "yargs": "^18.0.0",
-    "zod": "^4.1.5"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@types/yargs": "^17.0.33",
-    "tsx": "^4.20.5"
+    "@types/yargs": "^17.0.35",
+    "tsx": "^4.21.0"
   },
   "private": true,
   "scripts": {
