@@ -3,7 +3,7 @@ import path from 'node:path';
 import express from 'express';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
-import { listener } from './.output/server/index.mjs';
+import tanstackServer from './dist/server/server.js';
 
 export interface CreateVitevalServerOptions {
   /**
@@ -36,8 +36,40 @@ export interface CreateVitevalServerOptions {
  */
 export function createVitevalServer(options?: CreateVitevalServerOptions) {
   const app = express();
-  app.use(express.static(path.join(import.meta.dirname, '.output', 'public')));
-  app.use(listener);
+  app.use(express.static(path.join(import.meta.dirname, 'dist', 'client')));
+  app.use(async (req, res) => {
+    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    const request = new Request(url, {
+      method: req.method,
+      headers: req.headers as HeadersInit,
+      body:
+        req.method !== 'GET' && req.method !== 'HEAD'
+          ? (req as unknown as ReadableStream)
+          : undefined,
+      // @ts-expect-error - Node.js specific option for request body handling
+      duplex: 'half',
+    });
+    const response = await tanstackServer.fetch(request);
+    res.status(response.status);
+    response.headers.forEach((value: string, key: string) => {
+      res.setHeader(key, value);
+    });
+    if (response.body) {
+      const reader = response.body.getReader();
+      const pump = async (): Promise<void> => {
+        const { done, value } = await reader.read();
+        if (done) {
+          res.end();
+          return;
+        }
+        res.write(value);
+        return pump();
+      };
+      await pump();
+    } else {
+      res.end();
+    }
+  });
   let server: Server;
   return {
     /**
