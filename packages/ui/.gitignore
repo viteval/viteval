@@ -12,7 +12,7 @@ count.txt
 todos.json
 
 # build output
-./server.d.ts
-./server.mjs
+.server.d.ts
+.server.mjs
 server.d.ts
 server.mjs
