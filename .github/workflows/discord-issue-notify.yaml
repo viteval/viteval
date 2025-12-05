@@ -1,0 +1,26 @@
+name: 'discord-issue-notify'
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    name: 'Notify Discord'
+    timeout-minutes: 2
+    steps:
+      - name: '📢 Send Discord Notification'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          nodetail: true
+          title: 'New Issue Opened'
+          description: |
+            **${{ github.event.issue.title }}**
+
+            ${{ github.event.issue.body }}
+
+            [View Issue](${{ github.event.issue.html_url }})
+          color: 0x5865F2
+          username: 'GitHub Issues'
