@@ -1,0 +1,30 @@
+name: 'discord-pr-notify'
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    name: 'Notify Discord'
+    timeout-minutes: 2
+    # only show non-maintainers and non-bots
+    if: ${{ github.event.pull_request.user.login != 'zrosenbauer' && !endsWith(github.event.pull_request.user.login, '[bot]') }}
+    steps:
+      - name: '📢 Send Discord Notification'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          nodetail: true
+          title: 'New Pull Request Opened'
+          description: |
+            **${{ github.event.pull_request.title }}**
+
+            Opened by: @${{ github.event.pull_request.user.login }}
+
+            ${{ github.event.pull_request.body }}
+
+            [View PR](${{ github.event.pull_request.html_url }})
+          color: 0x238636
+          username: 'GitHub PRs'
