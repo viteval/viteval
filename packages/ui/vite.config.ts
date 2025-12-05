@@ -18,9 +18,7 @@ const config = defineConfig({
       autoInstall: true,
     }),
     tailwindcss(),
-    tanstackStart({
-      customViteReactPlugin: true,
-    }),
+    tanstackStart(),
     viteReact(),
   ],
 });

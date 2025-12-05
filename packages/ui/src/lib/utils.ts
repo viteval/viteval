@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
+import { isNaN as isNaNFn } from 'lodash-es';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -6,23 +7,43 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const size = Number.parseFloat((bytes / k ** i).toFixed(1));
+  if (isNaNFn(size)) {
+    return 'n/a';
+  }
+
+  return `${size} ${sizes[i]}`;
 }
 
 export function formatTimestamp(timestamp: string): string {
-  const date = new Date(Number.parseInt(timestamp))
-  return date.toLocaleString()
+  const timeNum = Number.parseInt(timestamp, 10);
+  if (isNaNFn(timeNum)) {
+    return timestamp;
+  }
+
+  const date = new Date(timeNum);
+  return date.toLocaleString();
 }
 
 export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(2)}s`
+  if (ms < 1000 && !isNaNFn(ms)) return `${ms}ms`;
+  const seconds = (ms / 1000).toFixed(2);
+
+  if (isNaNFn(seconds)) {
+    return 'n/a';
+  }
+
+  return `${seconds}s`;
 }
 
 export function formatTimestampFromNumber(timestamp: number): string {
-  return new Date(timestamp).toLocaleString()
+  if (isNaNFn(timestamp)) {
+    return 'n/a';
+  }
+
+  return new Date(timestamp).toLocaleString();
 }

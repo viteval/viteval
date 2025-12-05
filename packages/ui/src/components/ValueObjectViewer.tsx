@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get } from "lodash-es";
 import { useMemo, useState } from "react";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark'
