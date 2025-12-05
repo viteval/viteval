@@ -12,8 +12,8 @@ export const getDatasets = createServerFn({
 export const getDataset = createServerFn({
   method: 'GET',
 })
-  .validator(z.object({ id: z.string() }))
-  .handler(async ({ data }) => {
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ data }: { data: { id: string } }) => {
     const dataset = await vitevalReader.readDataset(data.id);
 
     if (!dataset) {

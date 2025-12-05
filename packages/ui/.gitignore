@@ -12,6 +12,6 @@ count.txt
 todos.json
 
 # build output
-.server.d.ts
-.server.mjs
-.server.mjs.map
+server.d.ts
+server.mjs
+server.mjs.map

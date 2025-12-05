@@ -12,8 +12,8 @@ export const listResults = createServerFn({
 export const getResult = createServerFn({
   method: 'GET',
 })
-  .validator(z.object({ id: z.string() }))
-  .handler(async (ctx) => {
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async (ctx: { data: { id: string } }) => {
     const resultId = ctx.data.id;
 
     if (!resultId) {

@@ -1,4 +1,3 @@
-import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
@@ -19,10 +18,7 @@ const config = defineConfig({
       autoInstall: true,
     }),
     tailwindcss(),
-    tanstackStart({
-      target: 'node-listener',
-      customViteReactPlugin: true,
-    }),
+    tanstackStart(),
     viteReact(),
   ],
 });
