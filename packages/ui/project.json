@@ -8,6 +8,10 @@
       "command": "echo \"Building UI\"",
       "dependsOn": ["build:ui", "build:server"]
     },
+    "types": {
+      "command": "echo \"Checking types\"",
+      "dependsOn": ["build:ui", "build:server"]
+    },
     "validate": {
       "command": "echo \"Running validation\"",
       "dependsOn": ["test", "types", "check"]
