@@ -1,5 +1,11 @@
 # @viteval/ui
 
+## 0.5.8
+
+### Patch Changes
+
+- 3c5d8d3: bugfix: fix issue with UI breaking CLI due to upgrades, fix NaN on view results
+
 ## 0.5.7
 
 ### Patch Changes
