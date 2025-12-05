@@ -4,7 +4,7 @@
   "version": "0.5.7",
   "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
-    "@vitest/runner": "^4.0.15",
+    "@vitest/runner": "^3.2.4",
     "@viteval/internal": "workspace:^",
     "ajv": "^8.17.1",
     "autoevals": "^0.0.131",
@@ -32,7 +32,7 @@
     "type-fest": "^5.3.0",
     "typescript": "^5.9.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15"
+    "vitest": "^3.2.4"
   },
   "exports": {
     ".": {

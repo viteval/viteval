@@ -12,7 +12,7 @@
     "@viteval/core": "workspace:*",
     "@viteval/internal": "workspace:*",
     "@viteval/ui": "workspace:*",
-    "vitest": "^4.0.15"
+    "vitest": "^3.2.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
