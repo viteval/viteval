@@ -129,8 +129,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/viteval
 
-  examples/test: {}
-
   examples/vercel-ai:
     dependencies:
       '@ai-sdk/openai':

@@ -4,12 +4,25 @@ import path from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 const TEST_DIR = path.join(import.meta.dirname, '.test-cli-init');
+const CLI_DIST = path.join(
+  import.meta.dirname,
+  '..',
+  'cli',
+  'dist',
+  'index.js'
+);
 
-beforeAll(() => {
-  execSync('pnpm build', {
-    cwd: import.meta.dirname,
-    stdio: 'pipe',
-  });
+beforeAll(async () => {
+  const distExists = await fs
+    .access(CLI_DIST)
+    .then(() => true)
+    .catch(() => false);
+
+  if (!distExists) {
+    throw new Error(
+      'CLI not built. Run `pnpm build` from the repository root before running tests.'
+    );
+  }
 });
 
 describe('init', () => {
