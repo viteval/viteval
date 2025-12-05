@@ -31,13 +31,13 @@ export function formatTimestamp(timestamp: string): string {
 
 export function formatDuration(ms: number): string {
   if (ms < 1000 && !isNaNFn(ms)) return `${ms}ms`;
-  const seconds = (ms / 1000).toFixed(2);
+  const seconds = ms / 1000;
 
   if (isNaNFn(seconds)) {
     return 'n/a';
   }
 
-  return `${seconds}s`;
+  return `${seconds.toFixed(2)}s`;
 }
 
 export function formatTimestampFromNumber(timestamp: number): string {
