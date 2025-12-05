@@ -158,3 +158,6 @@ vitest.config.*.timestamp*
 # Nuke (nuka-cola)
 .nuke
 !.nukeignore
+
+# Test directories
+.test-cli-init
