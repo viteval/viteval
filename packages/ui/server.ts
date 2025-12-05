@@ -3,7 +3,12 @@ import path from 'node:path';
 import express from 'express';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
-import tanstackServer from './dist/server/server.js';
+// biome-ignore lint/suspicious/noTsIgnore: tsrServer is a valid type
+// @ts-ignore - tsrServer is a valid type
+import tsrServer from './dist/server/server.js';
+
+// biome-ignore lint/suspicious/noExplicitAny: tsrServer is a valid type
+const tanstackServer = tsrServer as any;
 
 export interface CreateVitevalServerOptions {
   /**
