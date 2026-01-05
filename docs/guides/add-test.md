@@ -14,7 +14,25 @@ src/scorer/
 └── custom.test.ts
 ```
 
-### 2. Write the test
+### 2. (Optional) Add setup and teardown
+
+```ts
+describe('with setup', () => {
+  beforeAll(async () => {
+    await setup()
+  })
+
+  afterAll(async () => {
+    await cleanup()
+  })
+
+  it('should work', async () => {
+    // test
+  })
+})
+```
+
+### 3. Write the test
 
 ```ts
 import { describe, it, expect } from 'vitest'
@@ -33,31 +51,7 @@ describe('myFunction', () => {
 })
 ```
 
-### 3. Run the test
-
-```bash
-pnpm test
-```
-
-### 4. (Optional) Add setup and teardown
-
-```ts
-describe('with setup', () => {
-  beforeAll(async () => {
-    await setup()
-  })
-
-  afterAll(async () => {
-    await cleanup()
-  })
-
-  it('should work', async () => {
-    // test
-  })
-})
-```
-
-### 5. (Optional) Add mocks
+### 4. (Optional) Add mocks
 
 ```ts
 import { describe, it, expect, vi } from 'vitest'
@@ -71,6 +65,13 @@ vi.mock('@viteval/internal', () => ({
 expect(mockFn).toHaveBeenCalledWith('arg')
 ```
 
+### 5. Run the test
+
+```bash
+pnpm test
+```
+
 ## References
 
 - [Testing Overview](../testing.md)
+- [Add a Mock](./add-mock.md) - Using mocks in tests

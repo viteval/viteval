@@ -44,7 +44,7 @@ New to the codebase? Start here:
 | Install dependencies | `pnpm install` |
 | Build all packages | `pnpm build` |
 | Run tests | `pnpm test` |
-| Validate (CI mode) | `pnpm agents validate` |
+| Validate (CI mode) | `pnpm validate` |
 | Fix lint issues | `pnpm fix` |
 
 ## Related

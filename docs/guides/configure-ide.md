@@ -6,7 +6,7 @@ Set up your IDE for Viteval development.
 
 - VS Code, Cursor or IDE that supports VS Code extensions
 
-## Steps 
+## Steps
 
 ### 1. Install recommended extensions
 

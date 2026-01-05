@@ -3,7 +3,7 @@
 Create a changeset and publish packages.
 
 > [!TIP]
-> First complete [Commit Changes](./commit-changes.md)
+> You will need to [commit changes](./commit-changes.md) before publishing.
 
 ## Steps
 

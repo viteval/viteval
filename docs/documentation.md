@@ -17,7 +17,7 @@ Step-by-step instructions for completing a task.
 **Structure:**
 
 ```markdown
-# Action Title (e.g., "Add a Scorer")
+# Action Title (e.g., "Add a Feature")
 
 One-line description.
 

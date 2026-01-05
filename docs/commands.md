@@ -10,7 +10,7 @@ Commands for developing, testing, and building Viteval using `pnpm` scripts.
 | Build all packages | `pnpm build` |
 | Run all tests | `pnpm test` |
 | Fix lint issues | `pnpm fix` |
-| Validate (CI mode) | `pnpm agents validate` |
+| Validate (CI mode) | `pnpm validate` |
 
 ## Commands
 
@@ -68,21 +68,21 @@ pnpm version
 pnpm publish
 ```
 
-### Documentation
+### Website
 
 ```bash
-# Build documentation site
-pnpm build:docs
+# Build website
+pnpm build:website
 
-# Run documentation dev server
-pnpm dev:docs
+# Run website dev server
+pnpm dev:website
 ```
 
 ## Troubleshooting
 
 ### Command not found
 
-pnpm or turbo command fails.
+pnpm command fails.
 
 **Fix:** Run `corepack enable` to enable pnpm.
 
@@ -92,8 +92,8 @@ TypeScript errors during build.
 
 **Fix:** Run `pnpm build` from root to build dependencies first.
 
-### Turbo cache issues
+### Nx cache issues
 
 Stale builds or unexpected behavior.
 
-**Fix:** Run `pnpm turbo run build --force` to bypass cache.
+**Fix:** Run `nx reset` to clear the cache.

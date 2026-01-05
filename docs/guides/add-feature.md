@@ -85,14 +85,14 @@ describe('myFeature', () => {
  * ```
  */
 export function myFeature(options: MyFeatureOptions) {
-  // ...
+  return { result: options.option }
 }
 ```
 
 ### 9. Run validation
 
 ```bash
-pnpm agents validate
+pnpm validate
 ```
 
 ## References

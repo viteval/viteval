@@ -4,27 +4,21 @@ Validate, commit, and push changes to the repository.
 
 ## Steps
 
-### 1. Run validation
+### 1. Fix any issues
 
-```bash
-pnpm agents validate
-```
-
-This runs build, type checking, tests, and linting in CI mode.
-
-### 2. Fix any issues
-
-For lint errors:
+This will pre-fix any issues before running validation.
 
 ```bash
 pnpm fix
 ```
 
-For type errors, check the specific package:
+### 2. Run validation
 
 ```bash
-cd packages/core && pnpm types
+pnpm validate
 ```
+
+This runs build, type checking, tests, and linting in CI mode.
 
 ### 3. Stage your changes
 
@@ -32,7 +26,7 @@ cd packages/core && pnpm types
 git add .
 ```
 
-Or stage specific files:
+Or stage specific files (preferred):
 
 ```bash
 git add packages/core/src/my-feature/

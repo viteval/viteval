@@ -4,10 +4,8 @@ Technologies and dependencies used in the Viteval codebase.
 
 ## Requirements
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js | >= 22.0.0 |
-| pnpm | >= 10.0.0 |
+- Node.js >= 22.0.0
+- pnpm >= 10.0.0
 
 ## Core Technologies
 

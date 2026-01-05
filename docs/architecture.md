@@ -68,6 +68,6 @@ Web interface for viewing results. React-based dashboard for exploring evaluatio
 
 Shared utilities used across packages. Type guards, helpers, and common types. Not published for external use.
 
-### Built on Vitest
+## Built on Vitest
 
 Evaluations run as Vitest test suites, leveraging its speed, parallelization, and ecosystem.
