@@ -2,14 +2,6 @@
 
 How tests are written in the Viteval codebase.
 
-## Overview
-
-| Setting | Value |
-|---------|-------|
-| Framework | Vitest |
-| Style | BDD (describe/it/expect) |
-| Location | Co-located (`*.test.ts`) |
-
 ## Patterns
 
 ### Co-location

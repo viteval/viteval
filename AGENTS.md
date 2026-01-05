@@ -2,6 +2,8 @@
 
 LLM evaluation framework built on Vitest.
 
+IMPORTANT: Always refer to the documentation before performing any task or any work.
+
 <quick-reference>
 
 ## Quick Reference
