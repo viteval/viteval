@@ -1,3 +1,4 @@
+import { hasKey, isPlainObject, isString } from '@viteval/internal';
 import type { VoltOpsRestClient } from '@voltagent/sdk';
 import type { ExperimentDatasetItem, VoltagentAuthConfig } from './types';
 
@@ -179,13 +180,12 @@ export async function createVoltagentClient(
         datasetName: name,
       });
       // Handle various return types from the SDK
-      if (typeof versionResult === 'string') {
+      if (isString(versionResult)) {
         resolvedVersionId = versionResult;
-      } else if (versionResult && typeof versionResult === 'object') {
-        resolvedVersionId =
-          'datasetVersionId' in versionResult
-            ? (versionResult.datasetVersionId as string)
-            : ((versionResult as { id?: string }).id ?? id ?? '');
+      } else if (isPlainObject(versionResult)) {
+        resolvedVersionId = hasKey(versionResult, 'datasetVersionId')
+          ? (versionResult.datasetVersionId as string)
+          : ((versionResult as { id?: string }).id ?? id ?? '');
       } else {
         throw new Error('Failed to resolve dataset version ID');
       }
