@@ -1,0 +1,61 @@
+{
+  "name": "@viteval/voltagent",
+  "description": "VoltAgent dataset integration for Viteval - fetch datasets from VoltOps.",
+  "version": "0.0.1",
+  "author": "viteval",
+  "bugs": "https://github.com/viteval/viteval/issues",
+  "dependencies": {
+    "@viteval/core": "workspace:^",
+    "@viteval/internal": "workspace:^"
+  },
+  "peerDependencies": {
+    "@voltagent/sdk": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@voltagent/sdk": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "@tsconfig/node18": "^18.2.6",
+    "@types/node": "^24.10.1",
+    "@voltagent/sdk": "^1.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.15"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "keywords": [
+    "ai",
+    "evaluation",
+    "llm",
+    "viteval",
+    "voltagent",
+    "voltops"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "build": "tsup",
+    "check": "biome check .",
+    "dev": "tsup --watch",
+    "fix": "biome check --write .",
+    "test": "vitest --typecheck",
+    "types": "tsc --noEmit"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

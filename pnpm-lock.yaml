@@ -543,6 +543,40 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/voltagent:
+    dependencies:
+      '@viteval/core':
+        specifier: workspace:^
+        version: link:../core
+      '@viteval/internal':
+        specifier: workspace:^
+        version: link:../internal
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.3.8
+        version: 2.3.8
+      '@tsconfig/node18':
+        specifier: ^18.2.6
+        version: 18.2.6
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
+      '@voltagent/sdk':
+        specifier: ^1.0.0
+        version: 1.0.2(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(@swc/core@1.15.3(@swc/helpers@0.5.17))(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite-tsconfig-paths:
+        specifier: ^5.1.4
+        version: 5.1.4(typescript@5.9.3)(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.2))
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/ui@4.0.15)(jiti@2.6.1)(jsdom@27.2.0)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.2)
+
   tools/core:
     dependencies:
       '@nx/devkit':
@@ -3895,6 +3929,9 @@ packages:
 
   '@voltagent/internal@0.0.12':
     resolution: {integrity: sha512-S7ANIskxtCc+n0YzwULfvnzPyEC7YvvV+0chgpV+rW5EQbvLuzKSSrC5gmrSgzDNi+WgODysM3acZ2F9MuhLeQ==}
+
+  '@voltagent/sdk@1.0.2':
+    resolution: {integrity: sha512-2jeKVIvU+q3IsR+7qI1eoV7oltwOnYtkBuP83iWzMjCfDAFuzIsRB9fT8ml6PYZOAqcS1Fxu7i4TsP7DLhLPXg==}
 
   '@vue/compiler-core@3.5.25':
     resolution: {integrity: sha512-vay5/oQJdsNHmliWoZfHPoVZZRmnSWhug0BYT34njkYTPqClh3DNWLkZNJBVSjsNMrg0CCrBfoKkjZQPM/QVUw==}
@@ -11630,6 +11667,18 @@ snapshots:
   '@voltagent/internal@0.0.12':
     dependencies:
       type-fest: 4.41.0
+
+  '@voltagent/sdk@1.0.2(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13)':
+    dependencies:
+      '@voltagent/core': 1.2.13(@ai-sdk/provider-utils@3.0.18(zod@4.1.13))(ai@5.0.106(zod@4.1.13))(zod@4.1.13)
+      '@voltagent/internal': 0.0.12
+    transitivePeerDependencies:
+      - '@ai-sdk/provider-utils'
+      - '@cfworker/json-schema'
+      - '@voltagent/logger'
+      - ai
+      - supports-color
+      - zod
 
   '@vue/compiler-core@3.5.25':
     dependencies:
