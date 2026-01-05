@@ -126,7 +126,7 @@ export default defineConfig({
       provider: 'local',
     },
     editLink: {
-      pattern: 'https://github.com/viteval/viteval/edit/main/docs/:path',
+      pattern: 'https://github.com/viteval/viteval/edit/main/apps/website/:path',
     },
   },
   markdown: {
