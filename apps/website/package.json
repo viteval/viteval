@@ -1,6 +1,6 @@
 {
-  "name": "@internal/docs",
-  "description": "Documentation for Viteval",
+  "name": "@apps/website",
+  "description": "Documentation website for Viteval",
   "dependencies": {
     "@iconify-json/carbon": "^1.2.14",
     "@iconify-json/logos": "^1.2.10",

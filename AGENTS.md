@@ -9,7 +9,7 @@ Below is a high-level overview of the repository structure.
 - `packages/` - Contains the core packages for viteval
 - `examples/` - Contains examples of how to use viteval
 - `tools/` - Contains tools for viteval
-- `docs/` - Contains the documentation for viteval, built with Vitepress (https://vitepress.dev/)
+- `apps/website` - Contains the documentation website for viteval, built with Vitepress (https://vitepress.dev/)
 - `scripts/` - Contains scripts for viteval
 
 ### Packages
@@ -42,5 +42,5 @@ The `packages/` directory contains the following packages:
 ## Documentation Instructions
 
 - The documentation is built with Vitepress (https://vitepress.dev/)
-- The documentation is located in the `docs/` directory
+- The documentation is located in the `apps/website` directory
 - The documentation is written in markdown but can render HTML
