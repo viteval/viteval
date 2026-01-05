@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to Viteval! This document provides guidelines for contributing to the project.
 
+> **Detailed Documentation**: For in-depth contributor documentation, see the [docs/](./docs/) directory.
+
 ## Getting Started
 
 ### Prerequisites
@@ -32,17 +34,21 @@ Thank you for your interest in contributing to Viteval! This document provides g
    pnpm test
    ```
 
+> **More details**: See [docs/guides/setup-local-env.md](./docs/guides/setup-local-env.md)
+
 ## Project Structure
 
 This is a monorepo managed with Nx and pnpm workspaces:
 
 - `packages/core/` - Core evaluation framework
-- `packages/cli/` - CLI implementation  
+- `packages/cli/` - CLI implementation
 - `packages/viteval/` - Main package that re-exports core functionality
 - `packages/internal/` - Internal utilities
 - `tools/` - Development tools and generators
 - `examples/` - Example projects
-- `docs/` - Documentation
+- `docs/` - Contributor documentation
+
+> **More details**: See [docs/structure.md](./docs/structure.md)
 
 ## Development Workflow
 
@@ -80,6 +86,8 @@ We use Biome for linting and formatting:
 
 Run `pnpm check` to lint and `pnpm fix` to auto-fix issues.
 
+> **More details**: See [docs/tooling/biome.md](./docs/tooling/biome.md)
+
 ## Making Changes
 
 ### Branching
@@ -108,6 +116,8 @@ When adding new dependencies:
 - Tests are located alongside source files (`.test.ts`)
 - Run `pnpm test` to execute all tests
 - Use `pnpm test --watch` for development
+
+> **More details**: See [docs/testing.md](./docs/testing.md)
 
 ## Release Process
 

@@ -39,10 +39,10 @@
   "scripts": {
     "agents": "CI=true nx run-many --tui=false --parallel --projects=packages/* -t",
     "build": "nx run-many -t build --parallel --projects=packages/*",
-    "build:docs": "nx run-many -t build --parallel --p website",
+    "build:website": "nx run-many -t build --parallel --p website",
     "check": "nx run-many -t check",
     "dev": "nx run-many -t dev --parallel --projects=packages/*",
-    "dev:docs": "nx dev website",
+    "dev:website": "nx dev website",
     "fix": "nx run-many -t fix",
     "gen": "nx generate",
     "nuke": "nuka-code",

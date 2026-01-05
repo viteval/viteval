@@ -2,6 +2,17 @@
 
 Viteval is a framework for evaluating LLMs. It is built on top of Vitest and is designed to be used in a CI/CD pipeline.
 
+## Detailed Documentation
+
+For comprehensive contributor documentation, see the [docs/](./docs/) directory:
+
+- [docs/README.md](./docs/README.md) - Documentation index
+- [docs/structure.md](./docs/structure.md) - Project structure
+- [docs/patterns.md](./docs/patterns.md) - Code patterns
+- [docs/testing.md](./docs/testing.md) - Testing overview
+- [docs/commands.md](./docs/commands.md) - Development commands
+- [docs/packages/](./docs/packages/) - Package-specific documentation
+
 ## Structure
 
 Below is a high-level overview of the repository structure.
@@ -10,6 +21,7 @@ Below is a high-level overview of the repository structure.
 - `examples/` - Contains examples of how to use viteval
 - `tools/` - Contains tools for viteval
 - `apps/website` - Contains the documentation website for viteval, built with Vitepress (https://vitepress.dev/)
+- `docs/` - Contains contributor documentation for developers and AI
 - `scripts/` - Contains scripts for viteval
 
 ### Packages
@@ -20,6 +32,7 @@ The `packages/` directory contains the following packages:
 - `packages/internal` - Contains the internal utilities for viteval
 - `packages/cli` - Contains the CLI for viteval
 - `packages/viteval` - Contains the main viteval package, that re-exports the core and internal packages
+- `packages/ui` - Contains the web UI for viewing evaluation results
 
 ## Development Instructions
 
