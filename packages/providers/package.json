@@ -1,6 +1,6 @@
 {
   "name": "@viteval/providers",
-  "description": "Provider registry and utilities for Viteval dataset providers",
+  "description": "Provider registry and utilities for Viteval - datasets, eval results, and more",
   "version": "0.0.1",
   "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {

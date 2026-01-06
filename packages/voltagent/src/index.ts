@@ -29,12 +29,10 @@
 import { registerProvider } from '@viteval/providers';
 import { createVoltagentProvider } from './provider';
 
-// Auto-register the voltagent provider when this package is imported
 registerProvider({
   type: 'voltagent',
   packageName: '@viteval/voltagent',
-  factory: async (config: Record<string, unknown>) => {
-    // Extract VoltAgent-specific fields from dataset config
+  factory: (config: Record<string, unknown>) => {
     const voltagentConfig = {
       type: 'voltagent' as const,
       datasetId: config.datasetId as string | undefined,
@@ -42,7 +40,57 @@ registerProvider({
       versionId: config.versionId as string | undefined,
       auth: config.auth as any,
     };
-    return createVoltagentProvider(voltagentConfig);
+
+    let clientPromise: Promise<any> | null = null;
+    let resolvedIdentifiers: any | null = null;
+
+    return {
+      type: 'voltagent',
+      config: voltagentConfig,
+
+      async fetch(options?: any) {
+        if (!clientPromise) {
+          clientPromise = (async () => {
+            const { createVoltagentClient } = await import('./client');
+            return createVoltagentClient({ auth: voltagentConfig.auth });
+          })();
+        }
+
+        const client = await clientPromise;
+
+        if (!resolvedIdentifiers) {
+          resolvedIdentifiers = await client.resolveDatasetIdentifiers({
+            name: voltagentConfig.datasetName,
+            id: voltagentConfig.datasetId,
+            versionId: voltagentConfig.versionId,
+          });
+        }
+
+        const { datasetId, versionId } = resolvedIdentifiers;
+        const items = await client.listDatasetItems(datasetId, versionId, {
+          limit: options?.limit,
+          offset: options?.offset,
+        });
+
+        const { mapVoltagentItems } = await import('./mapper');
+        return mapVoltagentItems(items);
+      },
+
+      async exists() {
+        if (!clientPromise) {
+          clientPromise = (async () => {
+            const { createVoltagentClient } = await import('./client');
+            return createVoltagentClient({ auth: voltagentConfig.auth });
+          })();
+        }
+
+        const client = await clientPromise;
+        return client.datasetExists({
+          name: voltagentConfig.datasetName,
+          id: voltagentConfig.datasetId,
+        });
+      },
+    };
   },
   description: 'VoltAgent dataset integration - fetch datasets from VoltOps',
 });

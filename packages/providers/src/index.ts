@@ -1,7 +1,5 @@
-// Registry
 export { registerProvider, createProvider, providerRegistry } from './registry';
 
-// Types
 export type {
   Provider,
   ProviderFactory,
@@ -9,7 +7,6 @@ export type {
   ProviderMetadata,
 } from './types';
 
-// Errors
 export {
   ProviderNotFoundError,
   ProviderAlreadyRegisteredError,

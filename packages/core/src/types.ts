@@ -81,7 +81,6 @@ export type Data<DATA_ITEM extends DataItem = DataItem> =
   | DataGenerator<DATA_ITEM>
   | Dataset<DataGenerator<DATA_ITEM>>;
 
-// TODO: Add support for remote storage i.e. S3, Braintrust, etc.
 export type DatasetStorage = 'local' | 'memory';
 
 /**
