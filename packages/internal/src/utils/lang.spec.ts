@@ -9,6 +9,7 @@ import {
   isObject,
   isPlainObject,
   isPromise,
+  isString,
 } from './lang';
 
 describe('isNil', () => {
@@ -372,5 +373,73 @@ describe('isPromise', () => {
     expect(isPromise('string')).toBe(false);
     expect(isPromise(42)).toBe(false);
     expect(isPromise(true)).toBe(false);
+  });
+});
+
+describe('isString', () => {
+  it('should return true for string primitives', () => {
+    expect(isString('')).toBe(true);
+    expect(isString('hello')).toBe(true);
+    expect(isString('123')).toBe(true);
+    expect(isString('template string')).toBe(true);
+  });
+
+  it('should return true for String() constructor results', () => {
+    expect(isString(String('hello'))).toBe(true);
+    expect(isString(String(123))).toBe(true);
+  });
+
+  it('should return false for String objects', () => {
+    // eslint-disable-next-line no-new-wrappers
+    expect(isString(new String('hello'))).toBe(false);
+  });
+
+  it('should return false for null and undefined', () => {
+    expect(isString(null)).toBe(false);
+    expect(isString(undefined)).toBe(false);
+  });
+
+  it('should return false for other primitives', () => {
+    expect(isString(42)).toBe(false);
+    expect(isString(true)).toBe(false);
+    expect(isString(false)).toBe(false);
+    expect(isString(Symbol('test'))).toBe(false);
+    expect(isString(BigInt(123))).toBe(false);
+  });
+
+  it('should return false for objects and arrays', () => {
+    expect(isString({})).toBe(false);
+    expect(isString({ toString: () => 'hello' })).toBe(false);
+    expect(isString([])).toBe(false);
+    expect(isString(['hello'])).toBe(false);
+  });
+
+  it('should return false for functions', () => {
+    expect(isString(() => {})).toBe(false);
+    expect(isString(() => 'hello')).toBe(false);
+  });
+
+  it('should have correct type guard behavior', () => {
+    const testValue: unknown = 'hello';
+
+    if (isString(testValue)) {
+      expectTypeOf(testValue).toEqualTypeOf<string>();
+    } else {
+      expectTypeOf(testValue).not.toEqualTypeOf<string>();
+    }
+  });
+
+  it('should narrow types correctly in conditional statements', () => {
+    const testValue: unknown = 'test string';
+
+    if (isString(testValue)) {
+      // This branch should only execute for strings
+      expectTypeOf(testValue).toEqualTypeOf<string>();
+      // Should allow string methods
+      expect(testValue.toUpperCase()).toBe('TEST STRING');
+    } else {
+      // This branch should execute for all other values
+      expectTypeOf(testValue).not.toEqualTypeOf<string>();
+    }
   });
 });
