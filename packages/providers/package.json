@@ -1,0 +1,40 @@
+{
+  "name": "@viteval/providers",
+  "description": "Provider registry and utilities for Viteval dataset providers",
+  "version": "0.0.1",
+  "bugs": "https://github.com/viteval/viteval/issues",
+  "dependencies": {
+    "@viteval/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsdown": "^0.19.0-beta.3",
+    "type-fest": "^5.3.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "license": "MIT",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "repository": "viteval/viteval",
+  "scripts": {
+    "build": "tsdown",
+    "check": "biome check .",
+    "dev": "tsdown --watch",
+    "fix": "biome check . --write",
+    "test": "vitest --typecheck",
+    "types": "tsc --noEmit"
+  },
+  "type": "module",
+  "types": "dist/index.d.mts"
+}

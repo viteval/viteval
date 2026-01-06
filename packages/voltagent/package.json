@@ -6,7 +6,8 @@
   "bugs": "https://github.com/viteval/viteval/issues",
   "dependencies": {
     "@viteval/core": "workspace:^",
-    "@viteval/internal": "workspace:^"
+    "@viteval/internal": "workspace:^",
+    "@viteval/providers": "workspace:^"
   },
   "peerDependencies": {
     "@voltagent/sdk": ">=1.0.0"

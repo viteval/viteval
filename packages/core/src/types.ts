@@ -187,8 +187,29 @@ export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
   description?: string;
   /**
    * The data generator of the dataset.
+   * Optional when provider is specified.
    */
-  data: DATA;
+  data?: DATA;
+  /**
+   * The provider type identifier (e.g., 'voltagent', 'braintrust').
+   * When specified, the dataset will fetch data from the provider.
+   * Provider-specific configuration fields should be passed at the root level.
+   *
+   * @example
+   * ```ts
+   * const dataset = defineDataset({
+   *   name: 'my-dataset',
+   *   provider: 'voltagent',
+   *   datasetId: 'abc123', // Provider-specific field
+   *   storage: 'local',
+   * });
+   * ```
+   */
+  provider?: string;
+  /**
+   * Allow arbitrary provider-specific fields at root level.
+   */
+  [key: string]: unknown;
 }
 
 export type DatasetGeneratorConfig = {

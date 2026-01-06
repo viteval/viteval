@@ -54,9 +54,37 @@ export function defineDataset<
   >,
 >(config: DatasetConfig<DATA_FUNC>): Dataset<DATA_FUNC, DATA_ITEM> {
   const finalStorage = config.storage ?? 'local';
+
+  // Cache provider instance to avoid multiple creations
+  let providerPromise: Promise<any> | null = null;
+
+  /**
+   * Get the data function, either from config.data or by creating one from the provider
+   */
+  async function getDataFunction(): Promise<DATA_FUNC> {
+    if (config.data) {
+      return config.data;
+    }
+
+    if (config.provider) {
+      if (!providerPromise) {
+        // Dynamically import the providers package to avoid circular dependencies
+        const { createProvider } = await import('@viteval/providers');
+        providerPromise = createProvider(config.provider, config);
+      }
+
+      const provider = await providerPromise;
+      // Return a data function that fetches from the provider
+      return (async () => provider.fetch()) as DATA_FUNC;
+    }
+
+    throw new Error('Either data or provider must be specified in dataset configuration.');
+  }
+
   return {
     name: config.name,
     storage: finalStorage,
+    description: config.description,
     async exists() {
       if (finalStorage === 'memory') {
         return false;
@@ -67,11 +95,29 @@ export function defineDataset<
         root: await findRoot(process.cwd()),
         storage: finalStorage,
       });
-      return await storage.exists();
+
+      // Check cache first
+      if (await storage.exists()) {
+        return true;
+      }
+
+      // If using provider, check if dataset exists remotely
+      if (config.provider) {
+        if (!providerPromise) {
+          const { createProvider } = await import('@viteval/providers');
+          providerPromise = createProvider(config.provider, config);
+        }
+        const provider = await providerPromise;
+        return provider.exists();
+      }
+
+      return false;
     },
     async load(options) {
+      const dataFunc = await getDataFunction();
+
       if (finalStorage === 'memory') {
-        return (await config.data()) as DATA_ITEM[];
+        return (await dataFunc()) as DATA_ITEM[];
       }
 
       const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
@@ -82,7 +128,7 @@ export function defineDataset<
       const data = await storage.load();
 
       if (options?.create === true && !data) {
-        const newData = await config.data();
+        const newData = await dataFunc();
         await storage.save(newData as DATA_ITEM[]);
         return newData as DATA_ITEM[];
       }
@@ -104,7 +150,8 @@ export function defineDataset<
         return;
       }
 
-      const data = await config.data();
+      const dataFunc = await getDataFunction();
+      const data = await dataFunc();
       await storage.save(data as DATA_ITEM[]);
     },
     // @ts-expect-error - allowed, internal only
