@@ -42,6 +42,21 @@ import { createDatasetStorage } from './storage';
  * @param config - The configuration of the dataset.
  * @returns The dataset.
  */
+declare global {
+  // biome-ignore lint/style/noVar: globalThis requires var
+  var __VITEVAL_DATASET_PROVIDER_REGISTRY__:
+    | {
+        create(
+          type: string,
+          config: Record<string, unknown>
+        ): {
+          fetch(options?: any): Promise<any[]>;
+          exists(): Promise<boolean>;
+        };
+      }
+    | undefined;
+}
+
 export function defineDataset<
   DATA_FUNC extends DataGenerator,
   INPUT = InferDataInput<DATA_FUNC>,
@@ -54,9 +69,37 @@ export function defineDataset<
   >,
 >(config: DatasetConfig<DATA_FUNC>): Dataset<DATA_FUNC, DATA_ITEM> {
   const finalStorage = config.storage ?? 'local';
+
+  let providerInstance: any | null = null;
+
+  function getDataFunction(): DATA_FUNC {
+    if (config.data) {
+      return config.data;
+    }
+
+    if (config.provider) {
+      if (!providerInstance) {
+        const registry = globalThis.__VITEVAL_DATASET_PROVIDER_REGISTRY__;
+        if (!registry) {
+          throw new Error(
+            `Provider '${config.provider}' not found. Make sure to import the provider package:\n\nimport '@viteval/${config.provider}'\n`
+          );
+        }
+        providerInstance = registry.create(config.provider, config);
+      }
+
+      return (async () => providerInstance.fetch()) as DATA_FUNC;
+    }
+
+    throw new Error(
+      'Either data or provider must be specified in dataset configuration.'
+    );
+  }
+
   return {
     name: config.name,
     storage: finalStorage,
+    description: config.description,
     async exists() {
       if (finalStorage === 'memory') {
         return false;
@@ -67,11 +110,33 @@ export function defineDataset<
         root: await findRoot(process.cwd()),
         storage: finalStorage,
       });
-      return await storage.exists();
+
+      // Check cache first
+      if (await storage.exists()) {
+        return true;
+      }
+
+      // If using provider, check if dataset exists remotely
+      if (config.provider) {
+        if (!providerInstance) {
+          const registry = globalThis.__VITEVAL_DATASET_PROVIDER_REGISTRY__;
+          if (!registry) {
+            throw new Error(
+              `Provider '${config.provider}' not found. Make sure to import the provider package:\n\nimport '@viteval/${config.provider}'\n`
+            );
+          }
+          providerInstance = registry.create(config.provider, config);
+        }
+        return providerInstance.exists();
+      }
+
+      return false;
     },
     async load(options) {
+      const dataFunc = getDataFunction();
+
       if (finalStorage === 'memory') {
-        return (await config.data()) as DATA_ITEM[];
+        return (await dataFunc()) as DATA_ITEM[];
       }
 
       const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
@@ -82,7 +147,7 @@ export function defineDataset<
       const data = await storage.load();
 
       if (options?.create === true && !data) {
-        const newData = await config.data();
+        const newData = await dataFunc();
         await storage.save(newData as DATA_ITEM[]);
         return newData as DATA_ITEM[];
       }
@@ -104,7 +169,8 @@ export function defineDataset<
         return;
       }
 
-      const data = await config.data();
+      const dataFunc = getDataFunction();
+      const data = await dataFunc();
       await storage.save(data as DATA_ITEM[]);
     },
     // @ts-expect-error - allowed, internal only

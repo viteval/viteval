@@ -81,8 +81,90 @@ export type Data<DATA_ITEM extends DataItem = DataItem> =
   | DataGenerator<DATA_ITEM>
   | Dataset<DataGenerator<DATA_ITEM>>;
 
-// TODO: Add support for remote storage i.e. S3, Braintrust, etc.
 export type DatasetStorage = 'local' | 'memory';
+
+/**
+ * Configuration for a remote dataset provider.
+ */
+export interface DatasetProviderConfig {
+  /**
+   * Provider type identifier.
+   */
+  type: string;
+}
+
+/**
+ * Options for fetching data from a provider.
+ */
+export interface DatasetProviderFetchOptions {
+  /**
+   * Maximum number of items to fetch.
+   */
+  limit?: number;
+  /**
+   * Offset for pagination.
+   */
+  offset?: number;
+}
+
+/**
+ * A dataset provider that fetches data from a remote source.
+ *
+ * @example
+ * ```ts
+ * const provider: DatasetProvider = {
+ *   type: 'voltagent',
+ *   config: { datasetId: 'abc123' },
+ *   async fetch(options) {
+ *     // Fetch from remote API
+ *     return items;
+ *   },
+ *   async exists() {
+ *     return true;
+ *   },
+ * };
+ * ```
+ */
+export interface DatasetProvider<
+  CONFIG extends DatasetProviderConfig = DatasetProviderConfig,
+  INPUT = unknown,
+  OUTPUT = unknown,
+  EXTRA extends Extra = Extra,
+> {
+  /**
+   * Provider type identifier.
+   */
+  readonly type: string;
+
+  /**
+   * Provider configuration.
+   */
+  readonly config: CONFIG;
+
+  /**
+   * Fetch dataset items from the remote source.
+   *
+   * @param options - Fetch options
+   * @returns Array of data items
+   */
+  fetch(
+    options?: DatasetProviderFetchOptions
+  ): Promise<DataItem<INPUT, OUTPUT, EXTRA>[]>;
+
+  /**
+   * Check if the dataset exists in the remote source.
+   *
+   * @returns True if the dataset exists
+   */
+  exists(): Promise<boolean>;
+
+  /**
+   * Upload dataset items to the remote source (optional).
+   *
+   * @param items - Items to upload
+   */
+  upload?(items: DataItem<INPUT, OUTPUT, EXTRA>[]): Promise<void>;
+}
 
 /**
  * A dataset configuration.
@@ -104,8 +186,29 @@ export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
   description?: string;
   /**
    * The data generator of the dataset.
+   * Optional when provider is specified.
    */
-  data: DATA;
+  data?: DATA;
+  /**
+   * The provider type identifier (e.g., 'voltagent', 'braintrust').
+   * When specified, the dataset will fetch data from the provider.
+   * Provider-specific configuration fields should be passed at the root level.
+   *
+   * @example
+   * ```ts
+   * const dataset = defineDataset({
+   *   name: 'my-dataset',
+   *   provider: 'voltagent',
+   *   datasetId: 'abc123', // Provider-specific field
+   *   storage: 'local',
+   * });
+   * ```
+   */
+  provider?: string;
+  /**
+   * Allow arbitrary provider-specific fields at root level.
+   */
+  [key: string]: unknown;
 }
 
 export type DatasetGeneratorConfig = {
