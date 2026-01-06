@@ -36,20 +36,20 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/main/index.d.ts",
-      "import": "./dist/main/index.js"
+      "types": "./dist/main/index.d.mts",
+      "import": "./dist/main/index.mjs"
     },
     "./config": {
-      "types": "./dist/config/index.d.ts",
-      "import": "./dist/config/index.js"
+      "types": "./dist/config/index.d.mts",
+      "import": "./dist/config/index.mjs"
     },
     "./dataset": {
-      "types": "./dist/dataset/index.d.ts",
-      "import": "./dist/dataset/index.js"
+      "types": "./dist/dataset/index.d.mts",
+      "import": "./dist/dataset/index.mjs"
     },
     "./reporters": {
-      "types": "./dist/reporters/index.d.ts",
-      "import": "./dist/reporters/index.js"
+      "types": "./dist/reporters/index.d.mts",
+      "import": "./dist/reporters/index.mjs"
     }
   },
   "files": [
@@ -57,7 +57,7 @@
     "README.md"
   ],
   "homepage": "https://github.com/viteval/viteval#readme",
-  "main": "dist/main/index.js",
+  "main": "dist/main/index.mjs",
   "repository": "viteval/viteval",
   "scripts": {
     "build": "tsdown",
@@ -68,5 +68,5 @@
     "types": "tsc --noEmit --project tsconfig.build.json"
   },
   "type": "module",
-  "types": "dist/main/index.d.ts"
+  "types": "dist/main/index.d.mts"
 }
