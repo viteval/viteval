@@ -381,26 +381,21 @@ describe('isString', () => {
     expect(isString('')).toBe(true);
     expect(isString('hello')).toBe(true);
     expect(isString('123')).toBe(true);
-    expect(isString('template literal')).toBe(true);
+    expect(isString('template string')).toBe(true);
   });
 
   it('should return true for String() constructor results', () => {
-    expect(isString(String(42))).toBe(true);
-    expect(isString(String(true))).toBe(true);
-    expect(isString(String(null))).toBe(true);
+    expect(isString(String('hello'))).toBe(true);
+    expect(isString(String(123))).toBe(true);
   });
 
   it('should return false for String objects', () => {
-    // Note: new String() creates an object, not a primitive
     // eslint-disable-next-line no-new-wrappers
     expect(isString(new String('hello'))).toBe(false);
   });
 
-  it('should return false for null', () => {
+  it('should return false for null and undefined', () => {
     expect(isString(null)).toBe(false);
-  });
-
-  it('should return false for undefined', () => {
     expect(isString(undefined)).toBe(false);
   });
 
@@ -409,10 +404,10 @@ describe('isString', () => {
     expect(isString(true)).toBe(false);
     expect(isString(false)).toBe(false);
     expect(isString(Symbol('test'))).toBe(false);
-    expect(isString(BigInt(42))).toBe(false);
+    expect(isString(BigInt(123))).toBe(false);
   });
 
-  it('should return false for objects', () => {
+  it('should return false for objects and arrays', () => {
     expect(isString({})).toBe(false);
     expect(isString({ toString: () => 'hello' })).toBe(false);
     expect(isString([])).toBe(false);
@@ -435,14 +430,15 @@ describe('isString', () => {
   });
 
   it('should narrow types correctly in conditional statements', () => {
-    const testValue: unknown = 'world';
+    const testValue: unknown = 'test string';
 
     if (isString(testValue)) {
       // This branch should only execute for strings
       expectTypeOf(testValue).toEqualTypeOf<string>();
-      // Can use string methods
-      expect(testValue.toUpperCase()).toBe('WORLD');
+      // Should allow string methods
+      expect(testValue.toUpperCase()).toBe('TEST STRING');
     } else {
+      // This branch should execute for all other values
       expectTypeOf(testValue).not.toEqualTypeOf<string>();
     }
   });
