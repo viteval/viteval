@@ -7,7 +7,7 @@ export default defineConfig({
       js: format === 'esm' ? '.mjs' : '.js',
     };
   },
-  bundle: false,
+  unbundle: true,
   outDir: '.',
   format: ['esm'],
   dts: true,
