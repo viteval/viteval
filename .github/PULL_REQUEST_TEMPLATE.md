@@ -2,7 +2,9 @@
 
 ## Description
 
-<!-- Brief description of what this PR does -->
+<!-- Brief description of what this PR does & the issue(s) it closes -->
+
+<!-- Closes #<issue-number>, #<issue-number>, ... -->
 
 ## Breaking Changes
 
