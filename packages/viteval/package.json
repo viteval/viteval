@@ -18,21 +18,21 @@
     "@biomejs/biome": "^2.3.8",
     "@tsconfig/node18": "^18.2.6",
     "@types/node": "^24.10.1",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.19.0-beta.3",
     "typescript": "^5.9.3"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./config": {
-      "types": "./dist/config.d.ts",
-      "import": "./dist/config.js"
+      "types": "./dist/config.d.mts",
+      "import": "./dist/config.mjs"
     },
     "./dataset": {
-      "types": "./dist/dataset.d.ts",
-      "import": "./dist/dataset.js"
+      "types": "./dist/dataset.d.mts",
+      "import": "./dist/dataset.mjs"
     }
   },
   "homepage": "https://github.com/viteval/viteval#readme",
@@ -46,16 +46,16 @@
     "vitest"
   ],
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "repository": "viteval/viteval",
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "check": "biome check .",
-    "dev": "tsup --watch",
+    "dev": "tsdown --watch",
     "fix": "biome check --write .",
     "test": "vitest --typecheck --passWithNoTests",
     "types": "tsc --noEmit"
   },
   "type": "module",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.mts"
 }

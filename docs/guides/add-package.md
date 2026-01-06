@@ -16,7 +16,7 @@ The generator creates:
 - `packages/my-package/` directory
 - `package.json` with workspace config
 - `tsconfig.json` extending base
-- `tsup.config.ts` for building
+- `tsdown.config.ts` for building
 - `vitest.config.ts` for testing
 - `src/index.ts` entry point
 
@@ -50,8 +50,8 @@ mkdir -p packages/my-package/src
     }
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest --typecheck",
     "check": "biome check .",
     "fix": "biome check --write .",
@@ -79,10 +79,10 @@ mkdir -p packages/my-package/src
 }
 ```
 
-### 4. Create tsup.config.ts
+### 4. Create tsdown.config.ts
 
 ```ts
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['src/index.ts'],

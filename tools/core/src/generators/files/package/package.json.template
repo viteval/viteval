@@ -15,8 +15,8 @@
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "vitest",
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.2.0",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.19.0-beta.3",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

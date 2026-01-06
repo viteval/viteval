@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   entry: ['server.ts'],
@@ -7,7 +7,7 @@ export default defineConfig({
       js: format === 'esm' ? '.mjs' : '.js',
     };
   },
-  bundle: false,
+  unbundle: true,
   outDir: '.',
   format: ['esm'],
   dts: true,

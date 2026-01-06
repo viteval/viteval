@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsdown';
 
 const OUTPUT_DIR = path.join(import.meta.dirname, 'dist');
 const TEMPLATES_DIR = path.join(import.meta.dirname, 'src', 'templates');
@@ -15,6 +15,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   minify: true,
+  platform: 'node',
   external: [
     'vitest',
     'find-up',
@@ -24,6 +25,11 @@ export default defineConfig({
     '@viteval/core',
     '@viteval/internal',
     '@viteval/ui',
+    /^vitest\//,
+    /^vite\//,
+    /^@vitest\//,
+    'fsevents',
+    'lightningcss',
   ],
   async onSuccess() {
     const files = await fs.readdir(TEMPLATES_DIR);
