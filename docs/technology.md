@@ -20,7 +20,7 @@ Technologies and dependencies used in the Viteval codebase.
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| tsup | ^8.5.x | TypeScript bundler |
+| tsdown | ^0.19.x-beta | TypeScript bundler (Rolldown-based) |
 | SWC | ~1.15.x | Fast TypeScript compilation |
 | Vite | ^7.2.x | Development server and bundling |
 

@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -8,10 +8,6 @@ export default defineConfig({
   clean: true,
   target: 'esnext',
   outDir: 'dist',
-  minify: true,
+  minify: false,
   dts: true,
-  esbuildOptions(options) {
-    options.keepNames = true;
-    return options;
-  },
 });

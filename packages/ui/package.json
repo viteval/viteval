@@ -45,7 +45,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "jsdom": "^27.2.0",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.19.0-beta.3",
     "typescript": "^5.9.3",
     "unplugin-icons": "^22.5.0",
     "vite": "^7.2.6",
@@ -70,7 +70,7 @@
   "module": "dist/server.mjs",
   "repository": "viteval/viteval",
   "scripts": {
-    "build:server": "tsup",
+    "build:server": "tsdown",
     "build:ui": "vite build",
     "dev": "vite dev --port 3000",
     "serve": "vite preview",
