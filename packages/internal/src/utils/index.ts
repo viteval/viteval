@@ -12,6 +12,7 @@ export {
   isObject,
   isPlainObject,
   isPromise,
+  isString,
 } from './lang';
 export { hasKey } from './objects';
 export { type Result, withResult } from './result';
