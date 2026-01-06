@@ -9,7 +9,7 @@ const CLI_DIST = path.join(
   '..',
   'cli',
   'dist',
-  'index.js'
+  'index.mjs'
 );
 
 beforeAll(async () => {

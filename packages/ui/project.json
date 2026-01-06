@@ -6,11 +6,14 @@
   "targets": {
     "build": {
       "command": "echo \"Building UI\"",
-      "dependsOn": ["build:ui", "build:server"]
+      "dependsOn": ["build:server"]
+    },
+    "build:server": {
+      "dependsOn": ["build:ui"]
     },
     "types": {
       "command": "echo \"Checking types\"",
-      "dependsOn": ["build:ui", "build:server"]
+      "dependsOn": ["build:server"]
     },
     "validate": {
       "command": "echo \"Running validation\"",

@@ -1,13 +1,24 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsdown';
 
 const baseConfig = defineConfig({
   format: ['esm'],
-  dts: true,
+  dts: { build: true },
   splitting: false,
   config: 'tsconfig.build.json',
   sourcemap: true,
   treeshake: true,
-  external: ['vitest', 'openai', 'autoevals', '@viteval/internal'],
+  platform: 'node',
+  external: [
+    'vitest',
+    'openai',
+    'autoevals',
+    '@viteval/internal',
+    /^vitest\//,
+    /^vite\//,
+    /^@vitest\//,
+    'fsevents',
+    'lightningcss',
+  ],
 });
 
 export default defineConfig(

@@ -28,7 +28,7 @@
     "@types/mustache": "^4.2.6",
     "@types/node": "^24.10.1",
     "dotenv": "^17.2.3",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.19.0-beta.3",
     "type-fest": "^5.3.0",
     "typescript": "^5.9.3",
     "vite-tsconfig-paths": "^5.1.4",
@@ -36,20 +36,20 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/main/index.d.ts",
-      "import": "./dist/main/index.js"
+      "types": "./dist/main/index.d.mts",
+      "import": "./dist/main/index.mjs"
     },
     "./config": {
-      "types": "./dist/config/index.d.ts",
-      "import": "./dist/config/index.js"
+      "types": "./dist/config/index.d.mts",
+      "import": "./dist/config/index.mjs"
     },
     "./dataset": {
-      "types": "./dist/dataset/index.d.ts",
-      "import": "./dist/dataset/index.js"
+      "types": "./dist/dataset/index.d.mts",
+      "import": "./dist/dataset/index.mjs"
     },
     "./reporters": {
-      "types": "./dist/reporters/index.d.ts",
-      "import": "./dist/reporters/index.js"
+      "types": "./dist/reporters/index.d.mts",
+      "import": "./dist/reporters/index.mjs"
     }
   },
   "files": [
@@ -57,16 +57,16 @@
     "README.md"
   ],
   "homepage": "https://github.com/viteval/viteval#readme",
-  "main": "dist/main/index.js",
+  "main": "dist/main/index.mjs",
   "repository": "viteval/viteval",
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "check": "biome check .",
-    "dev": "tsup --watch",
+    "dev": "tsdown --watch",
     "fix": "biome check --write .",
     "test": "vitest --typecheck",
     "types": "tsc --noEmit --project tsconfig.build.json"
   },
   "type": "module",
-  "types": "dist/main/index.d.ts"
+  "types": "dist/main/index.d.mts"
 }
