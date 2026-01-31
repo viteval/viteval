@@ -79,12 +79,12 @@ full-reset-command
 
 ## Issue Naming
 
-| Good                         | Bad                  |
-| ---------------------------- | -------------------- |
-| `Connection refused`         | `Database problems`  |
-| `Module not found: @pkg/ai`  | `Import errors`      |
-| `Scorer returned undefined`  | `Scoring issues`     |
-| `Evaluation timeout`         | `It's slow`          |
+| Good                        | Bad                 |
+| --------------------------- | ------------------- |
+| `Connection refused`        | `Database problems` |
+| `Module not found: @pkg/ai` | `Import errors`     |
+| `Scorer returned undefined` | `Scoring issues`    |
+| `Evaluation timeout`        | `It's slow`         |
 
 ## References
 

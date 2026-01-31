@@ -2,6 +2,12 @@
 
 Use mocks in tests to isolate code from dependencies.
 
+## Prerequisites
+
+- Test file already created (see [Add a Test](./add-test.md))
+- Understanding of what dependency to mock
+- Vitest installed in the package
+
 ## Steps
 
 ### 1. Import vi from vitest
@@ -53,6 +59,64 @@ expect(result).toEqual({ data: 'test' });
 beforeEach(() => {
   vi.clearAllMocks();
 });
+```
+
+## Verification
+
+Run the test to verify the mock is working:
+
+```bash
+pnpm test
+```
+
+Verify mock was called with expected arguments:
+
+```ts
+expect(mockFn).toHaveBeenCalledTimes(1);
+expect(mockFn).toHaveBeenCalledWith('expected-arg');
+```
+
+## Troubleshooting
+
+### Mock not being used
+
+**Issue:** The real implementation runs instead of the mock.
+
+**Fix:** Ensure `vi.mock()` is called at the top of the file, before imports:
+
+```ts
+import { vi } from 'vitest';
+
+vi.mock('@viteval/internal'); // Must be before importing the tested module
+
+import { myFunction } from './my-function';
+```
+
+### Mock state leaking between tests
+
+**Issue:** Tests pass individually but fail when run together.
+
+**Fix:** Clear mocks between tests:
+
+```ts
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+// Or reset to initial implementation
+afterEach(() => {
+  vi.resetAllMocks();
+});
+```
+
+### TypeScript errors with mock types
+
+**Issue:** TypeScript complains about mock return types.
+
+**Fix:** Use proper typing with `vi.fn()`:
+
+```ts
+const mockFn = vi.fn<[string], number>().mockReturnValue(42);
 ```
 
 ## References

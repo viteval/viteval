@@ -2,6 +2,12 @@
 
 Create a new package in the Viteval monorepo.
 
+## Prerequisites
+
+- Local environment set up (see [Setup Local Environment](./setup-local-env.md))
+- Dependencies installed (`pnpm install`)
+- Clear understanding of the package's purpose and scope
+
 ## Option A: Using the Generator
 
 ### 1. Run the generator
@@ -136,6 +142,68 @@ External dependency:
 ```bash
 cd packages/my-package
 pnpm add some-package
+```
+
+## Verification
+
+Verify the package builds successfully:
+
+```bash
+pnpm --filter @viteval/my-package build
+```
+
+Check the package is recognized in the workspace:
+
+```bash
+pnpm ls --filter "@viteval/*"
+```
+
+Verify exports are correct:
+
+```bash
+ls packages/my-package/dist/
+```
+
+Expected: `index.js`, `index.d.ts`, and source maps.
+
+## Troubleshooting
+
+### Package not found in workspace
+
+**Issue:** `pnpm --filter @viteval/my-package` returns "No projects matched".
+
+**Fix:** Ensure `package.json` has the correct name and run:
+
+```bash
+pnpm install
+```
+
+### Build fails with missing dependencies
+
+**Issue:** Build fails because dependencies aren't installed.
+
+**Fix:** Add missing dependencies:
+
+```bash
+cd packages/my-package
+pnpm add tsdown vitest vite-tsconfig-paths -D
+```
+
+### TypeScript can't resolve workspace dependencies
+
+**Issue:** Imports from other workspace packages fail to resolve.
+
+**Fix:** Build dependencies first, then the new package:
+
+```bash
+pnpm build
+```
+
+Or add the dependency explicitly:
+
+```bash
+cd packages/my-package
+pnpm add @viteval/internal
 ```
 
 ## References

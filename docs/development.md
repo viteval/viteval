@@ -7,13 +7,29 @@ High-level overview of our Software Development Lifecycle (SDLC). This is your s
 We use **trunk-based development** with short-lived feature branches:
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#313244',
+    'primaryTextColor': '#cdd6f4',
+    'primaryBorderColor': '#6c7086',
+    'lineColor': '#89b4fa',
+    'secondaryColor': '#45475a',
+    'tertiaryColor': '#1e1e2e',
+    'background': '#1e1e2e',
+    'mainBkg': '#313244'
+  },
+  'flowchart': { 'curve': 'basis', 'padding': 15 }
+}}%%
 flowchart LR
-    A[Branch from main] --> B[Develop]
-    B --> C[Validate]
-    C --> D[Create PR]
-    D --> E[Review]
-    E --> F[Merge to main]
-    F --> G[Auto Deploy]
+    A(["Branch"]) --> B(["Develop"])
+    B --> C(["Validate"])
+    C --> D(["Create PR"])
+    D --> E(["Review"])
+    E --> F(["Merge"])
+    F --> G(["Deploy"])
+
+    classDef default fill:#313244,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
 ```
 
 1. **Branch** - Create feature branch from `main`
@@ -28,12 +44,12 @@ flowchart LR
 
 We follow specific standards for code quality and consistency:
 
-| Standard          | Description                   | Link                                                         |
-| ----------------- | ----------------------------- | ------------------------------------------------------------ |
-| **Commits**       | Conventional commit format    | [Commit Standards](standards/git-commits.md)                 |
-| **TypeScript**    | Code patterns and conventions | [TypeScript Standards](standards/typescript/overview.md)     |
+| Standard          | Description                   | Link                                                          |
+| ----------------- | ----------------------------- | ------------------------------------------------------------- |
+| **Commits**       | Conventional commit format    | [Commit Standards](standards/git-commits.md)                  |
+| **TypeScript**    | Code patterns and conventions | [TypeScript Standards](standards/typescript/overview.md)      |
 | **Documentation** | Doc structure and style       | [Documentation Standards](standards/documentation/writing.md) |
-| **Testing**       | Testing patterns              | [Testing Standards](standards/testing.md)                    |
+| **Testing**       | Testing patterns              | [Testing Standards](standards/testing.md)                     |
 
 ## Validation
 
@@ -62,7 +78,7 @@ Step-by-step guides for common tasks:
 | Item            | Value                    |
 | --------------- | ------------------------ |
 | Package manager | pnpm 10.x                |
-| Build system    | Nx + tsup                |
+| Build system    | Nx + tsdown              |
 | Language        | TypeScript (strict mode) |
 | Node version    | 22.x                     |
 | Main branch     | `main`                   |

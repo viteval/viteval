@@ -59,7 +59,7 @@ Run LLM evaluations from the examples directory.
 
 **List available examples:**
 
-```
+```text
 /eval --list
 → Available examples:
   - basic
@@ -69,14 +69,14 @@ Run LLM evaluations from the examples directory.
 
 **Run basic example:**
 
-```
+```text
 /eval basic
 → pnpm --filter ./examples/basic run eval
 ```
 
 **Run with rebuild:**
 
-```
+```text
 /eval basic --build
 → pnpm build
 → pnpm --filter ./examples/basic run eval
@@ -84,7 +84,7 @@ Run LLM evaluations from the examples directory.
 
 ## Output Format
 
-```
+```text
 ## Evaluation Results: basic
 
 Status: PASSED
@@ -109,7 +109,7 @@ Item #3: score=0.45 (below threshold)
 
 Or for failures:
 
-```
+```text
 ## Evaluation Results: custom-scorer
 
 Status: FAILED

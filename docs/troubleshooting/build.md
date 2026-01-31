@@ -55,11 +55,11 @@ Build warns about circular dependencies.
 - Use dependency injection
 - Restructure imports to go one direction
 
-## tsup build fails
+## tsdown build fails
 
-tsup bundling fails with cryptic errors.
+tsdown bundling fails with cryptic errors.
 
-**Fix:** Check tsup configuration in `tsup.config.ts`. Common issues:
+**Fix:** Check tsdown configuration in `tsdown.config.ts`. Common issues:
 
 - Incorrect entry points
 - Missing external dependencies

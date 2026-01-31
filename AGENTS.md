@@ -44,37 +44,37 @@ See `docs/architecture.md` for details.
 
 ## Documentation Index
 
-| When you need to...        | Read                                       |
-| -------------------------- | ------------------------------------------ |
-| Understand repo layout     | `docs/structure.md`                        |
-| Understand architecture    | `docs/architecture.md`                     |
-| Understand SDLC workflow   | `docs/development.md`                      |
-| Understand evaluations     | `docs/concepts/evaluation.md`              |
-| Understand scorers         | `docs/concepts/scorers.md`                 |
-| Understand datasets        | `docs/concepts/datasets.md`                |
-| Write code patterns        | `docs/standards/typescript/patterns.md`    |
-| Follow naming conventions  | `docs/standards/typescript/naming.md`      |
-| Write tests                | `docs/standards/testing.md`                |
-| Write documentation        | `docs/standards/documentation/writing.md`  |
-| Write commit messages      | `docs/standards/git-commits.md`            |
-| Use dev commands           | `docs/commands.md`                         |
+| When you need to...       | Read                                      |
+| ------------------------- | ----------------------------------------- |
+| Understand repo layout    | `docs/structure.md`                       |
+| Understand architecture   | `docs/architecture.md`                    |
+| Understand SDLC workflow  | `docs/development.md`                     |
+| Understand evaluations    | `docs/concepts/evaluation.md`             |
+| Understand scorers        | `docs/concepts/scorers.md`                |
+| Understand datasets       | `docs/concepts/datasets.md`               |
+| Write code patterns       | `docs/standards/typescript/patterns.md`   |
+| Follow naming conventions | `docs/standards/typescript/naming.md`     |
+| Write tests               | `docs/standards/testing.md`               |
+| Write documentation       | `docs/standards/documentation/writing.md` |
+| Write commit messages     | `docs/standards/git-commits.md`           |
+| Use dev commands          | `docs/commands.md`                        |
 
 ## Guides
 
 Step-by-step instructions in `docs/guides/`:
 
-| Guide                    | Purpose                |
-| ------------------------ | ---------------------- |
-| `setup-local-env.md`     | Get started developing |
-| `configure-ide.md`       | Set up VS Code         |
-| `configure-coding-agents.md` | Set up coding agents |
-| `add-package.md`         | Create new packages    |
-| `add-feature.md`         | Add functionality      |
-| `add-example.md`         | Create examples        |
-| `add-test.md`            | Write tests            |
-| `add-mock.md`            | Mock dependencies      |
-| `commit-changes.md`      | Validate and commit    |
-| `publish-changes.md`     | Create changesets      |
+| Guide                        | Purpose                |
+| ---------------------------- | ---------------------- |
+| `setup-local-env.md`         | Get started developing |
+| `configure-ide.md`           | Set up VS Code         |
+| `configure-coding-agents.md` | Set up coding agents   |
+| `add-package.md`             | Create new packages    |
+| `add-feature.md`             | Add functionality      |
+| `add-example.md`             | Create examples        |
+| `add-test.md`                | Write tests            |
+| `add-mock.md`                | Mock dependencies      |
+| `commit-changes.md`          | Validate and commit    |
+| `publish-changes.md`         | Create changesets      |
 
 See also `AI-CODING.md` in the repository root for AI coding philosophy and proprietary tooling details.
 

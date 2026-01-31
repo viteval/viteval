@@ -11,7 +11,7 @@
         "claude-code",
         "--project-from-cwd",
         "--open-web-dashboard",
-        "false"
+        "False"
       ]
     }
   }

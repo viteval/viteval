@@ -2,6 +2,12 @@
 
 Write tests for Viteval code.
 
+## Prerequisites
+
+- Local environment set up (see [Setup Local Environment](./setup-local-env.md))
+- Source file to test already exists
+- Understanding of expected behavior
+
 ## Steps
 
 ### 1. Create test file
@@ -69,6 +75,62 @@ expect(mockFn).toHaveBeenCalledWith('arg');
 
 ```bash
 pnpm test
+```
+
+## Verification
+
+Run tests and check for passing status:
+
+```bash
+pnpm test
+```
+
+Expected output shows all tests passing:
+
+```
+✓ src/my-feature/my-feature.test.ts (2 tests)
+```
+
+Run with coverage to verify test coverage:
+
+```bash
+pnpm test -- --coverage
+```
+
+## Troubleshooting
+
+### Test file not discovered
+
+**Issue:** Vitest doesn't find your test file.
+
+**Fix:** Ensure the file follows the naming convention `*.test.ts`:
+
+```bash
+mv my-feature.spec.ts my-feature.test.ts
+```
+
+### Module not found errors
+
+**Issue:** Test can't import the module being tested.
+
+**Fix:** Check the import path is correct relative to the test file:
+
+```ts
+// If test is in src/feature/feature.test.ts
+import { feature } from './feature'; // Not '../feature' or './src/feature'
+```
+
+### Async test timeout
+
+**Issue:** Test times out waiting for async operation.
+
+**Fix:** Increase timeout or check for unresolved promises:
+
+```ts
+it('should complete async operation', async () => {
+  const result = await myAsyncFunction();
+  expect(result).toBeDefined();
+}, 10000); // 10 second timeout
 ```
 
 ## References

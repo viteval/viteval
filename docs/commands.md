@@ -78,22 +78,96 @@ pnpm build:website
 pnpm dev:website
 ```
 
+## Per-Package Commands
+
+Run commands for a specific package:
+
+```bash
+# Build specific package
+pnpm --filter @viteval/core build
+
+# Test specific package
+pnpm --filter @viteval/core test
+
+# Dev mode for specific package
+pnpm --filter @viteval/cli dev
+```
+
+## Environment Variables
+
+| Variable              | Description                |
+| --------------------- | -------------------------- |
+| `VITEVAL_DEBUG`       | Enable debug output        |
+| `VITEVAL_TIMEOUT`     | Default evaluation timeout |
+| `VITEVAL_CONCURRENCY` | Default concurrency        |
+
 ## Troubleshooting
 
 ### Command not found
 
-pnpm command fails.
+**Issue:** pnpm command fails with "command not found".
 
-**Fix:** Run `corepack enable` to enable pnpm.
+**Fix:** Enable pnpm via corepack:
+
+```bash
+corepack enable
+```
 
 ### Build fails with type errors
 
-TypeScript errors during build.
+**Issue:** TypeScript errors during build.
 
-**Fix:** Run `pnpm build` from root to build dependencies first.
+**Fix:** Build dependencies first by running from root:
+
+```bash
+pnpm build
+```
 
 ### Nx cache issues
 
-Stale builds or unexpected behavior.
+**Issue:** Stale builds or unexpected behavior.
 
-**Fix:** Run `nx reset` to clear the cache.
+**Fix:** Clear the Nx cache:
+
+```bash
+nx reset
+```
+
+### Tests fail to find modules
+
+**Issue:** Tests can't import workspace packages.
+
+**Fix:** Ensure packages are built:
+
+```bash
+pnpm build
+pnpm test
+```
+
+### Changeset not detected
+
+**Issue:** Running `pnpm changeset` shows no changes.
+
+**Fix:** Verify changes are in package directories:
+
+```bash
+git diff --name-only main
+```
+
+Changes to non-package files (docs, tools) don't require changesets.
+
+### Lock file conflicts
+
+**Issue:** pnpm-lock.yaml has merge conflicts.
+
+**Fix:** Regenerate the lock file:
+
+```bash
+rm pnpm-lock.yaml
+pnpm install
+```
+
+## References
+
+- [Setup Local Environment](./guides/setup-local-env.md) - Initial setup
+- [Architecture](./architecture.md) - How packages work together

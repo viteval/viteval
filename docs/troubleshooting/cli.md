@@ -60,6 +60,7 @@ echo $OPENAI_API_KEY
 ```
 
 Common issues:
+
 - Missing API key
 - Invalid API key
 - Rate limiting

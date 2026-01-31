@@ -26,6 +26,10 @@
       "Bash(pnpm run:*)",
       "Bash(pnpm build:*)",
       "Bash(pnpm test:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm types:*)",
+      "Bash(pnpm fix:*)",
+      "Bash(pnpm validate:*)",
       "Bash(pnpm agents:*)",
       "Bash(pnpm list:*)",
       "Bash(pnpm changeset:*)",
@@ -89,5 +93,11 @@
       "Bash(rm:*)",
       "Bash(mkdir:*)"
     ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledPlugins": {
+    "plannotator@plannotator": true,
+    "plugin-dev@claude-plugins-official": true,
+    "x@joggrdocs": true
   }
 }

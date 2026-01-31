@@ -71,10 +71,10 @@ Common issues and fixes.
 
 ## Related Standards
 
-| Standard                           | Description                              |
-| ---------------------------------- | ---------------------------------------- |
-| [Formatting](./formatting.md)      | Code examples, tables, markdown          |
-| [Diagrams](./diagrams.md)          | Mermaid diagram standards and templates  |
+| Standard                      | Description                             |
+| ----------------------------- | --------------------------------------- |
+| [Formatting](./formatting.md) | Code examples, tables, markdown         |
+| [Diagrams](./diagrams.md)     | Mermaid diagram standards and templates |
 
 ## Common Sections
 

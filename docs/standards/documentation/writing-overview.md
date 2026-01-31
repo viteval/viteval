@@ -19,26 +19,27 @@ High-level explanation of what this is and why it matters.
 
 \`\`\`mermaid
 %%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#313244',
-    'primaryTextColor': '#cdd6f4',
-    'primaryBorderColor': '#6c7086',
-    'lineColor': '#89b4fa',
-    'secondaryColor': '#45475a',
-    'tertiaryColor': '#1e1e2e',
-    'background': '#1e1e2e',
-    'mainBkg': '#313244',
-    'clusterBkg': '#1e1e2e',
-    'clusterBorder': '#45475a'
-  },
-  'flowchart': { 'curve': 'basis', 'padding': 15 }
+'theme': 'base',
+'themeVariables': {
+'primaryColor': '#313244',
+'primaryTextColor': '#cdd6f4',
+'primaryBorderColor': '#6c7086',
+'lineColor': '#89b4fa',
+'secondaryColor': '#45475a',
+'tertiaryColor': '#1e1e2e',
+'background': '#1e1e2e',
+'mainBkg': '#313244',
+'clusterBkg': '#1e1e2e',
+'clusterBorder': '#45475a'
+},
+'flowchart': { 'curve': 'basis', 'padding': 15 }
 }}%%
 flowchart LR
-    A(["Component A"]) --> B(["Component B"])
-    B --> C(["Component C"])
+A(["Component A"]) --> B(["Component B"])
+B --> C(["Component C"])
 
     classDef default fill:#313244,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
+
 \`\`\`
 
 ## Key Concepts

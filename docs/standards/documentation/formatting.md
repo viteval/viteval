@@ -93,11 +93,11 @@ Use tables for structured information:
 
 ### When to Use Tables
 
-| Use Tables For           | Use Lists For               |
-| ------------------------ | --------------------------- |
-| Structured data          | Simple enumeration          |
-| Comparisons              | Ordered steps               |
-| Option/config references | Prerequisites               |
+| Use Tables For           | Use Lists For                  |
+| ------------------------ | ------------------------------ |
+| Structured data          | Simple enumeration             |
+| Comparisons              | Ordered steps                  |
+| Option/config references | Prerequisites                  |
 | Command references       | Bullet points of related items |
 
 ## Code Blocks
@@ -118,16 +118,16 @@ echo "shell commands"
 
 ### Common Language Tags
 
-| Language   | Tag          |
-| ---------- | ------------ |
-| TypeScript | `ts`         |
-| JavaScript | `js`         |
-| Shell      | `bash`       |
-| JSON       | `json`       |
-| YAML       | `yaml`       |
-| Markdown   | `markdown`   |
-| Mermaid    | `mermaid`    |
-| Plain text | `text`       |
+| Language   | Tag        |
+| ---------- | ---------- |
+| TypeScript | `ts`       |
+| JavaScript | `js`       |
+| Shell      | `bash`     |
+| JSON       | `json`     |
+| YAML       | `yaml`     |
+| Markdown   | `markdown` |
+| Mermaid    | `mermaid`  |
+| Plain text | `text`     |
 
 ## Links
 
@@ -136,11 +136,11 @@ echo "shell commands"
 
 ### Link Text Guidelines
 
-| Good                              | Bad                                     |
-| --------------------------------- | --------------------------------------- |
-| `[Testing Standards](./test.md)`  | `[click here](./test.md)`               |
-| `[Vitest docs](https://...)`      | `[https://vitest.dev](https://...)`     |
-| `See [Architecture](./arch.md)`   | `See this [link](./arch.md)`            |
+| Good                             | Bad                                 |
+| -------------------------------- | ----------------------------------- |
+| `[Testing Standards](./test.md)` | `[click here](./test.md)`           |
+| `[Vitest docs](https://...)`     | `[https://vitest.dev](https://...)` |
+| `See [Architecture](./arch.md)`  | `See this [link](./arch.md)`        |
 
 ## Alerts
 
@@ -162,12 +162,12 @@ Use [GFM alerts](https://github.com/orgs/community/discussions/16925) for callou
 
 ### When to Use Each
 
-| Alert     | Usage                                    |
-| --------- | ---------------------------------------- |
-| TIP       | Helpful suggestions, best practices      |
-| NOTE      | Additional context, clarification        |
-| WARNING   | Potential issues, destructive actions    |
-| IMPORTANT | Critical information, breaking changes   |
+| Alert     | Usage                                  |
+| --------- | -------------------------------------- |
+| TIP       | Helpful suggestions, best practices    |
+| NOTE      | Additional context, clarification      |
+| WARNING   | Potential issues, destructive actions  |
+| IMPORTANT | Critical information, breaking changes |
 
 ## Headings
 

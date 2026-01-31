@@ -137,13 +137,13 @@ export { <camelCaseName> } from './<name>';
 
 **Create a QA dataset with local storage:**
 
-```
+```bash
 /add-dataset qa-pairs --storage local --description "Question-answer pairs for testing"
 ```
 
 **Create a synthetic dataset (memory only):**
 
-```
+```bash
 /add-dataset synthetic-prompts --storage memory --description "Dynamically generated prompts"
 ```
 

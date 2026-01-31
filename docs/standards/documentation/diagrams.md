@@ -122,14 +122,14 @@ style groupName fill:#181825,stroke:#89b4fa,stroke-width:2px
 
 ### Color by Purpose
 
-| Purpose            | Style                                                            |
-| ------------------ | ---------------------------------------------------------------- |
-| External systems   | `fill:none,stroke:#f5c2e7,stroke-width:2px,stroke-dasharray:5 5` |
-| Core processing    | `fill:none,stroke:#89b4fa,stroke-width:2px,stroke-dasharray:5 5` |
-| Main app boundary  | `fill:#181825,stroke:#89b4fa,stroke-width:2px`                   |
-| Scorer group       | `fill:#181825,stroke:#a6e3a1,stroke-width:2px`                   |
-| Storage layer      | `fill:none,stroke:#a6e3a1,stroke-width:2px,stroke-dasharray:5 5` |
-| Middleware         | `fill:none,stroke:#fab387,stroke-width:2px,stroke-dasharray:5 5` |
+| Purpose           | Style                                                            |
+| ----------------- | ---------------------------------------------------------------- |
+| External systems  | `fill:none,stroke:#f5c2e7,stroke-width:2px,stroke-dasharray:5 5` |
+| Core processing   | `fill:none,stroke:#89b4fa,stroke-width:2px,stroke-dasharray:5 5` |
+| Main app boundary | `fill:#181825,stroke:#89b4fa,stroke-width:2px`                   |
+| Scorer group      | `fill:#181825,stroke:#a6e3a1,stroke-width:2px`                   |
+| Storage layer     | `fill:none,stroke:#a6e3a1,stroke-width:2px,stroke-dasharray:5 5` |
+| Middleware        | `fill:none,stroke:#fab387,stroke-width:2px,stroke-dasharray:5 5` |
 
 ---
 

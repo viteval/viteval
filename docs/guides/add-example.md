@@ -2,6 +2,12 @@
 
 Create a new example project demonstrating Viteval usage.
 
+## Prerequisites
+
+- Local environment set up (see [Setup Local Environment](./setup-local-env.md))
+- Dependencies installed (`pnpm install`)
+- Packages built (`pnpm build`)
+
 ## Option A: Using the Generator
 
 ### 1. Run the generator
@@ -121,6 +127,59 @@ pnpm eval
 - Keep examples focused on one concept
 - Use realistic data, not `foo`/`bar`
 - Add comments explaining non-obvious code
+
+## Verification
+
+Run the example to verify it works:
+
+```bash
+cd examples/my-example
+pnpm eval
+```
+
+Expected: The evaluation runs successfully and displays results.
+
+Verify the example appears in the workspace:
+
+```bash
+pnpm ls --filter "example-*"
+```
+
+## Troubleshooting
+
+### Example not found by pnpm
+
+**Issue:** `pnpm install` doesn't recognize the new example.
+
+**Fix:** Ensure `package.json` exists and has a valid `name` field:
+
+```bash
+cat examples/my-example/package.json | grep name
+```
+
+### viteval command not found
+
+**Issue:** Running `pnpm eval` fails with "viteval: command not found".
+
+**Fix:** Ensure viteval is listed as a dependency and install:
+
+```bash
+cd examples/my-example
+pnpm add viteval@workspace:^
+pnpm install
+```
+
+### TypeScript errors in example
+
+**Issue:** Type errors when running the example.
+
+**Fix:** Ensure `tsconfig.json` exists and extends the correct base:
+
+```json
+{
+  "extends": "@tsconfig/node24/tsconfig.json"
+}
+```
 
 ## References
 

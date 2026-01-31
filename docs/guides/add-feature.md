@@ -2,6 +2,12 @@
 
 Add new functionality to an existing Viteval package.
 
+## Prerequisites
+
+- Local environment set up (see [Setup Local Environment](./setup-local-env.md))
+- Dependencies installed (`pnpm install`)
+- Understanding of the target package's architecture
+
 ## Steps
 
 ### 1. Identify the target package
@@ -93,6 +99,66 @@ export function myFeature(options: MyFeatureOptions) {
 
 ```bash
 pnpm validate
+```
+
+## Verification
+
+Verify the feature is exported correctly:
+
+```bash
+pnpm build
+```
+
+Check the feature appears in the package exports:
+
+```bash
+grep -r "myFeature" packages/core/dist/
+```
+
+Run tests to ensure the feature works:
+
+```bash
+pnpm --filter @viteval/core test
+```
+
+## Troubleshooting
+
+### Feature not exported from package
+
+**Issue:** Importing the feature fails with "not exported from package".
+
+**Fix:** Ensure the feature is exported from `src/index.ts`:
+
+```ts
+export { myFeature } from './my-feature';
+```
+
+Then rebuild: `pnpm build`
+
+### Type errors after adding feature
+
+**Issue:** TypeScript reports errors in the new feature.
+
+**Fix:** Run type checking to see detailed errors:
+
+```bash
+pnpm --filter @viteval/core types
+```
+
+Common causes: missing type exports, incorrect generics, or missing dependencies.
+
+### Tests fail to import the feature
+
+**Issue:** Test file can't find the feature module.
+
+**Fix:** Ensure the test file imports from the relative path, not the package:
+
+```ts
+// Correct
+import { myFeature } from './my-feature';
+
+// Incorrect (in same package)
+import { myFeature } from '@viteval/core';
 ```
 
 ## References

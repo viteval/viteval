@@ -4,18 +4,22 @@ Coding patterns and conventions for TypeScript in the Viteval monorepo.
 
 ## Standards
 
-| Standard                   | Description                         |
-| -------------------------- | ----------------------------------- |
-| [Naming](./naming.md)      | File and variable naming            |
-| [Patterns](./patterns.md)  | Import patterns and code structure  |
+| Standard                    | Description                        |
+| --------------------------- | ---------------------------------- |
+| [Naming](./naming.md)       | File and variable naming           |
+| [Patterns](./patterns.md)   | Import patterns and code structure |
+| [Errors](./errors.md)       | Error handling patterns            |
+| [Functions](./functions.md) | Function patterns and conventions  |
 
 ## Quick Reference
 
-| Question                  | Answer                                              |
-| ------------------------- | --------------------------------------------------- |
-| How do I name a file?     | kebab-case, see [naming.md](./naming.md)            |
-| How do I import files?    | Use `#/` alias, see [patterns.md](./patterns.md)    |
-| Cross-package imports?    | Use package names, see [patterns.md](./patterns.md) |
+| Question                     | Answer                                                  |
+| ---------------------------- | ------------------------------------------------------- |
+| How do I name a file?        | kebab-case, see [naming.md](./naming.md)                |
+| How do I import files?       | Use `#/` alias, see [patterns.md](./patterns.md)        |
+| Cross-package imports?       | Use package names, see [patterns.md](./patterns.md)     |
+| Throw or return errors?      | Depends on context, see [errors.md](./errors.md)        |
+| Object params vs positional? | 2+ args use objects, see [functions.md](./functions.md) |
 
 ## General Rules
 

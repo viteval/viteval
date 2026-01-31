@@ -6,12 +6,12 @@ File and variable naming standards for the Viteval codebase.
 
 ### General Rules
 
-| Type         | Convention  | Example               |
-| ------------ | ----------- | --------------------- |
-| Source files | kebab-case  | `custom-scorer.ts`    |
-| Test files   | kebab-case  | `custom-scorer.test.ts` |
-| Type files   | kebab-case  | `scorer-types.ts`     |
-| Index files  | `index.ts`  | `index.ts`            |
+| Type         | Convention | Example                 |
+| ------------ | ---------- | ----------------------- |
+| Source files | kebab-case | `custom-scorer.ts`      |
+| Test files   | kebab-case | `custom-scorer.test.ts` |
+| Type files   | kebab-case | `scorer-types.ts`       |
+| Index files  | `index.ts` | `index.ts`              |
 
 ### File Naming
 
@@ -34,15 +34,15 @@ src/
 
 ### General Rules
 
-| Type       | Convention  | Example                |
-| ---------- | ----------- | ---------------------- |
-| Variables  | camelCase   | `scorerResult`         |
-| Constants  | camelCase   | `defaultThreshold`     |
-| Functions  | camelCase   | `createScorer`         |
-| Classes    | PascalCase  | `ScorerRunner`         |
-| Types      | PascalCase  | `ScorerOptions`        |
-| Interfaces | PascalCase  | `DataItem`             |
-| Enums      | PascalCase  | `ScorerType`           |
+| Type       | Convention | Example            |
+| ---------- | ---------- | ------------------ |
+| Variables  | camelCase  | `scorerResult`     |
+| Constants  | camelCase  | `defaultThreshold` |
+| Functions  | camelCase  | `createScorer`     |
+| Classes    | PascalCase | `ScorerRunner`     |
+| Types      | PascalCase | `ScorerOptions`    |
+| Interfaces | PascalCase | `DataItem`         |
+| Enums      | PascalCase | `ScorerType`       |
 
 ### Examples
 
@@ -88,11 +88,11 @@ Prefer named exports over default exports:
 
 ```ts
 // Good
-export function createScorer() { }
-export interface ScorerOptions { }
+export function createScorer() {}
+export interface ScorerOptions {}
 
 // Avoid
-export default function createScorer() { }
+export default function createScorer() {}
 ```
 
 ### Re-exports

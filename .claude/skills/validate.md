@@ -58,21 +58,21 @@ Run comprehensive code validation including TypeScript type checking, linting, a
 
 **Default validation (lint + format):**
 
-```
+```text
 /validate
 → pnpm check
 ```
 
 **Type checking only:**
 
-```
+```text
 /validate --types
 → pnpm types
 ```
 
 **Full CI validation:**
 
-```
+```text
 /validate --full
 → pnpm validate
 ```
@@ -81,7 +81,7 @@ Run comprehensive code validation including TypeScript type checking, linting, a
 
 Report issues in this format:
 
-```
+```text
 ## Type Errors (2 issues)
 
 packages/core/src/scorer/custom.ts:15:3

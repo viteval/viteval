@@ -30,13 +30,13 @@ Scopes identify what part of the codebase changed. Use package names for clarity
 
 ### Package Scopes
 
-| Scope      | Description             |
-| ---------- | ----------------------- |
-| `core`     | @viteval/core package   |
-| `cli`      | @viteval/cli package    |
-| `ui`       | @viteval/ui package     |
-| `internal` | @viteval/internal       |
-| `viteval`  | viteval main package    |
+| Scope      | Description           |
+| ---------- | --------------------- |
+| `core`     | @viteval/core package |
+| `cli`      | @viteval/cli package  |
+| `ui`       | @viteval/ui package   |
+| `internal` | @viteval/internal     |
+| `viteval`  | viteval main package  |
 
 ### Other Scopes
 

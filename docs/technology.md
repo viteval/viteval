@@ -26,10 +26,11 @@ Technologies and dependencies used in the Viteval codebase.
 
 ## Code Quality
 
-| Tool       | Version | Purpose                |
-| ---------- | ------- | ---------------------- |
-| Biome      | ^2.3.x  | Linting and formatting |
-| TypeScript | ~5.9.x  | Type checking          |
+| Tool       | Version | Purpose       |
+| ---------- | ------- | ------------- |
+| oxlint     | latest  | Linting       |
+| oxfmt      | latest  | Formatting    |
+| TypeScript | ~5.9.x  | Type checking |
 
 ## Key Dependencies
 
@@ -67,9 +68,11 @@ Technologies and dependencies used in the Viteval codebase.
 | `tailwindcss`            | Styling (v4)       |
 | `express`                | Dev server         |
 
-## Biome Configuration
+## Oxc Configuration
 
-Formatting rules:
+Viteval uses [Oxc](https://oxc.rs) for linting (oxlint) and formatting (oxfmt).
+
+Formatting rules (oxfmt):
 
 | Setting         | Value  |
 | --------------- | ------ |
@@ -80,14 +83,14 @@ Formatting rules:
 | Trailing commas | ES5    |
 | Semicolons      | Always |
 
-Key linter rules:
+Key linter rules (oxlint):
 
 | Rule                | Severity |
 | ------------------- | -------- |
-| `noExplicitAny`     | Error    |
-| `noConsole`         | Error    |
-| `noUnusedImports`   | Error    |
-| `noParameterAssign` | Error    |
+| `no-explicit-any`   | Error    |
+| `no-console`        | Error    |
+| `no-unused-vars`    | Error    |
+| `no-param-reassign` | Error    |
 
 ## Nx Configuration
 

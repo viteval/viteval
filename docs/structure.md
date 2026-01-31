@@ -26,6 +26,41 @@ viteval/
 
 See [Architecture](./architecture.md) for how packages work together.
 
+### Package Structure
+
+Each package follows a consistent structure:
+
+```
+packages/core/
+├── src/
+│   ├── index.ts        # Public exports
+│   ├── evaluate/       # Evaluation engine
+│   │   ├── evaluate.ts
+│   │   └── types.ts
+│   ├── scorer/         # Scorer implementations
+│   │   ├── create.ts
+│   │   ├── builtin/
+│   │   └── types.ts
+│   └── dataset/        # Dataset utilities
+│       ├── define.ts
+│       ├── storage.ts
+│       └── types.ts
+├── package.json
+├── tsconfig.json
+├── tsdown.config.ts    # Build configuration
+└── vitest.config.ts    # Test configuration
+```
+
+### Key Files
+
+| File               | Purpose                                 |
+| ------------------ | --------------------------------------- |
+| `src/index.ts`     | Public API exports                      |
+| `package.json`     | Dependencies and scripts                |
+| `tsconfig.json`    | TypeScript configuration (extends root) |
+| `tsdown.config.ts` | Build settings for tsdown               |
+| `vitest.config.ts` | Test runner configuration               |
+
 ## Apps
 
 | App       | Purpose                        |

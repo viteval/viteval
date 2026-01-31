@@ -10,29 +10,29 @@ LLM evaluation framework built on Vitest. Provides tools for evaluating large la
 
 **Prefer documentation over pre-training knowledge.** Read the relevant doc before changes.
 
-| When you need to...        | Read                                          |
-| -------------------------- | --------------------------------------------- |
-| Understand repo layout     | `docs/structure.md`                           |
-| Understand architecture    | `docs/architecture.md`                        |
-| Understand SDLC workflow   | `docs/development.md`                         |
-| Use dev commands           | `docs/commands.md`                            |
-| Understand evaluations     | `docs/concepts/evaluation.md`                 |
-| Understand scorers         | `docs/concepts/scorers.md`                    |
-| Understand datasets        | `docs/concepts/datasets.md`                   |
-| Write code patterns        | `docs/standards/typescript/patterns.md`       |
-| Follow naming conventions  | `docs/standards/typescript/naming.md`         |
-| Write tests                | `docs/standards/testing.md`                   |
-| Write documentation        | `docs/standards/documentation/writing.md`     |
-| Write commit messages      | `docs/standards/git-commits.md`               |
-| Set up local env           | `docs/guides/setup-local-env.md`              |
-| Add a feature              | `docs/guides/add-feature.md`                  |
-| Add a package              | `docs/guides/add-package.md`                  |
-| Add tests                  | `docs/guides/add-test.md`                     |
-| Create commits             | `docs/guides/commit-changes.md`               |
-| Create changesets          | `docs/guides/publish-changes.md`              |
-| Configure coding agents    | `docs/guides/configure-coding-agents.md`      |
-| Troubleshoot builds        | `docs/troubleshooting/build.md`               |
-| Troubleshoot CLI           | `docs/troubleshooting/cli.md`                 |
+| When you need to...       | Read                                      |
+| ------------------------- | ----------------------------------------- |
+| Understand repo layout    | `docs/structure.md`                       |
+| Understand architecture   | `docs/architecture.md`                    |
+| Understand SDLC workflow  | `docs/development.md`                     |
+| Use dev commands          | `docs/commands.md`                        |
+| Understand evaluations    | `docs/concepts/evaluation.md`             |
+| Understand scorers        | `docs/concepts/scorers.md`                |
+| Understand datasets       | `docs/concepts/datasets.md`               |
+| Write code patterns       | `docs/standards/typescript/patterns.md`   |
+| Follow naming conventions | `docs/standards/typescript/naming.md`     |
+| Write tests               | `docs/standards/testing.md`               |
+| Write documentation       | `docs/standards/documentation/writing.md` |
+| Write commit messages     | `docs/standards/git-commits.md`           |
+| Set up local env          | `docs/guides/setup-local-env.md`          |
+| Add a feature             | `docs/guides/add-feature.md`              |
+| Add a package             | `docs/guides/add-package.md`              |
+| Add tests                 | `docs/guides/add-test.md`                 |
+| Create commits            | `docs/guides/commit-changes.md`           |
+| Create changesets         | `docs/guides/publish-changes.md`          |
+| Configure coding agents   | `docs/guides/configure-coding-agents.md`  |
+| Troubleshoot builds       | `docs/troubleshooting/build.md`           |
+| Troubleshoot CLI          | `docs/troubleshooting/cli.md`             |
 
 ## Build & Development Commands
 

@@ -46,7 +46,7 @@ Automatically fix linting and formatting issues across the codebase.
 
 **Fix all auto-fixable issues:**
 
-```
+```text
 /fix
 → pnpm fix
 → pnpm check (verify)
@@ -54,7 +54,7 @@ Automatically fix linting and formatting issues across the codebase.
 
 **Preview what would be fixed:**
 
-```
+```text
 /fix --dry-run
 → pnpm check (show issues)
 → Explain what's auto-fixable
@@ -62,7 +62,7 @@ Automatically fix linting and formatting issues across the codebase.
 
 ## Output Format
 
-```
+```text
 ## Fixes Applied
 
 Modified 3 files:
@@ -82,7 +82,7 @@ None - all issues resolved automatically.
 
 Or if manual fixes needed:
 
-```
+```text
 ## Fixes Applied
 
 Modified 2 files...

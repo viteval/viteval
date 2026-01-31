@@ -7,21 +7,45 @@ Core concepts for running LLM evaluations with Viteval.
 An evaluation tests how well an LLM performs on a specific task. Viteval runs evaluations as Vitest test suites, giving you speed, parallelization, and familiar tooling.
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#313244',
+    'primaryTextColor': '#cdd6f4',
+    'primaryBorderColor': '#6c7086',
+    'lineColor': '#89b4fa',
+    'secondaryColor': '#45475a',
+    'tertiaryColor': '#1e1e2e',
+    'background': '#1e1e2e',
+    'mainBkg': '#313244'
+  },
+  'flowchart': { 'curve': 'basis', 'padding': 15 }
+}}%%
 flowchart LR
-    Dataset --> Task
-    Task --> Output
-    Output --> Scorer
-    Scorer --> Results
+    Dataset(["Dataset"]) --> Task(["Task"])
+    Task --> Output(["Output"])
+    Output --> Scorer(["Scorer"])
+    Scorer --> Results[("Results")]
+
+    classDef external fill:#313244,stroke:#f5c2e7,stroke-width:2px,color:#cdd6f4
+    classDef core fill:#313244,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
+    classDef scorer fill:#313244,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
+    classDef storage fill:#45475a,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
+
+    class Dataset external
+    class Task,Output core
+    class Scorer scorer
+    class Results storage
 ```
 
 ## Components
 
-| Component   | Description                                      |
-| ----------- | ------------------------------------------------ |
-| **Dataset** | Collection of test cases (input/expected pairs)  |
-| **Task**    | Function that calls your LLM                     |
-| **Scorer**  | Function that evaluates task output              |
-| **Results** | Aggregated scores and metrics                    |
+| Component   | Description                                     |
+| ----------- | ----------------------------------------------- |
+| **Dataset** | Collection of test cases (input/expected pairs) |
+| **Task**    | Function that calls your LLM                    |
+| **Scorer**  | Function that evaluates task output             |
+| **Results** | Aggregated scores and metrics                   |
 
 ## Basic Evaluation
 
