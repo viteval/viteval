@@ -1,42 +1,58 @@
 # Documentation
 
-Contributor documentation for the Viteval codebase.
+## Getting Started
 
-## Standards
-
-- [Documentation](./documentation.md) - How to write documentation
-- [Patterns](./patterns.md) - Global code patterns
-
-## Project
-
-- [Structure](./structure.md) - Project layout
-- [Architecture](./architecture.md) - How packages work together
-- [Tech Stack](./tech.md) - Technologies and dependencies
-- [Commands](./commands.md) - Development commands
-- [Testing](./testing.md) - Testing patterns and conventions
+| Doc                                                  | Description                     |
+| ---------------------------------------------------- | ------------------------------- |
+| [Development Lifecycle](development.md)              | SDLC overview and workflow      |
+| [Local Environment Setup](guides/setup-local-env.md) | Dev environment setup           |
+| [Repository Structure](structure.md)                 | Project layout and organization |
+| [Commands](commands.md)                              | Available scripts and commands  |
 
 ## Guides
 
-- [Setup Local Environment](./guides/setup-local-env.md) - Get started developing
-- [Configure IDE](./guides/configure-ide.md) - Set up VS Code
-- [Configure AI Coding](./guides/configure-ai-coding.md) - Set up Claude Code
-- [Add a Package](./guides/add-package.md) - Create new packages
-- [Add a Feature](./guides/add-feature.md) - Add functionality
-- [Add an Example](./guides/add-example.md) - Create examples
-- [Add a Test](./guides/add-test.md) - Write tests
-- [Add a Mock](./guides/add-mock.md) - Mock dependencies
-- [Commit Changes](./guides/commit-changes.md) - Validate and commit
-- [Publish Changes](./guides/publish-changes.md) - Create changesets
+Step-by-step instructions for common tasks:
 
-## Getting Started
+| Doc                                                    | Description                  |
+| ------------------------------------------------------ | ---------------------------- |
+| [Setup Local Environment](guides/setup-local-env.md)   | Development environment setup |
+| [Configure IDE](guides/configure-ide.md)               | VS Code setup                |
+| [Configure Coding Agents](guides/configure-coding-agents.md) | AI coding setup        |
+| [Add Package](guides/add-package.md)                   | Creating new packages        |
+| [Add Feature](guides/add-feature.md)                   | Adding functionality         |
+| [Add Example](guides/add-example.md)                   | Creating examples            |
+| [Add Test](guides/add-test.md)                         | Writing tests                |
+| [Add Mock](guides/add-mock.md)                         | Mocking dependencies         |
+| [Commit Changes](guides/commit-changes.md)             | Validate and commit workflow |
+| [Publish Changes](guides/publish-changes.md)           | Creating changesets          |
 
-New to the codebase? Start here:
+## Concepts
 
-1. [Setup Local Environment](./guides/setup-local-env.md)
-2. [Structure](./structure.md)
-3. [Patterns](./patterns.md)
-4. [Commands](./commands.md)
-5. [Testing](./testing.md)
+Understanding the system:
+
+| Doc                                     | Description                  |
+| --------------------------------------- | ---------------------------- |
+| [Architecture](architecture.md)         | System architecture overview |
+| [Technology Stack](technology.md)       | Technologies and dependencies |
+| [Evaluation](concepts/evaluation.md)    | How evaluations work         |
+| [Scorers](concepts/scorers.md)          | Scorer concepts and usage    |
+| [Datasets](concepts/datasets.md)        | Dataset formats and loading  |
+
+## Standards
+
+| Doc                                                         | Description                   |
+| ----------------------------------------------------------- | ----------------------------- |
+| [Commit Standards](standards/git-commits.md)                | Conventional commit format    |
+| [TypeScript Standards](standards/typescript/overview.md)    | Code patterns and conventions |
+| [Testing Standards](standards/testing.md)                   | Testing patterns              |
+| [Documentation Standards](standards/documentation/writing.md) | How we write docs           |
+
+## Troubleshooting
+
+| Doc                                          | Description        |
+| -------------------------------------------- | ------------------ |
+| [Build Troubleshooting](troubleshooting/build.md) | Build issues  |
+| [CLI Troubleshooting](troubleshooting/cli.md)     | CLI issues    |
 
 ## Quick Reference
 
@@ -50,5 +66,8 @@ New to the codebase? Start here:
 
 ## Related
 
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines
-- [AGENTS.md](../AGENTS.md) - AI agent instructions
+| Doc                                    | Description                |
+| -------------------------------------- | -------------------------- |
+| [CONTRIBUTING.md](../CONTRIBUTING.md)  | Contribution guidelines    |
+| [AGENTS.md](../AGENTS.md)              | AI coding agent instructions |
+| [Coding Agents](coding-agents.md)      | Coding agents overview     |

@@ -36,4 +36,5 @@ import { describe, it, expect, vi } from 'vitest';
 
 ## References
 
-- [Add a Test](./guides/add-test.md) - A guide on how to write tests
+- [Add a Test](../guides/add-test.md) - A guide on how to write tests
+- [TypeScript Standards](./typescript/overview.md) - Code patterns and conventions

@@ -73,5 +73,5 @@ pnpm test
 
 ## References
 
-- [Testing Overview](../testing.md)
+- [Testing Standards](../standards/testing.md) - Testing patterns
 - [Add a Mock](./add-mock.md) - Using mocks in tests

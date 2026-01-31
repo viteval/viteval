@@ -28,3 +28,8 @@ Use package names for workspace packages:
 import { evaluate, createScorer } from '@viteval/core';
 import { hasKey, isObject } from '@viteval/internal';
 ```
+
+## References
+
+- [TypeScript Overview](./overview.md) - TypeScript standards index
+- [Naming Conventions](./naming.md) - File and variable naming
