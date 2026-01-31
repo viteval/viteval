@@ -190,3 +190,20 @@ describe('functionName', () => {
   });
 });
 ```
+
+## When to Use This Agent vs `/test` Skill
+
+| Need | Use |
+|------|-----|
+| Quick test run | `/test` skill |
+| Test with specific options | `/test --coverage`, `/test --watch` |
+| Debug failing tests | `test-runner` agent |
+| Scaffold new test files | `test-runner` agent |
+| Analyze coverage gaps | `test-runner` agent |
+
+## Reading Code
+
+When debugging or scaffolding tests, use Serena tools:
+- `get_symbols_overview` to understand file structure
+- `find_symbol` to read specific functions/classes
+- `find_referencing_symbols` to understand dependencies

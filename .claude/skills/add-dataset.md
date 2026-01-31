@@ -30,7 +30,8 @@ Create a new dataset component following the viteval patterns.
    - Data structure (input/expected/extra fields)
 
 2. **Read existing patterns:**
-   - Reference `packages/core/src/dataset/dataset.ts` for `defineDataset` usage
+   - Use Serena `find_symbol` to read `defineDataset` from `packages/core/src/dataset/dataset.ts`
+   - Use Serena `get_symbols_overview` on `packages/core/src/dataset/` to see existing datasets
    - Check `packages/core/src/dataset/index.ts` for export patterns
 
 3. **Generate the dataset file:**
@@ -126,6 +127,11 @@ export { <camelCaseName> } from './<name>';
 | `local` | Stored in `.viteval/datasets/<name>.json` per project |
 | `global` | Stored in `~/.viteval/datasets/<name>.json` globally |
 
+**When to use each:**
+- `memory`: For dynamically generated data, benchmarks, or when data changes each run
+- `local`: For project-specific test data that should persist between runs
+- `global`: For shared datasets used across multiple projects
+
 ## Examples
 
 **Create a QA dataset with local storage:**
@@ -146,3 +152,8 @@ export { <camelCaseName> } from './<name>';
 - [ ] Storage type correctly set
 - [ ] Types pass (`pnpm --filter @viteval/core types`)
 - [ ] Tests pass (`pnpm --filter @viteval/core test`)
+
+## Related
+
+- **For autonomous component creation:** Use the `component-creator` agent
+- **To run evaluations with the dataset:** Use `/eval` skill or `eval-tester` agent

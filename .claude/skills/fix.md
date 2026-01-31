@@ -91,3 +91,8 @@ packages/core/src/evaluate/evaluate.ts:45:10
   Suggested fix:
   Change the return type from `Promise<void>` to `Promise<EvalResult[]>`
 ```
+
+## Related
+
+- **To check for issues first:** Use `/validate` skill
+- **For comprehensive validation with auto-fixing:** Use the `code-validator` agent

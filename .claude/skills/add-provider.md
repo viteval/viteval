@@ -29,8 +29,9 @@ Create a new LLM provider integration following the viteval patterns.
    - SDK/package to use for the provider
 
 2. **Read existing patterns:**
-   - Reference `packages/core/src/provider/initialize.ts` for initialization pattern
-   - Check `packages/core/src/config/types.ts` for config types
+   - Use Serena `find_symbol` to read `initializeProvider` from `packages/core/src/provider/initialize.ts`
+   - Use Serena `get_symbols_overview` on `packages/core/src/config/types.ts` for config types
+   - Reference `docs/guides/add-feature.md` for general feature addition guidance
 
 3. **Update config types:**
    - Add provider config to `VitevalProviderConfig` in `packages/core/src/config/types.ts`
@@ -159,6 +160,15 @@ describe('initializeProvider', () => {
 | Anthropic | `ANTHROPIC_API_KEY` |
 | Azure | `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT` |
 
+## SDK Packages
+
+| Provider | SDK Package |
+|----------|-------------|
+| OpenAI | `openai` |
+| Anthropic | `@anthropic-ai/sdk` |
+| Azure OpenAI | `@azure/openai` |
+| Google | `@google/generative-ai` |
+
 ## Examples
 
 **Add Anthropic provider:**
@@ -179,3 +189,8 @@ describe('initializeProvider', () => {
 - [ ] Tests added for new provider
 - [ ] Types pass (`pnpm --filter @viteval/core types`)
 - [ ] Tests pass (`pnpm --filter @viteval/core test`)
+
+## Related
+
+- **For autonomous component creation:** Use the `component-creator` agent
+- **To run evaluations with the provider:** Use `/eval` skill or `eval-tester` agent

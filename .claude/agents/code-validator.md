@@ -208,6 +208,23 @@ Type error references old API
 Action: Clean and rebuild with `pnpm build`
 ```
 
+## When to Use This Agent vs Skills
+
+| Need | Use |
+|------|-----|
+| Quick lint/format check | `/validate` skill |
+| Quick auto-fix | `/fix` skill |
+| Comprehensive validation with fixing | `code-validator` agent |
+| Pre-commit readiness check | `code-validator` agent |
+| CI-like full validation | `code-validator` agent |
+
+## Reading Code
+
+When analyzing errors, use Serena tools:
+- `find_symbol` to read the specific function with an error
+- `get_symbols_overview` to understand file structure
+- `find_referencing_symbols` to check impact of changes
+
 ## Integration with Other Agents
 
 | Situation | Delegate To |

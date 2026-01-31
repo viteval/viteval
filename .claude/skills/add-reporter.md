@@ -29,7 +29,8 @@ Create a new reporter component implementing the Vitest Reporter interface.
    - What information to capture (scores, metadata, timing)
 
 2. **Read existing patterns:**
-   - Reference `packages/core/src/reporters/json.ts` for Reporter implementation
+   - Use Serena `find_symbol` to read existing reporters from `packages/core/src/reporters/`
+   - Use Serena `get_symbols_overview` on `packages/core/src/reporters/json.ts` for Reporter implementation
    - Check Vitest Reporter interface for available hooks
 
 3. **Generate the reporter file:**
@@ -65,7 +66,7 @@ import type { DangerouslyAllowAny } from '@viteval/internal';
  *   test: {
  *     reporters: [
  *       'default',
- *       ['@viteval/core/reporters/<name>', { /* options *\/ }]
+ *       ['@viteval/core/reporters/<name>', { /* options */ }]
  *     ]
  *   }
  * });
@@ -169,3 +170,8 @@ export type { <PascalName>Options } from './<name>';
 - [ ] Implements Reporter interface correctly
 - [ ] Types pass (`pnpm --filter @viteval/core types`)
 - [ ] Tests pass (`pnpm --filter @viteval/core test`)
+
+## Related
+
+- **For autonomous component creation:** Use the `component-creator` agent
+- **To run evaluations with the reporter:** Use `/eval` skill or `eval-tester` agent

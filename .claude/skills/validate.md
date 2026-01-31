@@ -20,6 +20,7 @@ Run comprehensive code validation including TypeScript type checking, linting, a
 |--------|-------------|
 | `--types` | Run only TypeScript type checking |
 | `--lint` | Run only linting checks |
+| `--format` | Run only format verification |
 | `--full` | Run full CI validation (check, types, test, build) |
 
 ## Instructions
@@ -94,3 +95,8 @@ packages/cli/src/index.ts:8:1
 - 1 lint error
 - Run `/fix` to auto-fix lint issues
 ```
+
+## Related
+
+- **For auto-fixing issues:** Use `/fix` skill
+- **For autonomous validation with intelligent fixing:** Use the `code-validator` agent

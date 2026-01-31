@@ -242,11 +242,28 @@ Action: Set environment variable
 export OPENAI_API_KEY=sk-...
 ```
 
+## When to Use This Agent vs `/eval` Skill
+
+| Need | Use |
+|------|-----|
+| Quick eval run | `/eval` skill |
+| List available examples | `/eval --list` |
+| Debug failing evals | `eval-tester` agent |
+| Analyze scores in depth | `eval-tester` agent |
+| Get optimization recommendations | `eval-tester` agent |
+
+## Reading Code
+
+When debugging eval failures, use Serena tools:
+- `find_symbol` to read task functions and scorers
+- `get_symbols_overview` on eval files to understand structure
+- `search_for_pattern` to find specific patterns in eval code
+
 ## Integration Points
 
 | Need | Tool/Agent |
 |------|------------|
 | Run tests after changes | test-runner agent |
 | Validate code changes | code-validator agent |
-| Create new scorer | /add-scorer skill |
-| Create new dataset | /add-dataset skill |
+| Create new scorer | `/add-scorer` skill |
+| Create new dataset | `/add-dataset` skill |

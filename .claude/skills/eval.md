@@ -117,3 +117,9 @@ Consider:
 - Adjusting threshold
 - Improving task function quality
 ```
+
+## Related
+
+- **For debugging failures or detailed analysis:** Use the `eval-tester` agent
+- **To create new scorers:** Use `/add-scorer` skill
+- **To create new datasets:** Use `/add-dataset` skill

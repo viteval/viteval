@@ -29,7 +29,8 @@ Create a new scorer component following the viteval patterns.
    - Ask for scoring logic if not clear from the name
 
 2. **Read existing patterns:**
-   - Reference `packages/core/src/scorer/custom.ts` for `createScorer` usage
+   - Use Serena `find_symbol` to read `createScorer` from `packages/core/src/scorer/custom.ts`
+   - Use Serena `get_symbols_overview` on `packages/core/src/scorer/` to see existing scorers
    - Check `packages/core/src/scorer/index.ts` for export patterns
 
 3. **Generate the scorer file:**
@@ -137,3 +138,8 @@ export { <name> } from './<name>';
 - [ ] Export added to barrel file
 - [ ] Types pass (`pnpm --filter @viteval/core types`)
 - [ ] Tests pass (`pnpm --filter @viteval/core test`)
+
+## Related
+
+- **For autonomous component creation:** Use the `component-creator` agent
+- **To run evaluations with the scorer:** Use `/eval` skill or `eval-tester` agent

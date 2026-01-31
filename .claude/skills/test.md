@@ -22,6 +22,8 @@ Run tests for all packages or filter by specific package/pattern.
 | `--pattern <file>` | Run tests matching file pattern |
 | `--coverage` | Generate coverage report |
 | `--watch` | Run in watch mode |
+| `--update` | Update snapshots |
+| `--ui` | Open Vitest UI |
 
 ## Instructions
 
@@ -116,3 +118,8 @@ Or for passing tests:
 
 All tests passed.
 ```
+
+## Related
+
+- **For debugging failures or scaffolding tests:** Use the `test-runner` agent
+- **For comprehensive validation:** Use `/validate` or the `code-validator` agent
