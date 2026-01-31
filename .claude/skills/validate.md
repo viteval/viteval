@@ -16,12 +16,12 @@ Run comprehensive code validation including TypeScript type checking, linting, a
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--types` | Run only TypeScript type checking |
-| `--lint` | Run only linting checks |
-| `--format` | Run only format verification |
-| `--full` | Run full CI validation (check, types, test, build) |
+| Option     | Description                                        |
+| ---------- | -------------------------------------------------- |
+| `--types`  | Run only TypeScript type checking                  |
+| `--lint`   | Run only linting checks                            |
+| `--format` | Run only format verification                       |
+| `--full`   | Run full CI validation (check, types, test, build) |
 
 ## Instructions
 
@@ -32,6 +32,7 @@ Run comprehensive code validation including TypeScript type checking, linting, a
    - `--full`: Run `pnpm validate` (complete CI validation)
 
 2. **Execute validation commands:**
+
    ```bash
    # Default validation
    pnpm check
@@ -56,18 +57,21 @@ Run comprehensive code validation including TypeScript type checking, linting, a
 ## Examples
 
 **Default validation (lint + format):**
+
 ```
 /validate
 → pnpm check
 ```
 
 **Type checking only:**
+
 ```
 /validate --types
 → pnpm types
 ```
 
 **Full CI validation:**
+
 ```
 /validate --full
 → pnpm validate
@@ -76,6 +80,7 @@ Run comprehensive code validation including TypeScript type checking, linting, a
 ## Output Format
 
 Report issues in this format:
+
 ```
 ## Type Errors (2 issues)
 

@@ -16,10 +16,10 @@ Create a new scorer component following the viteval patterns.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `<name>` | Name of the scorer (camelCase, e.g., `exactMatch`) |
-| `--description` | Description for JSDoc |
+| Option          | Description                                        |
+| --------------- | -------------------------------------------------- |
+| `<name>`        | Name of the scorer (camelCase, e.g., `exactMatch`) |
+| `--description` | Description for JSDoc                              |
 
 ## Instructions
 
@@ -52,7 +52,7 @@ Create a new scorer component following the viteval patterns.
 
 ### Scorer File (`packages/core/src/scorer/<name>.ts`)
 
-```typescript
+````typescript
 import type { Extra } from '#/types';
 import { createScorer } from './custom';
 
@@ -78,7 +78,7 @@ export const <name> = createScorer<unknown, Extra>({
     };
   },
 });
-```
+````
 
 ### Test File (`packages/core/src/scorer/<name>.test.ts`)
 
@@ -122,11 +122,13 @@ export { <name> } from './<name>';
 ## Examples
 
 **Create exactMatch scorer:**
+
 ```
 /add-scorer exactMatch --description "Checks if output exactly matches expected"
 ```
 
 **Create fuzzyMatch scorer:**
+
 ```
 /add-scorer fuzzyMatch --description "Calculates similarity score between strings"
 ```

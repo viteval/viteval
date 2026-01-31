@@ -16,18 +16,20 @@ Run LLM evaluations from the examples directory.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `<name>` | Name of the example to run (e.g., `basic`, `custom-scorer`) |
-| `--list` | List available examples |
-| `--build` | Force rebuild packages before running |
+| Option    | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| `<name>`  | Name of the example to run (e.g., `basic`, `custom-scorer`) |
+| `--list`  | List available examples                                     |
+| `--build` | Force rebuild packages before running                       |
 
 ## Instructions
 
 1. **List available examples (if `--list` or no name provided):**
+
    ```bash
    ls -d examples/*/
    ```
+
    Show available example directories.
 
 2. **Ensure packages are built:**
@@ -35,6 +37,7 @@ Run LLM evaluations from the examples directory.
    - If not, or if `--build` specified, run `pnpm build`
 
 3. **Run the evaluation:**
+
    ```bash
    # Install dependencies if needed
    [ -d examples/<name>/node_modules ] || pnpm --filter ./examples/<name> install
@@ -55,6 +58,7 @@ Run LLM evaluations from the examples directory.
 ## Examples
 
 **List available examples:**
+
 ```
 /eval --list
 → Available examples:
@@ -64,12 +68,14 @@ Run LLM evaluations from the examples directory.
 ```
 
 **Run basic example:**
+
 ```
 /eval basic
 → pnpm --filter ./examples/basic run eval
 ```
 
 **Run with rebuild:**
+
 ```
 /eval basic --build
 → pnpm build

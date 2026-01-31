@@ -16,16 +16,18 @@ Automatically fix linting and formatting issues across the codebase.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
+| Option      | Description                                       |
+| ----------- | ------------------------------------------------- |
 | `--dry-run` | Show what would be fixed without applying changes |
 
 ## Instructions
 
 1. **Run the fix command:**
+
    ```bash
    pnpm fix
    ```
+
    This runs oxlint with `--fix` and oxfmt to auto-fix issues.
 
 2. **Capture and report changes:**
@@ -43,6 +45,7 @@ Automatically fix linting and formatting issues across the codebase.
 ## Examples
 
 **Fix all auto-fixable issues:**
+
 ```
 /fix
 → pnpm fix
@@ -50,6 +53,7 @@ Automatically fix linting and formatting issues across the codebase.
 ```
 
 **Preview what would be fixed:**
+
 ```
 /fix --dry-run
 → pnpm check (show issues)

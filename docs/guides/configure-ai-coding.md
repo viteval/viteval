@@ -15,12 +15,12 @@ Set up AI-assisted development for Viteval using Claude Code.
 
 The AI coding setup consists of:
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| CLAUDE.md | Root | Entry point for Claude Code |
-| AGENTS.md | Root | Project context and instructions |
-| .mcp.json | Root | MCP server configuration |
-| .serena/ | Root | Serena project configuration |
+| Component | Location | Purpose                          |
+| --------- | -------- | -------------------------------- |
+| CLAUDE.md | Root     | Entry point for Claude Code      |
+| AGENTS.md | Root     | Project context and instructions |
+| .mcp.json | Root     | MCP server configuration         |
+| .serena/  | Root     | Serena project configuration     |
 
 ## Steps
 
@@ -69,21 +69,22 @@ The `.serena/project.yml` file configures how Serena analyzes the codebase:
 project_name: 'viteval'
 
 languages:
-- typescript
-- markdown
+  - typescript
+  - markdown
 
 encoding: 'utf-8'
 
 ignore_all_files_in_gitignore: true
 
 ignored_paths:
-- node_modules
-- dist
-- .nx
-- coverage
+  - node_modules
+  - dist
+  - .nx
+  - coverage
 ```
 
 Key settings:
+
 - **languages** - Language servers to enable
 - **ignored_paths** - Paths excluded from analysis
 - **initial_prompt** - Context shown when project activates
@@ -92,12 +93,12 @@ Key settings:
 
 Serena maintains project-specific memories in `.serena/memories/`:
 
-| Memory | Purpose |
-|--------|---------|
-| `project_overview.md` | High-level project description |
-| `style_and_conventions.md` | Code style guidelines |
-| `suggested_commands.md` | Common commands reference |
-| `task_completion_checklist.md` | Pre-commit checklist |
+| Memory                         | Purpose                        |
+| ------------------------------ | ------------------------------ |
+| `project_overview.md`          | High-level project description |
+| `style_and_conventions.md`     | Code style guidelines          |
+| `suggested_commands.md`        | Common commands reference      |
+| `task_completion_checklist.md` | Pre-commit checklist           |
 
 These memories provide persistent context across Claude Code sessions.
 
@@ -109,6 +110,7 @@ claude
 ```
 
 Claude Code will:
+
 1. Read CLAUDE.md and AGENTS.md
 2. Start the Serena MCP server
 3. Have access to semantic code tools
@@ -117,13 +119,13 @@ Claude Code will:
 
 Serena provides these capabilities:
 
-| Tool | Use Case |
-|------|----------|
-| `find_symbol` | Find classes, functions, methods by name |
-| `get_symbols_overview` | Get file structure overview |
-| `find_referencing_symbols` | Find usages of a symbol |
-| `replace_symbol_body` | Edit symbol implementations |
-| `search_for_pattern` | Regex search across codebase |
+| Tool                       | Use Case                                 |
+| -------------------------- | ---------------------------------------- |
+| `find_symbol`              | Find classes, functions, methods by name |
+| `get_symbols_overview`     | Get file structure overview              |
+| `find_referencing_symbols` | Find usages of a symbol                  |
+| `replace_symbol_body`      | Edit symbol implementations              |
+| `search_for_pattern`       | Regex search across codebase             |
 
 ## Best Practices
 

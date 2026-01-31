@@ -5,8 +5,8 @@ project_name: 'viteval'
 
 # Language servers (use 'typescript' for JS/TS)
 languages:
-- typescript
-- markdown
+  - typescript
+  - markdown
 
 # the encoding used by text files in the project
 # For a list of possible encodings, see https://docs.python.org/3.11/library/codecs.html#standard-encodings
@@ -17,12 +17,12 @@ ignore_all_files_in_gitignore: true
 
 # Additional paths to ignore (beyond .gitignore)
 ignored_paths:
-- node_modules
-- dist
-- .nx
-- tmp
-- coverage
-- .vitepress
+  - node_modules
+  - dist
+  - .nx
+  - tmp
+  - coverage
+  - .vitepress
 
 # whether the project is in read-only mode
 # If set to true, all editing tools will be disabled and attempts to use them will result in an error
@@ -31,10 +31,10 @@ read_only: false
 
 # Tools to exclude (JetBrains tools require IDE backend we don't use)
 excluded_tools:
-- jet_brains_find_symbol
-- jet_brains_find_referencing_symbols
-- jet_brains_get_symbols_overview
-- jet_brains_type_hierarchy
+  - jet_brains_find_symbol
+  - jet_brains_find_referencing_symbols
+  - jet_brains_get_symbols_overview
+  - jet_brains_type_hierarchy
 
 # list of tools to include that would otherwise be disabled (particularly optional tools that are disabled by default)
 included_optional_tools: []

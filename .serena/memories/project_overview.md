@@ -1,9 +1,11 @@
 # Viteval Project Overview
 
 ## Purpose
+
 Viteval is an LLM evaluation framework built on Vitest. It provides tools for evaluating large language model outputs with custom scorers and datasets.
 
 ## Tech Stack
+
 - **Runtime:** Node.js >= 22.0.0
 - **Package Manager:** pnpm >= 10.0.0
 - **Language:** TypeScript (~5.9)
@@ -15,13 +17,16 @@ Viteval is an LLM evaluation framework built on Vitest. It provides tools for ev
 - **Versioning:** Changesets
 
 ## Architecture
+
 The `viteval` package is the main entry point for users. Internal packages:
+
 - `@viteval/core` - Evaluation engine (evaluate, scorers, datasets)
 - `@viteval/cli` - Command-line interface
 - `@viteval/ui` - Web UI for results
 - `@viteval/internal` - Shared utilities (internal use only)
 
 ## Repository Structure
+
 ```
 viteval/
 ├── packages/       # Core packages (@viteval/core, cli, ui, internal, viteval)

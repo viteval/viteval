@@ -16,14 +16,14 @@ Run tests for all packages or filter by specific package/pattern.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--filter <pkg>` | Filter to specific package (core, cli, ui, viteval) |
-| `--pattern <file>` | Run tests matching file pattern |
-| `--coverage` | Generate coverage report |
-| `--watch` | Run in watch mode |
-| `--update` | Update snapshots |
-| `--ui` | Open Vitest UI |
+| Option             | Description                                         |
+| ------------------ | --------------------------------------------------- |
+| `--filter <pkg>`   | Filter to specific package (core, cli, ui, viteval) |
+| `--pattern <file>` | Run tests matching file pattern                     |
+| `--coverage`       | Generate coverage report                            |
+| `--watch`          | Run in watch mode                                   |
+| `--update`         | Update snapshots                                    |
+| `--ui`             | Open Vitest UI                                      |
 
 ## Instructions
 
@@ -49,30 +49,35 @@ Run tests for all packages or filter by specific package/pattern.
 ## Examples
 
 **Run all tests:**
+
 ```
 /test
 → pnpm test
 ```
 
 **Run core package tests:**
+
 ```
 /test --filter core
 → pnpm --filter @viteval/core test
 ```
 
 **Run with coverage:**
+
 ```
 /test --coverage
 → pnpm test -- --coverage
 ```
 
 **Run specific test file:**
+
 ```
 /test --pattern scorer
 → pnpm test -- scorer
 ```
 
 **Watch mode for core:**
+
 ```
 /test --filter core --watch
 → pnpm --filter @viteval/core test -- --watch

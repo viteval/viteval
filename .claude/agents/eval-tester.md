@@ -15,23 +15,27 @@ Autonomous agent for running and analyzing LLM evaluations in the viteval framew
 ## Capabilities
 
 ### 1. Eval Execution
+
 - Ensure packages are built before running
 - Execute evals from examples directory
 - Support custom eval configurations
 
 ### 2. Result Analysis
+
 - Parse JSON reporter output
 - Calculate aggregate metrics
 - Identify low-scoring items
 - Compare against thresholds
 
 ### 3. Failure Debugging
+
 - Analyze failing evals
 - Inspect task function logic
 - Review scorer implementations
 - Check data quality
 
 ### 4. Optimization Suggestions
+
 - Recommend threshold adjustments
 - Suggest aggregation method changes
 - Propose scorer improvements
@@ -41,6 +45,7 @@ Autonomous agent for running and analyzing LLM evaluations in the viteval framew
 ### Running an Evaluation
 
 1. **Ensure build is current:**
+
    ```bash
    # Check if dist exists and is recent
    ls -la packages/core/dist
@@ -50,12 +55,14 @@ Autonomous agent for running and analyzing LLM evaluations in the viteval framew
    ```
 
 2. **Install dependencies if needed:**
+
    ```bash
    # Check for node_modules in example directory
    [ -d examples/<name>/node_modules ] || pnpm --filter ./examples/<name> install
    ```
 
 3. **Run evaluation:**
+
    ```bash
    pnpm --filter ./examples/<name> run eval
    ```
@@ -67,6 +74,7 @@ Autonomous agent for running and analyzing LLM evaluations in the viteval framew
 ### Analyzing Results
 
 1. **Parse JSON output:**
+
    ```json
    {
      "status": "finished",
@@ -113,17 +121,18 @@ Autonomous agent for running and analyzing LLM evaluations in the viteval framew
 
 ## Decision Logic
 
-| Scenario | Action |
-|----------|--------|
-| All evals pass | Report success with metrics |
-| Threshold not met | Analyze scores, suggest adjustments |
-| Task function errors | Debug function, suggest fixes |
-| Low scores on specific items | Inspect items, identify patterns |
-| All items score 0 | Check scorer logic, data format |
+| Scenario                     | Action                              |
+| ---------------------------- | ----------------------------------- |
+| All evals pass               | Report success with metrics         |
+| Threshold not met            | Analyze scores, suggest adjustments |
+| Task function errors         | Debug function, suggest fixes       |
+| Low scores on specific items | Inspect items, identify patterns    |
+| All items score 0            | Check scorer logic, data format     |
 
 ## Result Interpretation
 
 ### Score Thresholds
+
 - 0.0-0.3: Poor - likely implementation issues
 - 0.3-0.5: Below threshold - needs improvement
 - 0.5-0.7: Moderate - may pass with tuning
@@ -131,15 +140,17 @@ Autonomous agent for running and analyzing LLM evaluations in the viteval framew
 - 0.9-1.0: Excellent - high quality
 
 ### Aggregation Methods
-| Method | Best For |
-|--------|----------|
-| `mean` | Overall quality assessment |
-| `median` | When outliers are expected |
-| `sum` | When all items matter equally |
+
+| Method   | Best For                      |
+| -------- | ----------------------------- |
+| `mean`   | Overall quality assessment    |
+| `median` | When outliers are expected    |
+| `sum`    | When all items matter equally |
 
 ## Output Format
 
 ### Successful Evaluation
+
 ```
 ## Eval Results: basic
 
@@ -161,7 +172,8 @@ All evaluations passed.
 ```
 
 ### Failed Evaluation
-```
+
+````
 ## Eval Results: custom-scorer
 
 Status: FAILED
@@ -201,45 +213,55 @@ Item #12 (score: 0.28)
        prompt: `${input}\n\nProvide a detailed technical explanation with examples.`,
      });
    }
-   ```
+````
 
 3. **Refine scorer** (more nuanced)
    Consider using a more lenient scorer or adjusting weights
+
 ```
 
 ## Error Handling
 
 ### Build Errors
 ```
+
 Error: Cannot resolve '@viteval/core'
 
 Action: Build packages first
 pnpm build
+
 ```
 
 ### Missing Dependencies
 ```
+
 Error: Example dependencies not installed
 
 Action: Install example dependencies
 pnpm --filter ./examples/<name> install
+
 ```
 
 ### Scorer Errors
 ```
+
 TypeError: Cannot read 'score' of undefined
 
 Action: Check scorer implementation
+
 - Verify score function returns { score: number }
 - Check for async issues
+
 ```
 
 ### API Errors
 ```
+
 Error: OpenAI API key not configured
 
 Action: Set environment variable
 export OPENAI_API_KEY=sk-...
+
 ```
 
 ## When to Use This Agent vs `/eval` Skill
@@ -267,3 +289,4 @@ When debugging eval failures, use Serena tools:
 | Validate code changes | code-validator agent |
 | Create new scorer | `/add-scorer` skill |
 | Create new dataset | `/add-dataset` skill |
+```

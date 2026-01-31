@@ -16,10 +16,10 @@ Create a new reporter component implementing the Vitest Reporter interface.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `<name>` | Name of the reporter (kebab-case, e.g., `console-summary`) |
-| `--description` | Description for JSDoc |
+| Option          | Description                                                |
+| --------------- | ---------------------------------------------------------- |
+| `<name>`        | Name of the reporter (kebab-case, e.g., `console-summary`) |
+| `--description` | Description for JSDoc                                      |
 
 ## Instructions
 
@@ -52,7 +52,7 @@ Create a new reporter component implementing the Vitest Reporter interface.
 
 ### Reporter File (`packages/core/src/reporters/<name>.ts`)
 
-```typescript
+````typescript
 import type { Reporter } from 'vitest/reporters';
 import type { DangerouslyAllowAny } from '@viteval/internal';
 
@@ -98,7 +98,7 @@ export default class <PascalName>Reporter implements Reporter {
 export interface <PascalName>Options {
   // Add configuration options here
 }
-```
+````
 
 ### Test File (`packages/core/src/reporters/<name>.test.ts`)
 
@@ -140,24 +140,26 @@ export type { <PascalName>Options } from './<name>';
 
 ## Vitest Reporter Hooks
 
-| Hook | When Called |
-|------|-------------|
-| `onInit()` | Test run starts |
-| `onPathsCollected(paths)` | Test files discovered |
-| `onCollected(files)` | Tests collected from files |
-| `onTaskUpdate(packs)` | Test task status updates |
-| `onFinished(files)` | All tests complete |
-| `onWatcherStart()` | Watch mode starts |
-| `onWatcherRerun(files)` | Watch mode reruns |
+| Hook                      | When Called                |
+| ------------------------- | -------------------------- |
+| `onInit()`                | Test run starts            |
+| `onPathsCollected(paths)` | Test files discovered      |
+| `onCollected(files)`      | Tests collected from files |
+| `onTaskUpdate(packs)`     | Test task status updates   |
+| `onFinished(files)`       | All tests complete         |
+| `onWatcherStart()`        | Watch mode starts          |
+| `onWatcherRerun(files)`   | Watch mode reruns          |
 
 ## Examples
 
 **Create a console summary reporter:**
+
 ```
 /add-reporter console-summary --description "Outputs a brief summary to console"
 ```
 
 **Create a webhook reporter:**
+
 ```
 /add-reporter webhook --description "Posts results to a webhook URL"
 ```

@@ -16,10 +16,10 @@ Create a new LLM provider integration following the viteval patterns.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `<name>` | Name of the provider (lowercase, e.g., `anthropic`, `azure`) |
-| `--description` | Description for JSDoc |
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| `<name>`        | Name of the provider (lowercase, e.g., `anthropic`, `azure`) |
+| `--description` | Description for JSDoc                                        |
 
 ## Instructions
 
@@ -154,29 +154,31 @@ describe('initializeProvider', () => {
 
 ## Environment Variables
 
-| Provider | Environment Variable |
-|----------|---------------------|
-| OpenAI | `OPENAI_API_KEY` |
-| Anthropic | `ANTHROPIC_API_KEY` |
-| Azure | `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT` |
+| Provider  | Environment Variable                            |
+| --------- | ----------------------------------------------- |
+| OpenAI    | `OPENAI_API_KEY`                                |
+| Anthropic | `ANTHROPIC_API_KEY`                             |
+| Azure     | `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT` |
 
 ## SDK Packages
 
-| Provider | SDK Package |
-|----------|-------------|
-| OpenAI | `openai` |
-| Anthropic | `@anthropic-ai/sdk` |
-| Azure OpenAI | `@azure/openai` |
-| Google | `@google/generative-ai` |
+| Provider     | SDK Package             |
+| ------------ | ----------------------- |
+| OpenAI       | `openai`                |
+| Anthropic    | `@anthropic-ai/sdk`     |
+| Azure OpenAI | `@azure/openai`         |
+| Google       | `@google/generative-ai` |
 
 ## Examples
 
 **Add Anthropic provider:**
+
 ```
 /add-provider anthropic --description "Anthropic Claude API integration"
 ```
 
 **Add Azure OpenAI provider:**
+
 ```
 /add-provider azure --description "Azure OpenAI Service integration"
 ```

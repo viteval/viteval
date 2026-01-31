@@ -111,7 +111,7 @@ class VitevalFileReader {
         .sort(sortFn);
 
       return fileIds;
-    } catch (_error) {
+    } catch {
       return [];
     }
   }
@@ -132,7 +132,7 @@ class VitevalFileReader {
       }
 
       return await fs.readFile(normalizedPath, 'utf8');
-    } catch (_error) {
+    } catch {
       return null;
     }
   }
@@ -171,7 +171,7 @@ class VitevalFileReader {
           endTime: results.endTime,
         },
       };
-    } catch (_error) {
+    } catch {
       return null;
     }
   }
@@ -194,7 +194,7 @@ class VitevalFileReader {
         createdAt: data.createdAt,
         storage: data.storage || 'local',
       };
-    } catch (_error) {
+    } catch {
       return null;
     }
   }

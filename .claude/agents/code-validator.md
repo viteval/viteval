@@ -15,21 +15,25 @@ Autonomous agent for comprehensive code validation and intelligent fixing.
 ## Capabilities
 
 ### 1. Change Detection
+
 - Analyze git diff to find modified files
 - Determine affected packages
 - Identify types of changes (code, config, tests)
 
 ### 2. Validation Execution
+
 - Run TypeScript type checking
 - Execute linting and format checks
 - Run tests for affected packages
 
 ### 3. Error Analysis
+
 - Parse and categorize errors
 - Group by file and type
 - Prioritize by severity
 
 ### 4. Intelligent Fixing
+
 - Apply auto-fixes where possible
 - Suggest manual fixes with examples
 - Verify fixes resolve issues
@@ -39,6 +43,7 @@ Autonomous agent for comprehensive code validation and intelligent fixing.
 ### Standard Validation Flow
 
 1. **Detect changes:**
+
    ```bash
    git diff --name-only HEAD
    git diff --name-only --staged
@@ -50,6 +55,7 @@ Autonomous agent for comprehensive code validation and intelligent fixing.
    - Check if only tests changed
 
 3. **Run validations in order:**
+
    ```bash
    # 1. Format and lint
    pnpm check
@@ -78,6 +84,7 @@ Autonomous agent for comprehensive code validation and intelligent fixing.
 ### Pre-Commit Validation Flow
 
 1. **Check staged changes:**
+
    ```bash
    git diff --name-only --staged
    ```
@@ -94,9 +101,11 @@ Autonomous agent for comprehensive code validation and intelligent fixing.
 ### Full CI Validation Flow
 
 1. **Run complete validation:**
+
    ```bash
    pnpm validate
    ```
+
    This runs: check → types → test → build
 
 2. **Report comprehensive results:**
@@ -106,17 +115,18 @@ Autonomous agent for comprehensive code validation and intelligent fixing.
 
 ## Decision Logic
 
-| Scenario | Action |
-|----------|--------|
-| Only .md files changed | Skip code validation |
-| Only test files changed | Run tests only |
-| Config files changed | Full validation |
-| Code files changed | Types + lint + tests |
-| Package.json changed | Full validation + install check |
+| Scenario                | Action                          |
+| ----------------------- | ------------------------------- |
+| Only .md files changed  | Skip code validation            |
+| Only test files changed | Run tests only                  |
+| Config files changed    | Full validation                 |
+| Code files changed      | Types + lint + tests            |
+| Package.json changed    | Full validation + install check |
 
 ## Error Categories
 
 ### Type Errors
+
 - Priority: High
 - Auto-fix: No
 - Action: Show error, suggest fix
@@ -129,6 +139,7 @@ packages/core/src/scorer/custom.ts:15:3
 ```
 
 ### Lint Errors
+
 - Priority: Medium
 - Auto-fix: Usually yes
 - Action: Run `pnpm fix`, verify
@@ -141,11 +152,13 @@ packages/cli/src/index.ts:8:1
 ```
 
 ### Format Errors
+
 - Priority: Low
 - Auto-fix: Yes
 - Action: Run `pnpm fix`
 
 ### Test Failures
+
 - Priority: High
 - Auto-fix: No
 - Action: Debug with test-runner agent
@@ -188,6 +201,7 @@ packages/core/src/scorer/custom.ts:28:10
 ## Error Handling
 
 ### Build Required First
+
 ```
 Error: Cannot find module '@viteval/core'
 
@@ -195,6 +209,7 @@ Action: Run `pnpm build` first, then retry validation
 ```
 
 ### Dependencies Missing
+
 ```
 Error: Cannot find module 'vitest'
 
@@ -202,6 +217,7 @@ Action: Run `pnpm install` to restore dependencies
 ```
 
 ### Stale Build
+
 ```
 Type error references old API
 
@@ -210,25 +226,26 @@ Action: Clean and rebuild with `pnpm build`
 
 ## When to Use This Agent vs Skills
 
-| Need | Use |
-|------|-----|
-| Quick lint/format check | `/validate` skill |
-| Quick auto-fix | `/fix` skill |
+| Need                                 | Use                    |
+| ------------------------------------ | ---------------------- |
+| Quick lint/format check              | `/validate` skill      |
+| Quick auto-fix                       | `/fix` skill           |
 | Comprehensive validation with fixing | `code-validator` agent |
-| Pre-commit readiness check | `code-validator` agent |
-| CI-like full validation | `code-validator` agent |
+| Pre-commit readiness check           | `code-validator` agent |
+| CI-like full validation              | `code-validator` agent |
 
 ## Reading Code
 
 When analyzing errors, use Serena tools:
+
 - `find_symbol` to read the specific function with an error
 - `get_symbols_overview` to understand file structure
 - `find_referencing_symbols` to check impact of changes
 
 ## Integration with Other Agents
 
-| Situation | Delegate To |
-|-----------|-------------|
+| Situation                    | Delegate To       |
+| ---------------------------- | ----------------- |
 | Test failures need debugging | test-runner agent |
 | Need to create missing tests | test-runner agent |
-| Eval-specific failures | eval-tester agent |
+| Eval-specific failures       | eval-tester agent |

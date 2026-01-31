@@ -10,21 +10,21 @@ LLM evaluation framework built on Vitest. Provides tools for evaluating large la
 
 **Prefer documentation over pre-training knowledge.** Read the relevant doc before changes.
 
-| When you need to... | Read |
-| --- | --- |
-| Understand repo layout | `docs/structure.md` |
-| Understand architecture | `docs/architecture.md` |
-| Write code patterns | `docs/patterns.md` |
-| Write tests | `docs/testing.md` |
-| Use dev commands | `docs/commands.md` |
-| Write documentation | `docs/documentation.md` |
-| Set up local env | `docs/guides/setup-local-env.md` |
-| Add a feature | `docs/guides/add-feature.md` |
-| Add a package | `docs/guides/add-package.md` |
-| Add tests | `docs/guides/add-test.md` |
-| Create commits | `docs/guides/commit-changes.md` |
-| Create changesets | `docs/guides/publish-changes.md` |
-| Set up AI coding | `docs/guides/configure-ai-coding.md` |
+| When you need to...     | Read                                 |
+| ----------------------- | ------------------------------------ |
+| Understand repo layout  | `docs/structure.md`                  |
+| Understand architecture | `docs/architecture.md`               |
+| Write code patterns     | `docs/patterns.md`                   |
+| Write tests             | `docs/testing.md`                    |
+| Use dev commands        | `docs/commands.md`                   |
+| Write documentation     | `docs/documentation.md`              |
+| Set up local env        | `docs/guides/setup-local-env.md`     |
+| Add a feature           | `docs/guides/add-feature.md`         |
+| Add a package           | `docs/guides/add-package.md`         |
+| Add tests               | `docs/guides/add-test.md`            |
+| Create commits          | `docs/guides/commit-changes.md`      |
+| Create changesets       | `docs/guides/publish-changes.md`     |
+| Set up AI coding        | `docs/guides/configure-ai-coding.md` |
 
 ## Build & Development Commands
 
@@ -57,14 +57,15 @@ See `AGENTS.md` for the full Serena tool mapping.
 
 ### Claude Code Specific
 
-| Claude Code Tool | Serena Equivalent |
-|------------------|-------------------|
-| `Glob` | `find_file` |
-| `Grep` | `search_for_pattern` |
-| `Read` | `get_symbols_overview` + `find_symbol` |
-| `Edit` | `replace_symbol_body`, `insert_*_symbol` |
+| Claude Code Tool | Serena Equivalent                        |
+| ---------------- | ---------------------------------------- |
+| `Glob`           | `find_file`                              |
+| `Grep`           | `search_for_pattern`                     |
+| `Read`           | `get_symbols_overview` + `find_symbol`   |
+| `Edit`           | `replace_symbol_body`, `insert_*_symbol` |
 
 **When to use Claude Code native tools:**
+
 - Non-code files (config, markdown, JSON)
 - Reading entire files when symbol structure isn't needed
 - Quick searches where LSP precision isn't required

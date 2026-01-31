@@ -16,11 +16,11 @@ Create a new dataset component following the viteval patterns.
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `<name>` | Name of the dataset (kebab-case, e.g., `color-questions`) |
-| `--storage` | Storage type: `memory`, `local`, or `global` (default: `local`) |
-| `--description` | Description for JSDoc |
+| Option          | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `<name>`        | Name of the dataset (kebab-case, e.g., `color-questions`)       |
+| `--storage`     | Storage type: `memory`, `local`, or `global` (default: `local`) |
+| `--description` | Description for JSDoc                                           |
 
 ## Instructions
 
@@ -53,7 +53,7 @@ Create a new dataset component following the viteval patterns.
 
 ### Dataset File (`packages/core/src/dataset/<name>.ts`)
 
-```typescript
+````typescript
 import { defineDataset } from './dataset';
 
 /**
@@ -80,7 +80,7 @@ export const <camelCaseName> = defineDataset({
     ];
   },
 });
-```
+````
 
 ### Test File (`packages/core/src/dataset/<name>.test.ts`)
 
@@ -121,13 +121,14 @@ export { <camelCaseName> } from './<name>';
 
 ## Storage Types
 
-| Type | Description |
-|------|-------------|
-| `memory` | Data generated fresh each run, never persisted |
-| `local` | Stored in `.viteval/datasets/<name>.json` per project |
-| `global` | Stored in `~/.viteval/datasets/<name>.json` globally |
+| Type     | Description                                           |
+| -------- | ----------------------------------------------------- |
+| `memory` | Data generated fresh each run, never persisted        |
+| `local`  | Stored in `.viteval/datasets/<name>.json` per project |
+| `global` | Stored in `~/.viteval/datasets/<name>.json` globally  |
 
 **When to use each:**
+
 - `memory`: For dynamically generated data, benchmarks, or when data changes each run
 - `local`: For project-specific test data that should persist between runs
 - `global`: For shared datasets used across multiple projects
@@ -135,11 +136,13 @@ export { <camelCaseName> } from './<name>';
 ## Examples
 
 **Create a QA dataset with local storage:**
+
 ```
 /add-dataset qa-pairs --storage local --description "Question-answer pairs for testing"
 ```
 
 **Create a synthetic dataset (memory only):**
+
 ```
 /add-dataset synthetic-prompts --storage memory --description "Dynamically generated prompts"
 ```

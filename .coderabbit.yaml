@@ -3,15 +3,15 @@
 # CodeRabbit Configuration for Viteval
 # LLM evaluation framework built on Vitest
 
-language: "en-US"
+language: 'en-US'
 early_access: false
 enable_free_tier: true
 
 reviews:
-  profile: "chill"
+  profile: 'chill'
   request_changes_workflow: false
   high_level_summary: true
-  high_level_summary_placeholder: "@coderabbitai summary"
+  high_level_summary_placeholder: '@coderabbitai summary'
   review_status: true
   commit_status: true
   collapse_walkthrough: true
@@ -23,40 +23,40 @@ reviews:
     enabled: true
     auto_incremental_review: true
     ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "DRAFT"
+      - 'WIP'
+      - 'DO NOT MERGE'
+      - 'DRAFT'
     drafts: false
 
   # Path-specific review instructions
   path_instructions:
-    - path: "packages/core/**"
+    - path: 'packages/core/**'
       instructions: |
         This is the core evaluation engine. Focus on:
         - Type safety and generics usage
         - Functional programming patterns
         - JSDoc documentation for public APIs
         - Backward compatibility of exported APIs
-    - path: "packages/cli/**"
+    - path: 'packages/cli/**'
       instructions: |
         This is the CLI package. Focus on:
         - User-friendly error messages
         - Command argument validation
         - Help text clarity
-    - path: "packages/ui/**"
+    - path: 'packages/ui/**'
       instructions: |
         This is the web UI for viewing results. Focus on:
         - Component reusability
         - Accessibility
-    - path: "packages/internal/**"
+    - path: 'packages/internal/**'
       instructions: |
         Internal shared utilities. These are NOT part of the public API.
         Focus on reusability across packages.
-    - path: "**/*.test.ts"
+    - path: '**/*.test.ts'
       instructions: |
         Test files use Vitest with BDD style (describe/it/expect).
         Tests should be co-located with source files.
-    - path: "apps/website/**"
+    - path: 'apps/website/**'
       instructions: |
         Vitepress documentation site. Focus on:
         - Clarity of explanations
@@ -65,10 +65,10 @@ reviews:
 
   # Paths to exclude from review
   path_filters:
-    - "!**/dist/**"
-    - "!**/node_modules/**"
-    - "!pnpm-lock.yaml"
-    - "!**/.nx/**"
+    - '!**/dist/**'
+    - '!**/node_modules/**'
+    - '!pnpm-lock.yaml'
+    - '!**/.nx/**'
 
   # Tool configurations
   tools:
@@ -125,6 +125,6 @@ knowledge_base:
   web_search:
     enabled: true
   learnings:
-    scope: "auto"
+    scope: 'auto'
   pull_requests:
-    scope: "auto"
+    scope: 'auto'

@@ -15,22 +15,26 @@ Autonomous agent for comprehensive test management in the viteval codebase.
 ## Capabilities
 
 ### 1. Test Execution
+
 - Run all tests or filter by package/pattern
 - Auto-detect package from current context
 - Support watch mode and coverage
 
 ### 2. Test Debugging
+
 - Analyze failing test output
 - Read source code and test files
 - Identify root cause of failures
 - Suggest fixes with code examples
 
 ### 3. Test Scaffolding
+
 - Create new test files following co-located pattern
 - Generate test templates based on source file
 - Add appropriate imports and describe blocks
 
 ### 4. Coverage Analysis
+
 - Run tests with coverage
 - Identify uncovered code paths
 - Suggest test cases for coverage gaps
@@ -45,6 +49,7 @@ Autonomous agent for comprehensive test management in the viteval codebase.
    - Default to all tests if no context
 
 2. **Execute tests:**
+
    ```bash
    # All tests
    pnpm test
@@ -114,6 +119,7 @@ Autonomous agent for comprehensive test management in the viteval codebase.
 ### When Asked to Analyze Coverage
 
 1. **Run with coverage:**
+
    ```bash
    pnpm test -- --coverage
    ```
@@ -128,38 +134,41 @@ Autonomous agent for comprehensive test management in the viteval codebase.
 
 ## Decision Logic
 
-| User Request | Action |
-|--------------|--------|
-| "Run tests" | Execute all tests, report results |
-| "Run tests for core" | Execute `pnpm --filter @viteval/core test` |
-| "Fix failing tests" | Debug, identify issue, suggest/apply fix |
-| "Add tests for X" | Analyze X, create co-located test file |
-| "Check coverage" | Run with coverage, analyze gaps |
-| "Why is this failing?" | Debug specific failure, explain cause |
+| User Request           | Action                                     |
+| ---------------------- | ------------------------------------------ |
+| "Run tests"            | Execute all tests, report results          |
+| "Run tests for core"   | Execute `pnpm --filter @viteval/core test` |
+| "Fix failing tests"    | Debug, identify issue, suggest/apply fix   |
+| "Add tests for X"      | Analyze X, create co-located test file     |
+| "Check coverage"       | Run with coverage, analyze gaps            |
+| "Why is this failing?" | Debug specific failure, explain cause      |
 
 ## Error Handling
 
 ### Test Command Fails to Start
+
 - Check if `node_modules` exists, suggest `pnpm install`
 - Check if build is needed, suggest `pnpm build`
 
 ### Tests Timeout
+
 - Identify slow tests
 - Check for missing async/await
 - Look for infinite loops
 
 ### Import Errors
+
 - Verify tsconfig paths
 - Check for circular dependencies
 - Ensure build artifacts exist
 
 ## File Patterns
 
-| Source File | Test File |
-|-------------|-----------|
+| Source File                          | Test File                                 |
+| ------------------------------------ | ----------------------------------------- |
 | `packages/core/src/scorer/custom.ts` | `packages/core/src/scorer/custom.test.ts` |
-| `packages/cli/src/index.ts` | `packages/cli/src/index.test.ts` |
-| `packages/ui/src/App.tsx` | `packages/ui/src/App.test.tsx` |
+| `packages/cli/src/index.ts`          | `packages/cli/src/index.test.ts`          |
+| `packages/ui/src/App.tsx`            | `packages/ui/src/App.test.tsx`            |
 
 ## Test Template
 
@@ -193,17 +202,18 @@ describe('functionName', () => {
 
 ## When to Use This Agent vs `/test` Skill
 
-| Need | Use |
-|------|-----|
-| Quick test run | `/test` skill |
+| Need                       | Use                                 |
+| -------------------------- | ----------------------------------- |
+| Quick test run             | `/test` skill                       |
 | Test with specific options | `/test --coverage`, `/test --watch` |
-| Debug failing tests | `test-runner` agent |
-| Scaffold new test files | `test-runner` agent |
-| Analyze coverage gaps | `test-runner` agent |
+| Debug failing tests        | `test-runner` agent                 |
+| Scaffold new test files    | `test-runner` agent                 |
+| Analyze coverage gaps      | `test-runner` agent                 |
 
 ## Reading Code
 
 When debugging or scaffolding tests, use Serena tools:
+
 - `get_symbols_overview` to understand file structure
 - `find_symbol` to read specific functions/classes
 - `find_referencing_symbols` to understand dependencies
