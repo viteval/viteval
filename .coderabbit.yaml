@@ -1,0 +1,130 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit Configuration for Viteval
+# LLM evaluation framework built on Vitest
+
+language: "en-US"
+early_access: false
+enable_free_tier: true
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  review_status: true
+  commit_status: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  poem: false
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "DRAFT"
+    drafts: false
+
+  # Path-specific review instructions
+  path_instructions:
+    - path: "packages/core/**"
+      instructions: |
+        This is the core evaluation engine. Focus on:
+        - Type safety and generics usage
+        - Functional programming patterns
+        - JSDoc documentation for public APIs
+        - Backward compatibility of exported APIs
+    - path: "packages/cli/**"
+      instructions: |
+        This is the CLI package. Focus on:
+        - User-friendly error messages
+        - Command argument validation
+        - Help text clarity
+    - path: "packages/ui/**"
+      instructions: |
+        This is the web UI for viewing results. Focus on:
+        - Component reusability
+        - Accessibility
+    - path: "packages/internal/**"
+      instructions: |
+        Internal shared utilities. These are NOT part of the public API.
+        Focus on reusability across packages.
+    - path: "**/*.test.ts"
+      instructions: |
+        Test files use Vitest with BDD style (describe/it/expect).
+        Tests should be co-located with source files.
+    - path: "apps/website/**"
+      instructions: |
+        Vitepress documentation site. Focus on:
+        - Clarity of explanations
+        - Accurate code examples
+        - Proper markdown formatting
+
+  # Paths to exclude from review
+  path_filters:
+    - "!**/dist/**"
+    - "!**/node_modules/**"
+    - "!pnpm-lock.yaml"
+    - "!**/.nx/**"
+
+  # Tool configurations
+  tools:
+    # Disable ESLint - project uses oxlint instead
+    eslint:
+      enabled: false
+
+    # Enable tools that are useful for this project
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    actionlint:
+      enabled: true
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+
+    # TypeScript/JS tooling
+    oxc:
+      enabled: true
+    biome:
+      enabled: false
+
+    # Disable tools not used in this project
+    ruff:
+      enabled: false
+    phpstan:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    swiftlint:
+      enabled: false
+    detekt:
+      enabled: false
+    rubocop:
+      enabled: false
+    clippy:
+      enabled: false
+    pylint:
+      enabled: false
+    flake8:
+      enabled: false
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  learnings:
+    scope: "auto"
+  pull_requests:
+    scope: "auto"

@@ -19,6 +19,7 @@ Contributor documentation for the Viteval codebase.
 
 - [Setup Local Environment](./guides/setup-local-env.md) - Get started developing
 - [Configure IDE](./guides/configure-ide.md) - Set up VS Code
+- [Configure AI Coding](./guides/configure-ai-coding.md) - Set up Claude Code
 - [Add a Package](./guides/add-package.md) - Create new packages
 - [Add a Feature](./guides/add-feature.md) - Add functionality
 - [Add an Example](./guides/add-example.md) - Create examples

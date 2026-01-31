@@ -81,4 +81,5 @@ pnpm install && pnpm build
 ## References
 
 - [Configure IDE](./configure-ide.md) - Set up VS Code
+- [Configure AI Coding](./configure-ai-coding.md) - Set up Claude Code
 - [Commit Changes](./commit-changes.md) - Validate and commit workflow

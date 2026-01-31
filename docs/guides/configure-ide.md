@@ -36,4 +36,5 @@ Create or update `.vscode/settings.json`:
 ## References
 
 - [Setup Local Environment](./setup-local-env.md) - Initial setup
+- [Configure AI Coding](./configure-ai-coding.md) - Claude Code setup
 - [Oxc Documentation](https://oxc.rs)

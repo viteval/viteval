@@ -1,0 +1,72 @@
+# Serena Project Configuration
+# Docs: https://oraios.github.io/serena/
+
+project_name: 'viteval'
+
+# Language servers (use 'typescript' for JS/TS)
+languages:
+- typescript
+- markdown
+
+# the encoding used by text files in the project
+# For a list of possible encodings, see https://docs.python.org/3.11/library/codecs.html#standard-encodings
+encoding: 'utf-8'
+
+# Respect .gitignore
+ignore_all_files_in_gitignore: true
+
+# Additional paths to ignore (beyond .gitignore)
+ignored_paths:
+- node_modules
+- dist
+- .nx
+- tmp
+- coverage
+- .vitepress
+
+# whether the project is in read-only mode
+# If set to true, all editing tools will be disabled and attempts to use them will result in an error
+# Added on 2025-04-18
+read_only: false
+
+# Tools to exclude (JetBrains tools require IDE backend we don't use)
+excluded_tools:
+- jet_brains_find_symbol
+- jet_brains_find_referencing_symbols
+- jet_brains_get_symbols_overview
+- jet_brains_type_hierarchy
+
+# list of tools to include that would otherwise be disabled (particularly optional tools that are disabled by default)
+included_optional_tools: []
+
+# Prompt shown when project is activated
+initial_prompt: |
+  Viteval is an LLM evaluation framework built on Vitest.
+
+  Key packages:
+  - packages/core/ - Evaluation engine (evaluate, scorers, datasets)
+  - packages/cli/ - Command-line interface
+  - packages/ui/ - Web UI for viewing results
+  - packages/internal/ - Shared utilities (internal only)
+  - packages/viteval/ - Main package (re-exports core + CLI)
+
+  Use Serena MCP tools for code navigation, symbol search, and editing.
+
+# list of mode names to that are always to be included in the set of active modes
+# The full set of modes to be activated is base_modes + default_modes.
+# If the setting is undefined, the base_modes from the global configuration (serena_config.yml) apply.
+# Otherwise, this setting overrides the global configuration.
+# Set this to [] to disable base modes for this project.
+# Set this to a list of mode names to always include the respective modes for this project.
+base_modes:
+
+# list of mode names that are to be activated by default.
+# The full set of modes to be activated is base_modes + default_modes.
+# If the setting is undefined, the default_modes from the global configuration (serena_config.yml) apply.
+# Otherwise, this overrides the setting from the global configuration (serena_config.yml).
+# This setting can, in turn, be overridden by CLI parameters (--mode).
+default_modes:
+
+# fixed set of tools to use as the base tool set (if non-empty), replacing Serena's default set of tools.
+# This cannot be combined with non-empty excluded_tools or included_optional_tools.
+fixed_tools: []
