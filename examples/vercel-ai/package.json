@@ -1,6 +1,14 @@
 {
   "name": "@examples/complex",
+  "private": true,
   "description": "Viteval example - A real-world example using Vercel AI SDK",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --project tsconfig.lib.json",
+    "eval": "viteval",
+    "question": "tsx ./src/cli.ts",
+    "types": "tsc --noEmit --project tsconfig.lib.json"
+  },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.76",
     "ai": "^5.0.106",
@@ -13,13 +21,5 @@
   "devDependencies": {
     "@types/yargs": "^17.0.35",
     "tsx": "^4.21.0"
-  },
-  "private": true,
-  "scripts": {
-    "build": "tsc --project tsconfig.lib.json",
-    "eval": "viteval",
-    "question": "tsx ./src/cli.ts",
-    "types": "tsc --noEmit --project tsconfig.lib.json"
-  },
-  "type": "module"
+  }
 }

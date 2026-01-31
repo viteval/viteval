@@ -1,13 +1,19 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
-import { useState } from 'react'
-import { getStatusBadge } from '../lib/badges'
-import { formatDuration } from '../lib/utils'
-import type { EvalResult, EvalResults, EvalSuite, Score } from '../types'
-import ScoresRenderer from './ScoresRenderer'
-import { Badge } from './ui/badge'
-import { Button } from './ui/button'
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Collapsible, CollapsibleContent } from './ui/collapsible'
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { getStatusBadge } from '../lib/badges';
+import { formatDuration } from '../lib/utils';
+import type { EvalResult, EvalResults, EvalSuite, Score } from '../types';
+import ScoresRenderer from './ScoresRenderer';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
+import { Collapsible, CollapsibleContent } from './ui/collapsible';
 import {
   Table,
   TableBody,
@@ -16,31 +22,37 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table'
-import { ValueRenderer } from './ValueRenderer'
+} from './ui/table';
+import { ValueRenderer } from './ValueRenderer';
 
 interface ResultsDetailProps {
-  results: EvalResults
-  loading?: boolean
-  error?: string | null
+  results: EvalResults;
+  loading?: boolean;
+  error?: string | null;
 }
 
-
 function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const hasDetails = evalResult.input !== undefined || evalResult.expected !== undefined || evalResult.output !== undefined
+  const [isOpen, setIsOpen] = useState(false);
+  const hasDetails =
+    evalResult.input !== undefined ||
+    evalResult.expected !== undefined ||
+    evalResult.output !== undefined;
 
   return (
     <>
       <TableRow
-        className={hasDetails ? "cursor-pointer hover:bg-muted/50" : ""}
+        className={hasDetails ? 'cursor-pointer hover:bg-muted/50' : ''}
         onClick={() => hasDetails && setIsOpen(!isOpen)}
       >
         <TableCell className="font-medium">
           <div className="flex items-center gap-2">
             {hasDetails && (
               <Button variant="ghost" size="sm" className="h-4 w-4 p-0">
-                {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {isOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </Button>
             )}
             {evalResult.name}
@@ -53,7 +65,11 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
         <TableCell>
           <div className="flex gap-1 flex-wrap">
             {evalResult.scores.map((score: Score, scoreIndex) => (
-              <Badge key={`${score.name}-${scoreIndex}`} variant="outline" className="text-xs">
+              <Badge
+                key={`${score.name}-${scoreIndex}`}
+                variant="outline"
+                className="text-xs"
+              >
                 {score.name}: {score.score}
               </Badge>
             ))}
@@ -75,7 +91,10 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                   {evalResult.expected !== undefined && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Expected:</h4>
-                      <ValueRenderer value={evalResult.expected} label="Expected" />
+                      <ValueRenderer
+                        value={evalResult.expected}
+                        label="Expected"
+                      />
                     </div>
                   )}
                   {evalResult.output !== undefined && (
@@ -84,12 +103,18 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                       <ValueRenderer value={evalResult.output} label="Output" />
                     </div>
                   )}
-                  {evalResult.metadata && Object.keys(evalResult.metadata).length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
-                      <ValueRenderer value={evalResult.metadata} label="Metadata" />
-                    </div>
-                  )}
+                  {evalResult.metadata &&
+                    Object.keys(evalResult.metadata).length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-sm mb-2">
+                          Metadata:
+                        </h4>
+                        <ValueRenderer
+                          value={evalResult.metadata}
+                          label="Metadata"
+                        />
+                      </div>
+                    )}
                   {evalResult.scores.length > 0 && (
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Scores:</h4>
@@ -103,24 +128,26 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
         </TableRow>
       )}
     </>
-  )
+  );
 }
 
-export default function ResultsDetail({ results, loading = false, error }: ResultsDetailProps) {
+export default function ResultsDetail({
+  results,
+  loading = false,
+  error,
+}: ResultsDetailProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-muted-foreground">Loading results...</div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className="text-destructive text-center py-8">
-        Error: {error}
-      </div>
-    )
+      <div className="text-destructive text-center py-8">Error: {error}</div>
+    );
   }
 
   return (
@@ -132,11 +159,15 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{results.numPassedEvals}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {results.numPassedEvals}
+              </div>
               <div className="text-sm text-muted-foreground">Passed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{results.numFailedEvals}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {results.numFailedEvals}
+              </div>
               <div className="text-sm text-muted-foreground">Failed</div>
             </div>
             <div className="text-center">
@@ -144,7 +175,9 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
               <div className="text-sm text-muted-foreground">Total Evals</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{formatDuration(results.duration)}</div>
+              <div className="text-2xl font-bold">
+                {formatDuration(results.duration)}
+              </div>
               <div className="text-sm text-muted-foreground">Duration</div>
             </div>
           </div>
@@ -156,33 +189,37 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
             <CardTitle className="flex items-center gap-2">
               {suite.name}
             </CardTitle>
-            <CardAction>
-              {getStatusBadge(suite.status)}
-            </CardAction>
+            <CardAction>{getStatusBadge(suite.status)}</CardAction>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="text-center">
-                <div className="text-2xl font-bold">{formatDuration(suite.duration)}</div>
+                <div className="text-2xl font-bold">
+                  {formatDuration(suite.duration)}
+                </div>
                 <div className="text-sm text-muted-foreground">Duration</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{suite.summary.passedCount}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {suite.summary.passedCount}
+                </div>
                 <div className="text-sm text-muted-foreground">Passed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{suite.summary.totalCount - suite.summary.passedCount}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {suite.summary.totalCount - suite.summary.passedCount}
+                </div>
                 <div className="text-sm text-muted-foreground">Failed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">{suite.summary.meanScore.toFixed(3)}</div>
+                <div className="text-2xl font-bold">
+                  {suite.summary.meanScore.toFixed(3)}
+                </div>
                 <div className="text-sm text-muted-foreground">Mean Score</div>
               </div>
             </div>
             <Table>
-              <TableCaption>
-                Click on a row to view the details
-              </TableCaption>
+              <TableCaption>Click on a row to view the details</TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
@@ -195,7 +232,10 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
               </TableHeader>
               <TableBody>
                 {suite.evalResults.map((evalResult: EvalResult) => (
-                  <EvalResultRow key={evalResult.name} evalResult={evalResult} />
+                  <EvalResultRow
+                    key={evalResult.name}
+                    evalResult={evalResult}
+                  />
                 ))}
               </TableBody>
             </Table>
@@ -203,5 +243,5 @@ export default function ResultsDetail({ results, loading = false, error }: Resul
         </Card>
       ))}
     </div>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
-import { Toaster } from 'sonner'
-import Header from '../components/Header'
-import appCss from '../styles.css?url'
+import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
+import { Toaster } from 'sonner';
+import Header from '../components/Header';
+import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -27,7 +27,7 @@ export const Route = createRootRoute({
 
   shellComponent: RootDocument,
   notFoundComponent: NotFound,
-})
+});
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
@@ -38,7 +38,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <Header />
         {children}
-        <Toaster 
+        <Toaster
           position="bottom-right"
           toastOptions={{
             className: 'font-sans',
@@ -52,7 +52,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
 
 function NotFound() {
@@ -72,5 +72,5 @@ function NotFound() {
         </a>
       </div>
     </div>
-  )
+  );
 }

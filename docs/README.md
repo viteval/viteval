@@ -39,13 +39,13 @@ New to the codebase? Start here:
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Install dependencies | `pnpm install` |
-| Build all packages | `pnpm build` |
-| Run tests | `pnpm test` |
-| Validate (CI mode) | `pnpm validate` |
-| Fix lint issues | `pnpm fix` |
+| Task                 | Command         |
+| -------------------- | --------------- |
+| Install dependencies | `pnpm install`  |
+| Build all packages   | `pnpm build`    |
+| Run tests            | `pnpm test`     |
+| Validate (CI mode)   | `pnpm validate` |
+| Fix lint issues      | `pnpm fix`      |
 
 ## Related
 

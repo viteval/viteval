@@ -9,7 +9,7 @@ Global code patterns for the Viteval codebase.
 Use `#/` within packages to import from other files in the same package:
 
 ```ts
-import { getRuntimeConfig } from '#/internals/config'
+import { getRuntimeConfig } from '#/internals/config';
 ```
 
 Configured in `tsconfig.json`:
@@ -25,6 +25,6 @@ Configured in `tsconfig.json`:
 Use package names for workspace packages:
 
 ```ts
-import { evaluate, createScorer } from '@viteval/core'
-import { hasKey, isObject } from '@viteval/internal'
+import { evaluate, createScorer } from '@viteval/core';
+import { hasKey, isObject } from '@viteval/internal';
 ```

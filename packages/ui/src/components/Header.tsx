@@ -1,18 +1,19 @@
-import { Icon } from '@iconify/react'
-import { Link } from '@tanstack/react-router'
-import { Badge } from './ui/badge'
+import { Icon } from '@iconify/react';
+import { Link } from '@tanstack/react-router';
+import { Badge } from './ui/badge';
 
 export default function Header() {
   return (
     <header className="p-4 flex gap-2 bg-card text-card-foreground justify-between border-b border-border">
-      <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+      <Link
+        to="/"
+        className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+      >
         <img src="/logo192.png" alt="Viteval" className="w-8 h-8" />
         <h1 className="text-xl text-white">
           <span className="font-bold">Viteval</span>
         </h1>
-        <Badge>
-          alpha
-        </Badge>
+        <Badge>alpha</Badge>
       </Link>
       <nav className="flex flex-row items-center gap-4">
         <Link to="/results" className="flex items-center gap-2">
@@ -59,5 +60,5 @@ export default function Header() {
         </div>
       </nav>
     </header>
-  )
+  );
 }

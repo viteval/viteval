@@ -1,15 +1,15 @@
 {
   "name": "@examples/basic",
-  "description": "Viteval example - A basic example showing the basics of Viteval",
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "viteval": "workspace:*"
-  },
   "private": true,
+  "description": "Viteval example - A basic example showing the basics of Viteval",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "eval": "viteval",
     "types": "tsc --noEmit"
   },
-  "type": "module"
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "viteval": "workspace:*"
+  }
 }

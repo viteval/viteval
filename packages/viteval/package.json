@@ -1,26 +1,27 @@
 {
   "name": "viteval",
-  "description": "Next generation LLM evaluation framework powered by Vitest.",
   "version": "0.5.8",
+  "description": "Next generation LLM evaluation framework powered by Vitest.",
+  "keywords": [
+    "ai",
+    "evaluation",
+    "javascript",
+    "llm",
+    "testing",
+    "typescript",
+    "vitest"
+  ],
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "bugs": "https://github.com/viteval/viteval/issues",
+  "license": "MIT",
   "author": "viteval",
+  "repository": "viteval/viteval",
   "bin": {
     "viteval": "./cli.mjs"
   },
-  "bugs": "https://github.com/viteval/viteval/issues",
-  "dependencies": {
-    "@viteval/cli": "workspace:*",
-    "@viteval/core": "workspace:*",
-    "@viteval/internal": "workspace:*",
-    "@viteval/ui": "workspace:*",
-    "vitest": "^4.0.15"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.3.8",
-    "@tsconfig/node18": "^18.2.6",
-    "@types/node": "^24.10.1",
-    "tsdown": "^0.19.0-beta.3",
-    "typescript": "^5.9.3"
-  },
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -35,27 +36,23 @@
       "import": "./dist/dataset.mjs"
     }
   },
-  "homepage": "https://github.com/viteval/viteval#readme",
-  "keywords": [
-    "ai",
-    "evaluation",
-    "javascript",
-    "llm",
-    "testing",
-    "typescript",
-    "vitest"
-  ],
-  "license": "MIT",
-  "main": "dist/index.mjs",
-  "repository": "viteval/viteval",
   "scripts": {
     "build": "tsdown",
-    "check": "biome check .",
     "dev": "tsdown --watch",
-    "fix": "biome check --write .",
     "test": "vitest --typecheck --passWithNoTests",
     "types": "tsc --noEmit"
   },
-  "type": "module",
-  "types": "dist/index.d.mts"
+  "dependencies": {
+    "@viteval/cli": "workspace:*",
+    "@viteval/core": "workspace:*",
+    "@viteval/internal": "workspace:*",
+    "@viteval/ui": "workspace:*",
+    "vitest": "^4.0.15"
+  },
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.6",
+    "@types/node": "^24.10.1",
+    "tsdown": "^0.19.0-beta.3",
+    "typescript": "^5.9.3"
+  }
 }

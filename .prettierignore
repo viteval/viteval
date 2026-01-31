@@ -1,0 +1,11 @@
+node_modules
+**/dist/**
+**/build/**
+**/coverage/**
+**/templates/**
+logs
+tmp
+.nx
+pnpm-*
+original/**
+**/*.gen.ts

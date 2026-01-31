@@ -11,8 +11,8 @@
       "|",
       "| $0",
       "|",
-      "*/"
-    ]
+      "*/",
+    ],
   },
   "Comment: Section": {
     "scope": "javascript",
@@ -26,13 +26,13 @@
       "|",
       "| $2$0",
       "|",
-      "*/"
-    ]
+      "*/",
+    ],
   },
   "Comment: Subsection": {
     "scope": "javascript",
     "prefix": "cmt-subsection",
     "description": "A subsection within a file or module.",
-    "body": ["/*", "|------------------", "| $0", "|------------------", "*/"]
-  }
+    "body": ["/*", "|------------------", "| $0", "|------------------", "*/"],
+  },
 }

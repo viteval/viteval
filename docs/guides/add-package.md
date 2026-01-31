@@ -13,6 +13,7 @@ pnpm gen @tools/core:package my-package
 ### 2. Follow the prompts
 
 The generator creates:
+
 - `packages/my-package/` directory
 - `package.json` with workspace config
 - `tsconfig.json` extending base
@@ -53,8 +54,6 @@ mkdir -p packages/my-package/src
     "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "vitest --typecheck",
-    "check": "biome check .",
-    "fix": "biome check --write .",
     "types": "tsc --noEmit"
   }
 }
@@ -82,7 +81,7 @@ mkdir -p packages/my-package/src
 ### 4. Create tsdown.config.ts
 
 ```ts
-import { defineConfig } from 'tsdown'
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -90,14 +89,14 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-})
+});
 ```
 
 ### 5. Create vitest.config.ts
 
 ```ts
-import viteTsconfigPaths from 'vite-tsconfig-paths'
-import { defineConfig } from 'vitest/config'
+import viteTsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [viteTsconfigPaths()],
@@ -105,7 +104,7 @@ export default defineConfig({
     environment: 'node',
     include: ['**/*.test.ts'],
   },
-})
+});
 ```
 
 ### 6. Create the entry point
@@ -113,7 +112,7 @@ export default defineConfig({
 ```ts
 // src/index.ts
 export function hello() {
-  return 'Hello from my-package!'
+  return 'Hello from my-package!';
 }
 ```
 

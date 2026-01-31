@@ -4,13 +4,13 @@ Commands for developing, testing, and building Viteval using `pnpm` scripts.
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Install dependencies | `pnpm install` |
-| Build all packages | `pnpm build` |
-| Run all tests | `pnpm test` |
-| Fix lint issues | `pnpm fix` |
-| Validate (CI mode) | `pnpm validate` |
+| Task                 | Command         |
+| -------------------- | --------------- |
+| Install dependencies | `pnpm install`  |
+| Build all packages   | `pnpm build`    |
+| Run all tests        | `pnpm test`     |
+| Fix lint issues      | `pnpm fix`      |
+| Validate (CI mode)   | `pnpm validate` |
 
 ## Commands
 

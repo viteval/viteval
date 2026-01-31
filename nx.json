@@ -18,14 +18,6 @@
       "outputs": ["{projectRoot}/coverage/**"],
       "cache": true
     },
-    "check": {
-      "dependsOn": ["^check"],
-      "cache": true
-    },
-    "fix": {
-      "dependsOn": ["^fix"],
-      "cache": true
-    },
     "types": {
       "dependsOn": ["^build", "^types"],
       "cache": true

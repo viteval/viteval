@@ -11,10 +11,7 @@ import { evaluate } from 'viteval';
 ## Signature
 
 ```ts
-function evaluate<
-  DATA_ITEM extends DataItem,
-  DATA extends Data<DATA_ITEM>,
->(
+function evaluate<DATA_ITEM extends DataItem, DATA extends Data<DATA_ITEM>>(
   name: string,
   {
     data,
@@ -24,17 +21,19 @@ function evaluate<
     threshold = 1.0,
     timeout,
   }: Eval<DATA>
-)
+);
 ```
 
 ## Parameters
 
 ### `name`
+
 - **Type**: `string`
 - **Required**: Yes
 - **Description**: A human-readable name for the evaluation
 
 ### `options`
+
 - **Type**: `Eval<DATA>`
 - **Required**: Yes
 - **Description**: Configuration object for the evaluation
@@ -96,18 +95,18 @@ type Data<DATA_ITEM extends DataItem> =
 ```ts
 // Inline data
 data: [
-  { input: "What is 2+2?", expected: "4" },
-  { input: "What is 3+3?", expected: "6" },
-]
+  { input: 'What is 2+2?', expected: '4' },
+  { input: 'What is 3+3?', expected: '6' },
+];
 
 // From function
 data: async () => {
   const response = await fetch('/api/test-cases');
   return response.json();
-}
+};
 
 // From dataset
-data: mathDataset
+data: mathDataset;
 ```
 
 ### `task`
@@ -137,7 +136,7 @@ task: async ({ input }) => {
     prompt: input,
   });
   return result.text;
-}
+};
 
 // With chat messages
 task: async ({ input }) => {
@@ -149,12 +148,12 @@ task: async ({ input }) => {
     ],
   });
   return result.text;
-}
+};
 
 // Structured input
 task: async ({ input, context }) => {
   return await answerQuestion(input.question, context);
-}
+};
 ```
 
 ### `scorers`
@@ -167,8 +166,8 @@ Array of scorer functions to evaluate the output quality.
 import { scorers, createScorer } from 'viteval';
 
 // Built-in scorers
-scorers: [scorers.exactMatch]
-scorers: [scorers.levenshtein, scorers.factual]
+scorers: [scorers.exactMatch];
+scorers: [scorers.levenshtein, scorers.factual];
 
 // Custom scorer
 const customScorer = createScorer({
@@ -176,12 +175,12 @@ const customScorer = createScorer({
   score: ({ output, expected }) => {
     return {
       score: output.length === expected?.length ? 1 : 0,
-      metadata: { method: 'length_comparison' }
+      metadata: { method: 'length_comparison' },
     };
   },
 });
 
-scorers: [customScorer, scorers.answerSimilarity]
+scorers: [customScorer, scorers.answerSimilarity];
 ```
 
 ### `threshold` (optional)
@@ -194,13 +193,13 @@ Minimum average score required for the evaluation to pass.
 
 ```ts
 // Require 90% average score
-threshold: 0.9
+threshold: 0.9;
 
 // More lenient threshold
-threshold: 0.6
+threshold: 0.6;
 
 // Perfect scores only (default)
-threshold: 1.0
+threshold: 1.0;
 ```
 
 ### `timeout` (optional)
@@ -212,13 +211,13 @@ Maximum time (in milliseconds) for each test case.
 
 ```ts
 // 1 minute timeout
-timeout: 60000
+timeout: 60000;
 
 // Quick timeout for fast models
-timeout: 5000
+timeout: 5000;
 
 // No timeout (not recommended)
-timeout: 0
+timeout: 0;
 ```
 
 ### `aggregation` (optional)
@@ -231,13 +230,13 @@ How to aggregate scores across multiple scorers.
 
 ```ts
 // Use mean score (default)
-aggregation: 'mean'
+aggregation: 'mean';
 
 // Use median score
-aggregation: 'median'
+aggregation: 'median';
 
 // Use sum of scores
-aggregation: 'sum'
+aggregation: 'sum';
 ```
 
 ### `description` (optional)
@@ -247,7 +246,7 @@ Human-readable description of the evaluation.
 **Type**: `string`
 
 ```ts
-description: 'Evaluates math problem solving capabilities'
+description: 'Evaluates math problem solving capabilities';
 ```
 
 ## DataItem Interface
@@ -270,6 +269,7 @@ type DataItem<
 ```
 
 Where `Extra` is:
+
 ```ts
 type Extra = Record<string, unknown>;
 ```
@@ -285,14 +285,14 @@ type Extra = Record<string, unknown>;
 ```ts
 // Object input
 {
-  input: { 
-    question: "What's the weather?", 
-    location: "San Francisco" 
+  input: {
+    question: "What's the weather?",
+    location: "San Francisco"
   },
   expected: "Sunny, 72°F"
 }
 
-// Array input  
+// Array input
 {
   input: ["apple", "banana", "cherry"],
   expected: "apple, banana, cherry"

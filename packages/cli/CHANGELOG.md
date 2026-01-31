@@ -213,7 +213,7 @@
 
   ```ts
   export default defineConfig({
-    reporters: ["file"],
+    reporters: ['file'],
   });
   ```
 
@@ -229,7 +229,7 @@
 
   ```ts
   export default defineConfig({
-    reporters: ["default", "file"],
+    reporters: ['default', 'file'],
   });
   ```
 
