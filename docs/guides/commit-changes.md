@@ -40,14 +40,14 @@ git commit -m "feat(core): add my-feature"
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-| Type | Description |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation |
+| Type       | Description                  |
+| ---------- | ---------------------------- |
+| `feat`     | New feature                  |
+| `fix`      | Bug fix                      |
+| `docs`     | Documentation                |
 | `refactor` | Code change (no feature/fix) |
-| `test` | Adding tests |
-| `chore` | Maintenance |
+| `test`     | Adding tests                 |
+| `chore`    | Maintenance                  |
 
 ### 5. Push to remote
 

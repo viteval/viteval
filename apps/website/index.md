@@ -3,8 +3,8 @@
 layout: home
 
 hero:
-  name: "Viteval"
-  text: "Next Generation Eval Framework"
+  name: 'Viteval'
+  text: 'Next Generation Eval Framework'
   tagline: Define, run, and debug LLM evaluations with a familiar API
   image:
     src: /assets/viteval.png
@@ -36,8 +36,8 @@ import { evaluate, scorers } from 'viteval';
 
 evaluate('Color detection', {
   data: async () => [
-    { input: "What color is the sky?", expected: "Blue" },
-    { input: "What color is grass?", expected: "Green" },
+    { input: 'What color is the sky?', expected: 'Blue' },
+    { input: 'What color is grass?', expected: 'Green' },
   ],
   task: async (input) => {
     const result = await generateText(input);
@@ -70,4 +70,3 @@ evaluate('Color detection', {
     </a>
   </div>
 </div>
-

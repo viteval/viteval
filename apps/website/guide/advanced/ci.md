@@ -13,7 +13,7 @@ Viteval is designed to work seamlessly in CI/CD environments, allowing you to:
 
 ## GitHub Actions
 
-You can use Viteval in your GitHub Actions workflows to run evaluations on code changes. 
+You can use Viteval in your GitHub Actions workflows to run evaluations on code changes.
 
 ::: tip
 
@@ -28,13 +28,13 @@ name: LLM Evaluation
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     # HIGHLY recommend restricting paths to only the files that changed (so you don't run evals on non-impactful changes)
     paths:
       - apps/api/src/ai/**/*.ts
       - apps/api/src/lib/ai/**/*.ts
   pull_request:
-    branches: [ main ]
+    branches: [main]
     # HIGHLY recommend restricting paths to only the files that changed (so you don't run evals on non-impactful changes)
     paths:
       - apps/api/src/ai/**/*.ts
@@ -42,30 +42,30 @@ on:
 jobs:
   evaluate:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run evaluations
-      run: npx viteval run
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run evaluations
+        run: npx viteval run
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
 ## GitLab CI/CD
 
 Coming soon!
 
-## CircleCI 
+## CircleCI
 
 Coming soon!

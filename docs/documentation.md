@@ -50,6 +50,7 @@ command here
 ## Planning
 
 ### Step 1: Identify package
+
 ### Step 2: Design API
 
 ## Implementation
@@ -61,7 +62,9 @@ command here
 
 ```markdown
 ### 1. Identify the target package
+
 ### 2. Design the public API
+
 ### 3. Create feature directory
 ```
 
@@ -140,7 +143,7 @@ const result = evaluate('my-eval', {
   data: testData,
   task: myTask,
   scorers: [myScorer],
-})
+});
 ```
 
 **Bad:**
@@ -148,29 +151,27 @@ const result = evaluate('my-eval', {
 This example is too noisy and the reader is distracted by the boilerplate and obvious code.
 
 ```ts
-import { evaluate, createScorer } from '@viteval/core'
-import { defineDataset } from '@viteval/core/dataset'
+import { evaluate, createScorer } from '@viteval/core';
+import { defineDataset } from '@viteval/core/dataset';
 
-const testData = [
-  { input: 'hello', expected: 'HELLO' },
-]
+const testData = [{ input: 'hello', expected: 'HELLO' }];
 
 const myTask = async ({ input }) => {
-  return input.toUpperCase()
-}
+  return input.toUpperCase();
+};
 
 const myScorer = createScorer({
   name: 'exact-match',
   score: ({ output, expected }) => ({
     score: output === expected ? 1.0 : 0.0,
   }),
-})
+});
 
 const result = evaluate('my-eval', {
   data: testData,
   task: myTask,
   scorers: [myScorer],
-})
+});
 ```
 
 ### Exception: Copy-Paste Templates
@@ -179,12 +180,12 @@ When the reader should copy the entire block, show everything:
 
 ```ts
 // Full file template - reader copies this
-import { evaluate, createScorer } from 'viteval'
+import { evaluate, createScorer } from 'viteval';
 
 const data = [
   { input: 'hello', expected: 'HELLO' },
   { input: 'world', expected: 'WORLD' },
-]
+];
 
 evaluate('uppercase-eval', {
   data,
@@ -197,7 +198,7 @@ evaluate('uppercase-eval', {
       }),
     }),
   ],
-})
+});
 ```
 
 ### Rules
@@ -218,8 +219,8 @@ For system architecture and data flow:
 ```markdown
 \`\`\`mermaid
 flowchart LR
-    A[Start] --> B[Process]
-    B --> C[End]
+A[Start] --> B[Process]
+B --> C[End]
 \`\`\`
 ```
 
@@ -230,13 +231,13 @@ For request/response flows and interactions:
 ```markdown
 \`\`\`mermaid
 sequenceDiagram
-    participant CLI
-    participant Core
-    participant Scorer
-    CLI->>Core: evaluate()
-    Core->>Scorer: score()
-    Scorer-->>Core: result
-    Core-->>CLI: results
+participant CLI
+participant Core
+participant Scorer
+CLI->>Core: evaluate()
+Core->>Scorer: score()
+Scorer-->>Core: result
+Core-->>CLI: results
 \`\`\`
 ```
 
@@ -247,9 +248,9 @@ For data models:
 ```markdown
 \`\`\`mermaid
 erDiagram
-    Evaluation ||--o{ DataItem : contains
-    Evaluation ||--|{ Scorer : uses
-    DataItem ||--o{ Score : produces
+Evaluation ||--o{ DataItem : contains
+Evaluation ||--|{ Scorer : uses
+DataItem ||--o{ Score : produces
 \`\`\`
 ```
 
@@ -281,9 +282,9 @@ Use [GFM alerts](https://github.com/orgs/community/discussions/16925) for callou
 
 Use tables for structured information (not for prerequisites):
 
-| Item | Description |
-|------|-------------|
-| First | Description |
+| Item   | Description |
+| ------ | ----------- |
+| First  | Description |
 | Second | Description |
 
 ### Code Blocks
@@ -291,7 +292,7 @@ Use tables for structured information (not for prerequisites):
 Always specify language for syntax highlighting:
 
 ```ts
-const example = 'typescript'
+const example = 'typescript';
 ```
 
 ```bash

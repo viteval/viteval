@@ -37,7 +37,7 @@ The unified entry point. Users install this single package and get everything th
 
 ```ts
 // User imports from viteval
-import { evaluate, createScorer, defineDataset } from 'viteval'
+import { evaluate, createScorer, defineDataset } from 'viteval';
 ```
 
 Re-exports from `@viteval/core` and includes the CLI binary.

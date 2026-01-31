@@ -102,9 +102,7 @@ export const dataCommand: CommandModule<
       } catch (error) {
         const err = error instanceof Error ? error : new Error('Unknown error');
         logger.error(
-          `Failed loading Viteval setup files${
-            argv.verbose ? `: ${err.message}` : ''
-          }`
+          `Failed loading Viteval setup files${argv.verbose ? `: ${err.message}` : ''}`
         );
         process.exit(1);
       }

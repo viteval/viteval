@@ -1,32 +1,33 @@
-import { Link } from '@tanstack/react-router'
-import { getSuccessBadge } from '../lib/badges'
-import { formatDuration, formatFileSize, formatTimestamp } from '../lib/utils'
-import type { ResultFile } from '../types'
-import { Badge } from './ui/badge'
-import { Card, CardContent } from './ui/card'
-
+import { Link } from '@tanstack/react-router';
+import { getSuccessBadge } from '../lib/badges';
+import { formatDuration, formatFileSize, formatTimestamp } from '../lib/utils';
+import type { ResultFile } from '../types';
+import { Badge } from './ui/badge';
+import { Card, CardContent } from './ui/card';
 
 interface ResultsListProps {
-  results: ResultFile[]
-  loading?: boolean
-  error?: string | null
+  results: ResultFile[];
+  loading?: boolean;
+  error?: string | null;
 }
 
-export default function ResultsList({ results, loading = false, error }: ResultsListProps) {
+export default function ResultsList({
+  results,
+  loading = false,
+  error,
+}: ResultsListProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-muted-foreground">Loading results...</div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className="text-destructive text-center py-8">
-        Error: {error}
-      </div>
-    )
+      <div className="text-destructive text-center py-8">Error: {error}</div>
+    );
   }
 
   if (results.length === 0) {
@@ -34,13 +35,18 @@ export default function ResultsList({ results, loading = false, error }: Results
       <div className="text-muted-foreground text-center py-8">
         No result files found
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-4">
       {results.map((file) => (
-        <Link to="/results/$id" params={{ id: file.timestamp }} key={file.path} className="block">
+        <Link
+          to="/results/$id"
+          params={{ id: file.timestamp }}
+          key={file.path}
+          className="block"
+        >
           <Card
             key={file.path}
             className="hover:shadow-md transition-shadow hover:bg-muted"
@@ -61,23 +67,29 @@ export default function ResultsList({ results, loading = false, error }: Results
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Duration</div>
                         <div className="font-medium">
-                          {file.summary.status === 'running' && !file.summary.duration
+                          {file.summary.status === 'running' &&
+                          !file.summary.duration
                             ? 'In progress...'
-                            : formatDuration(file.summary.duration || 0)
-                          }
+                            : formatDuration(file.summary.duration || 0)}
                         </div>
                       </div>
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Total Evals</div>
-                        <div className="font-medium">{file.summary.numTotalEvals}</div>
+                        <div className="font-medium">
+                          {file.summary.numTotalEvals}
+                        </div>
                       </div>
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Passed</div>
-                        <div className="font-medium text-green-600">{file.summary.numPassedEvals}</div>
+                        <div className="font-medium text-green-600">
+                          {file.summary.numPassedEvals}
+                        </div>
                       </div>
                       <div className="space-y-1">
                         <div className="text-muted-foreground">Failed</div>
-                        <div className="font-medium text-red-600">{file.summary.numFailedEvals}</div>
+                        <div className="font-medium text-red-600">
+                          {file.summary.numFailedEvals}
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -89,7 +101,10 @@ export default function ResultsList({ results, loading = false, error }: Results
 
                 <div className="flex gap-2 items-center">
                   {file.summary?.status === 'running' && (
-                    <Badge variant="outline" className="text-yellow-600 border-yellow-600 animate-pulse">
+                    <Badge
+                      variant="outline"
+                      className="text-yellow-600 border-yellow-600 animate-pulse"
+                    >
                       Running
                     </Badge>
                   )}
@@ -101,5 +116,5 @@ export default function ResultsList({ results, loading = false, error }: Results
         </Link>
       ))}
     </div>
-  )
+  );
 }

@@ -61,9 +61,9 @@ import { generateText } from 'ai'; // or your preferred LLM library
 
 evaluate('Color detection', {
   data: async () => [
-    { input: "What color is the sky?", expected: "Blue" },
-    { input: "What color is grass?", expected: "Green" },
-    { input: "What color is snow?", expected: "White" },
+    { input: 'What color is the sky?', expected: 'Blue' },
+    { input: 'What color is grass?', expected: 'Green' },
+    { input: 'What color is snow?', expected: 'White' },
   ],
   task: async (input) => {
     const result = await generateText({
@@ -86,6 +86,7 @@ npx viteval
 ```
 
 This will:
+
 1. Discover all `*.eval.ts` files in your project
 2. Execute each evaluation
 3. Display results with scoring details
@@ -98,7 +99,7 @@ Viteval will output something like:
 ```
 ✓ Color detection (3/3 passed)
   ✓ What color is the sky? → Blue (score: 1.0)
-  ✓ What color is grass? → Green (score: 1.0)  
+  ✓ What color is grass? → Green (score: 1.0)
   ✓ What color is snow? → White (score: 1.0)
 
 Evaluations: 1 passed, 0 failed
@@ -114,9 +115,9 @@ import { defineDataset } from 'viteval/dataset';
 export default defineDataset({
   name: 'color-dataset',
   data: async () => [
-    { input: "What color is the sky?", expected: "Blue" },
-    { input: "What color is grass?", expected: "Green" },
-    { input: "What color is snow?", expected: "White" },
+    { input: 'What color is the sky?', expected: 'Blue' },
+    { input: 'What color is grass?', expected: 'Green' },
+    { input: 'What color is snow?', expected: 'White' },
   ],
 });
 ```

@@ -19,10 +19,10 @@ Use arrow keys and space to select package(s) that changed.
 
 ### 3. Choose the bump type
 
-| Change | Bump |
-|--------|------|
-| Bug fix | Patch (0.0.x) |
-| New feature | Minor (0.x.0) |
+| Change          | Bump          |
+| --------------- | ------------- |
+| Bug fix         | Patch (0.0.x) |
+| New feature     | Minor (0.x.0) |
 | Breaking change | Major (x.0.0) |
 
 ### 4. Write the changelog entry
@@ -40,6 +40,7 @@ git push
 ### 6. Merge to main
 
 Once your PR is merged, the release workflow will:
+
 - Update package versions
 - Generate changelogs
 - Publish to npm

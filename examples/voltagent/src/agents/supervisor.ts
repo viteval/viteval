@@ -30,5 +30,11 @@ Analyze the user query and decide which agent should handle it.
 Consider the subject matter and route to the most appropriate specialized agent.
 Pass the user query to the specialized agent and return the response from the specialized agent to the user.`,
   model: openai('gpt-4o'),
-  subAgents: [generalAgent, mathAgent, geographyAgent, historyAgent, scienceAgent],
+  subAgents: [
+    generalAgent,
+    mathAgent,
+    geographyAgent,
+    historyAgent,
+    scienceAgent,
+  ],
 });

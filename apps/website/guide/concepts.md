@@ -15,8 +15,12 @@ An evaluation is the fundamental unit in Viteval. It defines:
 import { evaluate, scorers } from 'viteval';
 
 evaluate('My Evaluation', {
-  data: async () => [/* test cases */],
-  task: async (input) => {/* your LLM call */},
+  data: async () => [
+    /* test cases */
+  ],
+  task: async (input) => {
+    /* your LLM call */
+  },
   scorers: [scorers.exactMatch],
   threshold: 0.9,
 });
@@ -31,8 +35,8 @@ For simple evaluations, define data directly:
 ```ts
 evaluate('Simple eval', {
   data: async () => [
-    { input: "Hello", expected: "Hi there!" },
-    { input: "Goodbye", expected: "See you later!" },
+    { input: 'Hello', expected: 'Hi there!' },
+    { input: 'Goodbye', expected: 'See you later!' },
   ],
   // ...
 });
@@ -50,8 +54,8 @@ const greetings = defineDataset({
   data: async () => {
     // Generate or load data
     return [
-      { input: "Hello", expected: "Hi there!" },
-      { input: "Goodbye", expected: "See you later!" },
+      { input: 'Hello', expected: 'Hi there!' },
+      { input: 'Goodbye', expected: 'See you later!' },
     ];
   },
 });
@@ -79,7 +83,7 @@ task: async (input) => {
     prompt: input,
   });
   return result.text;
-}
+};
 
 // With system prompts
 task: async (input) => {
@@ -91,7 +95,7 @@ task: async (input) => {
     ],
   });
   return result.text;
-}
+};
 
 // Structured output
 task: async (input) => {
@@ -104,7 +108,7 @@ task: async (input) => {
     }),
   });
   return JSON.stringify(result.object);
-}
+};
 ```
 
 ## Scorers
@@ -119,21 +123,21 @@ Viteval provides many pre-built scorers:
 import { scorers } from 'viteval';
 
 // Text similarity
-scorers.levenshtein    // Edit distance
-scorers.exactMatch     // Exact string match
-scorers.answerSimilarity // Semantic similarity
+scorers.levenshtein; // Edit distance
+scorers.exactMatch; // Exact string match
+scorers.answerSimilarity; // Semantic similarity
 
 // Content quality
-scorers.factual        // Factual accuracy
-scorers.summary        // Summary quality
-scorers.translation    // Translation accuracy
+scorers.factual; // Factual accuracy
+scorers.summary; // Summary quality
+scorers.translation; // Translation accuracy
 
 // Safety and moderation
-scorers.moderation     // Content safety
+scorers.moderation; // Content safety
 
 // Structured data
-scorers.jsonDiff       // JSON comparison
-scorers.sql           // SQL validation
+scorers.jsonDiff; // JSON comparison
+scorers.sql; // SQL validation
 ```
 
 ### Custom Scorers
@@ -168,10 +172,10 @@ Combine multiple scorers for comprehensive evaluation:
 evaluate('Comprehensive test', {
   // ...
   scorers: [
-    scorers.factual,      // Is it factually correct?
+    scorers.factual, // Is it factually correct?
     scorers.answerSimilarity, // Is it semantically similar?
-    scorers.moderation,   // Is it safe content?
-    customScorer,         // Custom business logic
+    scorers.moderation, // Is it safe content?
+    customScorer, // Custom business logic
   ],
   threshold: 0.8, // All scorers must average >= 0.8
 });

@@ -8,12 +8,12 @@ IMPORTANT: Always refer to the documentation before performing any task or any w
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Build | `pnpm build` |
-| Test | `pnpm test` |
+| Task     | Command         |
+| -------- | --------------- |
+| Build    | `pnpm build`    |
+| Test     | `pnpm test`     |
 | Validate | `pnpm validate` |
-| Fix lint | `pnpm fix` |
+| Fix lint | `pnpm fix`      |
 
 </quick-reference>
 

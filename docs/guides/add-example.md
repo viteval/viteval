@@ -13,6 +13,7 @@ pnpm gen @tools/core:example my-example
 ### 2. Follow the prompts
 
 The generator creates:
+
 - `examples/my-example/` directory
 - `package.json` with viteval dependency
 - `viteval.config.ts` configuration
@@ -76,27 +77,27 @@ mkdir -p examples/my-example
 ### 4. Create viteval.config.ts
 
 ```ts
-import { defineConfig } from 'viteval/config'
+import { defineConfig } from 'viteval/config';
 
 export default defineConfig({
   eval: {
     timeout: 30000,
   },
-})
+});
 ```
 
 ### 5. Create an evaluation file
 
 ```ts
 // example.eval.ts
-import { evaluate, createScorer } from 'viteval'
+import { evaluate, createScorer } from 'viteval';
 
 const exactMatch = createScorer({
   name: 'exact-match',
   score: ({ output, expected }) => ({
     score: output === expected ? 1.0 : 0.0,
   }),
-})
+});
 
 evaluate('uppercase-example', {
   data: [
@@ -105,7 +106,7 @@ evaluate('uppercase-example', {
   ],
   task: async ({ input }) => input.toUpperCase(),
   scorers: [exactMatch],
-})
+});
 ```
 
 ### 6. Install and run

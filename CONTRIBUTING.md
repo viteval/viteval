@@ -19,12 +19,12 @@ cd viteval && pnpm install && pnpm build
 
 ## Common Commands
 
-| Task | Command |
-|------|---------|
-| Build | `pnpm build` |
-| Test | `pnpm test` |
-| Lint | `pnpm check` |
-| Fix lint | `pnpm fix` |
+| Task     | Command         |
+| -------- | --------------- |
+| Build    | `pnpm build`    |
+| Test     | `pnpm test`     |
+| Lint     | `pnpm check`    |
+| Fix lint | `pnpm fix`      |
 | Validate | `pnpm validate` |
 
 > [!TIP]

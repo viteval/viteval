@@ -1,11 +1,22 @@
 {
   "name": "@viteval/cli",
-  "description": "Command line interface for Viteval - Next generation LLM evaluation framework powered by Vitest.",
   "version": "0.5.8",
+  "description": "Command line interface for Viteval - Next generation LLM evaluation framework powered by Vitest.",
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "bugs": "https://github.com/viteval/viteval/issues",
+  "repository": "viteval/viteval",
   "bin": {
     "viteval": "cli.mjs"
   },
-  "bugs": "https://github.com/viteval/viteval/issues",
+  "type": "module",
+  "main": "cli.mjs",
+  "scripts": {
+    "agents": "CI=true nx run --tui=false",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest --typecheck --passWithNoTests",
+    "types": "tsc --noEmit"
+  },
   "dependencies": {
     "@opentf/cli-pbar": "^0.7.2",
     "@viteval/core": "workspace:*",
@@ -24,25 +35,11 @@
     "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.8",
     "@tsconfig/node18": "^18.2.6",
     "@types/node": "^24.10.1",
     "@types/yargs": "^17.0.35",
     "tsdown": "^0.19.0-beta.3",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
-  },
-  "homepage": "https://github.com/viteval/viteval#readme",
-  "main": "cli.mjs",
-  "repository": "viteval/viteval",
-  "scripts": {
-    "agents": "CI=true nx run --tui=false",
-    "build": "tsdown",
-    "check": "biome check .",
-    "dev": "tsdown --watch",
-    "fix": "biome check --write .",
-    "test": "vitest --typecheck --passWithNoTests",
-    "types": "tsc --noEmit"
-  },
-  "type": "module"
+  }
 }

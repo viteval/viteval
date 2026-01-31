@@ -1,13 +1,13 @@
-import { Icon } from '@iconify/react'
-import { Await, createFileRoute, } from '@tanstack/react-router'
-import { listResults } from '@/fx/results'
-import ResultsList from '../components/ResultsList'
+import { Icon } from '@iconify/react';
+import { Await, createFileRoute } from '@tanstack/react-router';
+import { listResults } from '@/fx/results';
+import ResultsList from '../components/ResultsList';
 
 export const Route = createFileRoute('/results/')({
   loader: async () => {
     return {
-      results: listResults()
-    }
+      results: listResults(),
+    };
   },
   shouldReload: () => true,
   component: ResultsPage,
@@ -31,5 +31,5 @@ function ResultsPage() {
         {(results) => <ResultsList results={results} />}
       </Await>
     </div>
-  )
+  );
 }

@@ -1,19 +1,19 @@
-import { Icon } from '@iconify/react'
-import { Await, createFileRoute, Link } from '@tanstack/react-router'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { getDatasets } from '@/fx/datasets'
-import type { DatasetSummary } from '@/types'
+import { Icon } from '@iconify/react';
+import { Await, createFileRoute, Link } from '@tanstack/react-router';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getDatasets } from '@/fx/datasets';
+import type { DatasetSummary } from '@/types';
 
 export const Route = createFileRoute('/datasets/')({
   loader: async () => {
-    return { datasets: getDatasets() }
+    return { datasets: getDatasets() };
   },
   component: DatasetsPage,
-})
+});
 
 function DatasetsPage() {
-  const { datasets: initialDatasets } = Route.useLoaderData()
+  const { datasets: initialDatasets } = Route.useLoaderData();
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="mb-6">
@@ -25,11 +25,14 @@ function DatasetsPage() {
           View and manage your evaluation datasets
         </p>
       </div>
-      <Await promise={initialDatasets} fallback={<div>Loading datasets...</div>}>
+      <Await
+        promise={initialDatasets}
+        fallback={<div>Loading datasets...</div>}
+      >
         {(datasets) => <DatasetsList datasets={datasets} />}
       </Await>
     </div>
-  )
+  );
 }
 
 function DatasetsList({ datasets }: { datasets: DatasetSummary[] }) {
@@ -46,7 +49,7 @@ function DatasetsList({ datasets }: { datasets: DatasetSummary[] }) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -67,7 +70,9 @@ function DatasetsList({ datasets }: { datasets: DatasetSummary[] }) {
                 </Badge>
               </CardTitle>
               <div>
-                <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">{dataset.path}</code>
+                <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">
+                  {dataset.path}
+                </code>
               </div>
             </CardHeader>
             <CardContent>
@@ -81,5 +86,5 @@ function DatasetsList({ datasets }: { datasets: DatasetSummary[] }) {
         </Link>
       ))}
     </div>
-  )
+  );
 }

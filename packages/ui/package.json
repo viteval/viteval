@@ -1,8 +1,35 @@
 {
   "name": "@viteval/ui",
-  "description": "Viteval UI - local UI for viewing the results of your evals",
   "version": "0.5.8",
+  "description": "Viteval UI - local UI for viewing the results of your evals",
+  "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",
+  "license": "MIT",
+  "repository": "viteval/viteval",
+  "files": [
+    "dist",
+    "server.d.ts",
+    "server.mjs",
+    "server.mjs.map"
+  ],
+  "type": "module",
+  "main": "dist/server.mjs",
+  "module": "dist/server.mjs",
+  "types": "dist/server.d.ts",
+  "exports": {
+    ".": {
+      "types": "./server.d.ts",
+      "import": "./server.mjs"
+    }
+  },
+  "scripts": {
+    "build:server": "tsdown",
+    "build:ui": "vite build",
+    "dev": "vite dev --port 3000",
+    "serve": "vite preview",
+    "start": "node .output/server/index.mjs",
+    "types": "pnpm tsc --noEmit"
+  },
   "dependencies": {
     "@iconify-json/mdi": "^1.2.3",
     "@iconify/react": "^6.0.2",
@@ -51,32 +78,5 @@
     "vite": "^7.2.6",
     "vite-tsconfig-paths": "^5.1.4",
     "web-vitals": "^5.1.0"
-  },
-  "exports": {
-    ".": {
-      "types": "./server.d.ts",
-      "import": "./server.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "server.d.ts",
-    "server.mjs",
-    "server.mjs.map"
-  ],
-  "homepage": "https://github.com/viteval/viteval#readme",
-  "license": "MIT",
-  "main": "dist/server.mjs",
-  "module": "dist/server.mjs",
-  "repository": "viteval/viteval",
-  "scripts": {
-    "build:server": "tsdown",
-    "build:ui": "vite build",
-    "dev": "vite dev --port 3000",
-    "serve": "vite preview",
-    "start": "node .output/server/index.mjs",
-    "types": "pnpm tsc --noEmit"
-  },
-  "type": "module",
-  "types": "dist/server.d.ts"
+  }
 }

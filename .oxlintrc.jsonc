@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "rules": {
+    // Recommended rules (enabled by default)
+    // Style rules (matching biome style rules)
+    "no-var": "error",
+    "prefer-const": "error",
+    "default-param-last": "error",
+    // Suspicious rules
+    "eqeqeq": "error",
+    "no-explicit-any": "error",
+    "no-console": "error",
+    // Correctness
+    "no-unused-vars": "error",
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/templates/**",
+    "logs",
+    "tmp",
+    ".nx",
+    "pnpm-*",
+    "original/**",
+    "**/*.gen.ts",
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off",
+    "style": "warn",
+    "nursery": "off",
+  },
+}

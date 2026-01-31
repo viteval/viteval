@@ -10,7 +10,7 @@ Set up your IDE for Viteval development.
 
 ### 1. Install recommended extensions
 
-- **Biome** - Linting and formatting
+- **Oxc** - Linting (oxlint) and formatting (oxfmt)
 - **TypeScript** - Language support
 
 ### 2. Configure settings
@@ -20,7 +20,10 @@ Create or update `.vscode/settings.json`:
 ```json
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "biomejs.biome"
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "explicit"
+  }
 }
 ```
 
@@ -33,4 +36,4 @@ Create or update `.vscode/settings.json`:
 ## References
 
 - [Setup Local Environment](./setup-local-env.md) - Initial setup
-- [Biome Documentation](https://biomejs.dev)
+- [Oxc Documentation](https://oxc.rs)

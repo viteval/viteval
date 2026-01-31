@@ -6,21 +6,21 @@ Add new functionality to an existing Viteval package.
 
 ### 1. Identify the target package
 
-| Feature Type | Package |
-|--------------|---------|
-| Evaluation logic | `@viteval/core` |
-| Utilities | `@viteval/internal` |
-| CLI commands | `@viteval/cli` |
-| UI components | `@viteval/ui` |
+| Feature Type     | Package             |
+| ---------------- | ------------------- |
+| Evaluation logic | `@viteval/core`     |
+| Utilities        | `@viteval/internal` |
+| CLI commands     | `@viteval/cli`      |
+| UI components    | `@viteval/ui`       |
 
 ### 2. Design the public API
 
 Before coding, design what users will import and how they'll use it:
 
 ```ts
-import { myFeature } from '@viteval/core'
+import { myFeature } from '@viteval/core';
 
-const result = myFeature({ option: 'value' })
+const result = myFeature({ option: 'value' });
 ```
 
 ### 3. Create the feature directory
@@ -34,11 +34,11 @@ mkdir -p packages/core/src/my-feature
 ```ts
 // src/my-feature/my-feature.ts
 export interface MyFeatureOptions {
-  option: string
+  option: string;
 }
 
 export function myFeature(options: MyFeatureOptions) {
-  return { result: options.option }
+  return { result: options.option };
 }
 ```
 
@@ -46,34 +46,34 @@ export function myFeature(options: MyFeatureOptions) {
 
 ```ts
 // src/my-feature/index.ts
-export { myFeature, type MyFeatureOptions } from './my-feature'
+export { myFeature, type MyFeatureOptions } from './my-feature';
 ```
 
 ### 6. Export from the package
 
 ```ts
 // src/index.ts
-export { myFeature, type MyFeatureOptions } from './my-feature'
+export { myFeature, type MyFeatureOptions } from './my-feature';
 ```
 
 ### 7. Write tests
 
 ```ts
 // src/my-feature/my-feature.test.ts
-import { describe, expect, it } from 'vitest'
-import { myFeature } from './my-feature'
+import { describe, expect, it } from 'vitest';
+import { myFeature } from './my-feature';
 
 describe('myFeature', () => {
   it('should return result with option', () => {
-    const result = myFeature({ option: 'test' })
-    expect(result).toEqual({ result: 'test' })
-  })
-})
+    const result = myFeature({ option: 'test' });
+    expect(result).toEqual({ result: 'test' });
+  });
+});
 ```
 
 ### 8. Add JSDoc documentation
 
-```ts
+````ts
 /**
  * My feature does something useful.
  *
@@ -85,9 +85,9 @@ describe('myFeature', () => {
  * ```
  */
 export function myFeature(options: MyFeatureOptions) {
-  return { result: options.option }
+  return { result: options.option };
 }
-```
+````
 
 ### 9. Run validation
 

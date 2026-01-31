@@ -7,7 +7,6 @@ import type {
   ResultFile,
 } from '../types';
 
-
 class VitevalFileReader {
   private readonly rootPath: string;
 
@@ -54,9 +53,7 @@ class VitevalFileReader {
    * @returns Array of dataset summaries
    */
   public async listDatasets(): Promise<DatasetSummary[]> {
-    const fileIds = await this.list('datasets', (a, b) =>
-      a.localeCompare(b)
-    );
+    const fileIds = await this.list('datasets', (a, b) => a.localeCompare(b));
 
     const results = await Promise.all(
       fileIds.map(async (id) => {
@@ -103,7 +100,7 @@ class VitevalFileReader {
   ): Promise<string[]> {
     try {
       const fullPath = path.join(this.getVitevalDirectory(), dirPath);
-      
+
       if (!(await exists(fullPath))) {
         return [];
       }
@@ -139,7 +136,6 @@ class VitevalFileReader {
       return null;
     }
   }
-
 
   private getVitevalDirectory(): string {
     return path.join(this.rootPath, '.viteval');

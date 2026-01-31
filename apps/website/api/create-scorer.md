@@ -13,12 +13,13 @@ import { createScorer } from 'viteval';
 ```ts
 function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
   config: ScorerConfig<OUTPUT, EXTRA>
-): Scorer<OUTPUT, EXTRA>
+): Scorer<OUTPUT, EXTRA>;
 ```
 
 ## Parameters
 
 ### `config`
+
 - **Type**: `ScorerConfig<OUTPUT, EXTRA>`
 - **Required**: Yes
 - **Description**: Configuration object for the scorer
@@ -73,6 +74,7 @@ interface Score {
 ```
 
 The function should return a score between 0 and 1, where:
+
 - `1.0` = Perfect score
 - `0.0` = Complete failure
 - `0.5` = Partial success

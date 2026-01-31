@@ -9,8 +9,8 @@ import { evaluate, scorers } from 'viteval';
 
 evaluate('Simple QA', {
   data: async () => [
-    { input: "What is the capital of France?", expected: "Paris" },
-    { input: "What is 2+2?", expected: "4" },
+    { input: 'What is the capital of France?', expected: 'Paris' },
+    { input: 'What is 2+2?', expected: '4' },
   ],
   task: async (input) => {
     return await callYourLLM(input);
@@ -56,9 +56,9 @@ evaluate('Content quality', {
   data: async () => loadQuestions(),
   task: async (input) => await generateContent(input),
   scorers: [
-    scorers.factual,        // Must be factually correct
+    scorers.factual, // Must be factually correct
     scorers.answerSimilarity, // Must be semantically similar
-    scorers.moderation,     // Must be safe content
+    scorers.moderation, // Must be safe content
   ],
   threshold: 0.8, // an average of the scores is used to determine if threshold is met
 });

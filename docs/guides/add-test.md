@@ -19,50 +19,50 @@ src/scorer/
 ```ts
 describe('with setup', () => {
   beforeAll(async () => {
-    await setup()
-  })
+    await setup();
+  });
 
   afterAll(async () => {
-    await cleanup()
-  })
+    await cleanup();
+  });
 
   it('should work', async () => {
     // test
-  })
-})
+  });
+});
 ```
 
 ### 3. Write the test
 
 ```ts
-import { describe, it, expect } from 'vitest'
-import { myFunction } from './my-function'
+import { describe, it, expect } from 'vitest';
+import { myFunction } from './my-function';
 
 describe('myFunction', () => {
   it('should return expected result', async () => {
-    const result = await myFunction('input')
-    expect(result).toBe('expected')
-  })
+    const result = await myFunction('input');
+    expect(result).toBe('expected');
+  });
 
   it('should handle edge case', async () => {
-    const result = await myFunction('')
-    expect(result).toBeNull()
-  })
-})
+    const result = await myFunction('');
+    expect(result).toBeNull();
+  });
+});
 ```
 
 ### 4. (Optional) Add mocks
 
 ```ts
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest';
 
-const mockFn = vi.fn().mockReturnValue('mocked')
+const mockFn = vi.fn().mockReturnValue('mocked');
 
 vi.mock('@viteval/internal', () => ({
   hasKey: vi.fn().mockReturnValue(true),
-}))
+}));
 
-expect(mockFn).toHaveBeenCalledWith('arg')
+expect(mockFn).toHaveBeenCalledWith('arg');
 ```
 
 ### 5. Run the test

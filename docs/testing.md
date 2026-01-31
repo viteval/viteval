@@ -21,9 +21,9 @@ Use `describe` for grouping and `it` for test cases:
 ```ts
 describe('myFunction', () => {
   it('should do something', () => {
-    expect(result).toBe(expected)
-  })
-})
+    expect(result).toBe(expected);
+  });
+});
 ```
 
 ### Imports
@@ -31,7 +31,7 @@ describe('myFunction', () => {
 Global variables are not supported, you must import test utilities from Vitest:
 
 ```ts
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest';
 ```
 
 ## References

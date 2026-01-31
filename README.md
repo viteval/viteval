@@ -27,7 +27,7 @@ Next generation LLM evaluation framework powered by Vitest.
 - ✅ Scorer framework: easily define and use scorers to evaluate your LLM.
 - ✅ CI ready: easily integrate with your CI pipeline and run evals the same way you run tests.
 - 🧪 UI for viewing the results of Evals (alpha)
-- (SOON) Report Exports: custom reporters to help you visualize your evals, or upload them to a 3rd party 
+- (SOON) Report Exports: custom reporters to help you visualize your evals, or upload them to a 3rd party
 - (SOON) Remote Datasets: easily define & use datasets that are stored in a database, S3 bucket, or a 3rd party
 
 ## Installation
@@ -46,8 +46,8 @@ import { generateText } from 'ai';
 
 evaluate('Color detection', {
   data: async () => [
-    { input: "What color is the sky?", expected: "Blue" },
-    { input: "What color is grass?", expected: "Green" },
+    { input: 'What color is the sky?', expected: 'Blue' },
+    { input: 'What color is grass?', expected: 'Green' },
   ],
   task: async (input) => {
     const result = await generateText(input);
@@ -63,4 +63,3 @@ Now you can run the eval by running:
 ```bash
 npx viteval
 ```
-

@@ -1,7 +1,13 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Database, FileText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { Database, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -12,9 +18,7 @@ function HomePage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold tracking-tight mb-2">ViteVal</h1>
-        <p className="text-muted-foreground">
-          Choose what you'd like to view
-        </p>
+        <p className="text-muted-foreground">Choose what you'd like to view</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -40,9 +44,7 @@ function HomePage() {
               <Database className="h-5 w-5" />
               Datasets
             </CardTitle>
-            <CardDescription>
-              Manage and explore your datasets
-            </CardDescription>
+            <CardDescription>Manage and explore your datasets</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
@@ -52,5 +54,5 @@ function HomePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
