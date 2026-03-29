@@ -3,9 +3,17 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are comparing a submitted answer to an expert answer on a given SQL coding question.
 
-<question>{{input}}</question>
-<expert_sql>{{expected}}</expert_sql>
-<submitted_sql>{{output}}</submitted_sql>
+<question>
+{{input}}
+</question>
+
+<expert_sql>
+{{expected}}
+</expert_sql>
+
+<submitted_sql>
+{{output}}
+</submitted_sql>
 
 Compare the content and correctness of the submitted SQL with the expert answer. Ignore any differences in whitespace, style, or output column names.
 The submitted answer may either be correct or incorrect. Determine which case applies:

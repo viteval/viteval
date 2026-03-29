@@ -3,8 +3,13 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are evaluating the relevancy of a retrieved context to a given question.
 
-<question>{{input}}</question>
-<context>{{output}}</context>
+<question>
+{{input}}
+</question>
+
+<context>
+{{output}}
+</context>
 
 Evaluate whether the context contains information relevant to answering the question.
 (A) The context is highly relevant and contains information needed to answer the question.

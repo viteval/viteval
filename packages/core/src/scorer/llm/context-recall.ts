@@ -3,9 +3,17 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are evaluating the recall of a retrieved context against an expected answer.
 
-<question>{{input}}</question>
-<context>{{output}}</context>
-<expected_answer>{{expected}}</expected_answer>
+<question>
+{{input}}
+</question>
+
+<context>
+{{output}}
+</context>
+
+<expected_answer>
+{{expected}}
+</expected_answer>
 
 Evaluate whether the context contains enough information to support the expected answer. Consider if all claims in the expected answer can be attributed to the context.
 (A) The context fully supports the expected answer - all claims can be attributed to the context.

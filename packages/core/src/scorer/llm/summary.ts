@@ -3,9 +3,17 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are comparing a submitted summary to an expert summary of a given text.
 
-<text>{{input}}</text>
-<expert_summary>{{expected}}</expert_summary>
-<submitted_summary>{{output}}</submitted_summary>
+<text>
+{{input}}
+</text>
+
+<expert_summary>
+{{expected}}
+</expert_summary>
+
+<submitted_summary>
+{{output}}
+</submitted_summary>
 
 Compare the submitted summary with the expert summary. Ignore any differences in style, grammar, or punctuation.
 Determine which summary better describes the original text.`;

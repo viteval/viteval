@@ -3,9 +3,17 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are evaluating the precision of a retrieved context for answering a question.
 
-<question>{{input}}</question>
-<context>{{output}}</context>
-<expected_answer>{{expected}}</expected_answer>
+<question>
+{{input}}
+</question>
+
+<context>
+{{output}}
+</context>
+
+<expected_answer>
+{{expected}}
+</expected_answer>
 
 Evaluate whether the context is precise and focused on information needed to answer the question correctly.
 (A) The context is highly precise and contains mostly relevant information for answering the question.

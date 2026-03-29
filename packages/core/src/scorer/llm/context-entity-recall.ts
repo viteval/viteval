@@ -3,9 +3,17 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are evaluating entity recall from a given context against an expected answer.
 
-<question>{{input}}</question>
-<context>{{output}}</context>
-<expected_answer>{{expected}}</expected_answer>
+<question>
+{{input}}
+</question>
+
+<context>
+{{output}}
+</context>
+
+<expected_answer>
+{{expected}}
+</expected_answer>
 
 Evaluate what fraction of the important entities in the expected answer are present in the context. Consider named entities, key concepts, and important terms.
 (A) All important entities from the expected answer are found in the context.

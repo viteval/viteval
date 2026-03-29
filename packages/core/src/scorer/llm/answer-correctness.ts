@@ -3,9 +3,17 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are evaluating the correctness of an answer to a question.
 
-<question>{{input}}</question>
-<expected_answer>{{expected}}</expected_answer>
-<submitted_answer>{{output}}</submitted_answer>
+<question>
+{{input}}
+</question>
+
+<expected_answer>
+{{expected}}
+</expected_answer>
+
+<submitted_answer>
+{{output}}
+</submitted_answer>
 
 Evaluate whether the submitted answer is correct based on the expected answer. Consider factual accuracy and completeness.
 (A) The submitted answer is completely correct and matches the expected answer.

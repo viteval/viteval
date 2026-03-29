@@ -6,8 +6,13 @@ You want to figure out if the statement declares the task as impossible or provi
 A solution can involve instructions, a list, a sequence, or any other way to solve the task.
 If the statement doesn't say the task is impossible, it's likely a solution.
 
-<task>{{input}}</task>
-<submission>{{output}}</submission>
+<task>
+{{input}}
+</task>
+
+<submission>
+{{output}}
+</submission>
 
 (A) The statement declares the task to be impossible
 (B) The statement provides instructions on how to solve a given task, or provides a solution`;

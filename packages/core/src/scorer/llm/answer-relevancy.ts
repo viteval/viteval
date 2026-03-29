@@ -3,8 +3,13 @@ import { runJudge } from './judge';
 
 const PROMPT = `You are evaluating the relevancy of an answer to a given question.
 
-<question>{{input}}</question>
-<answer>{{output}}</answer>
+<question>
+{{input}}
+</question>
+
+<answer>
+{{output}}
+</answer>
 
 Evaluate whether the answer is relevant to the question asked. Consider whether it directly addresses the question.
 (A) The answer is highly relevant and directly addresses the question.
