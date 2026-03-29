@@ -156,16 +156,16 @@ type(scope): description
 
 ### Types
 
-| Type       | Use                                    |
-| ---------- | -------------------------------------- |
-| `feat`     | New user-facing feature                |
-| `fix`      | Bug fix                                |
-| `docs`     | Documentation only                     |
-| `refactor` | Code change, no behavior change        |
-| `test`     | Add or update tests                    |
-| `chore`    | Maintenance (build, deps, config)      |
-| `perf`     | Performance optimization               |
-| `security` | Security fix or vulnerability patch    |
+| Type       | Use                                 |
+| ---------- | ----------------------------------- |
+| `feat`     | New user-facing feature             |
+| `fix`      | Bug fix                             |
+| `docs`     | Documentation only                  |
+| `refactor` | Code change, no behavior change     |
+| `test`     | Add or update tests                 |
+| `chore`    | Maintenance (build, deps, config)   |
+| `perf`     | Performance optimization            |
+| `security` | Security fix or vulnerability patch |
 
 ### Rules
 
