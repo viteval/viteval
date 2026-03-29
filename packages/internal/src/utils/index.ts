@@ -9,10 +9,12 @@ export {
   isEmptyObject,
   isFunction,
   isNil,
+  isNumber,
   isObject,
   isPlainObject,
   isPromise,
   isString,
 } from './lang';
+export { clamp } from './math';
 export { hasKey } from './objects';
 export { type Result, withResult } from './result';

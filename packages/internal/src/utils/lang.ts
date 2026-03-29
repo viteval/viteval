@@ -97,3 +97,22 @@ export function isPromise<T>(value: unknown): value is Promise<T> {
 export function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
+
+/**
+ * Check if a value is a finite number (not NaN, not Infinity).
+ *
+ * @param value - The value to check
+ * @returns True if the value is a finite number, false otherwise
+ *
+ * @example
+ * ```ts
+ * isNumber(42);        // true
+ * isNumber(3.14);      // true
+ * isNumber(NaN);       // false
+ * isNumber(Infinity);  // false
+ * isNumber('42');      // false
+ * ```
+ */
+export function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
