@@ -67,8 +67,10 @@ export function evaluate<
 
     // eslint-disable-next-line no-empty-pattern -- vitest 4.1 requires destructured 1st arg for fixtures
     afterAll(({}, { suite }) => {
-      // @ts-expect-error - this is valid
-      suite.meta.results = results;
+      if (suite) {
+        // @ts-expect-error - this is valid
+        suite.meta.results = results;
+      }
     });
 
     const formattedData = await formatData(data);
