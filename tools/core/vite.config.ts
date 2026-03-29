@@ -12,8 +12,8 @@ export default defineConfig(() => ({
   // },
   test: {
     coverage: {
-      reportsDirectory: '../../coverage/tools/core',
       provider: 'v8' as const,
+      reportsDirectory: '../../coverage/tools/core',
     },
     environment: 'jsdom',
     globals: true,

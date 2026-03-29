@@ -14,8 +14,8 @@ export const dataCommand: CommandModule<
   unknown,
   { pattern: string; overwrite?: boolean; verbose?: boolean }
 > = {
-  builder: (yargs) => {
-    return yargs
+  builder: (yargs) =>
+    yargs
       .positional('pattern', {
         describe: 'Dataset file pattern to match',
         type: 'string',
@@ -31,8 +31,7 @@ export const dataCommand: CommandModule<
         describe: 'Verbose output',
         type: 'boolean',
         default: false,
-      });
-  },
+      }),
   command: 'data [pattern]',
   describe: 'Generate the datasets in your codebase',
   handler: async (argv) => {
@@ -69,13 +68,13 @@ export const dataCommand: CommandModule<
       }
 
       const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
-        fsCache: false,
-        moduleCache: false,
-        interopDefault: true,
-        sourceMaps: true,
         alias: {
           ...aliases,
         },
+        fsCache: false,
+        interopDefault: true,
+        moduleCache: false,
+        sourceMaps: true,
         transformOptions: {
           filename: '',
           ts: true,
@@ -123,28 +122,28 @@ export const dataCommand: CommandModule<
       );
 
       const results: {
-        successes: Array<{ name: string; error?: null }>;
-        failures: Array<{ name: string; error: Error }>;
-        skipped: Array<{ name: string }>;
+        successes: { name: string; error?: null }[];
+        failures: { name: string; error: Error }[];
+        skipped: { name: string }[];
       } = {
-        successes: [],
         failures: [],
         skipped: [],
+        successes: [],
       };
 
       const progressBar = new ProgressBar({
+        prefix: 'Generating datasets',
+        showCount: true,
+        showPercent: false,
         size: 'MEDIUM',
         variant: 'PLAIN',
-        prefix: 'Generating datasets',
-        showPercent: false,
-        showCount: true,
       });
       progressBar.start();
 
       await Promise.all(
         mods.map(async (mod, index) => {
           // If we are not overwriting, check if the dataset exists
-          // and skip it if it does
+          // And skip it if it does
           if (argv.overwrite !== true) {
             try {
               if (await mod.exists()) {
@@ -158,10 +157,10 @@ export const dataCommand: CommandModule<
 
           // Just run the data function to generate it
           const progressBarItem = progressBar.add({
-            total: 100,
             id: index,
             progress: true,
             suffix: chalk.cyan(mod.name),
+            total: 100,
           });
           let value = 0;
           const inc = 1;
@@ -176,7 +175,7 @@ export const dataCommand: CommandModule<
           }, wait);
 
           try {
-            // import the dataset
+            // Import the dataset
             await mod.save({ overwrite: argv.overwrite });
             results.successes.push({ name: mod.name });
 
@@ -185,7 +184,7 @@ export const dataCommand: CommandModule<
               value: 100,
             });
           } catch (error) {
-            results.failures.push({ name: mod.name, error: error as Error });
+            results.failures.push({ error: error as Error, name: mod.name });
             clearInterval(intervalId);
             progressBarItem.update({
               value: 100,

@@ -19,7 +19,7 @@ describe('createScorer', () => {
     expect(result).toEqual({
       metadata: undefined,
       name: 'exact-match',
-      score: 1.0,
+      score: 1,
     });
   });
 
@@ -51,7 +51,7 @@ describe('createScorer', () => {
     expect(result).toEqual({
       metadata: undefined,
       name: 'async-scorer',
-      score: 1.0,
+      score: 1,
     });
   });
 
@@ -61,11 +61,11 @@ describe('createScorer', () => {
       score: ({ output, expected }) => ({
         metadata: {
           // @ts-expect-error - output is of type unknown
-          outputLength: output.length,
           comparison: output === expected,
+          outputLength: output.length,
           timestamp: Date.now(),
         },
-        score: output === expected ? 1.0 : 0.0,
+        score: output === expected ? 1 : 0,
       }),
     });
 
@@ -95,11 +95,11 @@ describe('createScorer', () => {
       score: ({ output, customParam, threshold }) => ({
         metadata: {
           customParam,
-          threshold,
           outputLength: output.length,
+          threshold,
         },
         score:
-          output.includes(customParam) && output.length > threshold ? 1.0 : 0.0,
+          output.includes(customParam) && output.length > threshold ? 1 : 0,
       }),
     });
 
@@ -157,7 +157,7 @@ describe('createScorer', () => {
             // @ts-expect-error - expected is of type unknown
             expectedWords: expected.split(' ').length,
           },
-          score: passed ? similarity : 0.0,
+          score: passed ? similarity : 0,
         };
       },
     });

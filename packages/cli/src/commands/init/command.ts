@@ -13,8 +13,8 @@ export const initCommand: CommandModule<
     envFilePath?: string;
   }
 > = {
-  builder: (yargs) => {
-    return yargs
+  builder: (yargs) =>
+    yargs
       .option('env-file', {
         type: 'boolean',
         describe: 'Create .env file',
@@ -23,8 +23,7 @@ export const initCommand: CommandModule<
         type: 'string',
         describe: 'Path to .env file',
         default: '.env',
-      });
-  },
+      }),
   command: 'init [options]',
   describe: 'Initialize a new project',
   handler: async (argv) => {

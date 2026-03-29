@@ -27,8 +27,8 @@ describe('evaluate', () => {
 
   evaluate('basic evaluation with static data', {
     data: [
-      { input: 'hello', expected: 'HELLO' },
-      { input: 'world', expected: 'WORLD' },
+      { expected: 'HELLO', input: 'hello' },
+      { expected: 'WORLD', input: 'world' },
     ],
     scorers: [mockScorer],
     task: mockTask,
@@ -37,8 +37,8 @@ describe('evaluate', () => {
   evaluate('threshold enforcement with mean aggregation', {
     aggregation: 'mean',
     data: [
-      { input: 'pass', expected: 'PASS' },
-      { input: 'also-pass', expected: 'ALSO-PASS' },
+      { expected: 'PASS', input: 'pass' },
+      { expected: 'ALSO-PASS', input: 'also-pass' },
     ],
     scorers: [mockScorer],
     task: mockTask,
@@ -47,20 +47,20 @@ describe('evaluate', () => {
 
   evaluate('median aggregation', {
     aggregation: 'median',
-    data: [{ input: 'test', expected: 'TEST' }],
+    data: [{ expected: 'TEST', input: 'test' }],
     scorers: [mockScorer],
     task: mockTask,
   });
 
   evaluate('sum aggregation', {
     aggregation: 'sum',
-    data: [{ input: 'test', expected: 'TEST' }],
+    data: [{ expected: 'TEST', input: 'test' }],
     scorers: [mockScorer],
     task: mockTask,
   });
 
   evaluate('custom timeout settings', {
-    data: [{ input: 'test', expected: 'test' }],
+    data: [{ expected: 'test', input: 'test' }],
     scorers: [mockScorer],
     task: vi.fn(async ({ input }: { input: string }) => {
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -70,19 +70,19 @@ describe('evaluate', () => {
   });
 
   evaluate('function-based data', {
-    data: async () => [{ input: 'generated', expected: 'GENERATED' }],
+    data: async () => [{ expected: 'GENERATED', input: 'generated' }],
     scorers: [mockScorer],
     task: mockTask,
   });
 
   evaluate('multiple scorers', {
-    data: [{ input: 'test', expected: 'TEST' }],
+    data: [{ expected: 'TEST', input: 'test' }],
     scorers: [
       mockScorer,
       createScorer({
         name: 'length-scorer',
         score: ({ output }) => ({
-          score: output.length > 3 ? 1.0 : 0.0,
+          score: output.length > 3 ? 1 : 0,
         }),
       }),
     ],

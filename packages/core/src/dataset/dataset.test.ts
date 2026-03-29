@@ -44,7 +44,7 @@ describe('dataset functionality', () => {
 
     it('should use custom storage type', () => {
       const dataset = defineDataset({
-        data: async () => [{ input: 'test', expected: 'result' }],
+        data: async () => [{ expected: 'result', input: 'test' }],
         name: 'memory-dataset',
         storage: 'memory',
       });
@@ -65,7 +65,7 @@ describe('dataset functionality', () => {
       );
 
       const dataset = defineDataset({
-        data: async () => [{ input: 'new', expected: 'data' }],
+        data: async () => [{ expected: 'data', input: 'new' }],
         name: 'existing-dataset',
       });
 

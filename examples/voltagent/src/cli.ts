@@ -18,9 +18,9 @@ dotenv.config();
         handler: async () => {
           const category = await consola.prompt('What is the category?', {
             options: categories.map(({ name, description }) => ({
+              hint: description,
               label: name,
               value: name,
-              hint: description,
             })),
             required: true,
             type: 'select',

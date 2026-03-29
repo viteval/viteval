@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "target": "ES2023",
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -28,7 +28,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "dist/.next/types/**/*.ts",
+    "dist/.next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules", "tsdown.config.ts", "server.ts"]
 }

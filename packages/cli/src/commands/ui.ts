@@ -4,8 +4,8 @@ import open from 'open';
 import type { CommandModule } from 'yargs';
 
 export const uiCommand: CommandModule<unknown, UIOptions> = {
-  builder: (yargs) => {
-    return yargs
+  builder: (yargs) =>
+    yargs
       .option('port', {
         alias: 'p',
         describe: 'Port to run the UI server on',
@@ -22,8 +22,7 @@ export const uiCommand: CommandModule<unknown, UIOptions> = {
         describe: 'Enable debug mode',
         type: 'boolean',
         default: false,
-      });
-  },
+      }),
   command: 'ui [options]',
   describe: 'Start the UI server to view evaluation results',
   handler: async (argv) => {

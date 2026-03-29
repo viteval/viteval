@@ -16,8 +16,8 @@ import type { CommandModule } from 'yargs';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
   aliases: ['*'],
-  builder: (yargs) => {
-    return yargs
+  builder: (yargs) =>
+    yargs
       .positional('pattern', {
         describe: 'Eval file pattern to match',
         type: 'string',
@@ -42,8 +42,7 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         alias: 'c',
         describe: 'Viteval config file',
         type: 'string',
-      });
-  },
+      }),
   command: 'run [pattern] [options]',
   describe: 'Run evaluations',
   handler: async (argv) => {
@@ -60,12 +59,13 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
-    const configResolutionResult = await withResult(async () => {
-      return await resolveConfig({
-        config: configFilePath,
-        root,
-      });
-    });
+    const configResolutionResult = await withResult(
+      async () =>
+        await resolveConfig({
+          config: configFilePath,
+          root,
+        })
+    );
 
     if (
       configResolutionResult.status === 'error' &&
@@ -89,22 +89,22 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
 
     const vitest = await createVitest('test', {
       config: configFilePath,
-      root,
       reporters,
+      root,
       watch: false,
       ...cliConfig,
     });
 
     try {
-      // start the UI server if the --ui flag is passed
+      // Start the UI server if the --ui flag is passed
       const serverResult = argv.ui
         ? createVitevalServer({
             debug: process.env.VITEVAL_DEBUG_MODE === 'true',
           }).start()
         : undefined;
 
-      // this will set process.exitCode to 1 if tests failed,
-      // and won't close the process automatically
+      // This will set process.exitCode to 1 if tests failed,
+      // And won't close the process automatically
       await vitest.start();
 
       if (serverResult) {
