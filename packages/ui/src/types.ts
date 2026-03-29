@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: We allow any type here since its ONLY for the UI */
+/* eslint-disable no-explicit-any -- UI display types where any is intentional */
 
 export interface Score {
   name: string;
