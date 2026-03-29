@@ -14,6 +14,19 @@ import { createScorer } from '#/scorer/custom';
 export const exactMatch = createScorer({
   name: 'ExactMatch',
   score: ({ output, expected }) => ({
-    score: String(output) === String(expected) ? 1 : 0,
+    score: normalize(output) === normalize(expected) ? 1 : 0,
   }),
 });
+
+/**
+ * Normalize a value to a string for exact comparison.
+ * Uses JSON.stringify for objects to avoid `[object Object]` coercion.
+ *
+ * @private
+ */
+function normalize(value: unknown): string {
+  if (typeof value === 'object' && value !== null) {
+    return JSON.stringify(value);
+  }
+  return String(value);
+}

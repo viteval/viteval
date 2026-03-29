@@ -27,7 +27,13 @@ export const moderation = createScorer({
       input: String(output),
     });
 
-    const result = response.results[0];
+    const result = response.results?.[0];
+    if (!result) {
+      return {
+        score: 0,
+        metadata: { error: 'empty moderation result' },
+      };
+    }
     const flagged = result.flagged;
 
     return {

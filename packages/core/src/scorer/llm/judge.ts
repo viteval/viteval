@@ -98,10 +98,12 @@ export async function runJudge(
     throw new Error('LLM judge did not return a valid tool call.');
   }
 
-  const parsed = JSON.parse(toolCall.function.arguments) as {
-    choice: string;
-    reasons?: string;
-  };
+  let parsed: { choice: string; reasons?: string };
+  try {
+    parsed = JSON.parse(toolCall.function.arguments);
+  } catch {
+    throw new Error('LLM judge returned malformed JSON in tool call arguments.');
+  }
 
   const score = config.choiceScores[parsed.choice];
   if (score === undefined) {

@@ -7,9 +7,9 @@ import { levenshteinSimilarity } from './similarity';
  *
  * @example
  * ```ts
- * import { jsonDiff } from '@viteval/core';
+ * import { scorers } from '@viteval/core';
  *
- * const result = await jsonDiff({
+ * const result = await scorers.jsonDiff({
  *   input: 'q',
  *   output: { name: 'Alice' },
  *   expected: { name: 'Alice' },
@@ -69,6 +69,10 @@ function deepCompare(a: unknown, b: unknown): number {
 
   if (isString(parsedA) && isString(parsedB)) {
     return levenshteinSimilarity(parsedA, parsedB);
+  }
+
+  if (typeof parsedA === 'boolean' && typeof parsedB === 'boolean') {
+    return parsedA === parsedB ? 1 : 0;
   }
 
   if (isArray(parsedA) && isArray(parsedB)) {

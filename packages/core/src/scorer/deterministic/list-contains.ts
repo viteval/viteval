@@ -9,9 +9,9 @@ import { levenshteinSimilarity } from './similarity';
  *
  * @example
  * ```ts
- * import { listContains } from '@viteval/core';
+ * import { scorers } from '@viteval/core';
  *
- * const result = await listContains({
+ * const result = await scorers.listContains({
  *   input: 'q',
  *   output: ['apple', 'banana'],
  *   expected: ['banana', 'apple'],

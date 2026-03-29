@@ -18,7 +18,7 @@ export const numericDiff = createScorer({
     const a = Number(output);
     const b = Number(expected);
 
-    if (Number.isNaN(a) || Number.isNaN(b)) {
+    if (!Number.isFinite(a) || !Number.isFinite(b)) {
       return { score: 0, metadata: { error: 'non-numeric input' } };
     }
 

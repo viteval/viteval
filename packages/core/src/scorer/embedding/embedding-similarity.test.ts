@@ -8,6 +8,10 @@ import { getEmbedding } from './embed';
 import { embeddingSimilarity } from './embedding-similarity';
 
 describe('EmbeddingSimilarity', () => {
+  beforeEach(() => {
+    vi.mocked(getEmbedding).mockReset();
+  });
+
   it('should return 1.0 for identical vectors', async () => {
     vi.mocked(getEmbedding)
       .mockResolvedValueOnce([1, 0, 0])

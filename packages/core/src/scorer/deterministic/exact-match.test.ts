@@ -32,14 +32,22 @@ describe('exactMatch', () => {
     expect(result.score).toBe(0);
   });
 
-  it('should compare objects via JSON stringification', async () => {
+  it('should compare identical objects via JSON.stringify', async () => {
     const result = await exactMatch({
       input: '',
       output: { a: 1 },
       expected: { a: 1 },
     });
-    // String({ a: 1 }) === String({ a: 1 }) => "[object Object]" === "[object Object]"
     expect(result.score).toBe(1);
+  });
+
+  it('should return 0 for different objects', async () => {
+    const result = await exactMatch({
+      input: '',
+      output: { a: 1 },
+      expected: { a: 2 },
+    });
+    expect(result.score).toBe(0);
   });
 
   it('should have the correct name', () => {
