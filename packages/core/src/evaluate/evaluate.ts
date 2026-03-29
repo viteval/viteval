@@ -62,7 +62,9 @@ export function evaluate<
     const config = getRuntimeConfig();
 
     beforeAll(async () => {
-      initializeProvider(config.provider);
+      if (config.provider) {
+        initializeProvider(config.provider);
+      }
     });
 
     // eslint-disable-next-line no-empty-pattern -- vitest 4.1 requires destructured 1st arg for fixtures
