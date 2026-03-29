@@ -1,6 +1,6 @@
 {
   "name": "viteval",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
   "keywords": [
     "ai",

@@ -1,5 +1,11 @@
 # @viteval/internal
 
+## 0.5.9
+
+### Patch Changes
+
+- a1f85a8: Upgrade all dependencies to latest, migrate to TypeScript 6, Vite 8, Vitest 4.1, and AI SDK 6
+
 ## 0.5.8
 
 ## 0.5.7
