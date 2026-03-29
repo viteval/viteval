@@ -112,14 +112,14 @@ export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
   data: DATA;
 }
 
-export type DatasetGeneratorConfig = {
+export interface DatasetGeneratorConfig {
   /**
    * Whether to overwrite the dataset if it already exists.
    *
    * @default false
    */
   overwrite?: boolean;
-};
+}
 
 export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
   config?: DatasetGeneratorConfig
@@ -128,14 +128,14 @@ export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
 /**
  * A dataset, contains the name, storage and data generator.
  */
-export type Dataset<
+export interface Dataset<
   DATA_FUNC extends DataGenerator,
   DATA_ITEM extends DataItem = DataItem<
     InferDataInput<DATA_FUNC>,
     InferDataOutput<DATA_FUNC>,
     InferDataExtra<DATA_FUNC>
   >,
-> = {
+> {
   /**
    * The storage type of the dataset.
    */
@@ -172,7 +172,7 @@ export type Dataset<
    * @returns The dataset.
    */
   save(options?: { overwrite?: boolean }): Promise<void>;
-};
+}
 
 /**
  * An evaluation configuration.

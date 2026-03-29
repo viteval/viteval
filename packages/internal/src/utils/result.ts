@@ -32,12 +32,12 @@ export async function withResult<OK, ERROR extends Error = Error>(
   try {
     const fnResult = fn();
     const result = isPromise(fnResult) ? await fnResult : fnResult;
-    return { status: 'ok', ok: true, result };
+    return { ok: true, result, status: 'ok' };
   } catch (error) {
     return {
-      status: 'error',
       ok: false,
       result: error as ERROR,
+      status: 'error',
     };
   }
 }

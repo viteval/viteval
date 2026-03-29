@@ -1,6 +1,6 @@
 import { init as initAutoevals } from 'autoevals';
 import { OpenAI } from 'openai';
-import { match, P } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 import type { VitevalProviderConfig } from '#/config/types';
 
 /**
@@ -33,8 +33,8 @@ export function initializeProvider(config?: VitevalProviderConfig) {
       ({ apiKey, project, organization }) =>
         new OpenAI({
           apiKey,
-          project,
           organization,
+          project,
         })
     )
     .otherwise(() => null);
@@ -63,8 +63,8 @@ function getProviderConfigFromEnv(): VitevalProviderConfig | null {
   return {
     openai: {
       apiKey: openaiApiKey,
-      project: process.env.OPENAI_PROJECT ?? undefined,
       organization: process.env.OPENAI_ORGANIZATION ?? undefined,
+      project: process.env.OPENAI_PROJECT ?? undefined,
     },
   };
 }

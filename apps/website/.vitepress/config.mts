@@ -8,14 +8,9 @@ import llmstxt from 'vitepress-plugin-llms';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'Viteval',
-  lang: 'en-US',
   appearance: 'force-dark',
-  description: 'Next generation LLM evaluation framework powered by Vitest.',
   cleanUrls: true,
-  sitemap: {
-    hostname: 'https://viteval.dev',
-  },
+  description: 'Next generation LLM evaluation framework powered by Vitest.',
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { property: 'og:type', content: 'website' }],
@@ -53,6 +48,15 @@ export default defineConfig({
       gtag('config', 'G-FEVDX1MG6E');`,
     ],
   ],
+  lang: 'en-US',
+  markdown: {
+    config: (md) => {
+      md.use(groupIconMdPlugin);
+    },
+  },
+  sitemap: {
+    hostname: 'https://viteval.dev',
+  },
   themeConfig: {
     logo: '/assets/viteval.png',
     // https://vitepress.dev/reference/default-theme-config
@@ -130,11 +134,7 @@ export default defineConfig({
         'https://github.com/viteval/viteval/edit/main/apps/website/:path',
     },
   },
-  markdown: {
-    config: (md) => {
-      md.use(groupIconMdPlugin);
-    },
-  },
+  title: 'Viteval',
   vite: {
     plugins: [UnoCSS(), groupIconVitePlugin(), llmstxt()],
   },

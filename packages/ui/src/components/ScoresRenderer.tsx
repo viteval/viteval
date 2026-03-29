@@ -2,12 +2,7 @@
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Score } from '../types';
 
 interface ScoresRendererProps {
@@ -26,10 +21,10 @@ export default function ScoresRenderer({ scores }: ScoresRendererProps) {
           language={'json'}
           style={oneDark}
           customStyle={{
-            margin: 0,
             borderRadius: '0.375rem',
             fontSize: '0.75rem',
             lineHeight: '1rem',
+            margin: 0,
           }}
         >
           {JSON.stringify(scores[0], null, 2)}
@@ -57,10 +52,10 @@ export default function ScoresRenderer({ scores }: ScoresRendererProps) {
             language={'json'}
             style={oneDark}
             customStyle={{
-              margin: 0,
               borderRadius: '0.375rem',
               fontSize: '0.75rem',
               lineHeight: '1rem',
+              margin: 0,
             }}
           >
             {JSON.stringify(score, null, 2)}

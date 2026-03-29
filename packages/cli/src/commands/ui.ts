@@ -4,8 +4,6 @@ import open from 'open';
 import type { CommandModule } from 'yargs';
 
 export const uiCommand: CommandModule<unknown, UIOptions> = {
-  command: 'ui [options]',
-  describe: 'Start the UI server to view evaluation results',
   builder: (yargs) => {
     return yargs
       .option('port', {
@@ -26,6 +24,8 @@ export const uiCommand: CommandModule<unknown, UIOptions> = {
         default: false,
       });
   },
+  command: 'ui [options]',
+  describe: 'Start the UI server to view evaluation results',
   handler: async (argv) => {
     try {
       const server = createVitevalServer({

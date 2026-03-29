@@ -10,7 +10,7 @@ import type { EvalResults } from '@/types';
 
 export default function ResultDetailPage() {
   const params = useParams<{ id: string }>();
-  const id = params.id;
+  const { id } = params;
   const [results, setResults] = useState<EvalResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,9 +26,9 @@ export default function ResultDetailPage() {
       const data = await res.json();
       setResults(data);
       setError(null);
-    } catch (err) {
+    } catch (error) {
       setError(
-        err instanceof Error ? err.message : 'Failed to load result'
+        error instanceof Error ? error.message : 'Failed to load result'
       );
     } finally {
       setLoading(false);
@@ -39,7 +39,7 @@ export default function ResultDetailPage() {
     void fetchResult();
     const interval = setInterval(() => {
       void fetchResult();
-    }, 20000);
+    }, 20_000);
     return () => clearInterval(interval);
   }, [fetchResult]);
 
@@ -52,8 +52,7 @@ export default function ResultDetailPage() {
               Result Not Found
             </h1>
             <p className="text-muted-foreground">
-              The evaluation result with ID &quot;{id}&quot; could not
-              be found.
+              The evaluation result with ID &quot;{id}&quot; could not be found.
             </p>
           </div>
           <Button variant="outline" asChild>
@@ -84,9 +83,7 @@ export default function ResultDetailPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Results:
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Results:</h1>
             <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">
               {id}
             </code>

@@ -21,7 +21,7 @@ import {
   Translation,
 } from 'autoevals';
 
-type Scorers = {
+interface Scorers {
   factual: typeof Factuality;
   levenshtein: typeof Levenshtein;
   exactMatch: typeof ExactMatch;
@@ -42,16 +42,9 @@ type Scorers = {
   numericDiff: typeof NumericDiff;
   jsonDiff: typeof JSONDiff;
   humor: typeof Humor;
-};
+}
 
 export const scorers: Scorers = {
-  factual: Factuality,
-  levenshtein: Levenshtein,
-  exactMatch: ExactMatch,
-  moderation: Moderation,
-  sql: Sql,
-  summary: Summary,
-  translation: Translation,
   answerCorrectness: AnswerCorrectness,
   answerRelevancy: AnswerRelevancy,
   answerSimilarity: AnswerSimilarity,
@@ -59,10 +52,17 @@ export const scorers: Scorers = {
   contextPrecision: ContextPrecision,
   contextRecall: ContextRecall,
   contextRelevancy: ContextRelevancy,
-  possible: Possible,
   embeddingSimilarity: EmbeddingSimilarity,
-  listContains: ListContains,
-  numericDiff: NumericDiff,
-  jsonDiff: JSONDiff,
+  exactMatch: ExactMatch,
+  factual: Factuality,
   humor: Humor,
+  jsonDiff: JSONDiff,
+  levenshtein: Levenshtein,
+  listContains: ListContains,
+  moderation: Moderation,
+  numericDiff: NumericDiff,
+  possible: Possible,
+  sql: Sql,
+  summary: Summary,
+  translation: Translation,
 };

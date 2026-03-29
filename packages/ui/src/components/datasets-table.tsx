@@ -3,12 +3,7 @@
 import Link from 'next/link';
 import type { DatasetSummary } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DatasetsTableProps {
   datasets: DatasetSummary[];
@@ -25,9 +20,7 @@ export function DatasetsTable({ datasets }: DatasetsTableProps) {
                 📊
               </span>
             </div>
-            <div className="text-xl font-semibold mb-2">
-              No Datasets Found
-            </div>
+            <div className="text-xl font-semibold mb-2">No Datasets Found</div>
             <div className="text-sm text-muted-foreground">
               No datasets were found in the .viteval/datasets directory.
             </div>

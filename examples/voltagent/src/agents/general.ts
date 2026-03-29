@@ -12,7 +12,6 @@ export interface QuestionAnsweringOutput {
 }
 
 export const generalAgent = new Agent({
-  name: 'question-answering-agent',
   instructions: `You are a helpful question-answering agent.
 Your job is to answer questions accurately and concisely.
 If context is provided, use it to inform your answer.
@@ -24,4 +23,5 @@ Return your response in the following JSON format:
   "confidence": 0.95
 }`,
   model: openai('gpt-4o-mini'),
+  name: 'question-answering-agent',
 });

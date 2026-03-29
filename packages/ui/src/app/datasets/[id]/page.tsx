@@ -21,17 +21,13 @@ export default async function DatasetDetailPage({
       <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Dataset:
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Dataset:</h1>
             <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">
               {dataset.path}
             </code>
           </div>
           {dataset.description && (
-            <p className="text-muted-foreground mt-1">
-              {dataset.description}
-            </p>
+            <p className="text-muted-foreground mt-1">{dataset.description}</p>
           )}
         </div>
         <Button variant="outline" asChild>

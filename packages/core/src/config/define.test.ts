@@ -19,14 +19,14 @@ describe('defineConfig', () => {
       eval: {},
     });
 
-    expect(config.test?.testTimeout).toBe(100000);
+    expect(config.test?.testTimeout).toBe(100_000);
   });
 
   it('should handle resolve configuration', () => {
     const resolveConf = {
       alias: {
-        '@': '/src',
         '#': '/lib',
+        '@': '/src',
       },
     };
 
@@ -40,13 +40,13 @@ describe('defineConfig', () => {
 
   it('should handle deps configuration with optimizer', () => {
     const config = defineConfig({
-      eval: {},
       deps: {
         optimizer: {
           enabled: true,
         },
         interopDefault: true,
       },
+      eval: {},
     });
 
     expect(config.test?.deps?.optimizer).toBeDefined();
@@ -55,10 +55,10 @@ describe('defineConfig', () => {
 
   it('should handle deps configuration without optimizer', () => {
     const config = defineConfig({
-      eval: {},
       deps: {
         interopDefault: false,
       },
+      eval: {},
     });
 
     expect(config.test?.deps?.optimizer).toBeUndefined();
@@ -81,8 +81,8 @@ describe('defineConfig', () => {
 
   it('should set config in test provide', () => {
     const customConfig = {
-      eval: { timeout: 7000 },
       custom: { value: 'test' },
+      eval: { timeout: 7000 },
     };
 
     const config = defineConfig(customConfig);
@@ -93,8 +93,8 @@ describe('defineConfig', () => {
 
   it('should handle undefined deps configuration', () => {
     const config = defineConfig({
-      eval: {},
       deps: undefined,
+      eval: {},
     });
 
     expect(config.test?.deps).toBeUndefined();

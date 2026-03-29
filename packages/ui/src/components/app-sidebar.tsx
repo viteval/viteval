@@ -17,13 +17,11 @@ import {
 import { NavMain } from '@/components/nav-main';
 
 const navItems = [
-  { title: 'Results', href: '/results', icon: BarChart3 },
-  { title: 'Datasets', href: '/datasets', icon: Database },
+  { href: '/results', icon: BarChart3, title: 'Results' },
+  { href: '/datasets', icon: Database, title: 'Datasets' },
 ];
 
-export function AppSidebar(
-  props: React.ComponentProps<typeof Sidebar>
-) {
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -31,11 +29,7 @@ export function AppSidebar(
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                <img
-                  src="/logo192.png"
-                  alt="Viteval"
-                  className="size-8"
-                />
+                <img src="/logo192.png" alt="Viteval" className="size-8" />
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-lg">Viteval</span>
                   <Badge variant="secondary">alpha</Badge>

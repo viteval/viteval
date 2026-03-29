@@ -61,7 +61,7 @@ describe('Aggregation Functions', () => {
       const scores: Score[] = [
         { name: 'scorer1', score: 3.5 },
         { name: 'scorer2', score: 4.5 },
-        { name: 'scorer3', score: 5.0 },
+        { name: 'scorer3', score: 5 },
       ];
 
       expect(getMeanScore(scores)).toBeCloseTo(4.33, 2);
@@ -201,7 +201,7 @@ describe('Aggregation Functions', () => {
       const scores: Score[] = [
         { name: 'scorer1', score: 3.5 },
         { name: 'scorer2', score: 4.5 },
-        { name: 'scorer3', score: 5.0 },
+        { name: 'scorer3', score: 5 },
       ];
 
       expect(getSumScore(scores)).toBe(13);

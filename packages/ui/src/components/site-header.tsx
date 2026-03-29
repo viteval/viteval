@@ -18,22 +18,21 @@ function useBreadcrumbs() {
   const segments = pathname.split('/').filter(Boolean);
 
   if (segments.length === 0) {
-    return [{ label: 'Dashboard', href: undefined }];
+    return [{ href: undefined, label: 'Dashboard' }];
   }
 
   const crumbs: { label: string; href: string | undefined }[] = [
-    { label: 'Dashboard', href: '/' },
+    { href: '/', label: 'Dashboard' },
   ];
 
   let currentPath = '';
   for (let i = 0; i < segments.length; i++) {
     currentPath += `/${segments[i]}`;
     const isLast = i === segments.length - 1;
-    const label =
-      segments[i].charAt(0).toUpperCase() + segments[i].slice(1);
+    const label = segments[i].charAt(0).toUpperCase() + segments[i].slice(1);
     crumbs.push({
-      label,
       href: isLast ? undefined : currentPath,
+      label,
     });
   }
 

@@ -7,12 +7,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ValueObjectViewer } from './ValueObjectViewer';
 
 interface ValueRendererProps {
@@ -22,7 +17,9 @@ interface ValueRendererProps {
 }
 
 function isJSON(value: unknown): boolean {
-  if (typeof value !== 'string') return true;
+  if (typeof value !== 'string') {
+    return true;
+  }
 
   const trimmed = value.trim();
   if (
@@ -111,10 +108,7 @@ export function ValueRenderer({
         onMouseEnter={() => setShowCopyButton(true)}
         onMouseLeave={() => setShowCopyButton(false)}
       >
-        <Tabs
-          defaultValue="json"
-          className="container -mx-8 px-8"
-        >
+        <Tabs defaultValue="json" className="container -mx-8 px-8">
           <TabsList>
             <TabsTrigger
               value="json"
@@ -134,10 +128,10 @@ export function ValueRenderer({
               language="json"
               style={oneDark}
               customStyle={{
-                margin: 0,
                 borderRadius: '0.375rem',
                 fontSize: '0.75rem',
                 lineHeight: '1rem',
+                margin: 0,
                 paddingRight: showCopyButton ? '3rem' : undefined,
               }}
               className={className}
@@ -236,9 +230,7 @@ export function ValueRenderer({
                       borderRadius: '0.375rem',
                       fontSize: '0.75rem',
                       lineHeight: '1rem',
-                      paddingRight: showCopyButton
-                        ? '3rem'
-                        : undefined,
+                      paddingRight: showCopyButton ? '3rem' : undefined,
                     }}
                   >
                     {String(children).replace(/\n$/, '')}
@@ -255,7 +247,6 @@ export function ValueRenderer({
                 </code>
               );
             },
-            pre: ({ children }) => <>{children}</>,
             p: ({ children }) => (
               <div
                 className="bg-zinc-900 dark:bg-zinc-900 text-zinc-100 p-3 rounded-md font-mono text-xs leading-relaxed whitespace-pre-wrap break-words"
@@ -266,6 +257,7 @@ export function ValueRenderer({
                 {children}
               </div>
             ),
+            pre: ({ children }) => <>{children}</>,
           }}
         >
           {content}

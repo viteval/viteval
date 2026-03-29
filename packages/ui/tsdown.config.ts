@@ -1,19 +1,19 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
+  clean: false,
+  dts: true,
   entry: ['server.ts'],
+  format: ['esm'],
+  minify: true,
+  outDir: '.',
   outExtension({ format }) {
     return {
       js: format === 'esm' ? '.mjs' : '.js',
     };
   },
-  unbundle: true,
-  outDir: '.',
-  format: ['esm'],
-  dts: true,
-  clean: false,
-  target: 'esnext',
-  splitting: false,
   sourcemap: true,
-  minify: true,
+  splitting: false,
+  target: 'esnext',
+  unbundle: true,
 });

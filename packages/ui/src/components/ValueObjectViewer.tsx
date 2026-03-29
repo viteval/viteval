@@ -23,11 +23,12 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>(
     paths[0]
   );
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<string>('markdown');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('markdown');
 
   const content = useMemo(() => {
-    if (!selectedPath) return undefined;
+    if (!selectedPath) {
+      return undefined;
+    }
     if (typeof obj === 'string') {
       return get(JSON.parse(obj), selectedPath);
     }
@@ -45,11 +46,7 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
             </SelectTrigger>
             <SelectContent>
               {paths.map((path) => (
-                <SelectItem
-                  key={path}
-                  value={path}
-                  className="cursor-pointer"
-                >
+                <SelectItem key={path} value={path} className="cursor-pointer">
                   {path}
                 </SelectItem>
               ))}
@@ -117,10 +114,10 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
             language={selectedLanguage}
             style={oneDark}
             customStyle={{
-              margin: 0,
               borderRadius: '0.375rem',
               fontSize: '0.75rem',
               lineHeight: '1rem',
+              margin: 0,
             }}
           >
             {content}
@@ -133,10 +130,7 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
 
 type FieldPath = string;
 
-function getStringFieldPaths(
-  obj: unknown,
-  parentPath = ''
-): FieldPath[] {
+function getStringFieldPaths(obj: unknown, parentPath = ''): FieldPath[] {
   const paths: FieldPath[] = [];
 
   if (obj === null || obj === undefined) {
@@ -149,9 +143,7 @@ function getStringFieldPaths(
 
   if (Array.isArray(obj)) {
     obj.forEach((item, index) => {
-      const currentPath = parentPath
-        ? `${parentPath}.${index}`
-        : `${index}`;
+      const currentPath = parentPath ? `${parentPath}.${index}` : `${index}`;
       paths.push(...getStringFieldPaths(item, currentPath));
     });
     return paths;
@@ -173,8 +165,12 @@ function getStringFieldPaths(
 }
 
 function isJSON(value: unknown): boolean {
-  if (value !== null && typeof value === 'object') return true;
-  if (typeof value !== 'string') return false;
+  if (value !== null && typeof value === 'object') {
+    return true;
+  }
+  if (typeof value !== 'string') {
+    return false;
+  }
 
   const trimmed = value.trim();
   if (

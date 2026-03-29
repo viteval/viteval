@@ -61,29 +61,27 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
       app.use(
         '/public/*',
         serveStatic({
-          root: path.join(import.meta.dirname, 'dist', '.next', 'standalone', 'public'),
           rewriteRequestPath: (p: string) => p.replace('/public', ''),
+          root: path.join(
+            import.meta.dirname,
+            'dist',
+            '.next',
+            'standalone',
+            'public'
+          ),
         })
       );
 
       app.use(
         '/_next/static/*',
         serveStatic({
-          root: path.join(
-            import.meta.dirname,
-            'dist',
-            '.next',
-            'static'
-          ),
-          rewriteRequestPath: (p: string) =>
-            p.replace('/_next/static', ''),
+          rewriteRequestPath: (p: string) => p.replace('/_next/static', ''),
+          root: path.join(import.meta.dirname, 'dist', '.next', 'static'),
         })
       );
 
       // Import and use the Next.js standalone server handler
-      const nextHandler = await import(
-        path.join(standaloneDir, 'server.js')
-      );
+      const nextHandler = await import(path.join(standaloneDir, 'server.js'));
       app.all('*', async (c) => {
         const url = new URL(c.req.url);
         url.port = String(port);

@@ -1,13 +1,8 @@
 import { defineConfig } from 'tsdown';
 
 const baseConfig = defineConfig({
-  format: ['esm'],
-  dts: { build: true },
-  splitting: false,
   config: 'tsconfig.build.json',
-  sourcemap: true,
-  treeshake: true,
-  platform: 'node',
+  dts: { build: true },
   external: [
     'vitest',
     'openai',
@@ -19,6 +14,11 @@ const baseConfig = defineConfig({
     'fsevents',
     'lightningcss',
   ],
+  format: ['esm'],
+  platform: 'node',
+  sourcemap: true,
+  splitting: false,
+  treeshake: true,
 });
 
 export default defineConfig(

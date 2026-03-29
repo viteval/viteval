@@ -7,18 +7,18 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/tools/core',
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
   // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
+  // Worker: {
+  //  Plugins: [ nxViteTsPaths() ],
   // },
   test: {
-    watch: false,
-    globals: true,
-    environment: 'jsdom',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    reporters: ['default'],
     coverage: {
       reportsDirectory: '../../coverage/tools/core',
       provider: 'v8' as const,
     },
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    reporters: ['default'],
+    watch: false,
   },
 }));

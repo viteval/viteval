@@ -2,11 +2,7 @@
 
 import Link from 'next/link';
 import { getSuccessBadge } from '@/lib/badges';
-import {
-  formatDuration,
-  formatFileSize,
-  formatTimestamp,
-} from '@/lib/utils';
+import { formatDuration, formatFileSize, formatTimestamp } from '@/lib/utils';
 import type { ResultFile } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,38 +43,28 @@ export function ResultsTable({ results }: ResultsTableProps) {
                   {file.summary ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div className="space-y-1">
-                        <div className="text-muted-foreground">
-                          Duration
-                        </div>
+                        <div className="text-muted-foreground">Duration</div>
                         <div className="font-medium">
                           {file.summary.status === 'running' &&
                           !file.summary.duration
                             ? 'In progress...'
-                            : formatDuration(
-                                file.summary.duration || 0
-                              )}
+                            : formatDuration(file.summary.duration || 0)}
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-muted-foreground">
-                          Total Evals
-                        </div>
+                        <div className="text-muted-foreground">Total Evals</div>
                         <div className="font-medium">
                           {file.summary.numTotalEvals}
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-muted-foreground">
-                          Passed
-                        </div>
+                        <div className="text-muted-foreground">Passed</div>
                         <div className="font-medium text-green-600">
                           {file.summary.numPassedEvals}
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-muted-foreground">
-                          Failed
-                        </div>
+                        <div className="text-muted-foreground">Failed</div>
                         <div className="font-medium text-red-600">
                           {file.summary.numFailedEvals}
                         </div>
@@ -86,8 +72,7 @@ export function ResultsTable({ results }: ResultsTableProps) {
                     </div>
                   ) : (
                     <div className="text-sm text-muted-foreground">
-                      Unable to load summary &bull;{' '}
-                      {formatFileSize(file.size)}
+                      Unable to load summary &bull; {formatFileSize(file.size)}
                     </div>
                   )}
                 </div>

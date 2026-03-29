@@ -4,10 +4,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [viteTsconfigPaths()],
   test: {
-    setupFiles: ['./vitest.setup.ts'],
-    globals: true,
     environment: 'node',
-    include: ['**/*.test.ts'],
     exclude: ['node_modules', 'dist', 'original'],
+    globals: true,
+    include: ['**/*.test.ts'],
+    setupFiles: ['./vitest.setup.ts'],
   },
 });

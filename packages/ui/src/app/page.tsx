@@ -63,9 +63,7 @@ export default async function DashboardPage() {
               <Database className="h-5 w-5" />
               Datasets
             </CardTitle>
-            <CardDescription>
-              Manage and explore your datasets
-            </CardDescription>
+            <CardDescription>Manage and explore your datasets</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
