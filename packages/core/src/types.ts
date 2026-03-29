@@ -1,4 +1,8 @@
-import type * as TF from 'type-fest';
+/**
+ * Merge two types, with the second type overriding the first.
+ * Simplified alternative to type-fest's Merge for TS6 compatibility.
+ */
+type Merge<A, B> = Omit<A, keyof B> & B;
 
 /**
  * A score object, contains the name of the scorer, the score and any additional metadata.
@@ -12,7 +16,7 @@ export interface Score {
 /**
  * The arguments passed to a scorer, contains the output and expected output and any additional arguments.
  */
-export type ScorerArgs<OUTPUT, EXTRA extends Extra> = TF.Merge<
+export type ScorerArgs<OUTPUT, EXTRA extends Extra> = Merge<
   EXTRA,
   {
     output: OUTPUT;
@@ -32,7 +36,7 @@ export type Scorer<OUTPUT, EXTRA extends Extra> = (
   args: ScorerArgs<OUTPUT, EXTRA>
 ) => Score | Promise<Score>;
 
-export type TaskArgs<INPUT, EXTRA extends Extra> = TF.Merge<
+export type TaskArgs<INPUT, EXTRA extends Extra> = Merge<
   EXTRA,
   {
     input: INPUT;
@@ -53,7 +57,7 @@ export type DataItem<
   INPUT = unknown,
   OUTPUT = unknown,
   EXTRA extends Extra = Extra,
-> = TF.Merge<
+> = Merge<
   EXTRA,
   {
     name?: string;
