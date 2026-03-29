@@ -1,5 +1,3 @@
-import type * as TF from 'type-fest';
-
 /**
  * Merge two types, with the second type overriding the first.
  * Simplified alternative to type-fest's Merge for TS6 compatibility.

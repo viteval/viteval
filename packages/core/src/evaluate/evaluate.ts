@@ -65,6 +65,7 @@ export function evaluate<
       initializeProvider(config.provider);
     });
 
+    // oxlint-ignore-next-line no-empty-pattern -- vitest 4.1 requires destructured 1st arg for fixtures
     afterAll(({}, { suite }) => {
       // @ts-expect-error - this is valid
       suite.meta.results = results;
