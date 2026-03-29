@@ -26,8 +26,8 @@
     "build:server": "tsdown",
     "build:ui": "next build",
     "dev": "next dev --port 3000",
-    "start": "node .next/standalone/server.js",
-    "types": "pnpm tsc --noEmit"
+    "start": "node dist/.next/standalone/server.js",
+    "types": "next typegen && pnpm tsc --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
@@ -64,7 +64,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "jsdom": "^27.2.0",
-    "tsdown": "^0.19.0-beta.3",
+    "tsdown": "^0.21.7",
     "typescript": "^5.9.3"
   }
 }

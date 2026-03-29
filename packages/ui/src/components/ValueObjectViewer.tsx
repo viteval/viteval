@@ -173,7 +173,8 @@ function getStringFieldPaths(
 }
 
 function isJSON(value: unknown): boolean {
-  if (typeof value !== 'string') return true;
+  if (value !== null && typeof value === 'object') return true;
+  if (typeof value !== 'string') return false;
 
   const trimmed = value.trim();
   if (

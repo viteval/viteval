@@ -221,8 +221,8 @@ export function ValueRenderer({
         <ReactMarkdown
           components={{
             code: ({ className: codeClassName, children, ...props }) => {
-              const match = /language-(\w+)/.exec(
-                codeClassName || ''
+              const match = /(?:^|\s)language-([a-z0-9#+-]+)/i.exec(
+                codeClassName ?? ''
               );
               const language = match ? match[1] : '';
 

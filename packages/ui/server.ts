@@ -61,7 +61,7 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
       app.use(
         '/public/*',
         serveStatic({
-          root: path.join(import.meta.dirname, 'dist', 'public'),
+          root: path.join(import.meta.dirname, 'dist', '.next', 'standalone', 'public'),
           rewriteRequestPath: (p: string) => p.replace('/public', ''),
         })
       );
