@@ -3,7 +3,7 @@
  * typechecking and linting. Provides a CLEAR warning this is NOT the desired
  * behavior and is a dangerous practice.
  */
-// biome-ignore lint/suspicious/noExplicitAny: intentional allow type
+// eslint-disable-next-line no-explicit-any -- intentional escape hatch type
 export type DangerouslyAllowAny = any;
 
 /**

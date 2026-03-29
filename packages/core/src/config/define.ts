@@ -22,7 +22,7 @@ export function defineConfig({
     test: {
       ...evalConfig,
       reporters,
-      // biome-ignore lint/suspicious/noExplicitAny: Vitest 4.x changed server types
+      // eslint-disable-next-line no-explicit-any -- Vitest 4.x changed server types
       server: server as any,
       provide: {
         config,
@@ -42,7 +42,7 @@ export function defineConfig({
         .otherwise(() => undefined),
     },
     resolve,
-    // biome-ignore lint/suspicious/noExplicitAny: we are getting TS errors locally but not in CI, so adding a fix for now
+    // eslint-disable-next-line no-explicit-any -- Vitest plugin types mismatch
     plugins: plugins as any,
   });
 }

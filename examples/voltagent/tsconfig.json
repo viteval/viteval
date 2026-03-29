@@ -14,7 +14,6 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "types": ["node"],
     "paths": {
       "#models/*": ["./src/models/*"],
