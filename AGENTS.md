@@ -2,9 +2,7 @@
 
 LLM evaluation framework built on Vitest.
 
-IMPORTANT: Always refer to the documentation before performing any task or any work.
-
-<quick-reference>
+IMPORTANT: Read the relevant `contributing/` docs before performing any task.
 
 ## Quick Reference
 
@@ -15,85 +13,109 @@ IMPORTANT: Always refer to the documentation before performing any task or any w
 | Validate | `pnpm validate` |
 | Fix lint | `pnpm fix`      |
 
-</quick-reference>
+## Stack
 
-<structure>
+- **Runtime:** Node >= 22, pnpm >= 10
+- **Build:** Nx 22 (monorepo) + tsdown (bundler)
+- **Lint/Format:** oxlint + oxfmt
+- **Types:** TypeScript ~5.9 (strict mode)
+- **Test:** Vitest 4
 
 ## Structure
 
-See [docs/structure.md](./docs/structure.md) for details.
-
 ```
 viteval/
-├── packages/     # Core packages (@viteval/core, cli, ui, internal, viteval)
-├── apps/         # Website (Vitepress)
-├── examples/     # Example projects
-├── tools/        # Nx generators
-└── docs/         # Contributor documentation
+├── packages/       # Core packages
+│   ├── core/       # evaluate(), createScorer(), defineDataset()
+│   ├── cli/        # CLI (viteval run, init, data, ui)
+│   ├── internal/   # Shared utils (not published)
+│   ├── ui/         # React dashboard
+│   └── viteval/    # Public entry point (re-exports core + cli)
+├── apps/website/   # Docs site (Vitepress)
+├── examples/       # Example projects
+├── tools/core/     # Nx generators (pnpm gen)
+└── contributing/   # Contributor documentation
 ```
 
-</structure>
+## Imports & Modules
 
-<architecture>
+- **Intra-package:** `#/` path alias (e.g., `import { foo } from '#/internals/config'`)
+- **Cross-package:** `@viteval/core`, `@viteval/internal`, etc.
+- **Vitest:** Always `import { describe, it, expect } from 'vitest'`
+- **Import order:** Node built-ins → external packages → `@viteval/*` → relative (`#/`)
+- **Utilities:** Prefer `es-toolkit` over hand-rolled helpers
 
-## Architecture
+## Naming
 
-See [docs/architecture.md](./docs/architecture.md) for details.
+- **Files:** kebab-case (`user-service.ts`, `eval-runner.test.ts`)
+- **Variables & functions:** camelCase
+- **Constants:** SCREAMING_SNAKE_CASE
+- **Types/Interfaces:** PascalCase
+- **Parameter interfaces:** `*Params` (required), `*Options` (optional)
 
-The `viteval` package is the unified entry point. It re-exports from internal packages (`@viteval/core`, `@viteval/cli`) so users install one package.
+## TypeScript
 
-</architecture>
+- **No `any`** — use `unknown` and narrow with type guards
+- **Discriminated unions** for variant types (use `type` or `kind` discriminator)
+- **Branded types** for type-safe IDs
+- **`as const`** for literal types and readonly arrays
+- **Use type-fest** for complex type utilities (`SetRequired`, `Simplify`, `Except`, etc.)
 
-<development>
+## Functions
 
-## Development
+- **Object params** when 2+ parameters (define `*Params` interface, destructure in signature)
+- **JSDoc required** on all exported functions (`@param`, `@returns`, `@example`)
+- **Pure functions preferred** — isolate side effects at edges
+- **Early returns** for guard clauses (max 1-2 nesting levels)
+- **Composition** over inheritance; **factories** over classes
 
-See [docs/commands.md](./docs/commands.md) for all commands.
+## Error Handling
 
-- Run `pnpm validate` before committing
-- Tests co-located with source: `*.test.ts`
-- Prefer functional programming
-- Add JSDoc with examples for public APIs
+- **Result pattern** (`ok(value)` / `err(error)`) for expected failures
+- **Domain-specific error types** — not generic `Error`
+- **Never throw** in Result-returning functions
+- Use `ts-pattern` with `.exhaustive()` for 2+ branches
 
-</development>
+## State
 
-<testing>
+- **Immutable by default** — return new state, don't mutate
+- **Factories with closures** to encapsulate state (not classes)
+- **Derive, don't duplicate** — compute values from source state
+
+## File Layout
+
+1. Imports (grouped per import order above)
+2. Types & interfaces
+3. Constants
+4. Exported functions (public API)
+5. Private functions (bottom — hoisted)
 
 ## Testing
 
-See [docs/testing.md](./docs/testing.md) for patterns.
+- **Co-located:** `feature.ts` → `feature.test.ts`
+- **BDD style:** `describe('functionName', () => { it('should ...') })`
+- **Mocks:** `vi.mock()` for modules, `vi.fn()` for functions, reset in `beforeEach()`
+- **Async:** Use `async`/`await`, test errors with `rejects.toThrow()`
 
-- Use Vitest (`describe`, `it`, `expect`)
-- BDD style preferred
-- Co-locate tests: `feature.ts` → `feature.test.ts`
+## Git Commits
 
-</testing>
+```
+type(scope): description
+```
 
-<documentation>
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `security`
 
-## Documentation
+- Lowercase, present tense, under 72 chars, no period
+- Breaking changes: `feat(scope)!:` + `BREAKING CHANGE:` footer
+- Each commit = one atomic, revertable change
 
-See [docs/documentation.md](./docs/documentation.md) for standards.
+## Lint Rules (will fail CI)
 
-- Website: `apps/website/` (Vitepress)
-- Contributor docs: `docs/`
+`no-explicit-any` · `no-console` · `eqeqeq` · `no-var` · `no-unused-vars`
 
-</documentation>
+## Further Reading
 
-<guides>
-
-## Guides
-
-Step-by-step instructions in [docs/guides/](./docs/guides/):
-
-- [Setup Local Environment](./docs/guides/setup-local-env.md)
-- [Configure IDE](./docs/guides/configure-ide.md)
-- [Add a Package](./docs/guides/add-package.md)
-- [Add a Feature](./docs/guides/add-feature.md)
-- [Add an Example](./docs/guides/add-example.md)
-- [Add a Test](./docs/guides/add-test.md)
-- [Add a Mock](./docs/guides/add-mock.md)
-- [Commit Changes](./docs/guides/commit-changes.md)
-- [Publish Changes](./docs/guides/publish-changes.md)
-
-</guides>
+- [Architecture](./contributing/architecture.md) — package relationships and design
+- [Patterns](./contributing/patterns.md) — code patterns and conventions
+- [Standards](./contributing/standards.md) — full TypeScript and development standards
+- [Guides](./contributing/guides/) — step-by-step instructions for common tasks

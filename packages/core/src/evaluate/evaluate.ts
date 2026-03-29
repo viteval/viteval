@@ -65,7 +65,7 @@ export function evaluate<
       initializeProvider(config.provider);
     });
 
-    afterAll((suite) => {
+    afterAll(({}, { suite }) => {
       // @ts-expect-error - this is valid
       suite.meta.results = results;
     });
