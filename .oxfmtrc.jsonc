@@ -6,4 +6,7 @@
   "semi": true,
   "singleQuote": true,
   "trailingComma": "es5",
+  "ignorePatterns": [
+    "**/components/ui/**",
+  ],
 }

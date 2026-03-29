@@ -5,13 +5,11 @@ dist-ssr
 *.local
 count.txt
 .env
-.nitro
-.tanstack
-.output
-.vinxi
-todos.json
+.next
+next-env.d.ts
 
 # build output
 server.d.ts
+server.d.mts
 server.mjs
 server.mjs.map

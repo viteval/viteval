@@ -1,10 +1,17 @@
+'use client';
+
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import type { DatasetFile, DatasetItem } from '../types';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Collapsible, CollapsibleContent } from './ui/collapsible';
+import type { DatasetFile, DatasetItem } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import {
   Table,
   TableBody,
@@ -13,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
+} from '@/components/ui/table';
 import { ValueRenderer } from './ValueRenderer';
 
 interface DatasetDetailProps {
@@ -37,7 +44,9 @@ export default function DatasetDetail({
 
   if (error) {
     return (
-      <div className="text-destructive text-center py-8">Error: {error}</div>
+      <div className="text-destructive text-center py-8">
+        Error: {error}
+      </div>
     );
   }
 
@@ -74,9 +83,16 @@ export default function DatasetDetail({
   );
 }
 
-function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
+function DatasetItemRow({
+  item,
+  index,
+}: {
+  item: DatasetItem;
+  index: number;
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const hasDetails = item.input !== undefined || item.expected !== undefined;
+  const hasDetails =
+    item.input !== undefined || item.expected !== undefined;
 
   return (
     <>
@@ -108,7 +124,9 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
                 : typeof item.input}
             </Badge>
           ) : (
-            <span className="text-muted-foreground text-xs">No input</span>
+            <span className="text-muted-foreground text-xs">
+              No input
+            </span>
           )}
         </TableCell>
         <TableCell>
@@ -121,7 +139,9 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
                 : typeof item.expected}
             </Badge>
           ) : (
-            <span className="text-muted-foreground text-xs">No expected</span>
+            <span className="text-muted-foreground text-xs">
+              No expected
+            </span>
           )}
         </TableCell>
         <TableCell>
@@ -130,7 +150,11 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
               {Object.keys(item.metadata)
                 .slice(0, 3)
                 .map((key) => (
-                  <Badge key={key} variant="outline" className="text-xs">
+                  <Badge
+                    key={key}
+                    variant="outline"
+                    className="text-xs"
+                  >
                     {key}
                   </Badge>
                 ))}
@@ -141,7 +165,9 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
               )}
             </div>
           ) : (
-            <span className="text-muted-foreground text-xs">No metadata</span>
+            <span className="text-muted-foreground text-xs">
+              No metadata
+            </span>
           )}
         </TableCell>
       </TableRow>
@@ -153,22 +179,38 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
                 <div className="bg-zinc-950 p-4 space-y-4">
                   {item.input !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Input:</h4>
-                      <ValueRenderer value={item.input} label="Input" />
+                      <h4 className="font-semibold text-sm mb-2">
+                        Input:
+                      </h4>
+                      <ValueRenderer
+                        value={item.input}
+                        label="Input"
+                      />
                     </div>
                   )}
                   {item.expected !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Expected:</h4>
-                      <ValueRenderer value={item.expected} label="Expected" />
+                      <h4 className="font-semibold text-sm mb-2">
+                        Expected:
+                      </h4>
+                      <ValueRenderer
+                        value={item.expected}
+                        label="Expected"
+                      />
                     </div>
                   )}
-                  {item.metadata && Object.keys(item.metadata).length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
-                      <ValueRenderer value={item.metadata} label="Metadata" />
-                    </div>
-                  )}
+                  {item.metadata &&
+                    Object.keys(item.metadata).length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-sm mb-2">
+                          Metadata:
+                        </h4>
+                        <ValueRenderer
+                          value={item.metadata}
+                          label="Metadata"
+                        />
+                      </div>
+                    )}
                 </div>
               </CollapsibleContent>
             </Collapsible>

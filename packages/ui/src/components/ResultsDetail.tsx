@@ -1,19 +1,21 @@
+'use client';
+
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { getStatusBadge } from '../lib/badges';
-import { formatDuration } from '../lib/utils';
-import type { EvalResult, EvalResults, EvalSuite, Score } from '../types';
+import { getStatusBadge } from '@/lib/badges';
+import { formatDuration } from '@/lib/utils';
+import type { EvalResult, EvalResults, EvalSuite, Score } from '@/types';
 import ScoresRenderer from './ScoresRenderer';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle,
-} from './ui/card';
-import { Collapsible, CollapsibleContent } from './ui/collapsible';
+} from '@/components/ui/card';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import {
   Table,
   TableBody,
@@ -22,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
+} from '@/components/ui/table';
 import { ValueRenderer } from './ValueRenderer';
 
 interface ResultsDetailProps {
@@ -84,13 +86,20 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                 <div className="bg-muted/30 p-4 space-y-4">
                   {evalResult.input !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Input:</h4>
-                      <ValueRenderer value={evalResult.input} label="Input" />
+                      <h4 className="font-semibold text-sm mb-2">
+                        Input:
+                      </h4>
+                      <ValueRenderer
+                        value={evalResult.input}
+                        label="Input"
+                      />
                     </div>
                   )}
                   {evalResult.expected !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Expected:</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        Expected:
+                      </h4>
                       <ValueRenderer
                         value={evalResult.expected}
                         label="Expected"
@@ -99,8 +108,13 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                   )}
                   {evalResult.output !== undefined && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Output:</h4>
-                      <ValueRenderer value={evalResult.output} label="Output" />
+                      <h4 className="font-semibold text-sm mb-2">
+                        Output:
+                      </h4>
+                      <ValueRenderer
+                        value={evalResult.output}
+                        label="Output"
+                      />
                     </div>
                   )}
                   {evalResult.metadata &&
@@ -117,7 +131,9 @@ function EvalResultRow({ evalResult }: { evalResult: EvalResult }) {
                     )}
                   {evalResult.scores.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Scores:</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        Scores:
+                      </h4>
                       <ScoresRenderer scores={evalResult.scores} />
                     </div>
                   )}
@@ -146,7 +162,9 @@ export default function ResultsDetail({
 
   if (error) {
     return (
-      <div className="text-destructive text-center py-8">Error: {error}</div>
+      <div className="text-destructive text-center py-8">
+        Error: {error}
+      </div>
     );
   }
 
@@ -171,8 +189,12 @@ export default function ResultsDetail({
               <div className="text-sm text-muted-foreground">Failed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{results.numTotalEvals}</div>
-              <div className="text-sm text-muted-foreground">Total Evals</div>
+              <div className="text-2xl font-bold">
+                {results.numTotalEvals}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Total Evals
+              </div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold">
@@ -197,29 +219,39 @@ export default function ResultsDetail({
                 <div className="text-2xl font-bold">
                   {formatDuration(suite.duration)}
                 </div>
-                <div className="text-sm text-muted-foreground">Duration</div>
+                <div className="text-sm text-muted-foreground">
+                  Duration
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
                   {suite.summary.passedCount}
                 </div>
-                <div className="text-sm text-muted-foreground">Passed</div>
+                <div className="text-sm text-muted-foreground">
+                  Passed
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
                   {suite.summary.totalCount - suite.summary.passedCount}
                 </div>
-                <div className="text-sm text-muted-foreground">Failed</div>
+                <div className="text-sm text-muted-foreground">
+                  Failed
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">
                   {suite.summary.meanScore.toFixed(3)}
                 </div>
-                <div className="text-sm text-muted-foreground">Mean Score</div>
+                <div className="text-sm text-muted-foreground">
+                  Mean Score
+                </div>
               </div>
             </div>
             <Table>
-              <TableCaption>Click on a row to view the details</TableCaption>
+              <TableCaption>
+                Click on a row to view the details
+              </TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>

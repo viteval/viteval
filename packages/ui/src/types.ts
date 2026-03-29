@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: We allow any type here since its ONLY for the UI */
+/** oxlint-disable no-explicit-any */
 
 export interface Score {
   name: string;
