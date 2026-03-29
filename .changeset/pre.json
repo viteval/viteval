@@ -1,0 +1,14 @@
+{
+  "mode": "pre",
+  "tag": "rc",
+  "initialVersions": {
+    "@viteval/cli": "0.5.9",
+    "@viteval/core": "0.5.9",
+    "@viteval/internal": "0.5.9",
+    "@viteval/ui": "0.5.8",
+    "viteval": "0.5.9"
+  },
+  "changesets": [
+    "migrate-ui-nextjs"
+  ]
+}
