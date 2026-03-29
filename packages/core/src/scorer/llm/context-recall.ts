@@ -1,16 +1,11 @@
 import { createScorer } from '#/scorer/custom';
 import { runJudge } from './judge';
 
-const PROMPT = `You are evaluating the recall of a retrieved context against an expected answer. Here is the data:
-[BEGIN DATA]
-************
-[Question]: {{input}}
-************
-[Context]: {{output}}
-************
-[Expected Answer]: {{expected}}
-************
-[END DATA]
+const PROMPT = `You are evaluating the recall of a retrieved context against an expected answer.
+
+<question>{{input}}</question>
+<context>{{output}}</context>
+<expected_answer>{{expected}}</expected_answer>
 
 Evaluate whether the context contains enough information to support the expected answer. Consider if all claims in the expected answer can be attributed to the context.
 (A) The context fully supports the expected answer - all claims can be attributed to the context.
@@ -19,6 +14,22 @@ Evaluate whether the context contains enough information to support the expected
 
 const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
 
+/**
+ * Scores whether a retrieved context contains enough information to support the expected answer.
+ *
+ * Uses an LLM judge to check if all claims in the expected answer can be attributed to the context.
+ *
+ * @example
+ * ```ts
+ * import { contextRecall } from '@viteval/core';
+ *
+ * const result = await contextRecall({
+ *   input: 'What year was Python created?',
+ *   output: 'Python was first released in 1991 by Guido van Rossum.',
+ *   expected: '1991',
+ * });
+ * ```
+ */
 export const contextRecall = createScorer({
   name: 'ContextRecall',
   score: async ({ output, expected, input, ...extra }) => {

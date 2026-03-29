@@ -3,29 +3,6 @@ import { linearSumAssignment } from 'linear-sum-assignment';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity } from './similarity';
 
-function toStringArray(value: unknown): string[] {
-  if (isArray(value)) {
-    return value.map(String);
-  }
-
-  if (isString(value)) {
-    try {
-      const parsed = JSON.parse(value);
-      if (isArray(parsed)) {
-        return parsed.map(String);
-      }
-    } catch {
-      // split by newline
-    }
-    return value
-      .split('\n')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-  }
-
-  return [String(value)];
-}
-
 /**
  * Scores based on optimal pairwise matching between two lists using
  * Levenshtein similarity and the Hungarian algorithm.
@@ -97,3 +74,31 @@ export const listContains = createScorer({
     return { score: clamp(score, 0, 1) };
   },
 });
+
+/**
+ * Coerce an unknown value into a string array for list comparison.
+ *
+ * @private
+ */
+function toStringArray(value: unknown): string[] {
+  if (isArray(value)) {
+    return value.map(String);
+  }
+
+  if (isString(value)) {
+    try {
+      const parsed = JSON.parse(value);
+      if (isArray(parsed)) {
+        return parsed.map(String);
+      }
+    } catch {
+      // split by newline
+    }
+    return value
+      .split('\n')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+  }
+
+  return [String(value)];
+}

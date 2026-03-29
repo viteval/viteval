@@ -3,6 +3,23 @@ import cosineSimilarity from 'compute-cosine-similarity';
 import { createScorer } from '#/scorer/custom';
 import { getEmbedding } from './embed';
 
+/**
+ * Scores semantic similarity between output and expected using embedding cosine similarity.
+ *
+ * Embeds both strings via OpenAI's embeddings API and computes cosine similarity,
+ * clamped to [0, 1].
+ *
+ * @example
+ * ```ts
+ * import { embeddingSimilarity } from '@viteval/core';
+ *
+ * const result = await embeddingSimilarity({
+ *   input: 'q',
+ *   output: 'The cat sat on the mat.',
+ *   expected: 'A cat was sitting on a mat.',
+ * });
+ * ```
+ */
 export const embeddingSimilarity = createScorer({
   name: 'EmbeddingSimilarity',
   score: async ({ output, expected }) => {

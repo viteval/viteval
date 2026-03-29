@@ -2,12 +2,44 @@ import { isArray, isNil, isNumber, isPlainObject, isString, clamp } from '@vitev
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity } from './similarity';
 
+/**
+ * Scores based on recursive deep comparison of JSON values.
+ *
+ * @example
+ * ```ts
+ * import { jsonDiff } from '@viteval/core';
+ *
+ * const result = await jsonDiff({
+ *   input: 'q',
+ *   output: { name: 'Alice' },
+ *   expected: { name: 'Alice' },
+ * });
+ * // result.score === 1
+ * ```
+ */
+export const jsonDiff = createScorer({
+  name: 'JsonDiff',
+  score: ({ output, expected }) => ({
+    score: deepCompare(output, expected),
+  }),
+});
+
+/**
+ * Compute numeric similarity between two numbers as a value in [0, 1].
+ *
+ * @private
+ */
 function numericSimilarity(a: number, b: number): number {
   if (a === 0 && b === 0) return 1;
   const maxAbs = Math.max(Math.abs(a), Math.abs(b));
   return clamp(1 - Math.abs(a - b) / maxAbs, 0, 1);
 }
 
+/**
+ * Attempt to parse a value as JSON if it is a string, otherwise return as-is.
+ *
+ * @private
+ */
 function tryParseJson(value: unknown): unknown {
   if (isString(value)) {
     try {
@@ -19,6 +51,11 @@ function tryParseJson(value: unknown): unknown {
   return value;
 }
 
+/**
+ * Recursively compare two values and return a similarity score in [0, 1].
+ *
+ * @private
+ */
 function deepCompare(a: unknown, b: unknown): number {
   const parsedA = tryParseJson(a);
   const parsedB = tryParseJson(b);
@@ -66,25 +103,3 @@ function deepCompare(a: unknown, b: unknown): number {
   const strB = JSON.stringify(parsedB);
   return levenshteinSimilarity(strA, strB);
 }
-
-/**
- * Scores based on recursive deep comparison of JSON values.
- *
- * @example
- * ```ts
- * import { jsonDiff } from '@viteval/core';
- *
- * const result = await jsonDiff({
- *   input: 'q',
- *   output: { name: 'Alice' },
- *   expected: { name: 'Alice' },
- * });
- * // result.score === 1
- * ```
- */
-export const jsonDiff = createScorer({
-  name: 'JsonDiff',
-  score: ({ output, expected }) => ({
-    score: deepCompare(output, expected),
-  }),
-});

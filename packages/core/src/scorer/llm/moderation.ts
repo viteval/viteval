@@ -1,6 +1,20 @@
 import { getClient } from '#/provider/client';
 import { createScorer } from '#/scorer/custom';
 
+/**
+ * Scores content safety using OpenAI's moderation endpoint.
+ *
+ * Returns 1 for safe content and 0 for flagged content. Metadata includes
+ * the full category breakdown and per-category scores.
+ *
+ * @example
+ * ```ts
+ * import { moderation } from '@viteval/core';
+ *
+ * const result = await moderation({ output: 'Hello world' });
+ * // result.score === 1 (safe)
+ * ```
+ */
 export const moderation = createScorer({
   name: 'Moderation',
   score: async ({ output }) => {
