@@ -45,8 +45,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/datasets/$id': typeof DatasetsIdRoute
   '/results/$id': typeof ResultsIdRoute
-  '/datasets': typeof DatasetsIndexRoute
-  '/results': typeof ResultsIndexRoute
+  '/datasets/': typeof DatasetsIndexRoute
+  '/results/': typeof ResultsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -65,7 +65,7 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/datasets/$id' | '/results/$id' | '/datasets' | '/results'
+  fullPaths: '/' | '/datasets/$id' | '/results/$id' | '/datasets/' | '/results/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/datasets/$id' | '/results/$id' | '/datasets' | '/results'
   id:
@@ -97,14 +97,14 @@ declare module '@tanstack/react-router' {
     '/results/': {
       id: '/results/'
       path: '/results'
-      fullPath: '/results'
+      fullPath: '/results/'
       preLoaderRoute: typeof ResultsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/datasets/': {
       id: '/datasets/'
       path: '/datasets'
-      fullPath: '/datasets'
+      fullPath: '/datasets/'
       preLoaderRoute: typeof DatasetsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

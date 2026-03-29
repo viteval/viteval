@@ -9,7 +9,7 @@
     "types": "tsc --noEmit"
   },
   "dependencies": {
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.3.1",
     "viteval": "workspace:*"
   }
 }

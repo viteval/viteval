@@ -83,7 +83,7 @@ export function ValueRenderer({
       setCopied(true);
       toast.success(`${label} copied to clipboard`);
       setTimeout(() => setCopied(false), 2000);
-    } catch (_err) {
+    } catch {
       toast.error('Failed to copy to clipboard');
     }
   };

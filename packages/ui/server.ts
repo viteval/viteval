@@ -7,7 +7,7 @@ import getPort from 'get-port';
 // @ts-ignore - tsrServer is a valid type
 import tsrServer from './dist/server/server.js';
 
-// biome-ignore lint/suspicious/noExplicitAny: tsrServer is a valid type
+// eslint-disable-next-line no-explicit-any -- tsrServer is untyped
 const tanstackServer = tsrServer as any;
 
 export interface CreateVitevalServerOptions {
