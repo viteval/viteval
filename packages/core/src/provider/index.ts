@@ -1,12 +1,5 @@
 export { initializeProvider } from './initialize';
 export { createProvider } from './create';
-export {
-  getProvider,
-  getDatasetProvider,
-  requireDatasetProvider,
-  getEvalProvider,
-  requireEvalProvider,
-} from './client';
 export type {
   Provider,
   ProviderConfig,
