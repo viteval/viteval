@@ -1,12 +1,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { withResult } from '@viteval/internal';
 import type {
-  AddEvalResultParams,
-  CompleteEvalRunParams,
-  CreateEvalRunParams,
   EvalProvider,
-  GetEvalRunParams,
-  ListEvalRunsParams,
   StoredEvalResult,
   StoredEvalRun,
 } from '@viteval/core';

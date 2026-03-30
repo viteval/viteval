@@ -68,6 +68,19 @@ export function createBraintrustEvalOps(
         const experiments: Array<Braintrust.Experiment> = [];
         let skipped = 0;
         for await (const e of page) {
+          // Apply local filters that Braintrust doesn't support server-side
+          if (params?.datasetId && e.dataset_id !== params.datasetId) continue;
+          if (params?.status) {
+            const meta = e.metadata ?? {};
+            const status = (meta._viteval_status as string) ?? 'running';
+            if (status !== params.status) continue;
+          }
+          if (params?.tags?.length) {
+            const meta = e.metadata ?? {};
+            const tags = (meta._viteval_tags as string[]) ?? [];
+            if (!params.tags.some((t) => tags.includes(t))) continue;
+          }
+
           if (params?.offset && skipped < params.offset) {
             skipped++;
             continue;

@@ -78,9 +78,9 @@ export function createBraintrustDatasetOps(
     list: (params) =>
       withResult(async () => {
         const client = await getClient();
-        const fetchLimit = params?.offset
-          ? (params.offset + (params?.limit ?? 100))
-          : params?.limit;
+        const fetchLimit = params?.limit
+          ? (params?.offset ? params.offset + params.limit : params.limit)
+          : undefined;
         const page = await client.datasets.list({
           project_id: getProjectId(),
           limit: fetchLimit,
@@ -121,9 +121,9 @@ export function createBraintrustDatasetOps(
     getItems: (params) =>
       withResult(async () => {
         const client = await getClient();
-        const fetchLimit = params.offset
-          ? (params.offset + (params.limit ?? 100))
-          : params.limit;
+        const fetchLimit = params.limit
+          ? (params.offset ? params.offset + params.limit : params.limit)
+          : undefined;
         const response = await client.datasets.fetch(params.datasetId, {
           limit: fetchLimit,
         });
@@ -136,7 +136,7 @@ export function createBraintrustDatasetOps(
           events = events.slice(0, params.limit);
         }
 
-        return events.map((event, i) => mapDatasetItem(event, params.datasetId, i));
+        return events.map((event, i) => mapDatasetItem(event, params.datasetId, (params.offset ?? 0) + i));
       }),
 
     addItems: (params) =>

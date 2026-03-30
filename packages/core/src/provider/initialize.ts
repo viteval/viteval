@@ -29,9 +29,6 @@ export async function initializeProvider(config: ProviderConfig): Promise<void> 
     globalThis.__viteval_datasetProvider = config.datasets;
     globalThis.__viteval_evalProvider = config.evals;
   } else {
-    globalThis.__viteval_datasetProvider = resolveSubProvider(config.datasets, 'datasets');
-    globalThis.__viteval_evalProvider = resolveSubProvider(config.evals, 'evals');
-
     // Initialize any full providers passed to domain slots
     if (config.datasets && isProvider(config.datasets)) {
       const result = await config.datasets.initialize();
@@ -45,6 +42,9 @@ export async function initializeProvider(config: ProviderConfig): Promise<void> 
         throw result.result;
       }
     }
+
+    globalThis.__viteval_datasetProvider = resolveSubProvider(config.datasets, 'datasets');
+    globalThis.__viteval_evalProvider = resolveSubProvider(config.evals, 'evals');
   }
 
   globalThis.__viteval_providerInitialized = true;
