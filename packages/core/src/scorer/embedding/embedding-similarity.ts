@@ -4,7 +4,7 @@ import { computeEmbeddingSimilarity } from './embed';
 /**
  * Scores semantic similarity between output and expected using embedding cosine similarity.
  *
- * Embeds both strings via OpenAI's embeddings API and computes cosine similarity,
+ * Embeds both strings via the configured embedding model and computes cosine similarity,
  * clamped to [0, 1].
  *
  * @example

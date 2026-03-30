@@ -1,3 +1,4 @@
+import type { LanguageModel } from 'ai';
 import { createScorer } from '#/scorer/custom';
 import type { Scorer } from '#/types';
 import { runJudge } from './judge';
@@ -14,6 +15,8 @@ export interface JudgeScorerConfig {
   choiceScores: Record<string, number>;
   /** Whether to use chain-of-thought reasoning (default: true) */
   useCoT?: boolean;
+  /** Model override for this scorer */
+  model?: LanguageModel;
 }
 
 /**
@@ -42,6 +45,7 @@ export function createJudgeScorer(
           prompt: config.prompt,
           choiceScores: config.choiceScores,
           useCoT: config.useCoT ?? true,
+          model: config.model,
         },
         { output, expected, input, ...extra }
       );

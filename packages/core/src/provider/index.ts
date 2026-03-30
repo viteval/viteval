@@ -1,1 +1,1 @@
-export {};
+export { initializeProvider } from './initialize';

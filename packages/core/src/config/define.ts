@@ -1,5 +1,6 @@
 import { match, P } from 'ts-pattern';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
+import { initializeProvider } from '#/provider/initialize';
 import type { VitevalConfig } from './types';
 
 /**
@@ -15,8 +16,15 @@ export function defineConfig({
   reporters,
   deps,
   server,
+  provider,
   ...config
 }: VitevalConfig) {
+  // Initialize the provider eagerly — AI SDK model instances are not
+  // serializable so they cannot go through Vitest's provide/inject.
+  if (provider) {
+    initializeProvider(provider);
+  }
+
   return defineVitestConfig({
     ...config,
     test: {

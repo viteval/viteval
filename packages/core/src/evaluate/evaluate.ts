@@ -61,7 +61,7 @@ export function evaluate<
     const results: EvalResult[] = [];
     const config = getRuntimeConfig();
 
-    beforeAll(async () => {
+    beforeAll(() => {
       if (config.provider) {
         initializeProvider(config.provider);
       }

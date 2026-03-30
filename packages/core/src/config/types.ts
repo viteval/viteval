@@ -1,18 +1,35 @@
-import type { OpenAI } from 'openai';
+import type { EmbeddingModel, LanguageModel } from 'ai';
 import type { AliasOptions, UserConfig } from 'vite';
 import type { DebuggerOptions, DepsHandlingOptions } from 'vite-node';
 import type { DepsOptimizationOptions } from 'vitest/node';
 
-export type VitevalProviderOpenAIConfig =
-  | {
-      apiKey: string;
-      project?: string;
-      organization?: string;
-    }
-  | { client: OpenAI };
-
+/**
+ * Provider configuration for LLM-based scorers.
+ *
+ * Uses Vercel AI SDK models — bring your own provider package
+ * (`@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`, etc.).
+ *
+ * @example
+ * ```ts
+ * import { openai } from '@ai-sdk/openai';
+ *
+ * const provider: VitevalProviderConfig = {
+ *   model: openai('gpt-4o-mini'),
+ *   embeddingModel: openai.embedding('text-embedding-3-small'),
+ * };
+ * ```
+ */
 export interface VitevalProviderConfig {
-  openai: VitevalProviderOpenAIConfig;
+  /**
+   * Language model used for LLM-as-judge scorers.
+   */
+  model: LanguageModel;
+  /**
+   * Embedding model used for embedding-based scorers (e.g. `embeddingSimilarity`, `answerSimilarity`).
+   *
+   * Only required if you use embedding scorers.
+   */
+  embeddingModel?: EmbeddingModel;
 }
 
 // TODO: Add support for braintrust reporter
@@ -29,7 +46,19 @@ export type VitevalReporter = 'default' | 'json' | 'file'; // | VitevalReporterB
  */
 export interface VitevalConfig {
   /**
-   * Provider configuration, used to initialize the provider for usage across the tests and evals (OpenAI ONLY).
+   * Provider configuration for LLM-based and embedding-based scorers.
+   *
+   * @example
+   * ```ts
+   * import { openai } from '@ai-sdk/openai';
+   *
+   * defineConfig({
+   *   provider: {
+   *     model: openai('gpt-4o-mini'),
+   *     embeddingModel: openai.embedding('text-embedding-3-small'),
+   *   },
+   * });
+   * ```
    */
   provider?: VitevalProviderConfig;
   /**
