@@ -16,22 +16,23 @@ import type { CommandModule } from 'yargs';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
   aliases: ['*'],
-  builder: (yargs) => yargs
+  builder: (yargs) =>
+    yargs
       .positional('pattern', {
         describe: 'Eval file pattern to match',
         type: 'string',
       })
       .option('reporters', {
         alias: 'r',
+        choices: ['default', 'json', 'file'],
         describe: 'Reporter to use',
         type: 'array',
-        choices: ['default', 'json', 'file'],
       })
       .option('ui', {
         alias: 'u',
+        default: false,
         describe: 'Start the UI server',
         type: 'boolean',
-        default: false,
       })
       .option('root', {
         describe: 'Root directory to run evaluations from',
@@ -58,10 +59,13 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
-    const configResolutionResult = await withResult(async () => await resolveConfig({
-        config: configFilePath,
-        root,
-      }));
+    const configResolutionResult = await withResult(
+      async () =>
+        await resolveConfig({
+          config: configFilePath,
+          root,
+        })
+    );
 
     if (
       configResolutionResult.status === 'error' &&

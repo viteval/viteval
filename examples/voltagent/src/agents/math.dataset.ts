@@ -13,8 +13,8 @@ export default defineDataset({
         prompt:
           'Generate a math problem that can be solved with basic arithmetic operations and the expected answer',
         schema: z.object({
-          question: z.string().describe('The question to answer'),
           answer: z.string().describe('The answer to the question'),
+          question: z.string().describe('The question to answer'),
         }),
         system: `
           You are an expert at generating test data for a math agent. You will generate a math problem and the expected answer.

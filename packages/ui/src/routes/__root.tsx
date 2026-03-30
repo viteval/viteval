@@ -7,17 +7,17 @@ export const Route = createRootRoute({
   head: () => ({
     links: [
       {
-        rel: 'stylesheet',
         href: appCss,
+        rel: 'stylesheet',
       },
     ],
     meta: [
       {
-        charSet: 'utf-8',
+        charSet: 'utf8',
       },
       {
-        name: 'viewport',
         content: 'width=device-width, initial-scale=1',
+        name: 'viewport',
       },
       {
         title: 'Viteval | Evaluation Results',

@@ -36,7 +36,9 @@ export interface ExactMatchOptions {
  * scorers: [scorers.exactMatch({ caseSensitive: false, trim: true })]
  * ```
  */
-export function exactMatch(options?: ExactMatchOptions): Scorer<unknown, Extra> {
+export function exactMatch(
+  options?: ExactMatchOptions
+): Scorer<unknown, Extra> {
   const { caseSensitive = true, trim = false } = options ?? {};
 
   return createScorer({

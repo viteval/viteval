@@ -12,8 +12,8 @@ export default defineDataset({
         model: openai('gpt-5'),
         prompt: 'Generate a history question and the expected answer',
         schema: z.object({
-          question: z.string().describe('The history question to answer'),
           answer: z.string().describe('The answer to the history question'),
+          question: z.string().describe('The history question to answer'),
         }),
         system: `
           You are an expert at generating test data for a history agent. You will generate a history question and the expected answer.
