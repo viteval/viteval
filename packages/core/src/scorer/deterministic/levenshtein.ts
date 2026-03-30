@@ -1,5 +1,5 @@
 import levenshtein from 'js-levenshtein';
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity } from './similarity';
 
@@ -34,7 +34,7 @@ export interface LevenshteinOptions {
  */
 export function levenshteinScorer(
   options?: LevenshteinOptions
-): Scorer<unknown, Extra> {
+): Scorer {
   const { threshold = 0 } = options ?? {};
 
   return createScorer({

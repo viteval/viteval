@@ -16,11 +16,15 @@ export interface Score {
 /**
  * The arguments passed to a scorer, contains the output and expected output and any additional arguments.
  */
-export type ScorerArgs<OUTPUT, EXTRA extends Extra> = Merge<
+export type ScorerArgs<
+  OUTPUT,
+  EXPECTED = OUTPUT,
+  EXTRA extends Extra = Extra,
+> = Merge<
   EXTRA,
   {
     output: OUTPUT;
-    expected: OUTPUT;
+    expected: EXPECTED;
   }
 >;
 
@@ -32,9 +36,11 @@ export type ScorerAggregationType = 'mean' | 'median' | 'sum';
 /**
  * A scorer function, takes the output and expected output and returns a score.
  */
-export type Scorer<OUTPUT, EXTRA extends Extra> = (
-  args: ScorerArgs<OUTPUT, EXTRA>
-) => Score | Promise<Score>;
+export type Scorer<
+  OUTPUT = unknown,
+  EXPECTED = OUTPUT,
+  EXTRA extends Extra = Extra,
+> = (args: ScorerArgs<OUTPUT, EXPECTED, EXTRA>) => Score | Promise<Score>;
 
 export type TaskArgs<INPUT, EXTRA extends Extra> = Merge<
   EXTRA,
@@ -176,8 +182,12 @@ export interface Dataset<
 
 /**
  * An evaluation configuration.
+ *
+ * @typeParam DATA - The data type (array, generator, or dataset).
+ * @typeParam TASK_OUTPUT - The return type of the task function. Defaults to the expected type from the data,
+ *   but can differ when the task produces a different shape than what is stored in `expected`.
  */
-export interface Eval<DATA extends Data> {
+export interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
   /**
    * The description of the evaluation.
    */
@@ -189,11 +199,11 @@ export interface Eval<DATA extends Data> {
   /**
    * The task to evaluate.
    */
-  task: Task<InferDataInput<DATA>, InferDataOutput<DATA>, InferDataExtra<DATA>>;
+  task: Task<InferDataInput<DATA>, TASK_OUTPUT, InferDataExtra<DATA>>;
   /**
    * The scorers to use for the evaluation.
    */
-  scorers: Scorer<InferDataOutput<DATA>, InferDataExtra<DATA>>[];
+  scorers: Scorer<TASK_OUTPUT, InferDataOutput<DATA>, InferDataExtra<DATA>>[];
   /**
    * The aggregation type for the evaluation.
    *

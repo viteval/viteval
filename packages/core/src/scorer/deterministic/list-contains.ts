@@ -1,6 +1,6 @@
 import { clamp, isArray, isString } from '@viteval/internal';
 import { linearSumAssignment } from 'linear-sum-assignment';
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity } from './similarity';
 
@@ -35,7 +35,7 @@ export interface ListContainsOptions {
  */
 export function listContains(
   options?: ListContainsOptions
-): Scorer<unknown, Extra> {
+): Scorer {
   const { threshold = 0 } = options ?? {};
 
   return createScorer({

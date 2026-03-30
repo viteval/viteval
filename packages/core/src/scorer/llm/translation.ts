@@ -1,5 +1,5 @@
 import type { LanguageModel } from 'ai';
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { runJudge } from './judge';
 
@@ -44,7 +44,7 @@ const CHOICE_SCORES: Record<string, number> = { N: 0, Y: 1 };
  */
 export function translation(
   options?: TranslationOptions
-): Scorer<unknown, Extra> {
+): Scorer {
   return createScorer({
     name: 'Translation',
     score: async ({ output, expected, input, ...extra }) => {

@@ -5,7 +5,7 @@ import {
   isPlainObject,
   isString,
 } from '@viteval/internal';
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity, numericSimilarity } from './similarity';
 
@@ -38,7 +38,7 @@ export interface JsonDiffOptions {
  * scorers: [scorers.jsonDiff({ threshold: 0.9 })]
  * ```
  */
-export function jsonDiff(options?: JsonDiffOptions): Scorer<unknown, Extra> {
+export function jsonDiff(options?: JsonDiffOptions): Scorer {
   const { threshold = 0 } = options ?? {};
 
   return createScorer({
