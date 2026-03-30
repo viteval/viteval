@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('#/provider/client', () => ({
+vi.mock('#/model/client', () => ({
   requireModel: vi.fn(),
 }));
 
@@ -40,16 +40,16 @@ describe('moderation', () => {
     expect(result.metadata?.choice).toBe('Unsafe');
   });
 
-  it('should throw if provider is not initialized', async () => {
+  it('should throw if model is not initialized', async () => {
     vi.mocked(generateObject).mockRejectedValueOnce(
       new Error(
-        'Provider not initialized. Configure a provider in your viteval config or call initializeProvider() first.'
+        'Model not initialized. Configure a model in your viteval config.'
       )
     );
 
     const scorer = moderation();
     await expect(scorer({ output: 'test' })).rejects.toThrow(
-      'Provider not initialized.'
+      'Model not initialized.'
     );
   });
 });

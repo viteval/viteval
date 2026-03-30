@@ -1,6 +1,6 @@
 import { P, match } from 'ts-pattern';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
-import { initializeProvider } from '#/provider/initialize';
+import { initializeModel } from '#/model/initialize';
 import type { VitevalConfig } from './types';
 
 /**
@@ -16,14 +16,19 @@ export function defineConfig({
   reporters,
   deps,
   server,
+  model,
   provider,
   ...config
 }: VitevalConfig) {
-  // Initialize the provider eagerly — AI SDK model instances are not
+  // Initialize the model eagerly — AI SDK model instances are not
   // Serializable so they cannot go through Vitest's provide/inject.
-  if (provider) {
-    initializeProvider(provider);
+  if (model) {
+    initializeModel(model);
   }
+
+  // Provider initialization is deferred — it's async (DB migrations, connections)
+  // And will be triggered lazily on first provider access.
+  // We store the config for lazy init in evaluate()'s beforeAll hook.
 
   return defineVitestConfig({
     ...config,
@@ -33,7 +38,10 @@ export function defineConfig({
       // eslint-disable-next-line no-explicit-any -- Vitest 4.x changed server types
       server: server as any,
       provide: {
-        config,
+        config: { ...config, eval: evalConfig, model, provider } as Record<
+          string,
+          unknown
+        >,
       },
       environment: 'node',
       // We default to a very long timeout for evals since they can be slow
