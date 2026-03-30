@@ -34,7 +34,7 @@ describe('sql', () => {
         input: 'Select all users older than 30',
         output: 'SELECT * FROM users WHERE age > 30',
         expected: 'SELECT * FROM users WHERE age > 30',
-      }),
+      })
     );
   });
 });

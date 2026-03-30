@@ -57,11 +57,13 @@ describe('moderation', () => {
 
   it('should throw if client is not initialized', async () => {
     vi.mocked(requireClient).mockImplementation(() => {
-      throw new Error('OpenAI client not initialized. Call initializeProvider() first.');
+      throw new Error(
+        'OpenAI client not initialized. Call initializeProvider() first.'
+      );
     });
 
     await expect(moderation({ output: 'test' })).rejects.toThrow(
-      'OpenAI client not initialized. Call initializeProvider() first.',
+      'OpenAI client not initialized. Call initializeProvider() first.'
     );
   });
 });

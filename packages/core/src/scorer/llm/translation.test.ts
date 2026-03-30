@@ -35,7 +35,7 @@ describe('translation', () => {
         output: 'Hello world',
         expected: 'Hello world',
         language: 'French',
-      }),
+      })
     );
   });
 
@@ -56,7 +56,7 @@ describe('translation', () => {
       expect.anything(),
       expect.objectContaining({
         language: 'Unknown',
-      }),
+      })
     );
   });
 });

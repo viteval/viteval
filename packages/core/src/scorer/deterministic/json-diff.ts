@@ -1,4 +1,10 @@
-import { isArray, isNil, isNumber, isPlainObject, isString } from '@viteval/internal';
+import {
+  isArray,
+  isNil,
+  isNumber,
+  isPlainObject,
+  isString,
+} from '@viteval/internal';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity, numericSimilarity } from './similarity';
 

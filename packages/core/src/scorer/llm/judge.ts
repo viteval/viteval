@@ -67,7 +67,12 @@ export async function runJudge(
         type: 'object',
         properties: {
           ...(config.useCoT
-            ? { reasons: { type: 'string', description: 'Step-by-step reasoning for the choice.' } }
+            ? {
+                reasons: {
+                  type: 'string',
+                  description: 'Step-by-step reasoning for the choice.',
+                },
+              }
             : {}),
           choice: {
             type: 'string',
@@ -91,7 +96,11 @@ export async function runJudge(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (!toolCall || !('function' in toolCall) || toolCall.function.name !== 'select_choice') {
+  if (
+    !toolCall ||
+    !('function' in toolCall) ||
+    toolCall.function.name !== 'select_choice'
+  ) {
     throw new Error('LLM judge did not return a valid tool call.');
   }
 
@@ -99,7 +108,9 @@ export async function runJudge(
   try {
     parsed = JSON.parse(toolCall.function.arguments);
   } catch {
-    throw new Error('LLM judge returned malformed JSON in tool call arguments.');
+    throw new Error(
+      'LLM judge returned malformed JSON in tool call arguments.'
+    );
   }
 
   const score = config.choiceScores[parsed.choice];

@@ -33,7 +33,7 @@ describe('contextPrecision', () => {
         input: 'What is the capital of France?',
         output: 'France is a country in Europe. Its capital is Paris.',
         expected: 'Paris',
-      }),
+      })
     );
   });
 });

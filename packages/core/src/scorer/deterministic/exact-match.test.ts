@@ -3,12 +3,20 @@ import { exactMatch } from './exact-match';
 
 describe('exactMatch', () => {
   it('should return 1 for matching strings', async () => {
-    const result = await exactMatch({ input: '', output: 'hello', expected: 'hello' });
+    const result = await exactMatch({
+      input: '',
+      output: 'hello',
+      expected: 'hello',
+    });
     expect(result.score).toBe(1);
   });
 
   it('should return 0 for non-matching strings', async () => {
-    const result = await exactMatch({ input: '', output: 'hello', expected: 'world' });
+    const result = await exactMatch({
+      input: '',
+      output: 'hello',
+      expected: 'world',
+    });
     expect(result.score).toBe(0);
   });
 
@@ -23,12 +31,20 @@ describe('exactMatch', () => {
   });
 
   it('should handle null and undefined', async () => {
-    const result = await exactMatch({ input: '', output: null, expected: null });
+    const result = await exactMatch({
+      input: '',
+      output: null,
+      expected: null,
+    });
     expect(result.score).toBe(1);
   });
 
   it('should return 0 for null vs undefined', async () => {
-    const result = await exactMatch({ input: '', output: null, expected: undefined });
+    const result = await exactMatch({
+      input: '',
+      output: null,
+      expected: undefined,
+    });
     expect(result.score).toBe(0);
   });
 

@@ -31,13 +31,19 @@ export interface JudgeScorerConfig {
  * });
  * ```
  */
-export function createJudgeScorer(config: JudgeScorerConfig): Scorer<unknown, Record<string, unknown>> {
+export function createJudgeScorer(
+  config: JudgeScorerConfig
+): Scorer<unknown, Record<string, unknown>> {
   return createScorer({
     name: config.name,
     score: async ({ output, expected, input, ...extra }) => {
       const result = await runJudge(
-        { prompt: config.prompt, choiceScores: config.choiceScores, useCoT: config.useCoT ?? true },
-        { output, expected, input, ...extra },
+        {
+          prompt: config.prompt,
+          choiceScores: config.choiceScores,
+          useCoT: config.useCoT ?? true,
+        },
+        { output, expected, input, ...extra }
       );
       return {
         score: result.score,

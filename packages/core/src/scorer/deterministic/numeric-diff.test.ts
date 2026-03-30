@@ -19,12 +19,20 @@ describe('numericDiff', () => {
   });
 
   it('should handle string numbers', async () => {
-    const result = await numericDiff({ input: '', output: '10', expected: '10' });
+    const result = await numericDiff({
+      input: '',
+      output: '10',
+      expected: '10',
+    });
     expect(result.score).toBe(1);
   });
 
   it('should return 0 for non-numeric strings', async () => {
-    const result = await numericDiff({ input: '', output: 'abc', expected: 'def' });
+    const result = await numericDiff({
+      input: '',
+      output: 'abc',
+      expected: 'def',
+    });
     expect(result.score).toBe(0);
   });
 

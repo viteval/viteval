@@ -3,12 +3,20 @@ import { levenshteinScorer } from './levenshtein';
 
 describe('levenshteinScorer', () => {
   it('should return 1 for identical strings', async () => {
-    const result = await levenshteinScorer({ input: '', output: 'hello', expected: 'hello' });
+    const result = await levenshteinScorer({
+      input: '',
+      output: 'hello',
+      expected: 'hello',
+    });
     expect(result.score).toBe(1);
   });
 
   it('should return 0 for completely different single chars', async () => {
-    const result = await levenshteinScorer({ input: '', output: 'a', expected: 'b' });
+    const result = await levenshteinScorer({
+      input: '',
+      output: 'a',
+      expected: 'b',
+    });
     expect(result.score).toBe(0);
   });
 
@@ -23,22 +31,38 @@ describe('levenshteinScorer', () => {
   });
 
   it('should return 1 for two empty strings', async () => {
-    const result = await levenshteinScorer({ input: '', output: '', expected: '' });
+    const result = await levenshteinScorer({
+      input: '',
+      output: '',
+      expected: '',
+    });
     expect(result.score).toBe(1);
   });
 
   it('should return 0 for empty vs non-empty string', async () => {
-    const result = await levenshteinScorer({ input: '', output: '', expected: 'abc' });
+    const result = await levenshteinScorer({
+      input: '',
+      output: '',
+      expected: 'abc',
+    });
     expect(result.score).toBe(0);
   });
 
   it('should handle single character strings', async () => {
-    const result = await levenshteinScorer({ input: '', output: 'a', expected: 'a' });
+    const result = await levenshteinScorer({
+      input: '',
+      output: 'a',
+      expected: 'a',
+    });
     expect(result.score).toBe(1);
   });
 
   it('should include distance in metadata', async () => {
-    const result = await levenshteinScorer({ input: '', output: 'abc', expected: 'axc' });
+    const result = await levenshteinScorer({
+      input: '',
+      output: 'abc',
+      expected: 'axc',
+    });
     expect(result.metadata?.distance).toBe(1);
   });
 

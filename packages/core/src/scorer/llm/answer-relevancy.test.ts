@@ -32,7 +32,7 @@ describe('answerRelevancy', () => {
       expect.objectContaining({
         input: 'What is 2+2?',
         output: '4',
-      }),
+      })
     );
   });
 });

@@ -40,10 +40,11 @@ const CHOICE_SCORES: Record<string, number> = { Y: 1.0, N: 0.0 };
 export const translation = createScorer({
   name: 'Translation',
   score: async ({ output, expected, input, ...extra }) => {
-    const language = ('language' in extra ? extra.language : undefined) ?? 'Unknown';
+    const language =
+      ('language' in extra ? extra.language : undefined) ?? 'Unknown';
     const result = await runJudge(
       { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, language, ...extra },
+      { output, expected, input, language, ...extra }
     );
     return {
       score: result.score,

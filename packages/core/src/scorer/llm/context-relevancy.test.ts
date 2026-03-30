@@ -18,7 +18,8 @@ describe('contextRelevancy', () => {
 
     const result = await contextRelevancy({
       input: 'What is photosynthesis?',
-      output: 'Photosynthesis is the process by which plants convert sunlight into energy.',
+      output:
+        'Photosynthesis is the process by which plants convert sunlight into energy.',
     });
 
     expect(result.score).toBe(1);
@@ -30,8 +31,9 @@ describe('contextRelevancy', () => {
       }),
       expect.objectContaining({
         input: 'What is photosynthesis?',
-        output: 'Photosynthesis is the process by which plants convert sunlight into energy.',
-      }),
+        output:
+          'Photosynthesis is the process by which plants convert sunlight into energy.',
+      })
     );
   });
 });

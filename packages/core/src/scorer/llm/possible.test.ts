@@ -31,7 +31,7 @@ describe('possible', () => {
       expect.objectContaining({
         input: 'How do you sort an array?',
         output: 'Use Array.prototype.sort()',
-      }),
+      })
     );
   });
 });

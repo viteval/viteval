@@ -1,6 +1,6 @@
 ---
-"@viteval/core": major
-"@viteval/internal": major
+'@viteval/core': major
+'@viteval/internal': major
 ---
 
 Replace autoevals dependency with custom scorer implementations

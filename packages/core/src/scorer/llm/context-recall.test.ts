@@ -33,7 +33,7 @@ describe('contextRecall', () => {
         input: 'What is the capital of France?',
         output: 'Paris is the capital and largest city of France.',
         expected: 'Paris',
-      }),
+      })
     );
   });
 });

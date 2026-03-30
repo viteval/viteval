@@ -5,10 +5,7 @@ import {
   jsonDiff,
   listContains,
 } from './deterministic';
-import {
-  embeddingSimilarity,
-  answerSimilarity,
-} from './embedding';
+import { embeddingSimilarity, answerSimilarity } from './embedding';
 import {
   factuality,
   summary,

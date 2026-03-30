@@ -34,7 +34,7 @@ describe('contextEntityRecall', () => {
         input: 'Who founded Microsoft?',
         output: 'Bill Gates and Paul Allen founded Microsoft in 1975.',
         expected: 'Bill Gates and Paul Allen',
-      }),
+      })
     );
   });
 });

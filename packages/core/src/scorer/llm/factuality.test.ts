@@ -34,7 +34,7 @@ describe('factuality', () => {
         input: 'What is 2+2?',
         output: '4',
         expected: '4',
-      }),
+      })
     );
   });
 });

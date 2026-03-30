@@ -22,7 +22,13 @@ The submitted answer may either be a subset or superset of the expert answer, or
 (D) There is a disagreement between the submitted answer and the expert answer.
 (E) The answers differ, but these differences don't matter from the perspective of factuality.`;
 
-const CHOICE_SCORES: Record<string, number> = { A: 0.4, B: 0.6, C: 1, D: 0, E: 1 };
+const CHOICE_SCORES: Record<string, number> = {
+  A: 0.4,
+  B: 0.6,
+  C: 1,
+  D: 0,
+  E: 1,
+};
 
 /**
  * Scores factual accuracy by comparing a submission to an expert answer.

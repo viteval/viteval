@@ -34,7 +34,7 @@ describe('answerCorrectness', () => {
         input: 'What is the capital of France?',
         output: 'Paris',
         expected: 'Paris',
-      }),
+      })
     );
   });
 });

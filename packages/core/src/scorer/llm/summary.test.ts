@@ -34,7 +34,7 @@ describe('summary', () => {
         input: 'The quick brown fox jumps over the lazy dog.',
         output: 'A fox jumps over a dog.',
         expected: 'An animal crosses another.',
-      }),
+      })
     );
   });
 });

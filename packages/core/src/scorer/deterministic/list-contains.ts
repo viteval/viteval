@@ -69,7 +69,8 @@ export const listContains = createScorer({
       }
     }
 
-    const score = totalSimilarity / Math.max(outputList.length, expectedList.length);
+    const score =
+      totalSimilarity / Math.max(outputList.length, expectedList.length);
 
     return { score: clamp(score, 0, 1) };
   },
