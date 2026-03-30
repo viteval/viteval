@@ -250,7 +250,7 @@ function mapExperimentEvent(
     output: event.output,
     passed: (metadata._viteval_passed as boolean) ?? false,
     scores: Object.entries(scores)
-      .filter((entry): entry is [string, number] => entry[1] != null)
+      .filter((entry): entry is [string, number] => entry[1] !== null && entry[1] !== undefined)
       .map(([name, score]) => ({
         name,
         score,
