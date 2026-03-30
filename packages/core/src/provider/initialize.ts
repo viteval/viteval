@@ -20,13 +20,14 @@ export async function initializeProvider(config: ProviderConfig): Promise<void> 
 
   if (isProvider(config)) {
     globalThis.__viteval_provider = config;
-    globalThis.__viteval_datasetProvider = config.datasets;
-    globalThis.__viteval_evalProvider = config.evals;
 
     const result = await config.initialize();
     if (!result.ok) {
       throw result.result;
     }
+
+    globalThis.__viteval_datasetProvider = config.datasets;
+    globalThis.__viteval_evalProvider = config.evals;
   } else {
     globalThis.__viteval_datasetProvider = resolveSubProvider(config.datasets, 'datasets');
     globalThis.__viteval_evalProvider = resolveSubProvider(config.evals, 'evals');

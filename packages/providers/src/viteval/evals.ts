@@ -17,6 +17,12 @@ import type { PrismaClient } from '#/generated/client';
  *
  * @param prisma - The Prisma client instance.
  * @returns An EvalProvider implementation.
+ *
+ * @example
+ * ```ts
+ * const evalOps = createEvalOps(prisma);
+ * const run = await evalOps.create({ name: 'my-eval' });
+ * ```
  */
 export function createEvalOps(prisma: PrismaClient): EvalProvider {
   return {
@@ -65,7 +71,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
                   // Filter runs that contain any of the specified tags.
                   // Tags are stored as JSON arrays, so we use string contains.
                   OR: params.tags.map((tag) => ({
-                    tags: { contains: `"${tag}"` },
+                    tags: { contains: JSON.stringify(tag) },
                   })),
                 }
               : {}),

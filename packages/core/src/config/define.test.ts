@@ -88,7 +88,12 @@ describe('defineConfig', () => {
     const config = defineConfig(customConfig);
 
     // @ts-expect-error - this is valid
-    expect(config.test?.provide?.config).toEqual({ custom: { value: 'test' } });
+    expect(config.test?.provide?.config).toEqual({
+      custom: { value: 'test' },
+      eval: { timeout: 7000 },
+      model: undefined,
+      provider: undefined,
+    });
   });
 
   it('should handle undefined deps configuration', () => {
