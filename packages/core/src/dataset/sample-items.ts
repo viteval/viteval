@@ -20,21 +20,23 @@ import type { DataGenerator, DataItem, SampleItemsParams } from '#/types';
  * ```
  */
 export function sampleItems<DATA_ITEM extends DataItem>(
-	params: SampleItemsParams<DATA_ITEM>,
+  params: SampleItemsParams<DATA_ITEM>
 ): DataGenerator<DATA_ITEM> {
-	const { item, count } = params;
+  const { item, count } = params;
 
-	if (count < 1) {
-		throw new Error(`sampleItems: count must be >= 1, received ${count}`);
-	}
+  if (!Number.isSafeInteger(count) || count < 1) {
+    throw new Error(
+      `sampleItems: count must be a positive integer (>= 1), received ${count}`
+    );
+  }
 
-	return async () => {
-		const items: DATA_ITEM[] = [];
+  return async () => {
+    const items: DATA_ITEM[] = [];
 
-		for (let i = 0; i < count; i++) {
-			items.push(await item(i));
-		}
+    for (let i = 0; i < count; i++) {
+      items.push(await item(i));
+    }
 
-		return items;
-	};
+    return items;
+  };
 }
