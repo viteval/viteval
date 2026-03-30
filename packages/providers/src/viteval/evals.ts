@@ -186,7 +186,7 @@ function mapEvalRun(row: {
     metadata: JSON.parse(row.metadata) as Record<string, unknown>,
     name: row.name,
     startedAt: row.startedAt,
-    status: row.status as 'running' | 'completed' | 'failed',
+    status: parseEvalRunStatus(row.status),
     summary: row.summary ? JSON.parse(row.summary) : undefined,
     tags: JSON.parse(row.tags) as string[],
   };
@@ -220,4 +220,14 @@ function mapEvalResult(row: {
     scores: JSON.parse(row.scores),
     sumScore: row.sumScore,
   };
+}
+
+const VALID_EVAL_RUN_STATUSES = ['running', 'completed', 'failed'] as const;
+type EvalRunStatus = (typeof VALID_EVAL_RUN_STATUSES)[number];
+
+function parseEvalRunStatus(value: string): EvalRunStatus {
+  if (VALID_EVAL_RUN_STATUSES.includes(value as EvalRunStatus)) {
+    return value as EvalRunStatus;
+  }
+  return 'failed';
 }

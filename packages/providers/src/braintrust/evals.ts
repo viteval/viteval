@@ -128,8 +128,17 @@ export function createBraintrustEvalOps(
     list: (params) =>
       withResult(async () => {
         const client = await getClient();
+        const hasLocalFilters =
+          params?.datasetId || params?.status || params?.tags?.length;
+        const serverLimit = hasLocalFilters
+          ? undefined
+          : params?.limit
+            ? params?.offset
+              ? params.offset + params.limit
+              : params.limit
+            : undefined;
         const page = await client.experiments.list({
-          limit: params?.limit,
+          limit: serverLimit,
           project_id: getProjectId(),
         });
 
@@ -189,12 +198,13 @@ function mapResultToEvent(
       _viteval_passed: params.passed,
       _viteval_sum_score: params.sumScore,
     },
-    metrics: params.duration
-      ? {
-          end: params.duration / 1000,
-          start: 0,
-        }
-      : undefined,
+    metrics:
+      params.duration !== undefined
+        ? {
+            end: params.duration / 1000,
+            start: 0,
+          }
+        : undefined,
     output: params.output,
     scores: Object.fromEntries(params.scores.map((s) => [s.name, s.score])),
   };
@@ -243,7 +253,10 @@ function mapExperimentEvent(
   const scores = event.scores ?? {};
 
   return {
-    duration: event.metrics?.end ? event.metrics.end * 1000 : undefined,
+    duration:
+      event.metrics?.end !== undefined && event.metrics.end !== null
+        ? event.metrics.end * 1000
+        : undefined,
     evalRunId,
     expected: event.expected,
     id: event.id,
