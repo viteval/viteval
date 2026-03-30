@@ -1,6 +1,6 @@
 export { evaluate } from './evaluate';
 export { initializeProvider } from './provider';
-export { createScorer, scorers } from './scorer';
+export { createScorer, scorers, wrapScorer } from './scorer';
 export type {
   Data,
   DataItem,
