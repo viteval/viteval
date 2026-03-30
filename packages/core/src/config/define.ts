@@ -21,13 +21,13 @@ export function defineConfig({
   ...config
 }: VitevalConfig) {
   // Initialize the model eagerly — AI SDK model instances are not
-  // serializable so they cannot go through Vitest's provide/inject.
+  // Serializable so they cannot go through Vitest's provide/inject.
   if (model) {
     initializeModel(model);
   }
 
   // Provider initialization is deferred — it's async (DB migrations, connections)
-  // and will be triggered lazily on first provider access.
+  // And will be triggered lazily on first provider access.
   // We store the config for lazy init in evaluate()'s beforeAll hook.
 
   return defineVitestConfig({

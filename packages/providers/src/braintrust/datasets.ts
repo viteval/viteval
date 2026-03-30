@@ -1,16 +1,9 @@
 import type Braintrust from '@braintrust/api';
 import { withResult } from '@viteval/internal';
 import type {
-  AddDatasetItemsParams,
-  CreateDatasetParams,
   DatasetProvider,
-  DeleteDatasetParams,
-  GetDatasetItemsParams,
-  GetDatasetParams,
-  ListDatasetsParams,
   StoredDataItem,
   StoredDataset,
-  UpdateDatasetParams,
 } from '@viteval/core';
 
 /**
@@ -25,26 +18,44 @@ export function createBraintrustDatasetOps(
   getProjectId: () => string
 ): DatasetProvider {
   return {
+    addItems: (params) =>
+      withResult(async () => {
+        const client = await getClient();
+        await client.datasets.insert(params.datasetId, {
+          events: params.items.map((item) => ({
+            expected: item.expected,
+            input: item.input,
+            metadata: item.extra,
+          })),
+        });
+      }),
+
     create: (params) =>
       withResult(async () => {
         const client = await getClient();
         const dataset = await client.datasets.create({
+          description: params.description,
           name: params.name,
           project_id: getProjectId(),
-          description: params.description,
         });
 
         if (params.items?.length) {
           await client.datasets.insert(dataset.id, {
             events: params.items.map((item) => ({
-              input: item.input,
               expected: item.expected,
+              input: item.input,
               metadata: item.extra,
             })),
           });
         }
 
         return mapDataset(dataset, params.items?.length ?? 0);
+      }),
+
+    delete: (params) =>
+      withResult(async () => {
+        const client = await getClient();
+        await client.datasets.delete(params.id);
       }),
 
     get: (params) =>
@@ -59,11 +70,11 @@ export function createBraintrustDatasetOps(
         // Braintrust has no get-by-name, so filter the list
         if (params.name) {
           const page = await client.datasets.list({
-            project_id: getProjectId(),
             dataset_name: params.name,
+            project_id: getProjectId(),
           });
 
-          const datasets: Array<Braintrust.Dataset> = [];
+          const datasets: (Braintrust.Dataset)[] = [];
           for await (const d of page) {
             datasets.push(d);
             break; // We only need the first match
@@ -73,49 +84,6 @@ export function createBraintrustDatasetOps(
         }
 
         return null;
-      }),
-
-    list: (params) =>
-      withResult(async () => {
-        const client = await getClient();
-        const fetchLimit = params?.limit
-          ? (params?.offset ? params.offset + params.limit : params.limit)
-          : undefined;
-        const page = await client.datasets.list({
-          project_id: getProjectId(),
-          limit: fetchLimit,
-        });
-
-        const datasets: Array<Braintrust.Dataset> = [];
-        let skipped = 0;
-        for await (const d of page) {
-          if (params?.offset && skipped < params.offset) {
-            skipped++;
-            continue;
-          }
-          datasets.push(d);
-          if (params?.limit && datasets.length >= params.limit) break;
-        }
-
-        return datasets.map((d) => mapDataset(d));
-      }),
-
-    update: (params) =>
-      withResult(async () => {
-        const client = await getClient();
-        const dataset = await client.datasets.update(params.id, {
-          name: params.name ?? undefined,
-          description: params.description,
-          metadata: params.metadata,
-        });
-
-        return mapDataset(dataset);
-      }),
-
-    delete: (params) =>
-      withResult(async () => {
-        const client = await getClient();
-        await client.datasets.delete(params.id);
       }),
 
     getItems: (params) =>
@@ -128,7 +96,7 @@ export function createBraintrustDatasetOps(
           limit: fetchLimit,
         });
 
-        let events = response.events;
+        let {events} = response;
         if (params.offset) {
           events = events.slice(params.offset);
         }
@@ -139,16 +107,41 @@ export function createBraintrustDatasetOps(
         return events.map((event, i) => mapDatasetItem(event, params.datasetId, (params.offset ?? 0) + i));
       }),
 
-    addItems: (params) =>
+    list: (params) =>
       withResult(async () => {
         const client = await getClient();
-        await client.datasets.insert(params.datasetId, {
-          events: params.items.map((item) => ({
-            input: item.input,
-            expected: item.expected,
-            metadata: item.extra,
-          })),
+        const fetchLimit = params?.limit
+          ? (params?.offset ? params.offset + params.limit : params.limit)
+          : undefined;
+        const page = await client.datasets.list({
+          limit: fetchLimit,
+          project_id: getProjectId(),
         });
+
+        const datasets: (Braintrust.Dataset)[] = [];
+        let skipped = 0;
+        for await (const d of page) {
+          if (params?.offset && skipped < params.offset) {
+            skipped++;
+            continue;
+          }
+          datasets.push(d);
+          if (params?.limit && datasets.length >= params.limit) {break;}
+        }
+
+        return datasets.map((d) => mapDataset(d));
+      }),
+
+    update: (params) =>
+      withResult(async () => {
+        const client = await getClient();
+        const dataset = await client.datasets.update(params.id, {
+          description: params.description,
+          metadata: params.metadata,
+          name: params.name ?? undefined,
+        });
+
+        return mapDataset(dataset);
       }),
   };
 }
@@ -181,11 +174,11 @@ function mapDatasetItem(
   ordinal: number
 ): StoredDataItem {
   return {
-    id: event.id,
     datasetId,
-    input: event.input,
     expected: event.expected,
     extra: (event.metadata ?? {}) as Record<string, unknown>,
+    id: event.id,
+    input: event.input,
     ordinal,
   };
 }

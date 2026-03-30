@@ -70,7 +70,7 @@ function resolveSubProvider<K extends 'datasets' | 'evals'>(
   value: DatasetProvider | EvalProvider | Provider | undefined,
   key: K
 ): (K extends 'datasets' ? DatasetProvider : EvalProvider) | undefined {
-  if (!value) return undefined;
+  if (!value) {return undefined;}
   if (isProvider(value)) {
     // eslint-disable-next-line no-explicit-any -- narrowing from union
     return value[key] as any;

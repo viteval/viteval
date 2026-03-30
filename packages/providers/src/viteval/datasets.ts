@@ -15,72 +15,54 @@ import type { PrismaClient } from '#/generated/client';
  */
 export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
   return {
+    addItems: (params) =>
+      withResult(async () => {
+        await prisma.$transaction(async (tx) => {
+          const maxOrdinal = await tx.datasetItem
+            .findFirst({
+              orderBy: { ordinal: 'desc' },
+              select: { ordinal: true },
+              where: { datasetId: params.datasetId },
+            })
+            .then((r) => r?.ordinal ?? -1);
+
+          await tx.datasetItem.createMany({
+            data: params.items.map((item, i) => ({
+              datasetId: params.datasetId,
+              expected: JSON.stringify(item.expected),
+              extra: JSON.stringify(item.extra ?? {}),
+              id: createId(),
+              input: JSON.stringify(item.input),
+              ordinal: maxOrdinal + 1 + i,
+            })),
+          });
+
+          await tx.dataset.update({
+            data: { version: { increment: 1 } },
+            where: { id: params.datasetId },
+          });
+        });
+      }),
+
     create: (params) =>
       withResult(async () => {
         const dataset = await prisma.dataset.create({
           data: {
-            id: createId(),
-            name: params.name,
             description: params.description,
-            metadata: JSON.stringify(params.metadata ?? {}),
+            id: createId(),
             items: params.items
               ? {
                   create: params.items.map((item, i) => ({
-                    id: createId(),
-                    input: JSON.stringify(item.input),
                     expected: JSON.stringify(item.expected),
                     extra: JSON.stringify(item.extra ?? {}),
+                    id: createId(),
+                    input: JSON.stringify(item.input),
                     ordinal: i,
                   })),
                 }
               : undefined,
-          },
-          include: { _count: { select: { items: true } } },
-        });
-
-        return mapDataset(dataset);
-      }),
-
-    get: (params) =>
-      withResult(async () => {
-        const where = params.id
-          ? { id: params.id }
-          : params.name
-            ? { name: params.name }
-            : undefined;
-
-        if (!where) return null;
-
-        const dataset = await prisma.dataset.findUnique({
-          where,
-          include: { _count: { select: { items: true } } },
-        });
-
-        return dataset ? mapDataset(dataset) : null;
-      }),
-
-    list: (params) =>
-      withResult(async () => {
-        const datasets = await prisma.dataset.findMany({
-          take: params?.limit,
-          skip: params?.offset,
-          orderBy: { updatedAt: 'desc' },
-          include: { _count: { select: { items: true } } },
-        });
-
-        return datasets.map(mapDataset);
-      }),
-
-    update: (params) =>
-      withResult(async () => {
-        const dataset = await prisma.dataset.update({
-          where: { id: params.id },
-          data: {
+            metadata: JSON.stringify(params.metadata ?? {}),
             name: params.name,
-            description: params.description,
-            metadata: params.metadata
-              ? JSON.stringify(params.metadata)
-              : undefined,
           },
           include: { _count: { select: { items: true } } },
         });
@@ -93,45 +75,63 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
         await prisma.dataset.delete({ where: { id: params.id } });
       }),
 
+    get: (params) =>
+      withResult(async () => {
+        const where = params.id
+          ? { id: params.id }
+          : (params.name
+            ? { name: params.name }
+            : undefined);
+
+        if (!where) {return null;}
+
+        const dataset = await prisma.dataset.findUnique({
+          include: { _count: { select: { items: true } } },
+          where,
+        });
+
+        return dataset ? mapDataset(dataset) : null;
+      }),
+
     getItems: (params) =>
       withResult(async () => {
         const items = await prisma.datasetItem.findMany({
-          where: { datasetId: params.datasetId },
-          take: params.limit,
-          skip: params.offset,
           orderBy: { ordinal: 'asc' },
+          skip: params.offset,
+          take: params.limit,
+          where: { datasetId: params.datasetId },
         });
 
         return items.map(mapDatasetItem);
       }),
 
-    addItems: (params) =>
+    list: (params) =>
       withResult(async () => {
-        await prisma.$transaction(async (tx) => {
-          const maxOrdinal = await tx.datasetItem
-            .findFirst({
-              where: { datasetId: params.datasetId },
-              orderBy: { ordinal: 'desc' },
-              select: { ordinal: true },
-            })
-            .then((r) => r?.ordinal ?? -1);
-
-          await tx.datasetItem.createMany({
-            data: params.items.map((item, i) => ({
-              id: createId(),
-              datasetId: params.datasetId,
-              input: JSON.stringify(item.input),
-              expected: JSON.stringify(item.expected),
-              extra: JSON.stringify(item.extra ?? {}),
-              ordinal: maxOrdinal + 1 + i,
-            })),
-          });
-
-          await tx.dataset.update({
-            where: { id: params.datasetId },
-            data: { version: { increment: 1 } },
-          });
+        const datasets = await prisma.dataset.findMany({
+          include: { _count: { select: { items: true } } },
+          orderBy: { updatedAt: 'desc' },
+          skip: params?.offset,
+          take: params?.limit,
         });
+
+        return datasets.map(mapDataset);
+      }),
+
+    update: (params) =>
+      withResult(async () => {
+        const dataset = await prisma.dataset.update({
+          data: {
+            description: params.description,
+            metadata: params.metadata
+              ? JSON.stringify(params.metadata)
+              : undefined,
+            name: params.name,
+          },
+          include: { _count: { select: { items: true } } },
+          where: { id: params.id },
+        });
+
+        return mapDataset(dataset);
       }),
   };
 }
@@ -155,14 +155,14 @@ function mapDataset(
   }
 ): StoredDataset {
   return {
-    id: row.id,
-    name: row.name,
+    createdAt: row.createdAt,
     description: row.description ?? undefined,
-    version: row.version,
+    id: row.id,
     itemCount: row._count.items,
     metadata: JSON.parse(row.metadata) as Record<string, unknown>,
-    createdAt: row.createdAt,
+    name: row.name,
     updatedAt: row.updatedAt,
+    version: row.version,
   };
 }
 
@@ -177,11 +177,11 @@ function mapDatasetItem(
   }
 ): StoredDataItem {
   return {
-    id: row.id,
     datasetId: row.datasetId,
-    input: JSON.parse(row.input) as unknown,
     expected: JSON.parse(row.expected) as unknown,
     extra: JSON.parse(row.extra) as Record<string, unknown>,
+    id: row.id,
+    input: JSON.parse(row.input) as unknown,
     ordinal: row.ordinal,
   };
 }
