@@ -5,6 +5,6 @@ import { initializeModel } from 'viteval';
 dotenv.config({ path: './.env', quiet: true });
 
 initializeModel({
-  language: openai('gpt-4o-mini'),
   embedding: openai.embedding('text-embedding-3-small'),
+  language: openai('gpt-4o-mini'),
 });

@@ -81,11 +81,11 @@ export interface StoredEvalResult {
   input: unknown;
   expected: unknown;
   output: unknown;
-  scores: Array<{
+  scores: {
     name: string;
     score: number;
     metadata?: Record<string, unknown>;
-  }>;
+  }[];
   meanScore: number;
   medianScore: number;
   sumScore: number;
@@ -103,11 +103,11 @@ export interface StoredEvalResult {
 export interface CreateDatasetParams {
   name: string;
   description?: string;
-  items?: Array<{
+  items?: {
     input: unknown;
     expected: unknown;
     extra?: Record<string, unknown>;
-  }>;
+  }[];
   metadata?: Record<string, unknown>;
 }
 
@@ -139,11 +139,11 @@ export interface GetDatasetItemsParams {
 
 export interface AddDatasetItemsParams {
   datasetId: string;
-  items: Array<{
+  items: {
     input: unknown;
     expected: unknown;
     extra?: Record<string, unknown>;
-  }>;
+  }[];
 }
 
 /*
@@ -178,11 +178,11 @@ export interface AddEvalResultParams {
   input: unknown;
   expected: unknown;
   output: unknown;
-  scores: Array<{
+  scores: {
     name: string;
     score: number;
     metadata?: Record<string, unknown>;
-  }>;
+  }[];
   meanScore: number;
   medianScore: number;
   sumScore: number;

@@ -58,7 +58,15 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
   }
 
   return {
-    name: 'viteval',
+    close: () =>
+      withResult(async () => {
+        if (prisma) {
+          await prisma.$disconnect();
+          prisma = undefined;
+          datasets = undefined;
+          evals = undefined;
+        }
+      }),
 
     get datasets() {
       if (!datasets) {
@@ -88,15 +96,7 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
         await ensureSchema(prisma, isPostgres);
       }),
 
-    close: () =>
-      withResult(async () => {
-        if (prisma) {
-          await prisma.$disconnect();
-          prisma = undefined;
-          datasets = undefined;
-          evals = undefined;
-        }
-      }),
+    name: 'viteval',
   };
 }
 
@@ -114,7 +114,7 @@ async function ensureSchema(prisma: PrismaClient, isPostgres: boolean): Promise<
   const real = isPostgres ? 'DOUBLE PRECISION' : 'REAL';
 
   // Wrap in a transaction for atomicity — if the process is killed mid-way,
-  // we don't end up with a partially initialized schema.
+  // We don't end up with a partially initialized schema.
   await prisma.$transaction([
     prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "datasets" (

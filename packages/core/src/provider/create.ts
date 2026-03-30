@@ -1,7 +1,7 @@
 import type { Result } from '@viteval/internal';
 import type { CreateProviderParams, Provider } from './types';
 
-const ok: Result<void> = { status: 'ok', ok: true, result: undefined };
+const ok: Result<void> = { ok: true, result: undefined, status: 'ok' };
 
 /**
  * Create a custom provider from individual domain implementations.
@@ -24,10 +24,10 @@ export function createProvider(params: CreateProviderParams): Provider {
   const { name, datasets, evals, initialize, close } = params;
 
   return {
-    name,
+    close: close ?? (() => Promise.resolve(ok)),
     datasets,
     evals,
     initialize: initialize ?? (() => Promise.resolve(ok)),
-    close: close ?? (() => Promise.resolve(ok)),
+    name,
   };
 }

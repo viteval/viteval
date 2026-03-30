@@ -41,7 +41,10 @@ export function braintrust(options: BraintrustProviderOptions): Provider {
   };
 
   return {
-    name: 'braintrust',
+    close: () =>
+      withResult(async () => {
+        // No persistent connections to close — HTTP client is stateless
+      }),
     datasets: createBraintrustDatasetOps(getClient, getProjectId),
     evals: createBraintrustEvalOps(getClient, getProjectId),
 
@@ -51,10 +54,7 @@ export function braintrust(options: BraintrustProviderOptions): Provider {
         projectId = await resolveProjectId(client, options.project);
       }),
 
-    close: () =>
-      withResult(async () => {
-        // No persistent connections to close — HTTP client is stateless
-      }),
+    name: 'braintrust',
   };
 }
 

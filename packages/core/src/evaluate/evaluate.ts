@@ -87,8 +87,8 @@ export function evaluate<
       if (evalProvider) {
         await persistEvalRun(evalProvider, name, results, {
           aggregation,
-          threshold,
           scorerNames: scorers.map((s) => s.name),
+          threshold,
           timeout,
         });
       }
@@ -222,11 +222,11 @@ async function persistEvalRun(
     timeout?: number;
   }
 ): Promise<void> {
-  if (results.length === 0) return;
+  if (results.length === 0) {return;}
 
   const runResult = await evalProvider.create({
-    name,
     config,
+    name,
   });
 
   if (!runResult.ok) {
@@ -240,23 +240,23 @@ async function persistEvalRun(
 
   const resultParams = results.map((result) => ({
     evalRunId: run.id,
-    input: result.input,
     expected: result.expected,
-    output: result.output,
-    scores: result.scores.map((s) => ({
-      name: s.name,
-      score: s.score ?? 0,
-      metadata: s.metadata,
-    })),
+    input: result.input,
     meanScore: result.mean,
     medianScore: result.median,
-    sumScore: result.sum,
+    metadata: result.metadata,
+    output: result.output,
     passed: match(result.aggregation)
       .with('mean', () => result.mean >= result.threshold)
       .with('median', () => result.median >= result.threshold)
       .with('sum', () => result.sum >= result.threshold)
       .exhaustive(),
-    metadata: result.metadata,
+    scores: result.scores.map((s) => ({
+      metadata: s.metadata,
+      name: s.name,
+      score: s.score ?? 0,
+    })),
+    sumScore: result.sum,
   }));
 
   // Use batch addResults if available, otherwise fall back to parallel individual inserts
@@ -288,13 +288,13 @@ async function persistEvalRun(
     id: run.id,
     status: failed ? 'failed' : 'completed',
     summary: {
+      failedCount: results.length - passedCount,
       meanScore: totals.mean / results.length,
       medianScore: totals.median / results.length,
-      sumScore: totals.sum,
-      passedCount,
-      failedCount: results.length - passedCount,
-      totalCount: results.length,
       passed: passedCount === results.length,
+      passedCount,
+      sumScore: totals.sum,
+      totalCount: results.length,
     },
   });
 }
