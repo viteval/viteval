@@ -20,3 +20,17 @@ export function getClient(): OpenAI | null {
     return null;
   }
 }
+
+/**
+ * Get the client for the provider, throwing if not initialized.
+ *
+ * @returns The initialized OpenAI client.
+ * @throws If the client has not been initialized via `initializeProvider()`.
+ */
+export function requireClient(): OpenAI {
+  const client = getClient();
+  if (!client) {
+    throw new Error('OpenAI client not initialized. Call initializeProvider() first.');
+  }
+  return client;
+}

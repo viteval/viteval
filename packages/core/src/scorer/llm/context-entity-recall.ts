@@ -1,5 +1,4 @@
-import { createScorer } from '#/scorer/custom';
-import { runJudge } from './judge';
+import { createJudgeScorer } from './create-judge-scorer';
 
 const PROMPT = `You are evaluating entity recall from a given context against an expected answer.
 
@@ -39,16 +38,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.7, C: 0.3, D: 0 };
  * });
  * ```
  */
-export const contextEntityRecall = createScorer({
+export const contextEntityRecall = createJudgeScorer({
   name: 'ContextEntityRecall',
-  score: async ({ output, expected, input, ...extra }) => {
-    const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, ...extra },
-    );
-    return {
-      score: result.score,
-      metadata: { choice: result.choice, rationale: result.rationale },
-    };
-  },
+  prompt: PROMPT,
+  choiceScores: CHOICE_SCORES,
 });

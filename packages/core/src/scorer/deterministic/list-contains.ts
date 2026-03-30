@@ -62,10 +62,10 @@ export const listContains = createScorer({
     });
 
     let totalSimilarity = 0;
-    for (let i = 0; i < maxDim; i++) {
+    for (let i = 0; i < rows; i++) {
       const j = rowAssignments[i]!;
-      if (i < rows && j < cols) {
-        totalSimilarity += levenshteinSimilarity(outputList[i]!, expectedList[j]!);
+      if (j < cols) {
+        totalSimilarity += similarityMatrix[i]![j]!;
       }
     }
 

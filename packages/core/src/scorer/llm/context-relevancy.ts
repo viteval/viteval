@@ -1,5 +1,4 @@
-import { createScorer } from '#/scorer/custom';
-import { runJudge } from './judge';
+import { createJudgeScorer } from './create-judge-scorer';
 
 const PROMPT = `You are evaluating the relevancy of a retrieved context to a given question.
 
@@ -33,16 +32,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * });
  * ```
  */
-export const contextRelevancy = createScorer({
+export const contextRelevancy = createJudgeScorer({
   name: 'ContextRelevancy',
-  score: async ({ output, expected, input, ...extra }) => {
-    const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, ...extra },
-    );
-    return {
-      score: result.score,
-      metadata: { choice: result.choice, rationale: result.rationale },
-    };
-  },
+  prompt: PROMPT,
+  choiceScores: CHOICE_SCORES,
 });

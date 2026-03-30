@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('./judge', () => ({
-  runJudge: vi.fn(),
-}));
+vi.mock('./judge', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./judge')>();
+  return { ...actual, runJudge: vi.fn() };
+});
 
 import { runJudge } from './judge';
 import { summary } from './summary';

@@ -1,5 +1,5 @@
-import { clamp } from '@viteval/internal';
 import { createScorer } from '#/scorer/custom';
+import { numericSimilarity } from './similarity';
 
 /**
  * Scores based on numeric difference between output and expected.
@@ -22,13 +22,6 @@ export const numericDiff = createScorer({
       return { score: 0, metadata: { error: 'non-numeric input' } };
     }
 
-    if (a === 0 && b === 0) {
-      return { score: 1 };
-    }
-
-    const maxAbs = Math.max(Math.abs(a), Math.abs(b));
-    const score = clamp(1 - Math.abs(a - b) / maxAbs, 0, 1);
-
-    return { score };
+    return { score: numericSimilarity(a, b) };
   },
 });

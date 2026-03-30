@@ -1,5 +1,4 @@
-import { createScorer } from '#/scorer/custom';
-import { runJudge } from './judge';
+import { createJudgeScorer } from './create-judge-scorer';
 
 const PROMPT = `You are comparing a submitted summary to an expert summary of a given text.
 
@@ -36,16 +35,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 0, B: 1 };
  * });
  * ```
  */
-export const summary = createScorer({
+export const summary = createJudgeScorer({
   name: 'Summary',
-  score: async ({ output, expected, input, ...extra }) => {
-    const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, ...extra },
-    );
-    return {
-      score: result.score,
-      metadata: { choice: result.choice, rationale: result.rationale },
-    };
-  },
+  prompt: PROMPT,
+  choiceScores: CHOICE_SCORES,
 });

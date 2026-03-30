@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('#/provider/client', () => ({
-  getClient: vi.fn(),
+  requireClient: vi.fn(),
 }));
 
-import { getClient } from '#/provider/client';
+import { requireClient } from '#/provider/client';
 import { moderation } from './moderation';
 
 describe('moderation', () => {
@@ -19,7 +19,7 @@ describe('moderation', () => {
       ],
     });
 
-    vi.mocked(getClient).mockReturnValue({
+    vi.mocked(requireClient).mockReturnValue({
       moderations: { create: mockCreate },
     } as never);
 
@@ -43,7 +43,7 @@ describe('moderation', () => {
       ],
     });
 
-    vi.mocked(getClient).mockReturnValue({
+    vi.mocked(requireClient).mockReturnValue({
       moderations: { create: mockCreate },
     } as never);
 
@@ -56,10 +56,12 @@ describe('moderation', () => {
   });
 
   it('should throw if client is not initialized', async () => {
-    vi.mocked(getClient).mockReturnValue(null as never);
+    vi.mocked(requireClient).mockImplementation(() => {
+      throw new Error('OpenAI client not initialized. Call initializeProvider() first.');
+    });
 
     await expect(moderation({ output: 'test' })).rejects.toThrow(
-      'OpenAI client not initialized.',
+      'OpenAI client not initialized. Call initializeProvider() first.',
     );
   });
 });

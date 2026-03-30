@@ -1,4 +1,4 @@
-import { getClient } from '#/provider/client';
+import { requireClient } from '#/provider/client';
 import { createScorer } from '#/scorer/custom';
 
 /**
@@ -18,10 +18,7 @@ import { createScorer } from '#/scorer/custom';
 export const moderation = createScorer({
   name: 'Moderation',
   score: async ({ output }) => {
-    const client = getClient();
-    if (!client) {
-      throw new Error('OpenAI client not initialized.');
-    }
+    const client = requireClient();
 
     const response = await client.moderations.create({
       input: String(output),

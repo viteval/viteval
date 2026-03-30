@@ -1,5 +1,6 @@
 import levenshtein from 'js-levenshtein';
 import { createScorer } from '#/scorer/custom';
+import { levenshteinSimilarity } from './similarity';
 
 /**
  * Scores based on Levenshtein similarity between output and expected.
@@ -17,16 +18,10 @@ export const levenshteinScorer = createScorer({
   score: ({ output, expected }) => {
     const a = String(output);
     const b = String(expected);
-
-    if (a.length === 0 && b.length === 0) {
-      return { score: 1 };
-    }
-
     const distance = levenshtein(a, b);
-    const maxLen = Math.max(a.length, b.length);
 
     return {
-      score: 1 - distance / maxLen,
+      score: levenshteinSimilarity(a, b),
       metadata: { distance },
     };
   },

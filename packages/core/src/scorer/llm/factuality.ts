@@ -1,5 +1,4 @@
-import { createScorer } from '#/scorer/custom';
-import { runJudge } from './judge';
+import { createJudgeScorer } from './create-judge-scorer';
 
 const PROMPT = `You are comparing a submitted answer to an expert answer on a given question.
 
@@ -43,16 +42,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 0.4, B: 0.6, C: 1, D: 0, E: 1
  * });
  * ```
  */
-export const factuality = createScorer({
+export const factuality = createJudgeScorer({
   name: 'Factuality',
-  score: async ({ output, expected, input, ...extra }) => {
-    const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, ...extra },
-    );
-    return {
-      score: result.score,
-      metadata: { choice: result.choice, rationale: result.rationale },
-    };
-  },
+  prompt: PROMPT,
+  choiceScores: CHOICE_SCORES,
 });

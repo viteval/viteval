@@ -1,5 +1,4 @@
-import { createScorer } from '#/scorer/custom';
-import { runJudge } from './judge';
+import { createJudgeScorer } from './create-judge-scorer';
 
 const PROMPT = `Is the following funny?
 
@@ -21,16 +20,9 @@ const CHOICE_SCORES: Record<string, number> = { Yes: 1.0, No: 0.0, Unsure: 0.5 }
  * const result = await humor({ output: 'Why did the chicken cross the road?' });
  * ```
  */
-export const humor = createScorer({
+export const humor = createJudgeScorer({
   name: 'Humor',
-  score: async ({ output, expected, input, ...extra }) => {
-    const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: false },
-      { output, expected, input, ...extra },
-    );
-    return {
-      score: result.score,
-      metadata: { choice: result.choice, rationale: result.rationale },
-    };
-  },
+  prompt: PROMPT,
+  choiceScores: CHOICE_SCORES,
+  useCoT: false,
 });

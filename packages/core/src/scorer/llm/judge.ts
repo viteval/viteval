@@ -1,5 +1,5 @@
 import Mustache from 'mustache';
-import { getClient } from '#/provider/client';
+import { requireClient } from '#/provider/client';
 
 /**
  * Configuration for an LLM-as-judge evaluation.
@@ -48,10 +48,7 @@ export async function runJudge(
   config: JudgeConfig,
   variables: Record<string, unknown>
 ): Promise<JudgeResult> {
-  const client = getClient();
-  if (!client) {
-    throw new Error('OpenAI client not initialized. Call initializeProvider() first.');
-  }
+  const client = requireClient();
 
   const renderedPrompt = Mustache.render(config.prompt, variables);
   const choices = Object.keys(config.choiceScores);
@@ -94,7 +91,7 @@ export async function runJudge(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (!toolCall || toolCall.function.name !== 'select_choice') {
+  if (!toolCall || !('function' in toolCall) || toolCall.function.name !== 'select_choice') {
     throw new Error('LLM judge did not return a valid tool call.');
   }
 

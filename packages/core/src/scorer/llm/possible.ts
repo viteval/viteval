@@ -1,5 +1,4 @@
-import { createScorer } from '#/scorer/custom';
-import { runJudge } from './judge';
+import { createJudgeScorer } from './create-judge-scorer';
 
 const PROMPT = `You are analyzing a statement for a task.
 You want to figure out if the statement declares the task as impossible or provides a solution.
@@ -36,16 +35,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 0, B: 1 };
  * // result.score === 1 (solution provided)
  * ```
  */
-export const possible = createScorer({
+export const possible = createJudgeScorer({
   name: 'Possible',
-  score: async ({ output, expected, input, ...extra }) => {
-    const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, ...extra },
-    );
-    return {
-      score: result.score,
-      metadata: { choice: result.choice, rationale: result.rationale },
-    };
-  },
+  prompt: PROMPT,
+  choiceScores: CHOICE_SCORES,
 });

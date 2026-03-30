@@ -1,6 +1,6 @@
-import { isArray, isNil, isNumber, isPlainObject, isString, clamp } from '@viteval/internal';
+import { isArray, isNil, isNumber, isPlainObject, isString } from '@viteval/internal';
 import { createScorer } from '#/scorer/custom';
-import { levenshteinSimilarity } from './similarity';
+import { levenshteinSimilarity, numericSimilarity } from './similarity';
 
 /**
  * Scores based on recursive deep comparison of JSON values.
@@ -20,20 +20,9 @@ import { levenshteinSimilarity } from './similarity';
 export const jsonDiff = createScorer({
   name: 'JsonDiff',
   score: ({ output, expected }) => ({
-    score: deepCompare(output, expected),
+    score: deepCompare(tryParseJson(output), tryParseJson(expected)),
   }),
 });
-
-/**
- * Compute numeric similarity between two numbers as a value in [0, 1].
- *
- * @private
- */
-function numericSimilarity(a: number, b: number): number {
-  if (a === 0 && b === 0) return 1;
-  const maxAbs = Math.max(Math.abs(a), Math.abs(b));
-  return clamp(1 - Math.abs(a - b) / maxAbs, 0, 1);
-}
 
 /**
  * Attempt to parse a value as JSON if it is a string, otherwise return as-is.
@@ -57,53 +46,49 @@ function tryParseJson(value: unknown): unknown {
  * @private
  */
 function deepCompare(a: unknown, b: unknown): number {
-  const parsedA = tryParseJson(a);
-  const parsedB = tryParseJson(b);
+  if (isNil(a) && isNil(b)) return 1;
+  if (isNil(a) || isNil(b)) return 0;
 
-  if (isNil(parsedA) && isNil(parsedB)) return 1;
-  if (isNil(parsedA) || isNil(parsedB)) return 0;
-
-  if (isNumber(parsedA) && isNumber(parsedB)) {
-    return numericSimilarity(parsedA, parsedB);
+  if (isNumber(a) && isNumber(b)) {
+    return numericSimilarity(a, b);
   }
 
-  if (isString(parsedA) && isString(parsedB)) {
-    return levenshteinSimilarity(parsedA, parsedB);
+  if (isString(a) && isString(b)) {
+    return levenshteinSimilarity(a, b);
   }
 
-  if (typeof parsedA === 'boolean' && typeof parsedB === 'boolean') {
-    return parsedA === parsedB ? 1 : 0;
+  if (typeof a === 'boolean' && typeof b === 'boolean') {
+    return a === b ? 1 : 0;
   }
 
-  if (isArray(parsedA) && isArray(parsedB)) {
-    const maxLen = Math.max(parsedA.length, parsedB.length);
+  if (isArray(a) && isArray(b)) {
+    const maxLen = Math.max(a.length, b.length);
     if (maxLen === 0) return 1;
 
+    const minLen = Math.min(a.length, b.length);
     let total = 0;
-    for (let i = 0; i < maxLen; i++) {
-      if (i < parsedA.length && i < parsedB.length) {
-        total += deepCompare(parsedA[i], parsedB[i]);
-      }
+    for (let i = 0; i < minLen; i++) {
+      total += deepCompare(a[i], b[i]);
     }
     return total / maxLen;
   }
 
-  if (isPlainObject(parsedA) && isPlainObject(parsedB)) {
-    const keysA = Object.keys(parsedA);
-    const keysB = Object.keys(parsedB);
+  if (isPlainObject(a) && isPlainObject(b)) {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
     const allKeys = [...new Set([...keysA, ...keysB])];
 
     if (allKeys.length === 0) return 1;
 
     let total = 0;
     for (const key of allKeys) {
-      total += deepCompare(parsedA[key], parsedB[key]);
+      total += deepCompare(a[key], b[key]);
     }
     return total / allKeys.length;
   }
 
   // Type mismatch: stringify and compare as strings
-  const strA = JSON.stringify(parsedA);
-  const strB = JSON.stringify(parsedB);
+  const strA = JSON.stringify(a);
+  const strB = JSON.stringify(b);
   return levenshteinSimilarity(strA, strB);
 }
