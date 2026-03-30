@@ -14,22 +14,22 @@ import type {
  * @param config - The provider config (single provider or per-domain).
  */
 export async function initializeProvider(config: ProviderConfig): Promise<void> {
-  if (globalThis.__providerInitialized) {
+  if (globalThis.__viteval_providerInitialized) {
     return;
   }
 
   if (isProvider(config)) {
-    globalThis.__provider = config;
-    globalThis.__datasetProvider = config.datasets;
-    globalThis.__evalProvider = config.evals;
+    globalThis.__viteval_provider = config;
+    globalThis.__viteval_datasetProvider = config.datasets;
+    globalThis.__viteval_evalProvider = config.evals;
 
     const result = await config.initialize();
     if (!result.ok) {
       throw result.result;
     }
   } else {
-    globalThis.__datasetProvider = resolveSubProvider(config.datasets, 'datasets');
-    globalThis.__evalProvider = resolveSubProvider(config.evals, 'evals');
+    globalThis.__viteval_datasetProvider = resolveSubProvider(config.datasets, 'datasets');
+    globalThis.__viteval_evalProvider = resolveSubProvider(config.evals, 'evals');
 
     // Initialize any full providers passed to domain slots
     if (config.datasets && isProvider(config.datasets)) {
@@ -46,7 +46,7 @@ export async function initializeProvider(config: ProviderConfig): Promise<void> 
     }
   }
 
-  globalThis.__providerInitialized = true;
+  globalThis.__viteval_providerInitialized = true;
 }
 
 /*

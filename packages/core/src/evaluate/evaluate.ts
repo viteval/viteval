@@ -91,7 +91,7 @@ export function evaluate<
       }
 
       // Close provider connections when done
-      const provider = globalThis.__provider;
+      const provider = globalThis.__viteval_provider;
       if (provider) {
         await provider.close();
       }

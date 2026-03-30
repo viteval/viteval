@@ -6,7 +6,7 @@ import type { DatasetProvider, EvalProvider, Provider } from './types';
  * @returns The provider, or null if not configured.
  */
 export function getProvider(): Provider | null {
-  return globalThis.__provider ?? null;
+  return globalThis.__viteval_provider ?? null;
 }
 
 /**
@@ -15,7 +15,7 @@ export function getProvider(): Provider | null {
  * @returns The dataset provider, or null if not configured.
  */
 export function getDatasetProvider(): DatasetProvider | null {
-  return globalThis.__datasetProvider ?? null;
+  return globalThis.__viteval_datasetProvider ?? null;
 }
 
 /**
@@ -40,7 +40,7 @@ export function requireDatasetProvider(): DatasetProvider {
  * @returns The eval provider, or null if not configured.
  */
 export function getEvalProvider(): EvalProvider | null {
-  return globalThis.__evalProvider ?? null;
+  return globalThis.__viteval_evalProvider ?? null;
 }
 
 /**

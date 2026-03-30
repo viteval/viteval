@@ -6,7 +6,7 @@ import type { EmbeddingModel, LanguageModel } from 'ai';
  * @returns The language model, or null if not initialized.
  */
 export function getModel(): LanguageModel | null {
-  return globalThis.__model ?? null;
+  return globalThis.__viteval_model ?? null;
 }
 
 /**
@@ -31,7 +31,7 @@ export function requireModel(): LanguageModel {
  * @returns The embedding model, or null if not configured.
  */
 export function getEmbeddingModel(): EmbeddingModel | null {
-  return globalThis.__embeddingModel ?? null;
+  return globalThis.__viteval_embeddingModel ?? null;
 }
 
 /**

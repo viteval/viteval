@@ -3,15 +3,15 @@ import type { DatasetProvider, EvalProvider, Provider } from '#/provider/types';
 
 declare global {
   // Biome-ignore lint: used by model internals
-  var __model: LanguageModel | undefined;
+  var __viteval_model: LanguageModel | undefined;
   // Biome-ignore lint: used by model internals
-  var __embeddingModel: EmbeddingModel | undefined;
+  var __viteval_embeddingModel: EmbeddingModel | undefined;
   // Biome-ignore lint: used by provider internals
-  var __provider: Provider | undefined;
+  var __viteval_provider: Provider | undefined;
   // Biome-ignore lint: used by provider internals
-  var __datasetProvider: DatasetProvider | undefined;
+  var __viteval_datasetProvider: DatasetProvider | undefined;
   // Biome-ignore lint: used by provider internals
-  var __evalProvider: EvalProvider | undefined;
+  var __viteval_evalProvider: EvalProvider | undefined;
   // Biome-ignore lint: used by provider internals
-  var __providerInitialized: boolean | undefined;
+  var __viteval_providerInitialized: boolean | undefined;
 }
