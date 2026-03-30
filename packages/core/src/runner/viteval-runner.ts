@@ -21,39 +21,39 @@ import { getEmbeddingModel, getModel } from '#/provider/client';
  * ```
  */
 export default class VitevalRunner extends TestRunner {
-	constructor(config: SerializedConfig) {
-		super(config);
-	}
+  constructor(config: SerializedConfig) {
+    super(config);
+  }
 
-	/**
-	 * Extend the test context with model references.
-	 *
-	 * Since the runner executes in the same worker thread as tests,
-	 * non-serializable AI SDK model instances can be passed directly.
-	 *
-	 * Note: Models are initialized via `initializeProvider()` which runs
-	 * in `defineConfig`. At context-extension time, models may not yet be
-	 * available in all scenarios. We use lazy getters so the values resolve
-	 * when actually accessed during test execution.
-	 *
-	 * @param context - The base test context from Vitest.
-	 * @returns The extended context with model accessors.
-	 */
-	override extendTaskContext(context: TestContext): TestContext {
-		const extended = super.extendTaskContext(context);
+  /**
+   * Extend the test context with model references.
+   *
+   * Since the runner executes in the same worker thread as tests,
+   * non-serializable AI SDK model instances can be passed directly.
+   *
+   * Note: Models are initialized via `initializeProvider()` which runs
+   * in `defineConfig`. At context-extension time, models may not yet be
+   * available in all scenarios. We use lazy getters so the values resolve
+   * when actually accessed during test execution.
+   *
+   * @param context - The base test context from Vitest.
+   * @returns The extended context with model accessors.
+   */
+  override extendTaskContext(context: TestContext): TestContext {
+    const extended = super.extendTaskContext(context);
 
-		Object.defineProperty(extended, '__model', {
-			configurable: true,
-			enumerable: true,
-			get: () => getModel(),
-		});
+    Object.defineProperty(extended, '__model', {
+      configurable: true,
+      enumerable: true,
+      get: () => getModel(),
+    });
 
-		Object.defineProperty(extended, '__embeddingModel', {
-			configurable: true,
-			enumerable: true,
-			get: () => getEmbeddingModel(),
-		});
+    Object.defineProperty(extended, '__embeddingModel', {
+      configurable: true,
+      enumerable: true,
+      get: () => getEmbeddingModel(),
+    });
 
-		return extended;
-	}
+    return extended;
+  }
 }

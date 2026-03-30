@@ -10,17 +10,17 @@ import type { VitevalConfig } from '#/config/types';
  * injected into the worker via `globalThis` + the custom `VitevalRunner`.
  */
 export interface SerializableVitevalConfig {
-	eval?: VitevalConfig['eval'];
+  eval?: VitevalConfig['eval'];
 }
 
 /**
  * Options accepted by the viteval Vite plugin factory.
  */
 export interface VitevalPluginOptions {
-	/**
-	 * The full user-supplied viteval configuration.
-	 */
-	config: VitevalConfig;
+  /**
+   * The full user-supplied viteval configuration.
+   */
+  config: VitevalConfig;
 }
 
 /**
@@ -43,14 +43,14 @@ export interface VitevalPluginOptions {
  * ```
  */
 export function vitevalPlugin({ config }: VitevalPluginOptions): Plugin {
-	const serializableConfig: SerializableVitevalConfig = {
-		eval: config.eval,
-	};
+  const serializableConfig: SerializableVitevalConfig = {
+    eval: config.eval,
+  };
 
-	return {
-		configureVitest({ project }) {
-			project.provide('config', serializableConfig);
-		},
-		name: 'viteval',
-	};
+  return {
+    configureVitest({ project }) {
+      project.provide('config', serializableConfig);
+    },
+    name: 'viteval',
+  };
 }

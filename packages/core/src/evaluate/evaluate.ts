@@ -14,7 +14,6 @@ import type {
   DataItem,
   Dataset,
   Eval,
-  EvalResult,
   InferDataOutput,
 } from '#/types';
 

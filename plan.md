@@ -26,12 +26,13 @@ We're already on Vitest 4.1.2 but using none of its new extensibility. This plan
 ```ts
 declare module 'vitest' {
   interface TaskMeta {
-    results?: EvalResult[]
+    results?: EvalResult[];
   }
 }
 ```
 
 **Impact:**
+
 - `evaluate.ts:73` — remove `@ts-expect-error`, `suite.meta.results = results` becomes type-safe
 - `json.ts` — `file.meta?.results` is now typed as `EvalResult[] | undefined`
 
@@ -57,13 +58,14 @@ Augment `TaskMeta` accordingly:
 ```ts
 declare module 'vitest' {
   interface TaskMeta {
-    evalResult?: EvalResult    // per-test
-    results?: EvalResult[]     // keep for backward compat during migration
+    evalResult?: EvalResult; // per-test
+    results?: EvalResult[]; // keep for backward compat during migration
   }
 }
 ```
 
 **Impact:**
+
 - Eliminates the 3-way fallback in `extractEvalResults` — each test carries its own result
 - Removes the mutable `results: EvalResult[]` closure + `afterAll` hack
 - Reporter iterates test cases, reads `testCase.meta().evalResult`
@@ -73,21 +75,23 @@ declare module 'vitest' {
 **File:** `packages/core/src/config/types.ts`
 
 Align `VitevalConfig` types with Vitest 4's actual config surface:
+
 - `server` property — use Vitest 4's `ServerOptions` type (or narrow to the subset we expose)
 - `plugins` property — use `Vite.Plugin[]` from `vite`
 
 **Impact:**
+
 - Remove `as any` casts at `define.ts:34,52`
 
 ### Deliverables
 
-| File | Change |
-|------|--------|
-| `packages/core/src/vitest.d.ts` | New — `TaskMeta` augmentation |
-| `packages/core/src/evaluate/evaluate.ts` | Per-test meta instead of suite-level closure |
-| `packages/core/src/config/types.ts` | Align types with Vitest 4 |
-| `packages/core/src/config/define.ts` | Remove `as any` casts |
-| `packages/core/src/reporters/json.ts` | Simplify `extractEvalResults` to use typed meta |
+| File                                     | Change                                          |
+| ---------------------------------------- | ----------------------------------------------- |
+| `packages/core/src/vitest.d.ts`          | New — `TaskMeta` augmentation                   |
+| `packages/core/src/evaluate/evaluate.ts` | Per-test meta instead of suite-level closure    |
+| `packages/core/src/config/types.ts`      | Align types with Vitest 4                       |
+| `packages/core/src/config/define.ts`     | Remove `as any` casts                           |
+| `packages/core/src/reporters/json.ts`    | Simplify `extractEvalResults` to use typed meta |
 
 ---
 
@@ -132,6 +136,7 @@ export default class JsonReporter {
 ```
 
 **Impact:**
+
 - Zero `DangerouslyAllowAny` — all types come from `vitest/node`
 - Streaming results — file updates after each module, not just at the end
 - `reason` parameter tells us if the run was interrupted vs failed vs passed
@@ -145,12 +150,16 @@ Use `context.annotate()` inside `evaluate()` for per-test score reporting:
 test(name, async ({ task, annotate }) => {
   // ... run scorers ...
   for (const score of scores) {
-    await annotate(`${score.name}: ${score.score}`, score.score >= threshold ? 'notice' : 'warning');
+    await annotate(
+      `${score.name}: ${score.score}`,
+      score.score >= threshold ? 'notice' : 'warning'
+    );
   }
 });
 ```
 
 Reporter picks these up via `onTestCaseAnnotate(testCase, annotation)` — enables:
+
 - GitHub Actions integration (annotations show as PR annotations)
 - Default reporter shows score breakdown on failures
 - Custom reporters can consume structured score data
@@ -158,6 +167,7 @@ Reporter picks these up via `onTestCaseAnnotate(testCase, annotation)` — enabl
 ### 2.3 Extend reporter types in `VitevalConfig`
 
 Currently `VitevalReporter = 'default' | 'json' | 'file'`. Extend to accept:
+
 - Vitest v4 reporter instances directly
 - Custom reporter classes/factories
 
@@ -167,13 +177,13 @@ type VitevalReporter = 'default' | 'json' | 'file' | Reporter;
 
 ### Deliverables
 
-| File | Change |
-|------|--------|
-| `packages/core/src/reporters/json.ts` | Full rewrite — v4 granular hooks, typed, streaming |
-| `packages/core/src/evaluate/evaluate.ts` | Add `annotate()` calls for score reporting |
-| `packages/core/src/config/types.ts` | Extend `VitevalReporter` type |
-| `packages/cli/src/commands/run.ts` | Update reporter construction for new API |
-| `packages/core/src/reporters/json.test.ts` | New/updated tests |
+| File                                       | Change                                             |
+| ------------------------------------------ | -------------------------------------------------- |
+| `packages/core/src/reporters/json.ts`      | Full rewrite — v4 granular hooks, typed, streaming |
+| `packages/core/src/evaluate/evaluate.ts`   | Add `annotate()` calls for score reporting         |
+| `packages/core/src/config/types.ts`        | Extend `VitevalReporter` type                      |
+| `packages/cli/src/commands/run.ts`         | Update reporter construction for new API           |
+| `packages/core/src/reporters/json.test.ts` | New/updated tests                                  |
 
 ---
 
@@ -247,11 +257,13 @@ export function evaluate<...>(name: string, config: Eval<DATA>) {
 ```
 
 **What moves to the runner:**
+
 - `beforeAll` provider initialization -> `onBeforeRunFiles` or `extendTaskContext`
 - `afterAll` result collection -> eliminated (per-test meta)
 - Provider auto-persist -> `onAfterRunTask`
 
 **What stays in `evaluate()`:**
+
 - Data formatting and iteration
 - Test declaration
 - Scorer execution (test-scoped)
@@ -288,23 +300,23 @@ return defineVitestConfig({
   test: {
     runner: require.resolve('@viteval/core/runner'),
     // ...
-  }
+  },
 });
 ```
 
 ### Deliverables
 
-| File | Change |
-|------|--------|
-| `packages/core/src/runner/viteval-runner.ts` | New — custom Vitest runner |
-| `packages/core/src/runner/index.ts` | New — barrel export |
-| `packages/core/src/evaluate/evaluate.ts` | Simplify to pure DSL |
-| `packages/core/src/config/define.ts` | Wire `runner` option, remove eager `initializeProvider` |
-| `packages/core/src/provider/initialize.ts` | Move initialization to runner lifecycle |
-| `packages/core/src/provider/client.ts` | Access model from context instead of globalThis |
-| `packages/core/src/global.d.ts` | Remove globalThis declarations (or deprecate) |
-| `packages/core/tsdown.config.ts` | Add runner entry point |
-| `packages/core/package.json` | Add `./runner` export |
+| File                                         | Change                                                  |
+| -------------------------------------------- | ------------------------------------------------------- |
+| `packages/core/src/runner/viteval-runner.ts` | New — custom Vitest runner                              |
+| `packages/core/src/runner/index.ts`          | New — barrel export                                     |
+| `packages/core/src/evaluate/evaluate.ts`     | Simplify to pure DSL                                    |
+| `packages/core/src/config/define.ts`         | Wire `runner` option, remove eager `initializeProvider` |
+| `packages/core/src/provider/initialize.ts`   | Move initialization to runner lifecycle                 |
+| `packages/core/src/provider/client.ts`       | Access model from context instead of globalThis         |
+| `packages/core/src/global.d.ts`              | Remove globalThis declarations (or deprecate)           |
+| `packages/core/tsdown.config.ts`             | Add runner entry point                                  |
+| `packages/core/package.json`                 | Add `./runner` export                                   |
 
 ---
 
@@ -329,7 +341,7 @@ export function vitevalPlugin(config: VitevalConfig): Vite.Plugin {
 
       // Provide serializable config
       vitest.provide('vitevalConfig', config.serializable());
-    }
+    },
   };
 }
 ```
@@ -360,12 +372,12 @@ Tracked separately: [#121](https://github.com/viteval/viteval/issues/121) — ex
 
 ### Deliverables
 
-| File | Change |
-|------|--------|
+| File                                         | Change                                   |
+| -------------------------------------------- | ---------------------------------------- |
 | `packages/core/src/plugin/viteval-plugin.ts` | New — Vite plugin with `configureVitest` |
-| `packages/core/src/plugin/index.ts` | New — barrel export |
-| `packages/core/src/config/define.ts` | Simplify to plugin-based |
-| `packages/core/src/config/types.ts` | Clean up — remove Vitest internal types |
+| `packages/core/src/plugin/index.ts`          | New — barrel export                      |
+| `packages/core/src/config/define.ts`         | Simplify to plugin-based                 |
+| `packages/core/src/config/types.ts`          | Clean up — remove Vitest internal types  |
 
 ---
 
@@ -468,14 +480,14 @@ Each phase must pass before the next begins:
 
 After all 4 phases:
 
-| Before | After |
-|--------|-------|
-| `@ts-expect-error` on every meta access | Fully typed `TaskMeta` augmentation |
-| `DangerouslyAllowAny` throughout reporter | Typed `TestCase`, `TestSuite`, `TestModule` from `vitest/node` |
-| `globalThis.__model` side effects | Runner-injected context, same thread, no serialization |
-| Batch result collection in `afterAll` | Per-test metadata, streaming to reporter |
-| `as any` config casts | Plugin-based config with proper types |
+| Before                                                 | After                                                          |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
+| `@ts-expect-error` on every meta access                | Fully typed `TaskMeta` augmentation                            |
+| `DangerouslyAllowAny` throughout reporter              | Typed `TestCase`, `TestSuite`, `TestModule` from `vitest/node` |
+| `globalThis.__model` side effects                      | Runner-injected context, same thread, no serialization         |
+| Batch result collection in `afterAll`                  | Per-test metadata, streaming to reporter                       |
+| `as any` config casts                                  | Plugin-based config with proper types                          |
 | `evaluate()` = declaration + orchestration + lifecycle | `evaluate()` = pure DSL, runner = lifecycle, reporter = output |
-| Reporter gets results at end | Reporter streams results as each test completes |
-| Fragile 3-way meta extraction fallback | Single `testCase.meta().evalResult` access |
-| No GitHub Actions integration | Annotations show as PR comments via built-in GA reporter |
+| Reporter gets results at end                           | Reporter streams results as each test completes                |
+| Fragile 3-way meta extraction fallback                 | Single `testCase.meta().evalResult` access                     |
+| No GitHub Actions integration                          | Annotations show as PR comments via built-in GA reporter       |

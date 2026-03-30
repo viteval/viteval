@@ -7,10 +7,10 @@ import { initializeProvider } from '#/provider/initialize';
 import type { VitevalConfig } from './types';
 
 const RUNNER_PATH = pathResolve(
-	dirname(fileURLToPath(import.meta.url)),
-	'..',
-	'runner',
-	'index.mjs'
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'runner',
+  'index.mjs'
 );
 
 /**
@@ -34,41 +34,41 @@ const RUNNER_PATH = pathResolve(
  * ```
  */
 export function defineConfig(config: VitevalConfig) {
-	const {
-		eval: evalConfig,
-		plugins = [],
-		resolve,
-		reporters,
-		deps,
-		server,
-		provider,
-	} = config;
+  const {
+    eval: evalConfig,
+    plugins = [],
+    resolve,
+    reporters,
+    deps,
+    server,
+    provider,
+  } = config;
 
-	// Initialize the provider eagerly — AI SDK model instances are not
-	// Serializable so they cannot go through Vitest's provide/inject.
-	// The custom VitevalRunner reads them from globalThis via lazy getters.
-	if (provider) {
-		initializeProvider(provider);
-	}
+  // Initialize the provider eagerly — AI SDK model instances are not
+  // Serializable so they cannot go through Vitest's provide/inject.
+  // The custom VitevalRunner reads them from globalThis via lazy getters.
+  if (provider) {
+    initializeProvider(provider);
+  }
 
-	return defineVitestConfig({
-		plugins: [vitevalPlugin({ config }), ...plugins],
-		resolve,
-		test: {
-			...evalConfig,
-			deps: match(deps)
-				.with(P.not(P.nullish), (o) => ({
-					interopDefault: o.interopDefault,
-					optimizer: match(o.optimizer)
-						.with(P.not(P.nullish), (o) => ({ ssr: o, web: o }))
-						.otherwise(() => undefined),
-				}))
-				.otherwise(() => undefined),
-			environment: 'node',
-			reporters,
-			runner: RUNNER_PATH,
-			server,
-			testTimeout: evalConfig?.timeout ?? 100_000,
-		},
-	});
+  return defineVitestConfig({
+    plugins: [vitevalPlugin({ config }), ...plugins],
+    resolve,
+    test: {
+      ...evalConfig,
+      deps: match(deps)
+        .with(P.not(P.nullish), (o) => ({
+          interopDefault: o.interopDefault,
+          optimizer: match(o.optimizer)
+            .with(P.not(P.nullish), (o) => ({ ssr: o, web: o }))
+            .otherwise(() => undefined),
+        }))
+        .otherwise(() => undefined),
+      environment: 'node',
+      reporters,
+      runner: RUNNER_PATH,
+      server,
+      testTimeout: evalConfig?.timeout ?? 100_000,
+    },
+  });
 }

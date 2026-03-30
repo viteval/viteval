@@ -10,5 +10,5 @@ import type { SerializableVitevalConfig } from '#/plugin/viteval-plugin';
  * @returns The serializable viteval config.
  */
 export function getRuntimeConfig(): SerializableVitevalConfig {
-	return inject('config');
+  return inject('config');
 }

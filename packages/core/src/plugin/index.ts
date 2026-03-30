@@ -1,5 +1,5 @@
 export { vitevalPlugin } from './viteval-plugin';
 export type {
-	SerializableVitevalConfig,
-	VitevalPluginOptions,
+  SerializableVitevalConfig,
+  VitevalPluginOptions,
 } from './viteval-plugin';
