@@ -20,4 +20,5 @@ export {
   evaluate,
   initializeModel,
   scorers,
+  wrapScorer,
 } from '@viteval/core';

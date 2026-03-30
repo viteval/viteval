@@ -1,7 +1,7 @@
 export { evaluate } from './evaluate';
 export { initializeModel } from './model';
-export { createProvider } from './provider';
-export { createScorer, scorers } from './scorer';
+export { createProvider, initializeProvider } from './provider';
+export { createScorer, scorers, wrapScorer } from './scorer';
 export type {
   Data,
   DataItem,

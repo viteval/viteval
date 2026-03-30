@@ -1,5 +1,5 @@
 import type { LanguageModel } from 'ai';
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { runJudge } from './judge';
 
@@ -48,7 +48,7 @@ export interface JudgeScorerConfig {
  */
 export function createJudgeScorer(
   config: JudgeScorerConfig
-): (options?: JudgeScorerOptions) => Scorer<unknown, Extra> {
+): (options?: JudgeScorerOptions) => Scorer {
   return (options) =>
     createScorer({
       name: config.name,

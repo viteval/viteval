@@ -1,4 +1,4 @@
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { numericSimilarity } from './similarity';
 
@@ -32,9 +32,7 @@ export interface NumericDiffOptions {
  * scorers: [scorers.numericDiff({ tolerance: 2 })]
  * ```
  */
-export function numericDiff(
-  options?: NumericDiffOptions
-): Scorer<unknown, Extra> {
+export function numericDiff(options?: NumericDiffOptions): Scorer {
   const { tolerance = 0 } = options ?? {};
 
   return createScorer({
