@@ -1,4 +1,4 @@
-import type { Extra, Scorer } from '#/types';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { computeEmbeddingSimilarity } from './embed';
 
@@ -14,7 +14,7 @@ import { computeEmbeddingSimilarity } from './embed';
  * scorers: [scorers.answerSimilarity()]
  * ```
  */
-export function answerSimilarity(): Scorer<unknown, Extra> {
+export function answerSimilarity(): Scorer {
   return createScorer({
     name: 'AnswerSimilarity',
     score: ({ output, expected }) =>

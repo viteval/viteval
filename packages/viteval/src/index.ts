@@ -13,4 +13,5 @@ export {
   evaluate,
   initializeProvider,
   scorers,
+  wrapScorer,
 } from '@viteval/core';

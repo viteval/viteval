@@ -15,6 +15,7 @@ import type {
   Dataset,
   Eval,
   EvalResult,
+  InferDataOutput,
 } from '#/types';
 
 /**
@@ -45,6 +46,7 @@ import type {
 export function evaluate<
   DATA_ITEM extends DataItem,
   DATA extends Data<DATA_ITEM>,
+  TASK_OUTPUT = InferDataOutput<DATA>,
 >(
   name: string,
   {
@@ -54,7 +56,7 @@ export function evaluate<
     scorers,
     threshold = 1,
     timeout,
-  }: Eval<DATA>
+  }: Eval<DATA, TASK_OUTPUT>
 ) {
   return describe(name, async () => {
     const config = getRuntimeConfig();
