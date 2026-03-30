@@ -84,6 +84,16 @@ export type DataGenerator<DATA_ITEM extends DataItem = DataItem> =
   () => Promise<DATA_ITEM[]>;
 
 /**
+ * Parameters for the `sampleItems` utility.
+ */
+export interface SampleItemsParams<DATA_ITEM extends DataItem> {
+  /** Function that generates a single dataset item. Receives the current index (0-based). */
+  item: (index: number) => Promise<DATA_ITEM> | DATA_ITEM;
+  /** Number of items to sample. */
+  count: number;
+}
+
+/**
  * A data object, contains the input and expected output and any additional arguments.
  */
 export type Data<DATA_ITEM extends DataItem = DataItem> =
