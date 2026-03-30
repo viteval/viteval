@@ -1,4 +1,4 @@
-import type { ModelConfig } from './types';
+import type { ModelConfig, ModelConfigFull } from './types';
 
 /**
  * Initialize the model configuration with AI SDK model instances.
@@ -24,8 +24,6 @@ export function initializeModel(config: ModelConfig) {
 |------------------
 */
 
-function isFullConfig(
-  config: ModelConfig
-): config is { language: import('ai').LanguageModel; embedding?: import('ai').EmbeddingModel } {
+function isFullConfig(config: ModelConfig): config is ModelConfigFull {
   return typeof config === 'object' && 'language' in config;
 }

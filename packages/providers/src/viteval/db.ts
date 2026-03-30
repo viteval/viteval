@@ -22,15 +22,25 @@ export function createPrismaClient(options: VitevalProviderOptions): PrismaClien
 |------------------
 */
 
+/**
+ * Resolve the absolute path for a SQLite database file.
+ *
+ * @param options - Provider options.
+ * @returns The absolute path to the SQLite database file.
+ */
+export function resolveSqlitePath(options: VitevalProviderOptions): string {
+  if (options.database === 'postgres') {
+    throw new Error('resolveSqlitePath should not be called for postgres');
+  }
+
+  const dbPath = options.path ?? path.join('.viteval', 'viteval.db');
+  return path.isAbsolute(dbPath) ? dbPath : path.resolve(process.cwd(), dbPath);
+}
+
 function resolveUrl(options: VitevalProviderOptions): string {
   if (options.database === 'postgres') {
     return options.url;
   }
 
-  const dbPath = options.path ?? path.join('.viteval', 'viteval.db');
-  const absolutePath = path.isAbsolute(dbPath)
-    ? dbPath
-    : path.resolve(process.cwd(), dbPath);
-
-  return `file:${absolutePath}`;
+  return `file:${resolveSqlitePath(options)}`;
 }

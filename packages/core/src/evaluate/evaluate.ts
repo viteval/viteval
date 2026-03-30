@@ -11,6 +11,7 @@ import {
   getMedianScore,
   getSumScore,
 } from '#/scorer/aggregation';
+import type { EvalProvider } from '#/provider/types';
 import type {
   Data,
   DataGenerator,
@@ -82,18 +83,12 @@ export function evaluate<
       // Auto-persist results to eval provider if configured
       const evalProvider = getEvalProvider();
       if (evalProvider) {
-        await persistEvalRun(name, results, {
+        await persistEvalRun(evalProvider, name, results, {
           aggregation,
           threshold,
           scorerNames: scorers.map((s) => s.name),
           timeout,
         });
-      }
-
-      // Close provider connections when done
-      const provider = globalThis.__viteval_provider;
-      if (provider) {
-        await provider.close();
       }
     });
 
@@ -215,6 +210,7 @@ function formatTestName(dataItem: DataItem): string {
 }
 
 async function persistEvalRun(
+  evalProvider: EvalProvider,
   name: string,
   results: EvalResult[],
   config: {
@@ -224,15 +220,18 @@ async function persistEvalRun(
     timeout?: number;
   }
 ): Promise<void> {
-  const evalProvider = getEvalProvider();
-  if (!evalProvider || results.length === 0) return;
+  if (results.length === 0) return;
 
   const runResult = await evalProvider.create({
     name,
     config,
   });
 
-  if (!runResult.ok) return;
+  if (!runResult.ok) {
+    // eslint-disable-next-line no-console -- surface persistence failures
+    console.warn('[viteval] Failed to persist eval run:', runResult.result);
+    return;
+  }
 
   const run = runResult.result;
   let failed = false;
@@ -258,36 +257,38 @@ async function persistEvalRun(
     metadata: result.metadata,
   }));
 
-  // Use batch addResults if available, otherwise fall back to sequential
+  // Use batch addResults if available, otherwise fall back to parallel individual inserts
   if (evalProvider.addResults) {
     const batchResult = await evalProvider.addResults(resultParams);
     if (!batchResult.ok) {
       failed = true;
     }
   } else {
-    for (const params of resultParams) {
-      const addResult = await evalProvider.addResult(params);
-      if (!addResult.ok) {
-        failed = true;
-      }
+    const addResults = await Promise.all(
+      resultParams.map((params) => evalProvider.addResult(params))
+    );
+    if (addResults.some((r) => !r.ok)) {
+      failed = true;
     }
   }
 
-  const passedCount = results.filter((r) =>
-    match(r.aggregation)
-      .with('mean', () => r.mean >= r.threshold)
-      .with('median', () => r.median >= r.threshold)
-      .with('sum', () => r.sum >= r.threshold)
-      .exhaustive()
-  ).length;
+  const passedCount = resultParams.filter((r) => r.passed).length;
+  const totals = results.reduce(
+    (acc, r) => ({
+      mean: acc.mean + r.mean,
+      median: acc.median + r.median,
+      sum: acc.sum + r.sum,
+    }),
+    { mean: 0, median: 0, sum: 0 }
+  );
 
   await evalProvider.complete({
     id: run.id,
     status: failed ? 'failed' : 'completed',
     summary: {
-      meanScore: results.reduce((acc, r) => acc + r.mean, 0) / results.length,
-      medianScore: results.reduce((acc, r) => acc + r.median, 0) / results.length,
-      sumScore: results.reduce((acc, r) => acc + r.sum, 0),
+      meanScore: totals.mean / results.length,
+      medianScore: totals.median / results.length,
+      sumScore: totals.sum,
       passedCount,
       failedCount: results.length - passedCount,
       totalCount: results.length,

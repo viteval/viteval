@@ -50,14 +50,14 @@ model EvalRun {
   completedAt DateTime? @map("completed_at")
 
   dataset Dataset?     @relation(fields: [datasetId], references: [id])
-  results EvalResult[]
+  results EvalRunResult[]
 
   @@index([datasetId])
   @@index([status])
   @@map("eval_runs")
 }
 
-model EvalResult {
+model EvalRunResult {
   id          String  @id
   evalRunId   String  @map("eval_run_id")
   input       String

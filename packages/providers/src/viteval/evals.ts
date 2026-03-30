@@ -80,7 +80,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
 
     addResult: (params) =>
       withResult(async () => {
-        const result = await prisma.evalResult.create({
+        const result = await prisma.evalRunResult.create({
           data: {
             id: createId(),
             evalRunId: params.evalRunId,
@@ -117,15 +117,24 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
           metadata: JSON.stringify(params.metadata ?? {}),
         }));
 
-        await prisma.evalResult.createMany({ data });
+        await prisma.evalRunResult.createMany({ data });
 
-        // createMany doesn't return records, so re-fetch them
-        const results = await prisma.evalResult.findMany({
-          where: { id: { in: data.map((d) => d.id) } },
-          orderBy: { id: 'asc' },
-        });
-
-        return results.map(mapEvalResult);
+        // IDs are generated client-side, so reconstruct records directly
+        // instead of re-fetching from the database.
+        return data.map((d) => ({
+          id: d.id,
+          evalRunId: d.evalRunId,
+          input: JSON.parse(d.input) as unknown,
+          expected: JSON.parse(d.expected) as unknown,
+          output: JSON.parse(d.output) as unknown,
+          scores: JSON.parse(d.scores),
+          meanScore: d.meanScore,
+          medianScore: d.medianScore,
+          sumScore: d.sumScore,
+          passed: d.passed,
+          duration: d.duration,
+          metadata: JSON.parse(d.metadata) as Record<string, unknown>,
+        }));
       }),
 
     complete: (params) =>
