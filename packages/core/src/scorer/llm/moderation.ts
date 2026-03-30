@@ -31,13 +31,13 @@ export const moderation = createScorer({
         score: 0,
       };
     }
-    const {flagged} = result;
+    const { flagged } = result;
 
     return {
       metadata: {
-        flagged,
         categories: result.categories,
         categoryScores: result.category_scores,
+        flagged,
       },
       score: flagged ? 0 : 1,
     };

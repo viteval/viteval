@@ -7,9 +7,9 @@ const PROMPT = `Is the following funny?
 </content>`;
 
 const CHOICE_SCORES: Record<string, number> = {
-  No: 0.0,
+  No: 0,
   Unsure: 0.5,
-  Yes: 1.0,
+  Yes: 1,
 };
 
 /**

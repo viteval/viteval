@@ -27,7 +27,7 @@ describe('translation', () => {
     expect(result.metadata?.choice).toBe('Y');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { N: 0.0, Y: 1.0 },
+        choiceScores: { N: 0, Y: 1 },
         useCoT: true,
       }),
       expect.objectContaining({

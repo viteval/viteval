@@ -104,9 +104,9 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
           {item.input !== undefined ? (
             <Badge variant="secondary" className="text-xs">
               {typeof item.input === 'string'
-                ? (item.input.length > 50
+                ? item.input.length > 50
                   ? `${item.input.substring(0, 50)}...`
-                  : item.input)
+                  : item.input
                 : typeof item.input}
             </Badge>
           ) : (
@@ -117,9 +117,9 @@ function DatasetItemRow({ item, index }: { item: DatasetItem; index: number }) {
           {item.expected !== undefined ? (
             <Badge variant="secondary" className="text-xs">
               {typeof item.expected === 'string'
-                ? (item.expected.length > 50
+                ? item.expected.length > 50
                   ? `${item.expected.substring(0, 50)}...`
-                  : item.expected)
+                  : item.expected
                 : typeof item.expected}
             </Badge>
           ) : (

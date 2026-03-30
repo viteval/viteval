@@ -18,8 +18,8 @@ export default defineDataset({
           description: ${description}
           `,
           schema: z.object({
-            question: z.string().describe('The question to answer'),
             answer: z.string().describe('The answer to the question'),
+            question: z.string().describe('The question to answer'),
           }),
           system: `
           You are an expert at generating test data. You will generate a question and the expected answer based on the provided category.

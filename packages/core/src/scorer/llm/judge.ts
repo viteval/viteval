@@ -60,8 +60,8 @@ export async function runJudge(
 
   const tool = {
     function: {
-      name: 'select_choice',
       description: 'Select the best choice based on the evaluation.',
+      name: 'select_choice',
       parameters: {
         type: 'object',
         properties: {
@@ -87,11 +87,11 @@ export async function runJudge(
 
   const response = await client.chat.completions.create({
     messages: [
-      { role: 'user', content: `${renderedPrompt}\n\n${systemSuffix}` },
+      { content: `${renderedPrompt}\n\n${systemSuffix}`, role: 'user' },
     ],
     model: config.model ?? DEFAULT_MODEL,
     temperature: 0,
-    tool_choice: { type: 'function', function: { name: 'select_choice' } },
+    tool_choice: { function: { name: 'select_choice' }, type: 'function' },
     tools: [tool],
   });
 

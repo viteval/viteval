@@ -70,11 +70,11 @@ export default defineConfig({
       '/api/': [
         {
           items: [
-            { text: 'defineConfig()', link: '/api/configuration' },
-            { text: 'evaluate()', link: '/api/evaluate' },
-            { text: 'defineDataset()', link: '/api/define-dataset' },
-            { text: 'createScorer()', link: '/api/create-scorer' },
-            { text: 'scorers', link: '/api/scorers' },
+            { link: '/api/configuration', text: 'defineConfig()' },
+            { link: '/api/evaluate', text: 'evaluate()' },
+            { link: '/api/define-dataset', text: 'defineDataset()' },
+            { link: '/api/create-scorer', text: 'createScorer()' },
+            { link: '/api/scorers', text: 'scorers' },
           ],
           text: 'API Reference',
         },
@@ -83,22 +83,22 @@ export default defineConfig({
         {
           items: [
             {
-              text: 'Basic',
               link: 'https://github.com/viteval/viteval/tree/main/examples/basic',
-              target: '_blank',
               rel: 'noopener noreferrer',
+              target: '_blank',
+              text: 'Basic',
             },
             {
-              text: 'Vercel AI SDK',
               link: 'https://github.com/viteval/viteval/tree/main/examples/vercel-ai',
-              target: '_blank',
               rel: 'noopener noreferrer',
+              target: '_blank',
+              text: 'Vercel AI SDK',
             },
             {
-              text: 'Voltagent',
               link: 'https://github.com/viteval/viteval/tree/main/examples/voltagent',
-              target: '_blank',
               rel: 'noopener noreferrer',
+              target: '_blank',
+              text: 'Voltagent',
             },
           ],
           text: 'Examples',
@@ -107,16 +107,16 @@ export default defineConfig({
       '/guide/': [
         {
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
-            { text: 'Core Concepts', link: '/guide/concepts' },
-            { text: 'CLI Usage', link: '/guide/cli' },
+            { link: '/guide/getting-started', text: 'Getting Started' },
+            { link: '/guide/concepts', text: 'Core Concepts' },
+            { link: '/guide/cli', text: 'CLI Usage' },
           ],
           text: 'Introduction',
         },
         {
           items: [
-            { text: 'CI Integration', link: '/guide/advanced/ci' },
-            { text: 'Reporters', link: '/guide/advanced/reporters' },
+            { link: '/guide/advanced/ci', text: 'CI Integration' },
+            { link: '/guide/advanced/reporters', text: 'Reporters' },
           ],
           text: 'Advanced',
         },

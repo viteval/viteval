@@ -23,7 +23,7 @@ describe('humor', () => {
     expect(result.metadata?.choice).toBe('Yes');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { No: 0.0, Unsure: 0.5, Yes: 1.0 },
+        choiceScores: { No: 0, Unsure: 0.5, Yes: 1 },
         useCoT: false,
       }),
       expect.objectContaining({
