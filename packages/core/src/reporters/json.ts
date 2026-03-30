@@ -264,9 +264,9 @@ export default class JsonReporter implements Reporter {
       const score =
         result.aggregation === 'mean'
           ? result.mean
-          : result.aggregation === 'median'
+          : (result.aggregation === 'median'
             ? result.median
-            : result.sum;
+            : result.sum);
 
       if (score >= result.threshold) {
         passedCount++;
@@ -296,9 +296,9 @@ export default class JsonReporter implements Reporter {
       const score =
         result.aggregation === 'mean'
           ? result.mean
-          : result.aggregation === 'median'
+          : (result.aggregation === 'median'
             ? result.median
-            : result.sum;
+            : result.sum);
       return score >= result.threshold;
     });
   }
