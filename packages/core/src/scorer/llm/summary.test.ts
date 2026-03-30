@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,15 +11,15 @@ import { summary } from './summary';
 describe('summary', () => {
   it('should call runJudge with summary prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'B',
       rationale: 'Summary B is better',
+      score: 1,
     });
 
     const result = await summary({
+      expected: 'An animal crosses another.',
       input: 'The quick brown fox jumps over the lazy dog.',
       output: 'A fox jumps over a dog.',
-      expected: 'An animal crosses another.',
     });
 
     expect(result.score).toBe(1);
@@ -31,9 +31,9 @@ describe('summary', () => {
         useCoT: true,
       }),
       expect.objectContaining({
+        expected: 'An animal crosses another.',
         input: 'The quick brown fox jumps over the lazy dog.',
         output: 'A fox jumps over a dog.',
-        expected: 'An animal crosses another.',
       })
     );
   });

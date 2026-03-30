@@ -1,6 +1,6 @@
 {
   "name": "@viteval/internal",
-  "version": "0.5.9",
+  "version": "1.0.0-rc.0",
   "description": "Viteval internal - shared utilities for the Viteval ecosystem",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",

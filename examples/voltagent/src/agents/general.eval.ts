@@ -3,12 +3,12 @@ import { generalAgent } from './general';
 import generalDataset from './general.dataset';
 
 evaluate('General Agent', {
-  description: 'Evaluates the general question-answering agent capabilities',
   data: generalDataset,
+  description: 'Evaluates the general question-answering agent capabilities',
+  scorers: [scorers.answerCorrectness],
   task: async ({ input }) => {
     const result = await generalAgent.generateText(input);
     return result.text;
   },
-  scorers: [scorers.answerCorrectness],
   threshold: 0.6,
 });

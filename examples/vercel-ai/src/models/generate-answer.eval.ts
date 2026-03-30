@@ -4,10 +4,10 @@ import dataset from './generate-answer.dataset';
 
 evaluate('Generate an answer to a question', {
   data: dataset,
+  scorers: [scorers.answerCorrectness],
   task: async ({ input, category }) => {
     const answer = await generateAnswer(input, category);
     return answer;
   },
-  scorers: [scorers.answerCorrectness],
   threshold: 0.5,
 });

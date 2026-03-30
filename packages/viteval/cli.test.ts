@@ -36,14 +36,14 @@ describe('init', () => {
   });
 
   afterAll(async () => {
-    await fs.rm(TEST_DIR, { recursive: true, force: true });
+    await fs.rm(TEST_DIR, { force: true, recursive: true });
   });
 
   afterEach(async () => {
     await fs.rm(path.join(TEST_DIR, 'viteval.config.ts'), { force: true });
     await fs.rm(path.join(TEST_DIR, '.viteval'), {
-      recursive: true,
       force: true,
+      recursive: true,
     });
   });
 

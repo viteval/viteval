@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { DangerouslyAllowAny } from '@viteval/internal';
+import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
 import type { Reporter } from 'vitest/reporters';
 import type { EvalResult } from '#/types';
 
@@ -147,28 +147,28 @@ export default class JsonReporter implements Reporter {
   constructor(options: { outputFile?: string } = {}) {
     this.outputFile = options.outputFile || null;
     this.results = {
+      evalResults: [],
+      numFailedEvalSuites: 0,
+      numFailedEvals: 0,
+      numPassedEvalSuites: 0,
+      numPassedEvals: 0,
+      numTotalEvalSuites: 0,
+      numTotalEvals: 0,
+      startTime: Date.now(),
       status: 'running',
       success: true,
-      numTotalEvalSuites: 0,
-      numPassedEvalSuites: 0,
-      numFailedEvalSuites: 0,
-      numTotalEvals: 0,
-      numPassedEvals: 0,
-      numFailedEvals: 0,
-      startTime: Date.now(),
-      evalResults: [],
     };
   }
 
-  onInit() {
+  async onInit() {
     this.results.startTime = Date.now();
     this.results.status = 'running';
 
     // Write initial file with 'running' status
-    this.writeResults();
+    await this.writeResults();
   }
 
-  onFinished(files: DangerouslyAllowAny[] = []) {
+  async onFinished(files: DangerouslyAllowAny[] = []) {
     this.results.endTime = Date.now();
     this.results.duration = this.results.endTime - this.results.startTime;
     this.results.status = 'finished';
@@ -183,7 +183,7 @@ export default class JsonReporter implements Reporter {
 
     // Write final results to file
     if (this.outputFile) {
-      this.writeResults();
+      await this.writeResults();
     }
   }
 
@@ -220,21 +220,21 @@ export default class JsonReporter implements Reporter {
     this.results.numFailedEvals += summary.totalCount - summary.passedCount;
 
     const suiteResult: JsonEvalSuite = {
-      name: suiteName,
-      filepath: path.relative(process.cwd(), file.filepath),
-      status: suitePassed ? 'passed' : 'failed',
-      startTime,
-      endTime,
       duration,
+      endTime,
       evalResults,
-      summary,
+      filepath: path.relative(process.cwd(), file.filepath),
       message: this.extractErrorMessage(file),
+      name: suiteName,
+      startTime,
+      status: suitePassed ? 'passed' : 'failed',
+      summary,
     };
 
     this.results.evalResults.push(suiteResult);
 
     // Write updated results after each suite completes
-    this.writeResults();
+    void this.writeResults();
   }
 
   private extractEvalResults(file: DangerouslyAllowAny): EvalResult[] {
@@ -276,8 +276,8 @@ export default class JsonReporter implements Reporter {
     return {
       meanScore: totalCount > 0 ? totalMean / totalCount : 0,
       medianScore: totalCount > 0 ? totalMedian / totalCount : 0,
-      sumScore: totalSum,
       passedCount,
+      sumScore: totalSum,
       totalCount,
     };
   }
@@ -312,8 +312,8 @@ export default class JsonReporter implements Reporter {
     return undefined;
   }
 
-  private writeResults() {
-    try {
+  private async writeResults() {
+    const result = await withResult(() => {
       const output = JSON.stringify(this.results, null, 2);
 
       if (this.outputFile) {
@@ -330,8 +330,12 @@ export default class JsonReporter implements Reporter {
         process.stdout.write(output);
         process.stdout.write('\n');
       }
-    } catch (error) {
-      throw new Error(`Failed to write evaluation results: ${error}`);
+    });
+
+    if (!result.ok) {
+      process.stderr.write(
+        `[viteval] Failed to write evaluation results: ${result.result}\n`
+      );
     }
   }
 }

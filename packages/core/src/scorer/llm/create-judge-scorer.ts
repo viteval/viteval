@@ -39,15 +39,15 @@ export function createJudgeScorer(
     score: async ({ output, expected, input, ...extra }) => {
       const result = await runJudge(
         {
-          prompt: config.prompt,
           choiceScores: config.choiceScores,
+          prompt: config.prompt,
           useCoT: config.useCoT ?? true,
         },
-        { output, expected, input, ...extra }
+        { expected, input, output, ...extra }
       );
       return {
-        score: result.score,
         metadata: { choice: result.choice, rationale: result.rationale },
+        score: result.score,
       };
     },
   });

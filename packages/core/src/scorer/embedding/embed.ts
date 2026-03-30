@@ -23,8 +23,8 @@ export async function getEmbedding(
   const client = requireClient();
 
   const response = await client.embeddings.create({
-    model,
     input: text,
+    model,
   });
 
   return response.data[0].embedding;
@@ -45,7 +45,7 @@ export async function computeEmbeddingSimilarity(
   const expectedStr = String(expected);
 
   if (outputStr === expectedStr) {
-    return { score: 1, metadata: { similarity: 1 } };
+    return { metadata: { similarity: 1 }, score: 1 };
   }
 
   const [outputEmb, expectedEmb] = await Promise.all([
@@ -56,5 +56,5 @@ export async function computeEmbeddingSimilarity(
   const similarity = cosineSimilarity(outputEmb, expectedEmb) ?? 0;
   const score = clamp(similarity, 0, 1);
 
-  return { score, metadata: { similarity } };
+  return { metadata: { similarity }, score };
 }

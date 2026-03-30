@@ -14,10 +14,6 @@ class VitevalFileReader {
     this.rootPath = rootPath || process.env.VITEVAL_ROOT_PATH || process.cwd();
   }
 
-  /**
-   * List all result files
-   * @returns Array of result files
-   */
   public async listResults(): Promise<ResultFile[]> {
     const fileIds = await this.list(
       'results',
@@ -38,20 +34,11 @@ class VitevalFileReader {
     return results.filter((file): file is ResultFile => file !== null);
   }
 
-  /**
-   * Read a specific result file by ID (filename without .json extension)
-   * @param id - The result ID (timestamp)
-   * @returns The parsed result data or null if not found
-   */
   public async readResult(id: string): Promise<EvalResults | null> {
     const content = await this.read(`results/${id}.json`);
     return content ? JSON.parse(content) : null;
   }
 
-  /**
-   * List all datasets
-   * @returns Array of dataset summaries
-   */
   public async listDatasets(): Promise<DatasetSummary[]> {
     const fileIds = await this.list('datasets', (a, b) => a.localeCompare(b));
 
@@ -71,11 +58,6 @@ class VitevalFileReader {
     );
   }
 
-  /**
-   * Read a specific dataset by ID
-   * @param id - The dataset ID (directory name)
-   * @returns The parsed dataset data or null if not found
-   */
   public async readDataset(id: string): Promise<DatasetFile | null> {
     const content = await this.read(`datasets/${id}.json`);
     const d = content ? JSON.parse(content) : null;
@@ -108,7 +90,7 @@ class VitevalFileReader {
       const fileIds = (await fs.readdir(fullPath))
         .filter((file) => file.endsWith('.json'))
         .map((file) => file.replace('.json', ''))
-        .sort(sortFn);
+        .toSorted(sortFn);
 
       return fileIds;
     } catch {
@@ -121,7 +103,6 @@ class VitevalFileReader {
       const fullPath = path.join(this.getVitevalDirectory(), filePath);
       const vitevalDir = this.getVitevalDirectory();
 
-      // Security: ensure the constructed path is still within the viteval directory
       const normalizedPath = path.normalize(fullPath);
       if (!normalizedPath.startsWith(vitevalDir)) {
         throw new Error('Access denied: invalid file path');
@@ -155,21 +136,21 @@ class VitevalFileReader {
         id,
         name: fileName,
         path: filePath,
-        timestamp: id,
         size: stats.size,
         summary: {
+          duration: results.duration,
+          endTime: results.endTime,
+          numFailedEvalSuites: results.numFailedEvalSuites,
+          numFailedEvals: results.numFailedEvals,
+          numPassedEvalSuites: results.numPassedEvalSuites,
+          numPassedEvals: results.numPassedEvals,
+          numTotalEvalSuites: results.numTotalEvalSuites,
+          numTotalEvals: results.numTotalEvals,
+          startTime: results.startTime,
           status: results.status,
           success: results.success,
-          numTotalEvalSuites: results.numTotalEvalSuites,
-          numPassedEvalSuites: results.numPassedEvalSuites,
-          numFailedEvalSuites: results.numFailedEvalSuites,
-          numTotalEvals: results.numTotalEvals,
-          numPassedEvals: results.numPassedEvals,
-          numFailedEvals: results.numFailedEvals,
-          duration: results.duration,
-          startTime: results.startTime,
-          endTime: results.endTime,
         },
+        timestamp: id,
       };
     } catch {
       return null;
@@ -186,12 +167,12 @@ class VitevalFileReader {
       const id = fileName.replace('.json', '');
 
       return {
-        id,
-        name: data.name || id,
-        description: data.description,
-        path: path.relative(this.rootPath, filePath),
-        itemCount: data.data ? data.data.length : 0,
         createdAt: data.createdAt,
+        description: data.description,
+        id,
+        itemCount: data.data ? data.data.length : 0,
+        name: data.name || id,
+        path: path.relative(this.rootPath, filePath),
         storage: data.storage || 'local',
       };
     } catch {
@@ -201,12 +182,6 @@ class VitevalFileReader {
 }
 
 export const vitevalReader = new VitevalFileReader();
-
-/*
-|------------------
-| Internals
-|------------------
-*/
 
 async function exists(path: string): Promise<boolean> {
   try {

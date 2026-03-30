@@ -30,7 +30,7 @@ export function getMedianScore(results: Score[]): number {
 
   const sortedScores = results
     .map((result) => defaultScore(result.score))
-    .sort((a, b) => a - b);
+    .toSorted((a, b) => a - b);
 
   const mid = Math.floor(sortedScores.length / 2);
 

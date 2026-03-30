@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,15 +11,15 @@ import { answerCorrectness } from './answer-correctness';
 describe('answerCorrectness', () => {
   it('should call runJudge with correctness prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'A',
       rationale: 'Completely correct',
+      score: 1,
     });
 
     const result = await answerCorrectness({
+      expected: 'Paris',
       input: 'What is the capital of France?',
       output: 'Paris',
-      expected: 'Paris',
     });
 
     expect(result.score).toBe(1);
@@ -27,13 +27,13 @@ describe('answerCorrectness', () => {
     expect(result.metadata?.rationale).toBe('Completely correct');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { A: 1.0, B: 0.5, C: 0 },
+        choiceScores: { A: 1, B: 0.5, C: 0 },
         useCoT: true,
       }),
       expect.objectContaining({
+        expected: 'Paris',
         input: 'What is the capital of France?',
         output: 'Paris',
-        expected: 'Paris',
       })
     );
   });

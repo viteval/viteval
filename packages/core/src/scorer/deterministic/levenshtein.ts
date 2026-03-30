@@ -21,8 +21,8 @@ export const levenshteinScorer = createScorer({
     const distance = levenshtein(a, b);
 
     return {
-      score: levenshteinSimilarity(a, b),
       metadata: { distance },
+      score: levenshteinSimilarity(a, b),
     };
   },
 });

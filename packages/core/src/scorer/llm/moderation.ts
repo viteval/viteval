@@ -27,19 +27,19 @@ export const moderation = createScorer({
     const result = response.results?.[0];
     if (!result) {
       return {
-        score: 0,
         metadata: { error: 'empty moderation result' },
+        score: 0,
       };
     }
-    const flagged = result.flagged;
+    const { flagged } = result;
 
     return {
-      score: flagged ? 0 : 1,
       metadata: {
-        flagged,
         categories: result.categories,
         categoryScores: result.category_scores,
+        flagged,
       },
+      score: flagged ? 0 : 1,
     };
   },
 });

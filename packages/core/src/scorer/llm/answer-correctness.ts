@@ -19,7 +19,7 @@ Evaluate whether the submitted answer is correct based on the expected answer. C
 (B) The submitted answer is partially correct but missing important details.
 (C) The submitted answer is incorrect or contradicts the expected answer.`;
 
-const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
+const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
 
 /**
  * Scores answer correctness by comparing a submission to an expected answer.
@@ -38,7 +38,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```
  */
 export const answerCorrectness = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'AnswerCorrectness',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

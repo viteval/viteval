@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,45 +11,45 @@ import { translation } from './translation';
 describe('translation', () => {
   it('should call runJudge with translation prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'Y',
       rationale: 'Translations match',
+      score: 1,
     });
 
     const result = await translation({
-      input: 'Bonjour le monde',
-      output: 'Hello world',
       expected: 'Hello world',
+      input: 'Bonjour le monde',
       language: 'French',
+      output: 'Hello world',
     });
 
     expect(result.score).toBe(1);
     expect(result.metadata?.choice).toBe('Y');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { Y: 1.0, N: 0.0 },
+        choiceScores: { N: 0, Y: 1 },
         useCoT: true,
       }),
       expect.objectContaining({
-        input: 'Bonjour le monde',
-        output: 'Hello world',
         expected: 'Hello world',
+        input: 'Bonjour le monde',
         language: 'French',
+        output: 'Hello world',
       })
     );
   });
 
   it('should default language to Unknown when not provided', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 0,
       choice: 'N',
       rationale: 'Different meaning',
+      score: 0,
     });
 
     await translation({
+      expected: 'Hello world',
       input: 'Hola mundo',
       output: 'Goodbye world',
-      expected: 'Hello world',
     });
 
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
