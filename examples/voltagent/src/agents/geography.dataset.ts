@@ -12,8 +12,8 @@ export default defineDataset({
         model: openai('gpt-5'),
         prompt: 'Generate a geography question and the expected answer',
         schema: z.object({
-          question: z.string().describe('The geography question to answer'),
           answer: z.string().describe('The answer to the geography question'),
+          question: z.string().describe('The geography question to answer'),
         }),
         system: `
           You are an expert at generating test data for a geography agent. You will generate a geography question and the expected answer.

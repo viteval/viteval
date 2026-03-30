@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,8 +11,8 @@ import { humor } from './humor';
 describe('humor', () => {
   it('should call runJudge with humor prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'Yes',
+      score: 1,
     });
 
     const result = await humor({
@@ -23,7 +23,7 @@ describe('humor', () => {
     expect(result.metadata?.choice).toBe('Yes');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { Yes: 1.0, No: 0.0, Unsure: 0.5 },
+        choiceScores: { No: 0.0, Unsure: 0.5, Yes: 1.0 },
         useCoT: false,
       }),
       expect.objectContaining({

@@ -10,10 +10,6 @@ export default defineDataset({
       categories.map(async ({ name, description }) => {
         const { object } = await generateObject({
           model: openai('gpt-5'),
-          system: `
-          You are an expert at generating test data. You will generate a question and the expected answer based on the provided category.
-          Be succinct in you questions and answers. The question should be a single sentence, and the answer should be a single sentence or less.
-          `,
           prompt: `
           Generate a question for this category: 
           
@@ -25,12 +21,16 @@ export default defineDataset({
             question: z.string().describe('The question to answer'),
             answer: z.string().describe('The answer to the question'),
           }),
+          system: `
+          You are an expert at generating test data. You will generate a question and the expected answer based on the provided category.
+          Be succinct in you questions and answers. The question should be a single sentence, and the answer should be a single sentence or less.
+          `,
         });
 
         return {
-          input: object.question,
-          expected: object.answer,
           category: name,
+          expected: object.answer,
+          input: object.question,
         };
       })
     ),

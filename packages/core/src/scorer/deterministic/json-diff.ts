@@ -52,8 +52,8 @@ function tryParseJson(value: unknown): unknown {
  * @private
  */
 function deepCompare(a: unknown, b: unknown): number {
-  if (isNil(a) && isNil(b)) return 1;
-  if (isNil(a) || isNil(b)) return 0;
+  if (isNil(a) && isNil(b)) {return 1;}
+  if (isNil(a) || isNil(b)) {return 0;}
 
   if (isNumber(a) && isNumber(b)) {
     return numericSimilarity(a, b);
@@ -69,7 +69,7 @@ function deepCompare(a: unknown, b: unknown): number {
 
   if (isArray(a) && isArray(b)) {
     const maxLen = Math.max(a.length, b.length);
-    if (maxLen === 0) return 1;
+    if (maxLen === 0) {return 1;}
 
     const minLen = Math.min(a.length, b.length);
     let total = 0;
@@ -84,7 +84,7 @@ function deepCompare(a: unknown, b: unknown): number {
     const keysB = Object.keys(b);
     const allKeys = [...new Set([...keysA, ...keysB])];
 
-    if (allKeys.length === 0) return 1;
+    if (allKeys.length === 0) {return 1;}
 
     let total = 0;
     for (const key of allKeys) {

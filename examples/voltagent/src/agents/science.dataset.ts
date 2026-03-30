@@ -12,8 +12,8 @@ export default defineDataset({
         model: openai('gpt-5'),
         prompt: 'Generate a science question and the expected answer',
         schema: z.object({
-          question: z.string().describe('The science question to answer'),
           answer: z.string().describe('The answer to the science question'),
+          question: z.string().describe('The science question to answer'),
         }),
         system: `
           You are an expert at generating test data for a science agent. You will generate a science question and the expected answer.

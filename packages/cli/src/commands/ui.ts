@@ -13,15 +13,15 @@ export const uiCommand: CommandModule<unknown, UIOptions> = {
       })
       .option('open', {
         alias: 'o',
+        default: false,
         describe: 'Open the UI in the browser',
         type: 'boolean',
-        default: false,
       })
       .option('debug', {
         alias: 'd',
+        default: false,
         describe: 'Enable debug mode',
         type: 'boolean',
-        default: false,
       }),
   command: 'ui [options]',
   describe: 'Start the UI server to view evaluation results',

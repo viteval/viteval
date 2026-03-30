@@ -59,9 +59,8 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
       const app = new Hono();
 
       app.use(
-        '/public/*',
+        '/*',
         serveStatic({
-          rewriteRequestPath: (p: string) => p.replace('/public', ''),
           root: path.join(
             import.meta.dirname,
             'dist',

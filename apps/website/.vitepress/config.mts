@@ -69,7 +69,6 @@ export default defineConfig({
     sidebar: {
       '/api/': [
         {
-          text: 'API Reference',
           items: [
             { text: 'defineConfig()', link: '/api/configuration' },
             { text: 'evaluate()', link: '/api/evaluate' },
@@ -77,11 +76,11 @@ export default defineConfig({
             { text: 'createScorer()', link: '/api/create-scorer' },
             { text: 'scorers', link: '/api/scorers' },
           ],
+          text: 'API Reference',
         },
       ],
       '/examples/': [
         {
-          text: 'Examples',
           items: [
             {
               text: 'Basic',
@@ -102,23 +101,24 @@ export default defineConfig({
               rel: 'noopener noreferrer',
             },
           ],
+          text: 'Examples',
         },
       ],
       '/guide/': [
         {
-          text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Core Concepts', link: '/guide/concepts' },
             { text: 'CLI Usage', link: '/guide/cli' },
           ],
+          text: 'Introduction',
         },
         {
-          text: 'Advanced',
           items: [
             { text: 'CI Integration', link: '/guide/advanced/ci' },
             { text: 'Reporters', link: '/guide/advanced/reporters' },
           ],
+          text: 'Advanced',
         },
       ],
     },

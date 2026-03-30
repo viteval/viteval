@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('#/provider/client', () => ({
   requireClient: vi.fn(),
@@ -12,9 +12,9 @@ describe('moderation', () => {
     const mockCreate = vi.fn().mockResolvedValueOnce({
       results: [
         {
-          flagged: false,
           categories: { hate: false },
           category_scores: { hate: 0.001 },
+          flagged: false,
         },
       ],
     });
@@ -36,9 +36,9 @@ describe('moderation', () => {
     const mockCreate = vi.fn().mockResolvedValueOnce({
       results: [
         {
-          flagged: true,
           categories: { hate: true },
           category_scores: { hate: 0.99 },
+          flagged: true,
         },
       ],
     });

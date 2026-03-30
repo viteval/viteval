@@ -14,18 +14,24 @@ export default function ResultDetailPage() {
   const [results, setResults] = useState<EvalResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   const fetchResult = useCallback(async () => {
     try {
       const res = await fetch(`/api/results/${id}`);
-      if (!res.ok) {
+      if (res.status === 404) {
+        setNotFound(true);
         setResults(null);
-        setError('Failed to load result');
+        return;
+      }
+      if (!res.ok) {
+        setError(`Failed to load result (${res.status})`);
         return;
       }
       const data = await res.json();
       setResults(data);
       setError(null);
+      setNotFound(false);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : 'Failed to load result'
@@ -43,7 +49,7 @@ export default function ResultDetailPage() {
     return () => clearInterval(interval);
   }, [fetchResult]);
 
-  if (!loading && !results) {
+  if (!loading && notFound) {
     return (
       <div className="container mx-auto p-6 space-y-6">
         <div className="mb-6 flex items-center justify-between">
@@ -74,6 +80,22 @@ export default function ResultDetailPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  if (!loading && error) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Error</h1>
+            <p className="text-muted-foreground">{error}</p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link href="/results">&larr; Back to Results</Link>
+          </Button>
+        </div>
       </div>
     );
   }

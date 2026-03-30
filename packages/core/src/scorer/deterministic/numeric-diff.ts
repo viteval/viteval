@@ -19,7 +19,7 @@ export const numericDiff = createScorer({
     const b = Number(expected);
 
     if (!Number.isFinite(a) || !Number.isFinite(b)) {
-      return { score: 0, metadata: { error: 'non-numeric input' } };
+      return { metadata: { error: 'non-numeric input' }, score: 0 };
     }
 
     return { score: numericSimilarity(a, b) };

@@ -12,8 +12,8 @@ export default defineDataset({
         model: openai('gpt-5'),
         prompt: 'Generate a general knowledge question and the expected answer',
         schema: z.object({
-          question: z.string().describe('The question to answer'),
           answer: z.string().describe('The answer to the question'),
+          question: z.string().describe('The question to answer'),
         }),
         system: `
           You are an expert at generating test data for a general knowledge agent. You will generate a general knowledge question and the expected answer.

@@ -1,4 +1,4 @@
-import { isArray, isString, clamp } from '@viteval/internal';
+import { clamp, isArray, isString } from '@viteval/internal';
 import { linearSumAssignment } from 'linear-sum-assignment';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity } from './similarity';
@@ -93,7 +93,7 @@ function toStringArray(value: unknown): string[] {
         return parsed.map(String);
       }
     } catch {
-      // split by newline
+      // Split by newline
     }
     return value
       .split('\n')

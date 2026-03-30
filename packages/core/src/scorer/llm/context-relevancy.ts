@@ -15,7 +15,7 @@ Evaluate whether the context contains information relevant to answering the ques
 (B) The context is somewhat relevant but may not fully help in answering the question.
 (C) The context is not relevant to the question.`;
 
-const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
+const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
 
 /**
  * Scores whether a retrieved context is relevant to the given question.
@@ -33,7 +33,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```
  */
 export const contextRelevancy = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'ContextRelevancy',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

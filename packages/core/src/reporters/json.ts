@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { DangerouslyAllowAny } from '@viteval/internal';
+import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
 import type { Reporter } from 'vitest/reporters';
 import type { EvalResult } from '#/types';
 
@@ -160,15 +160,15 @@ export default class JsonReporter implements Reporter {
     };
   }
 
-  onInit() {
+  async onInit() {
     this.results.startTime = Date.now();
     this.results.status = 'running';
 
     // Write initial file with 'running' status
-    this.writeResults();
+    await this.writeResults();
   }
 
-  onFinished(files: DangerouslyAllowAny[] = []) {
+  async onFinished(files: DangerouslyAllowAny[] = []) {
     this.results.endTime = Date.now();
     this.results.duration = this.results.endTime - this.results.startTime;
     this.results.status = 'finished';
@@ -183,7 +183,7 @@ export default class JsonReporter implements Reporter {
 
     // Write final results to file
     if (this.outputFile) {
-      this.writeResults();
+      await this.writeResults();
     }
   }
 
@@ -234,7 +234,7 @@ export default class JsonReporter implements Reporter {
     this.results.evalResults.push(suiteResult);
 
     // Write updated results after each suite completes
-    this.writeResults();
+    void this.writeResults();
   }
 
   private extractEvalResults(file: DangerouslyAllowAny): EvalResult[] {
@@ -264,9 +264,9 @@ export default class JsonReporter implements Reporter {
       const score =
         result.aggregation === 'mean'
           ? result.mean
-          : result.aggregation === 'median'
+          : (result.aggregation === 'median'
             ? result.median
-            : result.sum;
+            : result.sum);
 
       if (score >= result.threshold) {
         passedCount++;
@@ -296,9 +296,9 @@ export default class JsonReporter implements Reporter {
       const score =
         result.aggregation === 'mean'
           ? result.mean
-          : result.aggregation === 'median'
+          : (result.aggregation === 'median'
             ? result.median
-            : result.sum;
+            : result.sum);
       return score >= result.threshold;
     });
   }
@@ -312,8 +312,8 @@ export default class JsonReporter implements Reporter {
     return undefined;
   }
 
-  private writeResults() {
-    try {
+  private async writeResults() {
+    const result = await withResult(() => {
       const output = JSON.stringify(this.results, null, 2);
 
       if (this.outputFile) {
@@ -330,10 +330,13 @@ export default class JsonReporter implements Reporter {
         process.stdout.write(output);
         process.stdout.write('\n');
       }
-    } catch (error) {
-      throw new Error(`Failed to write evaluation results: ${error}`, {
-        cause: error,
-      });
+    });
+
+    if (!result.ok) {
+      console.error(
+        '[viteval] Failed to write evaluation results:',
+        result.result
+      );
     }
   }
 }

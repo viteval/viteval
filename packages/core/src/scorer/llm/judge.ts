@@ -59,7 +59,6 @@ export async function runJudge(
     : `Answer by calling the \`select_choice\` function and selecting one of the following choices: ${choicesStr}.`;
 
   const tool = {
-    type: 'function' as const,
     function: {
       name: 'select_choice',
       description: 'Select the best choice based on the evaluation.',
@@ -83,16 +82,17 @@ export async function runJudge(
         required: config.useCoT ? ['reasons', 'choice'] : ['choice'],
       },
     },
+    type: 'function' as const,
   };
 
   const response = await client.chat.completions.create({
-    model: config.model ?? DEFAULT_MODEL,
     messages: [
       { role: 'user', content: `${renderedPrompt}\n\n${systemSuffix}` },
     ],
-    tools: [tool],
-    tool_choice: { type: 'function', function: { name: 'select_choice' } },
+    model: config.model ?? DEFAULT_MODEL,
     temperature: 0,
+    tool_choice: { type: 'function', function: { name: 'select_choice' } },
+    tools: [tool],
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
@@ -119,8 +119,8 @@ export async function runJudge(
   }
 
   return {
-    score,
     choice: parsed.choice,
     rationale: parsed.reasons,
+    score,
   };
 }

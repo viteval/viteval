@@ -14,14 +14,14 @@ describe('AnswerSimilarity', () => {
 
   it('should return 1.0 for identical vectors', async () => {
     vi.mocked(computeEmbeddingSimilarity).mockResolvedValueOnce({
-      score: 1,
       metadata: { similarity: 1 },
+      score: 1,
     });
 
     const result = await answerSimilarity({
+      expected: 'hello',
       input: 'test',
       output: 'hello',
-      expected: 'hello',
     });
 
     expect(result.name).toBe('AnswerSimilarity');
@@ -31,14 +31,14 @@ describe('AnswerSimilarity', () => {
 
   it('should return ~0 for orthogonal vectors', async () => {
     vi.mocked(computeEmbeddingSimilarity).mockResolvedValueOnce({
-      score: 0,
       metadata: { similarity: 0 },
+      score: 0,
     });
 
     const result = await answerSimilarity({
+      expected: 'world',
       input: 'test',
       output: 'hello',
-      expected: 'world',
     });
 
     expect(result.name).toBe('AnswerSimilarity');
@@ -47,14 +47,14 @@ describe('AnswerSimilarity', () => {
 
   it('should return a high score for similar vectors', async () => {
     vi.mocked(computeEmbeddingSimilarity).mockResolvedValueOnce({
-      score: 0.95,
       metadata: { similarity: 0.95 },
+      score: 0.95,
     });
 
     const result = await answerSimilarity({
+      expected: 'hello',
       input: 'test',
       output: 'hi',
-      expected: 'hello',
     });
 
     expect(result.score).toBeGreaterThan(0.9);
@@ -63,14 +63,14 @@ describe('AnswerSimilarity', () => {
 
   it('should clamp negative similarity to 0', async () => {
     vi.mocked(computeEmbeddingSimilarity).mockResolvedValueOnce({
-      score: 0,
       metadata: { similarity: -1 },
+      score: 0,
     });
 
     const result = await answerSimilarity({
+      expected: 'goodbye',
       input: 'test',
       output: 'hello',
-      expected: 'goodbye',
     });
 
     expect(result.score).toBe(0);
@@ -79,14 +79,14 @@ describe('AnswerSimilarity', () => {
 
   it('should pass output and expected to computeEmbeddingSimilarity', async () => {
     vi.mocked(computeEmbeddingSimilarity).mockResolvedValueOnce({
-      score: 1,
       metadata: { similarity: 1 },
+      score: 1,
     });
 
     await answerSimilarity({
+      expected: 'world',
       input: 'test',
       output: 'hello',
-      expected: 'world',
     });
 
     expect(computeEmbeddingSimilarity).toHaveBeenCalledWith('hello', 'world');

@@ -17,20 +17,20 @@ export const dataCommand: CommandModule<
   builder: (yargs) =>
     yargs
       .positional('pattern', {
+        default: '**/*.dataset.{js,ts,mts,mjs}',
         describe: 'Dataset file pattern to match',
         type: 'string',
-        default: '**/*.dataset.{js,ts,mts,mjs}',
       })
       .option('overwrite', {
+        default: false,
         describe: 'Overwrite existing datasets',
         type: 'boolean',
-        default: false,
       })
       .option('verbose', {
         alias: 'V',
+        default: false,
         describe: 'Verbose output',
         type: 'boolean',
-        default: false,
       }),
   command: 'data [pattern]',
   describe: 'Generate the datasets in your codebase',
