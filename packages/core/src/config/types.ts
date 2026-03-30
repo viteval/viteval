@@ -33,9 +33,9 @@ export interface VitevalProviderConfig {
 }
 
 // TODO: Add support for braintrust reporter
-// export type VitevalReporterBraintrust = {
-//   type: 'braintrust';
-//   apiKey: string;
+// Export type VitevalReporterBraintrust = {
+//   Type: 'braintrust';
+//   ApiKey: string;
 // };
 
 // TODO: Add support via the config file for reporter

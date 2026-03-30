@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('#/provider/client', () => ({
   requireModel: vi.fn(),
@@ -14,7 +14,7 @@ import { moderation } from './moderation';
 describe('moderation', () => {
   it('should return score 1 for safe content', async () => {
     vi.mocked(generateObject).mockResolvedValueOnce({
-      object: { reasons: 'Content is harmless.', choice: 'Safe' },
+      object: { choice: 'Safe', reasons: 'Content is harmless.' },
     } as never);
 
     const result = await moderation({
@@ -27,7 +27,7 @@ describe('moderation', () => {
 
   it('should return score 0 for unsafe content', async () => {
     vi.mocked(generateObject).mockResolvedValueOnce({
-      object: { reasons: 'Content contains threats.', choice: 'Unsafe' },
+      object: { choice: 'Unsafe', reasons: 'Content contains threats.' },
     } as never);
 
     const result = await moderation({

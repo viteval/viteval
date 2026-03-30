@@ -36,7 +36,7 @@ const CHOICE_SCORES: Record<string, number> = {
  * ```
  */
 export const moderation = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'Moderation',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

@@ -1,4 +1,4 @@
-import { match, P } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { initializeProvider } from '#/provider/initialize';
 import type { VitevalConfig } from './types';
@@ -20,7 +20,7 @@ export function defineConfig({
   ...config
 }: VitevalConfig) {
   // Initialize the provider eagerly — AI SDK model instances are not
-  // serializable so they cannot go through Vitest's provide/inject.
+  // Serializable so they cannot go through Vitest's provide/inject.
   if (provider) {
     initializeProvider(provider);
   }
@@ -37,16 +37,14 @@ export function defineConfig({
       },
       environment: 'node',
       // We default to a very long timeout for evals since they can be slow
-      testTimeout: evalConfig?.timeout ?? 100000,
+      testTimeout: evalConfig?.timeout ?? 100_000,
       deps: match(deps)
-        .with(P.not(P.nullish), (o) => {
-          return {
-            optimizer: match(o.optimizer)
-              .with(P.not(P.nullish), (o) => ({ ssr: o, web: o }))
-              .otherwise(() => undefined),
-            interopDefault: o.interopDefault,
-          };
-        })
+        .with(P.not(P.nullish), (o) => ({
+          optimizer: match(o.optimizer)
+            .with(P.not(P.nullish), (o) => ({ ssr: o, web: o }))
+            .otherwise(() => undefined),
+          interopDefault: o.interopDefault,
+        }))
         .otherwise(() => undefined),
     },
     resolve,

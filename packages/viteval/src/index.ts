@@ -8,4 +8,9 @@ export type {
   Task,
   TaskArgs,
 } from '@viteval/core';
-export { createScorer, evaluate, initializeProvider, scorers } from '@viteval/core';
+export {
+  createScorer,
+  evaluate,
+  initializeProvider,
+  scorers,
+} from '@viteval/core';

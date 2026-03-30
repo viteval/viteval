@@ -61,10 +61,10 @@ export async function runJudge(
 
   const schema = config.useCoT
     ? z.object({
-        reasons: z.string().describe('Step-by-step reasoning for the choice.'),
         choice: z
           .enum(choices as [string, ...string[]])
           .describe('The selected choice.'),
+        reasons: z.string().describe('Step-by-step reasoning for the choice.'),
       })
     : z.object({
         choice: z
@@ -85,8 +85,8 @@ export async function runJudge(
   }
 
   return {
-    score,
     choice: object.choice,
     rationale: 'reasons' in object ? (object.reasons as string) : undefined,
+    score,
   };
 }
