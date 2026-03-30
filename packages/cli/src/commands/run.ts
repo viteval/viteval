@@ -160,7 +160,7 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
     const formattedReporters = config.reporters
       .flatMap((reporter) =>
         match(reporter)
-          .with(P.array(), (r) => r.filter((r) => typeof r === 'string'))
+          .with(P.array(), (arr) => arr.filter((r) => typeof r === 'string'))
           .otherwise(() => null)
       )
       .filter((reporter) => reporter !== null) as VitevalReporter[];
