@@ -1,9 +1,9 @@
 import * as path from 'node:path';
 import {
+  type Tree,
   addProjectConfiguration,
   formatFiles,
   generateFiles,
-  type Tree,
 } from '@nx/devkit';
 import type { ExampleGeneratorSchema } from './schema';
 
@@ -13,8 +13,8 @@ export async function exampleGenerator(
 ) {
   const projectRoot = `examples/${options.name}`;
   addProjectConfiguration(tree, options.name, {
-    root: projectRoot,
     projectType: 'library',
+    root: projectRoot,
     sourceRoot: `${projectRoot}/src`,
     targets: {},
   });

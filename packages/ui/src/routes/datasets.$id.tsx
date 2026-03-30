@@ -1,15 +1,15 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
 import DatasetDetail from '@/components/DatasetDetail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDataset } from '@/fx/datasets';
 
 export const Route = createFileRoute('/datasets/$id')({
+  component: DatasetDetailPage,
   loader: async ({ params }) => {
     const dataset = await getDataset({ data: { id: params.id } });
     return { dataset };
   },
-  component: DatasetDetailPage,
 });
 
 function DatasetDetailPage() {

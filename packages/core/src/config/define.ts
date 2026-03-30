@@ -45,10 +45,10 @@ export function defineConfig({
       testTimeout: evalConfig?.timeout ?? 100_000,
       deps: match(deps)
         .with(P.not(P.nullish), (o) => ({
+          interopDefault: o.interopDefault,
           optimizer: match(o.optimizer)
             .with(P.not(P.nullish), (o) => ({ ssr: o, web: o }))
             .otherwise(() => undefined),
-          interopDefault: o.interopDefault,
         }))
         .otherwise(() => undefined),
     },

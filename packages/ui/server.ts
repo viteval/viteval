@@ -3,7 +3,6 @@ import path from 'node:path';
 import express from 'express';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
-// biome-ignore lint/suspicious/noTsIgnore: tsrServer is a valid type
 // @ts-ignore - tsrServer is a valid type
 import tsrServer from './dist/server/server.js';
 
@@ -82,7 +81,7 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      * @returns The port the server is listening on
      */
     async start(): Promise<number> {
-      // set the root path in the environment variables
+      // Set the root path in the environment variables
       const root = await findRoot(options?.root);
       process.env.VITEVAL_ROOT_PATH = root;
       process.env.VITEVAL_DEBUG_MODE = options?.debug ? 'true' : 'false';

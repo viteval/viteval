@@ -1,35 +1,28 @@
 import {
   exactMatch,
-  levenshteinScorer,
-  numericDiff,
   jsonDiff,
+  levenshteinScorer,
   listContains,
+  numericDiff,
 } from './deterministic';
-import { embeddingSimilarity, answerSimilarity } from './embedding';
+import { answerSimilarity, embeddingSimilarity } from './embedding';
 import {
-  factuality,
-  summary,
-  translation,
-  moderation,
   answerCorrectness,
   answerRelevancy,
   contextEntityRecall,
   contextPrecision,
   contextRecall,
   contextRelevancy,
-  possible,
+  factuality,
   humor,
-  sql,
-} from './llm';
-
-export const scorers = {
-  factual: factuality,
-  levenshtein: levenshteinScorer,
-  exactMatch,
   moderation,
+  possible,
   sql,
   summary,
   translation,
+} from './llm';
+
+export const scorers = {
   answerCorrectness,
   answerRelevancy,
   answerSimilarity,
@@ -37,10 +30,17 @@ export const scorers = {
   contextPrecision,
   contextRecall,
   contextRelevancy,
-  possible,
   embeddingSimilarity,
-  listContains,
-  numericDiff,
-  jsonDiff,
+  exactMatch,
+  factual: factuality,
   humor,
+  jsonDiff,
+  levenshtein: levenshteinScorer,
+  listContains,
+  moderation,
+  numericDiff,
+  possible,
+  sql,
+  summary,
+  translation,
 };

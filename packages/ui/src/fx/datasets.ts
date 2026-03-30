@@ -4,9 +4,7 @@ import { vitevalReader } from '../lib/viteval';
 
 export const getDatasets = createServerFn({
   method: 'GET',
-}).handler(async () => {
-  return await vitevalReader.listDatasets();
-});
+}).handler(async () => await vitevalReader.listDatasets());
 
 export const getDataset = createServerFn({
   method: 'GET',

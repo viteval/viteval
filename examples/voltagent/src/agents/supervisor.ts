@@ -16,7 +16,6 @@ export interface SupervisorOutput {
 }
 
 export const supervisorAgent = new Agent({
-  name: 'supervisor-agent',
   instructions: `You are a supervisor agent that has a team of specialized agents for answering questions. Your task is to route the user query to the appropriate specialized agent and then return the response from the specialized agent to the user.
 
 Available agents:
@@ -30,6 +29,7 @@ Analyze the user query and decide which agent should handle it.
 Consider the subject matter and route to the most appropriate specialized agent.
 Pass the user query to the specialized agent and return the response from the specialized agent to the user.`,
   model: openai('gpt-4o'),
+  name: 'supervisor-agent',
   subAgents: [
     generalAgent,
     mathAgent,

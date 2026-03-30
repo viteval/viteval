@@ -28,13 +28,13 @@ describe('dataset functionality', () => {
   describe('defineDataset', () => {
     it('should create dataset with static data generator', async () => {
       const mockData = [
-        { input: 'test1', expected: 'result1' },
-        { input: 'test2', expected: 'result2' },
+        { expected: 'result1', input: 'test1' },
+        { expected: 'result2', input: 'test2' },
       ];
 
       const dataset = defineDataset({
-        name: 'test-dataset',
         data: async () => mockData,
+        name: 'test-dataset',
       });
 
       expect(dataset.name).toBe('test-dataset');
@@ -44,29 +44,29 @@ describe('dataset functionality', () => {
 
     it('should use custom storage type', () => {
       const dataset = defineDataset({
+        data: async () => [{ expected: 'result', input: 'test' }],
         name: 'memory-dataset',
         storage: 'memory',
-        data: async () => [{ input: 'test', expected: 'result' }],
       });
 
       expect(dataset.storage).toBe('memory');
     });
 
     it('should load existing dataset when not overwriting', async () => {
-      const existingData = [{ input: 'existing', expected: 'data' }];
+      const existingData = [{ expected: 'data', input: 'existing' }];
 
       vi.mocked(fileExists).mockResolvedValue(true);
       const mockReadFile = await import('node:fs/promises');
       vi.mocked(mockReadFile.readFile).mockResolvedValue(
         JSON.stringify({
-          timestamp: new Date().toISOString(),
           data: existingData,
+          timestamp: new Date().toISOString(),
         })
       );
 
       const dataset = defineDataset({
+        data: async () => [{ expected: 'data', input: 'new' }],
         name: 'existing-dataset',
-        data: async () => [{ input: 'new', expected: 'data' }],
       });
 
       const result = await dataset.load();

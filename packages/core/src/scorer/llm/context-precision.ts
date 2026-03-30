@@ -19,7 +19,7 @@ Evaluate whether the context is precise and focused on information needed to ans
 (B) The context contains some relevant information but also includes unnecessary details.
 (C) The context is mostly irrelevant to answering the question.`;
 
-const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
+const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
 
 /**
  * Scores whether a retrieved context is precise and focused on relevant information.
@@ -30,7 +30,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```ts
  * import { contextPrecision } from '@viteval/core';
  *
- * const result = await contextPrecision({
+ * const scorer = contextPrecision();
+ * const result = await scorer({
  *   input: 'What year was Python created?',
  *   output: 'Python was created by Guido van Rossum and first released in 1991.',
  *   expected: '1991',
@@ -38,7 +39,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```
  */
 export const contextPrecision = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'ContextPrecision',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

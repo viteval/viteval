@@ -147,16 +147,16 @@ export default class JsonReporter implements Reporter {
   constructor(options: { outputFile?: string } = {}) {
     this.outputFile = options.outputFile || null;
     this.results = {
+      evalResults: [],
+      numFailedEvalSuites: 0,
+      numFailedEvals: 0,
+      numPassedEvalSuites: 0,
+      numPassedEvals: 0,
+      numTotalEvalSuites: 0,
+      numTotalEvals: 0,
+      startTime: Date.now(),
       status: 'running',
       success: true,
-      numTotalEvalSuites: 0,
-      numPassedEvalSuites: 0,
-      numFailedEvalSuites: 0,
-      numTotalEvals: 0,
-      numPassedEvals: 0,
-      numFailedEvals: 0,
-      startTime: Date.now(),
-      evalResults: [],
     };
   }
 
@@ -220,15 +220,15 @@ export default class JsonReporter implements Reporter {
     this.results.numFailedEvals += summary.totalCount - summary.passedCount;
 
     const suiteResult: JsonEvalSuite = {
-      name: suiteName,
-      filepath: path.relative(process.cwd(), file.filepath),
-      status: suitePassed ? 'passed' : 'failed',
-      startTime,
-      endTime,
       duration,
+      endTime,
       evalResults,
-      summary,
+      filepath: path.relative(process.cwd(), file.filepath),
       message: this.extractErrorMessage(file),
+      name: suiteName,
+      startTime,
+      status: suitePassed ? 'passed' : 'failed',
+      summary,
     };
 
     this.results.evalResults.push(suiteResult);
@@ -276,8 +276,8 @@ export default class JsonReporter implements Reporter {
     return {
       meanScore: totalCount > 0 ? totalMean / totalCount : 0,
       medianScore: totalCount > 0 ? totalMedian / totalCount : 0,
-      sumScore: totalSum,
       passedCount,
+      sumScore: totalSum,
       totalCount,
     };
   }
@@ -331,7 +331,9 @@ export default class JsonReporter implements Reporter {
         process.stdout.write('\n');
       }
     } catch (error) {
-      throw new Error(`Failed to write evaluation results: ${error}`);
+      throw new Error(`Failed to write evaluation results: ${error}`, {
+        cause: error,
+      });
     }
   }
 }

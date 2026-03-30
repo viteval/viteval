@@ -4,13 +4,11 @@ import { listResults } from '@/fx/results';
 import ResultsList from '../components/ResultsList';
 
 export const Route = createFileRoute('/results/')({
-  loader: async () => {
-    return {
-      results: listResults(),
-    };
-  },
-  shouldReload: () => true,
   component: ResultsPage,
+  loader: async () => ({
+    results: listResults(),
+  }),
+  shouldReload: () => true,
 });
 
 function ResultsPage() {

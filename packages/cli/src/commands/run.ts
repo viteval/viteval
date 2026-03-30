@@ -5,36 +5,34 @@ import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
 import { findUp } from 'find-up';
 import open from 'open';
-import { match, P } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 import {
-  createVitest,
   type Reporter,
   type ResolvedConfig,
+  createVitest,
   resolveConfig,
 } from 'vitest/node';
 import type { CommandModule } from 'yargs';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
-  command: 'run [pattern] [options]',
-  describe: 'Run evaluations',
   aliases: ['*'],
-  builder: (yargs) => {
-    return yargs
+  builder: (yargs) =>
+    yargs
       .positional('pattern', {
         describe: 'Eval file pattern to match',
         type: 'string',
       })
       .option('reporters', {
         alias: 'r',
+        choices: ['default', 'json', 'file'],
         describe: 'Reporter to use',
         type: 'array',
-        choices: ['default', 'json', 'file'],
       })
       .option('ui', {
         alias: 'u',
+        default: false,
         describe: 'Start the UI server',
         type: 'boolean',
-        default: false,
       })
       .option('root', {
         describe: 'Root directory to run evaluations from',
@@ -44,8 +42,9 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         alias: 'c',
         describe: 'Viteval config file',
         type: 'string',
-      });
-  },
+      }),
+  command: 'run [pattern] [options]',
+  describe: 'Run evaluations',
   handler: async (argv) => {
     const root = path
       .resolve(process.cwd(), argv.root ?? '.')
@@ -60,12 +59,13 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         }
       ));
 
-    const configResolutionResult = await withResult(async () => {
-      return await resolveConfig({
-        config: configFilePath,
-        root,
-      });
-    });
+    const configResolutionResult = await withResult(
+      async () =>
+        await resolveConfig({
+          config: configFilePath,
+          root,
+        })
+    );
 
     if (
       configResolutionResult.status === 'error' &&
@@ -89,22 +89,22 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
 
     const vitest = await createVitest('test', {
       config: configFilePath,
-      root,
       reporters,
+      root,
       watch: false,
       ...cliConfig,
     });
 
     try {
-      // start the UI server if the --ui flag is passed
+      // Start the UI server if the --ui flag is passed
       const serverResult = argv.ui
         ? createVitevalServer({
             debug: process.env.VITEVAL_DEBUG_MODE === 'true',
           }).start()
         : undefined;
 
-      // this will set process.exitCode to 1 if tests failed,
-      // and won't close the process automatically
+      // This will set process.exitCode to 1 if tests failed,
+      // And won't close the process automatically
       await vitest.start();
 
       if (serverResult) {
@@ -139,7 +139,6 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
   if (argReporters.length > 0) {
     return buildReporters(
       argReporters.map((reporter) => ({
-        reporter,
         options: match(reporter)
           .with('json', () => ({
             outputFile: argv.outputPath
@@ -152,6 +151,7 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
               : formatOutputFile('.viteval/results/<timestamp>.json'),
           }))
           .otherwise(() => ({})),
+        reporter,
       }))
     );
   }
@@ -160,36 +160,34 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
     const formattedReporters = config.reporters
       .flatMap((reporter) =>
         match(reporter)
-          .with(P.array(), (r) => {
-            return r.filter((r) => typeof r === 'string');
-          })
+          .with(P.array(), (arr) => arr.filter((r) => typeof r === 'string'))
           .otherwise(() => null)
       )
       .filter((reporter) => reporter !== null) as VitevalReporter[];
 
     return buildReporters(
       formattedReporters.map((reporter) => ({
-        reporter,
         options: {},
+        reporter,
       }))
     );
   }
 
   return buildReporters([
     {
-      reporter: 'default',
       options: {},
+      reporter: 'default',
     },
   ]);
 }
 
 function buildReporters(
-  input: Array<{
+  input: {
     reporter: VitevalReporter;
     options: Record<string, DangerouslyAllowAny>;
-  }>
+  }[]
 ) {
-  const reporters: Array<Reporter | string> = [];
+  const reporters: (Reporter | string)[] = [];
 
   for (const { reporter, options } of input) {
     if (reporter === 'json' || reporter === 'file') {

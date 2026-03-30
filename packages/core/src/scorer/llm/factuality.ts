@@ -41,7 +41,8 @@ const CHOICE_SCORES: Record<string, number> = {
  * ```ts
  * import { factuality } from '@viteval/core';
  *
- * const result = await factuality({
+ * const scorer = factuality();
+ * const result = await scorer({
  *   input: 'What is the capital of France?',
  *   output: 'Paris is the capital of France.',
  *   expected: 'Paris',
@@ -49,7 +50,7 @@ const CHOICE_SCORES: Record<string, number> = {
  * ```
  */
 export const factuality = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'Factuality',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

@@ -24,7 +24,9 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('markdown');
 
   const content = useMemo(() => {
-    if (!selectedPath) return undefined;
+    if (!selectedPath) {
+      return undefined;
+    }
     if (typeof obj === 'string') {
       return get(JSON.parse(obj), selectedPath);
     }
@@ -131,10 +133,10 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
             language={selectedLanguage}
             style={oneDark}
             customStyle={{
-              margin: 0,
               borderRadius: '0.375rem',
               fontSize: '0.75rem',
               lineHeight: '1rem',
+              margin: 0,
             }}
           >
             {content}
@@ -186,7 +188,9 @@ function getStringFieldPaths(obj: unknown, parentPath = ''): FieldPath[] {
 }
 
 function isJSON(value: unknown): boolean {
-  if (typeof value !== 'string') return true; // Non-strings will be JSON.stringified
+  if (typeof value !== 'string') {
+    return true;
+  } // Non-strings will be JSON.stringified
 
   // Check if it looks like JSON
   const trimmed = value.trim();

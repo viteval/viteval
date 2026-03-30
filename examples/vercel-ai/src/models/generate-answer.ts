@@ -11,11 +11,11 @@ import { questionPrompt } from '#/lib/prompts';
 async function generateAnswer(category: Category, question: string) {
   const { text } = await generateText({
     model: openai('gpt-5'),
+    prompt: questionPrompt(category, question),
     system: `
     You are a helpful assistant that can answer questions and help with tasks.
     You are given a prompt and you need to generate an answer.
     `,
-    prompt: questionPrompt(category, question),
   });
 
   return text;

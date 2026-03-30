@@ -1,4 +1,4 @@
-import { readProjectConfiguration, type Tree } from '@nx/devkit';
+import { type Tree, readProjectConfiguration } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { packageGenerator } from './package';
 import type { PackageGeneratorSchema } from './schema';
@@ -6,8 +6,8 @@ import type { PackageGeneratorSchema } from './schema';
 describe('package generator', () => {
   let tree: Tree;
   const options: PackageGeneratorSchema = {
-    name: 'test',
     description: 'test',
+    name: 'test',
   };
 
   beforeEach(() => {

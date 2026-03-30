@@ -78,6 +78,16 @@ export type DataGenerator<DATA_ITEM extends DataItem = DataItem> =
   () => Promise<DATA_ITEM[]>;
 
 /**
+ * Parameters for the `sampleItems` utility.
+ */
+export interface SampleItemsParams<DATA_ITEM extends DataItem> {
+  /** Function that generates a single dataset item. Receives the current index (0-based). */
+  item: (index: number) => Promise<DATA_ITEM> | DATA_ITEM;
+  /** Number of items to sample. */
+  count: number;
+}
+
+/**
  * A data object, contains the input and expected output and any additional arguments.
  */
 export type Data<DATA_ITEM extends DataItem = DataItem> =
@@ -112,14 +122,14 @@ export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
   data: DATA;
 }
 
-export type DatasetGeneratorConfig = {
+export interface DatasetGeneratorConfig {
   /**
    * Whether to overwrite the dataset if it already exists.
    *
    * @default false
    */
   overwrite?: boolean;
-};
+}
 
 export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
   config?: DatasetGeneratorConfig
@@ -128,14 +138,14 @@ export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
 /**
  * A dataset, contains the name, storage and data generator.
  */
-export type Dataset<
+export interface Dataset<
   DATA_FUNC extends DataGenerator,
   DATA_ITEM extends DataItem = DataItem<
     InferDataInput<DATA_FUNC>,
     InferDataOutput<DATA_FUNC>,
     InferDataExtra<DATA_FUNC>
   >,
-> = {
+> {
   /**
    * The storage type of the dataset.
    */
@@ -172,7 +182,7 @@ export type Dataset<
    * @returns The dataset.
    */
   save(options?: { overwrite?: boolean }): Promise<void>;
-};
+}
 
 /**
  * An evaluation configuration.

@@ -15,7 +15,9 @@ interface ValueRendererProps {
 }
 
 function isJSON(value: unknown): boolean {
-  if (typeof value !== 'string') return true; // Non-strings will be JSON.stringified
+  if (typeof value !== 'string') {
+    return true;
+  } // Non-strings will be JSON.stringified
 
   // Check if it looks like JSON
   const trimmed = value.trim();
@@ -92,7 +94,6 @@ export function ValueRenderer({
 
   if (isJson) {
     return (
-      // biome-ignore lint/a11y/noStaticElementInteractions: allow it
       <div
         className={wrapperClass}
         onMouseEnter={() => setShowCopyButton(true)}
@@ -118,10 +119,10 @@ export function ValueRenderer({
               language="json"
               style={oneDark}
               customStyle={{
-                margin: 0,
                 borderRadius: '0.375rem',
                 fontSize: '0.75rem',
                 lineHeight: '1rem',
+                margin: 0,
                 paddingRight: showCopyButton ? '3rem' : undefined,
               }}
               className={className}
@@ -215,10 +216,10 @@ export function ValueRenderer({
                     language={language}
                     style={oneDark}
                     customStyle={{
-                      margin: 0,
                       borderRadius: '0.375rem',
                       fontSize: '0.75rem',
                       lineHeight: '1rem',
+                      margin: 0,
                       paddingRight: showCopyButton ? '3rem' : undefined,
                     }}
                   >
@@ -236,7 +237,6 @@ export function ValueRenderer({
                 </code>
               );
             },
-            pre: ({ children }) => <>{children}</>,
             p: ({ children }) => (
               <div
                 className="bg-zinc-900 dark:bg-zinc-900 text-zinc-100 p-3 rounded-md font-mono text-xs leading-relaxed whitespace-pre-wrap break-words"
@@ -245,6 +245,7 @@ export function ValueRenderer({
                 {children}
               </div>
             ),
+            pre: ({ children }) => <>{children}</>,
           }}
         >
           {content}

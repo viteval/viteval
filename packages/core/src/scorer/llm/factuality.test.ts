@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,15 +11,16 @@ import { factuality } from './factuality';
 describe('factuality', () => {
   it('should call runJudge with factuality prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'C',
       rationale: 'Answers match',
+      score: 1,
     });
 
-    const result = await factuality({
+    const scorer = factuality();
+    const result = await scorer({
+      expected: '4',
       input: 'What is 2+2?',
       output: '4',
-      expected: '4',
     });
 
     expect(result.score).toBe(1);
@@ -31,9 +32,9 @@ describe('factuality', () => {
         useCoT: true,
       }),
       expect.objectContaining({
+        expected: '4',
         input: 'What is 2+2?',
         output: '4',
-        expected: '4',
       })
     );
   });

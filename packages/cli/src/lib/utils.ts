@@ -32,8 +32,8 @@ export async function loadTSConfig(
 ): Promise<TsConfigJson | null> {
   try {
     const result = await loadConfig({
-      cwd: filePath,
       configFile: 'tsconfig.json',
+      cwd: filePath,
     });
 
     return result.config;
@@ -52,8 +52,8 @@ export async function loadVitevalConfig(
 ): Promise<VitevalConfig | null> {
   try {
     const result = await loadConfig({
-      cwd: filePath,
       configFile: 'viteval.config',
+      cwd: filePath,
     });
 
     return result.config;

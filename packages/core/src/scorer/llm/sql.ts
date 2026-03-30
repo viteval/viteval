@@ -19,7 +19,7 @@ The submitted answer may either be correct or incorrect. Determine which case ap
 "Correct": The submitted SQL and the expert answer are semantically the same, i.e. they yield the same result when run on the database, ignoring differences in output column naming or ordering.
 "Incorrect": The submitted SQL and the expert answer are semantically different, i.e. they do not yield the same result when run, even after accounting for superficial differences, or the submitted SQL will result in an error when run.`;
 
-const CHOICE_SCORES: Record<string, number> = { Correct: 1.0, Incorrect: 0 };
+const CHOICE_SCORES: Record<string, number> = { Correct: 1, Incorrect: 0 };
 
 /**
  * Scores SQL query correctness by comparing a submission to an expert answer.
@@ -31,7 +31,8 @@ const CHOICE_SCORES: Record<string, number> = { Correct: 1.0, Incorrect: 0 };
  * ```ts
  * import { sql } from '@viteval/core';
  *
- * const result = await sql({
+ * const scorer = sql();
+ * const result = await scorer({
  *   input: 'Select all users older than 25',
  *   output: 'SELECT * FROM users WHERE age > 25',
  *   expected: 'SELECT * FROM users WHERE age > 25',
@@ -39,7 +40,7 @@ const CHOICE_SCORES: Record<string, number> = { Correct: 1.0, Incorrect: 0 };
  * ```
  */
 export const sql = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'SQL',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

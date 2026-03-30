@@ -5,30 +5,50 @@ import {
   isPlainObject,
   isString,
 } from '@viteval/internal';
+import type { Extra, Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity, numericSimilarity } from './similarity';
 
 /**
- * Scores based on recursive deep comparison of JSON values.
+ * Options for the JsonDiff scorer.
+ */
+export interface JsonDiffOptions {
+  /**
+   * Minimum similarity threshold. Scores below this value are returned as 0.
+   *
+   * @default 0
+   */
+  threshold?: number;
+}
+
+/**
+ * Create a JSON diff scorer.
+ *
+ * @param options - Optional configuration.
+ * @returns A scorer that recursively compares JSON values.
  *
  * @example
  * ```ts
- * import { scorers } from '@viteval/core';
+ * import { scorers } from 'viteval';
  *
- * const result = await scorers.jsonDiff({
- *   input: 'q',
- *   output: { name: 'Alice' },
- *   expected: { name: 'Alice' },
- * });
- * // result.score === 1
+ * // Default
+ * scorers: [scorers.jsonDiff()]
+ *
+ * // With threshold
+ * scorers: [scorers.jsonDiff({ threshold: 0.9 })]
  * ```
  */
-export const jsonDiff = createScorer({
-  name: 'JsonDiff',
-  score: ({ output, expected }) => ({
-    score: deepCompare(tryParseJson(output), tryParseJson(expected)),
-  }),
-});
+export function jsonDiff(options?: JsonDiffOptions): Scorer<unknown, Extra> {
+  const { threshold = 0 } = options ?? {};
+
+  return createScorer({
+    name: 'JsonDiff',
+    score: ({ output, expected }) => {
+      const score = deepCompare(tryParseJson(output), tryParseJson(expected));
+      return { score: score >= threshold ? score : 0 };
+    },
+  });
+}
 
 /**
  * Attempt to parse a value as JSON if it is a string, otherwise return as-is.
@@ -52,8 +72,12 @@ function tryParseJson(value: unknown): unknown {
  * @private
  */
 function deepCompare(a: unknown, b: unknown): number {
-  if (isNil(a) && isNil(b)) return 1;
-  if (isNil(a) || isNil(b)) return 0;
+  if (isNil(a) && isNil(b)) {
+    return 1;
+  }
+  if (isNil(a) || isNil(b)) {
+    return 0;
+  }
 
   if (isNumber(a) && isNumber(b)) {
     return numericSimilarity(a, b);
@@ -69,7 +93,9 @@ function deepCompare(a: unknown, b: unknown): number {
 
   if (isArray(a) && isArray(b)) {
     const maxLen = Math.max(a.length, b.length);
-    if (maxLen === 0) return 1;
+    if (maxLen === 0) {
+      return 1;
+    }
 
     const minLen = Math.min(a.length, b.length);
     let total = 0;
@@ -84,7 +110,9 @@ function deepCompare(a: unknown, b: unknown): number {
     const keysB = Object.keys(b);
     const allKeys = [...new Set([...keysA, ...keysB])];
 
-    if (allKeys.length === 0) return 1;
+    if (allKeys.length === 0) {
+      return 1;
+    }
 
     let total = 0;
     for (const key of allKeys) {

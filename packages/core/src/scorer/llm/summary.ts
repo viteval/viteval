@@ -28,7 +28,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 0, B: 1 };
  * ```ts
  * import { summary } from '@viteval/core';
  *
- * const result = await summary({
+ * const scorer = summary();
+ * const result = await scorer({
  *   input: 'The full article text...',
  *   output: 'A brief summary of the article.',
  *   expected: 'An expert summary of the article.',
@@ -36,7 +37,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 0, B: 1 };
  * ```
  */
 export const summary = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'Summary',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

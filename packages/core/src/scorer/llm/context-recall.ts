@@ -19,7 +19,7 @@ Evaluate whether the context contains enough information to support the expected
 (B) The context partially supports the expected answer - some claims can be attributed to the context.
 (C) The context does not support the expected answer - few or no claims can be attributed to the context.`;
 
-const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
+const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
 
 /**
  * Scores whether a retrieved context contains enough information to support the expected answer.
@@ -30,7 +30,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```ts
  * import { contextRecall } from '@viteval/core';
  *
- * const result = await contextRecall({
+ * const scorer = contextRecall();
+ * const result = await scorer({
  *   input: 'What year was Python created?',
  *   output: 'Python was first released in 1991 by Guido van Rossum.',
  *   expected: '1991',
@@ -38,7 +39,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```
  */
 export const contextRecall = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'ContextRecall',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

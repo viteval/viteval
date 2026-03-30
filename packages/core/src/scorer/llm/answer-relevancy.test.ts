@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,12 +11,13 @@ import { answerRelevancy } from './answer-relevancy';
 describe('answerRelevancy', () => {
   it('should call runJudge with relevancy prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'A',
       rationale: 'Highly relevant',
+      score: 1,
     });
 
-    const result = await answerRelevancy({
+    const scorer = answerRelevancy();
+    const result = await scorer({
       input: 'What is 2+2?',
       output: '4',
     });
@@ -26,7 +27,7 @@ describe('answerRelevancy', () => {
     expect(result.metadata?.rationale).toBe('Highly relevant');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { A: 1.0, B: 0.5, C: 0 },
+        choiceScores: { A: 1, B: 0.5, C: 0 },
         useCoT: true,
       }),
       expect.objectContaining({
