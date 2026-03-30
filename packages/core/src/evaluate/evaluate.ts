@@ -222,7 +222,9 @@ async function persistEvalRun(
     timeout?: number;
   }
 ): Promise<void> {
-  if (results.length === 0) {return;}
+  if (results.length === 0) {
+    return;
+  }
 
   const runResult = await evalProvider.create({
     config,

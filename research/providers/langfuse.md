@@ -17,35 +17,35 @@ Open-source LLM observability and eval platform. Tracing, datasets, experiments,
 
 ## Concepts
 
-| Viteval Concept | Langfuse Equivalent        | Notes                                              |
-| --------------- | -------------------------- | -------------------------------------------------- |
-| Dataset         | Dataset                    | Named, versioned, with optional JSON Schema.       |
-| DatasetItem     | Dataset Item               | `input`, `expectedOutput`, `metadata`.             |
-| EvalRun         | Dataset Run                | Implicit — created when first item is linked.      |
-| EvalResult      | Trace + Dataset Run Item   | Result = trace linked to run item. Not a flat record. |
-| Score           | Score                      | Separate entity. `NUMERIC`, `CATEGORICAL`, `BOOLEAN`. |
+| Viteval Concept | Langfuse Equivalent      | Notes                                                 |
+| --------------- | ------------------------ | ----------------------------------------------------- |
+| Dataset         | Dataset                  | Named, versioned, with optional JSON Schema.          |
+| DatasetItem     | Dataset Item             | `input`, `expectedOutput`, `metadata`.                |
+| EvalRun         | Dataset Run              | Implicit — created when first item is linked.         |
+| EvalResult      | Trace + Dataset Run Item | Result = trace linked to run item. Not a flat record. |
+| Score           | Score                    | Separate entity. `NUMERIC`, `CATEGORICAL`, `BOOLEAN`. |
 
 ## DatasetProvider Mapping
 
-| Method       | Endpoint / SDK Method                  | Supported | Notes                                            |
-| ------------ | -------------------------------------- | --------- | ------------------------------------------------ |
-| `create()`   | `POST /api/public/v2/datasets`         | Yes       | Name-idempotent (upsert by name).                |
-| `get()`      | `GET /api/public/v2/datasets/{name}`   | Yes       | By name only, not by ID.                         |
-| `list()`     | `GET /api/public/v2/datasets`          | Yes       | Page-based pagination, not offset.               |
-| `update()`   | N/A                                    | No        | No dedicated update endpoint. Upsert creates new. |
-| `delete()`   | N/A                                    | No        | No delete endpoint in public API.                |
-| `getItems()` | `GET /api/public/dataset-items`        | Yes       | Filter by `datasetName`, page-based.             |
-| `addItems()` | `POST /api/public/dataset-items`       | Yes       | One at a time. Upsert via `id`.                  |
+| Method       | Endpoint / SDK Method                | Supported | Notes                                             |
+| ------------ | ------------------------------------ | --------- | ------------------------------------------------- |
+| `create()`   | `POST /api/public/v2/datasets`       | Yes       | Name-idempotent (upsert by name).                 |
+| `get()`      | `GET /api/public/v2/datasets/{name}` | Yes       | By name only, not by ID.                          |
+| `list()`     | `GET /api/public/v2/datasets`        | Yes       | Page-based pagination, not offset.                |
+| `update()`   | N/A                                  | No        | No dedicated update endpoint. Upsert creates new. |
+| `delete()`   | N/A                                  | No        | No delete endpoint in public API.                 |
+| `getItems()` | `GET /api/public/dataset-items`      | Yes       | Filter by `datasetName`, page-based.              |
+| `addItems()` | `POST /api/public/dataset-items`     | Yes       | One at a time. Upsert via `id`.                   |
 
 ## EvalProvider Mapping
 
-| Method        | Endpoint / SDK Method                                          | Supported | Notes                                                            |
-| ------------- | -------------------------------------------------------------- | --------- | ---------------------------------------------------------------- |
-| `create()`    | N/A                                                            | No        | Runs are implicit — created when first item is linked.           |
-| `get()`       | `GET /api/public/datasets/{name}/runs/{runName}`               | Yes       | Keyed by `(datasetName, runName)` string pair, not UUID.         |
-| `list()`      | `GET /api/public/datasets/{name}/runs`                         | Partial   | Only filter by dataset. No status/tags/cross-dataset listing.    |
-| `addResult()` | `POST /dataset-run-items` + `POST /scores`                    | Yes*      | Two-step: link trace to run item, then attach scores separately. |
-| `complete()`  | N/A                                                            | No        | No run lifecycle. Runs are implicit groupings.                   |
+| Method        | Endpoint / SDK Method                            | Supported | Notes                                                            |
+| ------------- | ------------------------------------------------ | --------- | ---------------------------------------------------------------- |
+| `create()`    | N/A                                              | No        | Runs are implicit — created when first item is linked.           |
+| `get()`       | `GET /api/public/datasets/{name}/runs/{runName}` | Yes       | Keyed by `(datasetName, runName)` string pair, not UUID.         |
+| `list()`      | `GET /api/public/datasets/{name}/runs`           | Partial   | Only filter by dataset. No status/tags/cross-dataset listing.    |
+| `addResult()` | `POST /dataset-run-items` + `POST /scores`       | Yes\*     | Two-step: link trace to run item, then attach scores separately. |
+| `complete()`  | N/A                                              | No        | No run lifecycle. Runs are implicit groupings.                   |
 
 ## Gaps
 

@@ -17,35 +17,35 @@ TypeScript AI agent framework with built-in eval and observability. VoltOps plat
 
 ## Concepts
 
-| Viteval Concept | VoltAgent Equivalent | Notes                                           |
-| --------------- | -------------------- | ----------------------------------------------- |
-| Dataset         | Dataset              | Versioned, immutable snapshots.                 |
-| DatasetItem     | Dataset Item         | `input`, `expected`, `extra`.                   |
-| EvalRun         | Experiment + Run     | Two-layer: Experiment (config) → Run (exec).    |
-| EvalResult      | Eval Result          | `input`, `output`, `scores`, `status`.          |
-| Score           | Score Payload        | Per-result score array.                         |
+| Viteval Concept | VoltAgent Equivalent | Notes                                        |
+| --------------- | -------------------- | -------------------------------------------- |
+| Dataset         | Dataset              | Versioned, immutable snapshots.              |
+| DatasetItem     | Dataset Item         | `input`, `expected`, `extra`.                |
+| EvalRun         | Experiment + Run     | Two-layer: Experiment (config) → Run (exec). |
+| EvalResult      | Eval Result          | `input`, `output`, `scores`, `status`.       |
+| Score           | Score Payload        | Per-result score array.                      |
 
 ## DatasetProvider Mapping
 
-| Method       | Endpoint / SDK Method                              | Supported | Notes                                           |
-| ------------ | -------------------------------------------------- | --------- | ----------------------------------------------- |
-| `create()`   | CLI only (`voltagent eval dataset push`)            | No        | No SDK method for programmatic creation.        |
-| `get()`      | `GET /evals/datasets/{id}`                          | Yes       | Returns dataset + version list.                 |
-| `list()`     | `GET /evals/datasets?name=`                         | Yes       | Name filter. No pagination params documented.   |
-| `update()`   | N/A                                                 | No        | Immutable versions. No mutation.                |
-| `delete()`   | N/A                                                 | No        | Not exposed.                                    |
-| `getItems()` | `GET /evals/datasets/{id}/versions/{vId}/items`     | Yes       | Paginated (page-size up to 1000).               |
-| `addItems()` | CLI only (new version push)                         | No        | Appending items = pushing a new full version.   |
+| Method       | Endpoint / SDK Method                           | Supported | Notes                                         |
+| ------------ | ----------------------------------------------- | --------- | --------------------------------------------- |
+| `create()`   | CLI only (`voltagent eval dataset push`)        | No        | No SDK method for programmatic creation.      |
+| `get()`      | `GET /evals/datasets/{id}`                      | Yes       | Returns dataset + version list.               |
+| `list()`     | `GET /evals/datasets?name=`                     | Yes       | Name filter. No pagination params documented. |
+| `update()`   | N/A                                             | No        | Immutable versions. No mutation.              |
+| `delete()`   | N/A                                             | No        | Not exposed.                                  |
+| `getItems()` | `GET /evals/datasets/{id}/versions/{vId}/items` | Yes       | Paginated (page-size up to 1000).             |
+| `addItems()` | CLI only (new version push)                     | No        | Appending items = pushing a new full version. |
 
 ## EvalProvider Mapping
 
-| Method        | Endpoint / SDK Method                          | Supported | Notes                                                     |
-| ------------- | ---------------------------------------------- | --------- | --------------------------------------------------------- |
-| `create()`    | `POST /evals/experiments` + `POST /evals/runs` | Yes       | Two-step: resolve/create Experiment, then create Run.     |
-| `get()`       | N/A                                             | No        | No `GET /evals/runs/{id}` in SDK. State returned inline. |
-| `list()`      | N/A                                             | No        | No list-runs endpoint. Experiments have `lastRunId`.      |
-| `addResult()` | `POST /evals/runs/{id}/results`                 | Yes       | Batch results. Rich payload with scores, status, traces.  |
-| `complete()`  | `POST /evals/runs/{id}/complete`                | Yes       | `status: "succeeded" \| "failed" \| "cancelled"`, summary. |
+| Method        | Endpoint / SDK Method                          | Supported | Notes                                                      |
+| ------------- | ---------------------------------------------- | --------- | ---------------------------------------------------------- |
+| `create()`    | `POST /evals/experiments` + `POST /evals/runs` | Yes       | Two-step: resolve/create Experiment, then create Run.      |
+| `get()`       | N/A                                            | No        | No `GET /evals/runs/{id}` in SDK. State returned inline.   |
+| `list()`      | N/A                                            | No        | No list-runs endpoint. Experiments have `lastRunId`.       |
+| `addResult()` | `POST /evals/runs/{id}/results`                | Yes       | Batch results. Rich payload with scores, status, traces.   |
+| `complete()`  | `POST /evals/runs/{id}/complete`               | Yes       | `status: "succeeded" \| "failed" \| "cancelled"`, summary. |
 
 ## Gaps
 

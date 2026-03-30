@@ -35,18 +35,10 @@
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.10.1",
     "@viteval/core": "workspace:^",
-    "@viteval/internal": "workspace:^",
-    "@paralleldrive/cuid2": "^2.2.2"
-  },
-  "peerDependencies": {
-    "@braintrust/api": ">=0.5.0"
-  },
-  "peerDependenciesMeta": {
-    "@braintrust/api": {
-      "optional": true
-    }
+    "@viteval/internal": "workspace:^"
   },
   "devDependencies": {
     "@braintrust/api": "^0.5.0",
@@ -57,5 +49,13 @@
     "type-fest": "^5.5.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
+  },
+  "peerDependencies": {
+    "@braintrust/api": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@braintrust/api": {
+      "optional": true
+    }
   }
 }

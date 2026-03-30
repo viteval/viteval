@@ -17,14 +17,14 @@ See [`packages/core/src/provider/types.ts`](../../packages/core/src/provider/typ
 
 Fully researched with API mapping analysis.
 
-| Provider                          | Datasets | Evals | Priority | Status   |
-| --------------------------------- | -------- | ----- | -------- | -------- |
-| [Braintrust](./braintrust.md)     | Yes      | Yes   | High     | Complete |
-| [Langfuse](./langfuse.md)         | Yes      | Yes*  | High     | Complete |
-| [LangSmith](./langsmith.md)       | Yes      | Yes   | High     | Complete |
-| [Humanloop](./humanloop.md)       | Yes      | Yes*  | Medium   | Complete |
-| [VoltAgent](./voltagent.md)       | Read-only| Yes   | Medium   | Complete |
-| [Mastra](./mastra.md)             | Yes*     | Yes*  | Low      | Complete |
+| Provider                      | Datasets  | Evals | Priority | Status   |
+| ----------------------------- | --------- | ----- | -------- | -------- |
+| [Braintrust](./braintrust.md) | Yes       | Yes   | High     | Complete |
+| [Langfuse](./langfuse.md)     | Yes       | Yes\* | High     | Complete |
+| [LangSmith](./langsmith.md)   | Yes       | Yes   | High     | Complete |
+| [Humanloop](./humanloop.md)   | Yes       | Yes\* | Medium   | Complete |
+| [VoltAgent](./voltagent.md)   | Read-only | Yes   | Medium   | Complete |
+| [Mastra](./mastra.md)         | Yes\*     | Yes\* | Low      | Complete |
 
 \* = Significant architectural mismatch. See individual docs.
 
@@ -32,16 +32,16 @@ Fully researched with API mapping analysis.
 
 Platforms with TypeScript SDKs that support datasets + eval runs. Need full API mapping.
 
-| Provider    | npm Package         | Docs                                                                  | Notes                                    |
-| ----------- | ------------------- | --------------------------------------------------------------------- | ---------------------------------------- |
-| Opik        | `opik`              | [Docs](https://www.comet.com/docs/opik/integrations/typescript-sdk)   | By Comet. Open-source, self-hostable.    |
-| Literal AI  | (beta)              | [Docs](https://docs.literalai.com/guides/dataset)                     | Datasets + eval runs, GraphQL API.       |
-| Patronus AI | `patronus-api`      | [Docs](https://docs.patronus.ai/docs/sdks-and-toolkits)              | Enterprise, OTel support.                |
-| Galileo AI  | (generated TS SDK)  | [GitHub](https://github.com/rungalileo/galileo-ts-generated)          | 20+ prebuilt evaluators, sub-200ms eval. |
-| Laminar     | `@lmnr-ai/lmnr`    | [Docs](https://docs.lmnr.ai/evaluations/using-dataset)               | Open-source, YC S24, CLI eval runner.    |
-| HoneyHive   | (TS SDK)            | [Docs](https://docs.honeyhive.ai/sdk-reference/typescript-experiments-ref) | Managed datasets, CI/CD integration. |
-| Promptfoo   | `promptfoo`         | [Docs](https://www.promptfoo.dev/docs/)                               | CLI tool, MIT, acquired by OpenAI.       |
-| PromptLayer | `promptlayer`       | [Docs](https://docs.promptlayer.com/languages/javascript)             | Eval pipelines, 20+ column types.        |
+| Provider    | npm Package        | Docs                                                                       | Notes                                    |
+| ----------- | ------------------ | -------------------------------------------------------------------------- | ---------------------------------------- |
+| Opik        | `opik`             | [Docs](https://www.comet.com/docs/opik/integrations/typescript-sdk)        | By Comet. Open-source, self-hostable.    |
+| Literal AI  | (beta)             | [Docs](https://docs.literalai.com/guides/dataset)                          | Datasets + eval runs, GraphQL API.       |
+| Patronus AI | `patronus-api`     | [Docs](https://docs.patronus.ai/docs/sdks-and-toolkits)                    | Enterprise, OTel support.                |
+| Galileo AI  | (generated TS SDK) | [GitHub](https://github.com/rungalileo/galileo-ts-generated)               | 20+ prebuilt evaluators, sub-200ms eval. |
+| Laminar     | `@lmnr-ai/lmnr`    | [Docs](https://docs.lmnr.ai/evaluations/using-dataset)                     | Open-source, YC S24, CLI eval runner.    |
+| HoneyHive   | (TS SDK)           | [Docs](https://docs.honeyhive.ai/sdk-reference/typescript-experiments-ref) | Managed datasets, CI/CD integration.     |
+| Promptfoo   | `promptfoo`        | [Docs](https://www.promptfoo.dev/docs/)                                    | CLI tool, MIT, acquired by OpenAI.       |
+| PromptLayer | `promptlayer`      | [Docs](https://docs.promptlayer.com/languages/javascript)                  | Eval pipelines, 20+ column types.        |
 
 ## Common Patterns Across Providers
 

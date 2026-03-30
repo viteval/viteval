@@ -27,25 +27,25 @@
 
 ## DatasetProvider Mapping
 
-| Method             | Endpoint / SDK Method | Supported | Notes |
-| ------------------ | --------------------- | --------- | ----- |
-| `create()`         |                       |           |       |
-| `get()`            |                       |           |       |
-| `list()`           |                       |           |       |
-| `update()`         |                       |           |       |
-| `delete()`         |                       |           |       |
-| `getItems()`       |                       |           |       |
-| `addItems()`       |                       |           |       |
+| Method       | Endpoint / SDK Method | Supported | Notes |
+| ------------ | --------------------- | --------- | ----- |
+| `create()`   |                       |           |       |
+| `get()`      |                       |           |       |
+| `list()`     |                       |           |       |
+| `update()`   |                       |           |       |
+| `delete()`   |                       |           |       |
+| `getItems()` |                       |           |       |
+| `addItems()` |                       |           |       |
 
 ## EvalProvider Mapping
 
-| Method             | Endpoint / SDK Method | Supported | Notes |
-| ------------------ | --------------------- | --------- | ----- |
-| `create()`         |                       |           |       |
-| `get()`            |                       |           |       |
-| `list()`           |                       |           |       |
-| `addResult()`      |                       |           |       |
-| `complete()`       |                       |           |       |
+| Method        | Endpoint / SDK Method | Supported | Notes |
+| ------------- | --------------------- | --------- | ----- |
+| `create()`    |                       |           |       |
+| `get()`       |                       |           |       |
+| `list()`      |                       |           |       |
+| `addResult()` |                       |           |       |
+| `complete()`  |                       |           |       |
 
 ## Gaps
 

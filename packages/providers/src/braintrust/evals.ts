@@ -46,9 +46,11 @@ export function createBraintrustEvalOps(
 
     addResults: (paramsList) =>
       withResult(async () => {
-        if (paramsList.length === 0) {return [];}
+        if (paramsList.length === 0) {
+          return [];
+        }
 
-        const {evalRunId} = paramsList[0]!;
+        const { evalRunId } = paramsList[0]!;
         if (paramsList.some((p) => p.evalRunId !== evalRunId)) {
           throw new Error('All results must belong to the same eval run');
         }
@@ -131,20 +133,26 @@ export function createBraintrustEvalOps(
           project_id: getProjectId(),
         });
 
-        const experiments: (Braintrust.Experiment)[] = [];
+        const experiments: Braintrust.Experiment[] = [];
         let skipped = 0;
         for await (const e of page) {
           // Apply local filters that Braintrust doesn't support server-side
-          if (params?.datasetId && e.dataset_id !== params.datasetId) {continue;}
+          if (params?.datasetId && e.dataset_id !== params.datasetId) {
+            continue;
+          }
           if (params?.status) {
             const meta = e.metadata ?? {};
             const status = (meta._viteval_status as string) ?? 'running';
-            if (status !== params.status) {continue;}
+            if (status !== params.status) {
+              continue;
+            }
           }
           if (params?.tags?.length) {
             const meta = e.metadata ?? {};
             const tags = (meta._viteval_tags as string[]) ?? [];
-            if (!params.tags.some((t) => tags.includes(t))) {continue;}
+            if (!params.tags.some((t) => tags.includes(t))) {
+              continue;
+            }
           }
 
           if (params?.offset && skipped < params.offset) {
@@ -152,7 +160,9 @@ export function createBraintrustEvalOps(
             continue;
           }
           experiments.push(e);
-          if (params?.limit && experiments.length >= params.limit) {break;}
+          if (params?.limit && experiments.length >= params.limit) {
+            break;
+          }
         }
 
         return experiments.map((e) => mapExperiment(e));
@@ -186,9 +196,7 @@ function mapResultToEvent(
         }
       : undefined,
     output: params.output,
-    scores: Object.fromEntries(
-      params.scores.map((s) => [s.name, s.score])
-    ),
+    scores: Object.fromEntries(params.scores.map((s) => [s.name, s.score])),
   };
 }
 
@@ -235,9 +243,7 @@ function mapExperimentEvent(
   const scores = event.scores ?? {};
 
   return {
-    duration: event.metrics?.end
-      ? event.metrics.end * 1000
-      : undefined,
+    duration: event.metrics?.end ? event.metrics.end * 1000 : undefined,
     evalRunId,
     expected: event.expected,
     id: event.id,
@@ -250,7 +256,10 @@ function mapExperimentEvent(
     output: event.output,
     passed: (metadata._viteval_passed as boolean) ?? false,
     scores: Object.entries(scores)
-      .filter((entry): entry is [string, number] => entry[1] !== null && entry[1] !== undefined)
+      .filter(
+        (entry): entry is [string, number] =>
+          entry[1] !== null && entry[1] !== undefined
+      )
       .map(([name, score]) => ({
         name,
         score,

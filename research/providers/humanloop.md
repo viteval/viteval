@@ -17,35 +17,35 @@ Prompt management and evaluation platform. Versioned datasets, evaluations scope
 
 ## Concepts
 
-| Viteval Concept | Humanloop Equivalent | Notes                                                   |
-| --------------- | -------------------- | ------------------------------------------------------- |
-| Dataset         | Dataset              | Versioned, immutable versions. Path-addressable.        |
+| Viteval Concept | Humanloop Equivalent | Notes                                                    |
+| --------------- | -------------------- | -------------------------------------------------------- |
+| Dataset         | Dataset              | Versioned, immutable versions. Path-addressable.         |
 | DatasetItem     | Datapoint            | `inputs` (dict), `messages` (chat), `target` (expected). |
-| EvalRun         | Evaluation + Run     | Two-layer: Evaluation (container) → Run (execution).    |
-| EvalResult      | Log                  | Output record. Scores computed async by Evaluators.     |
-| Score           | Evaluator Judgment   | Async, computed by platform. Cannot push pre-computed.  |
+| EvalRun         | Evaluation + Run     | Two-layer: Evaluation (container) → Run (execution).     |
+| EvalResult      | Log                  | Output record. Scores computed async by Evaluators.      |
+| Score           | Evaluator Judgment   | Async, computed by platform. Cannot push pre-computed.   |
 
 ## DatasetProvider Mapping
 
-| Method       | Endpoint / SDK Method                     | Supported | Notes                                            |
-| ------------ | ----------------------------------------- | --------- | ------------------------------------------------ |
-| `create()`   | `POST /v5/datasets` (upsert)              | Yes       | `path` as identifier. `action: "set"` for items. |
-| `get()`      | `GET /v5/datasets/{id}`                   | Yes       | Supports `version_id`, `environment` params.     |
-| `list()`     | `GET /v5/datasets`                        | Yes       | Page-based. Name filter, sort.                   |
-| `update()`   | `POST /v5/datasets` (upsert same path)    | Partial   | No PATCH — upsert creates new version.           |
-| `delete()`   | `DELETE /v5/datasets/{id}`                | Yes       | Supported.                                       |
-| `getItems()` | `GET /v5/datasets/{id}/datapoints`        | Yes       | Page-based. Version/environment filter.          |
-| `addItems()` | `POST /v5/datasets` (upsert `action: "add"`) | Yes    | Append items to existing dataset.                |
+| Method       | Endpoint / SDK Method                        | Supported | Notes                                            |
+| ------------ | -------------------------------------------- | --------- | ------------------------------------------------ |
+| `create()`   | `POST /v5/datasets` (upsert)                 | Yes       | `path` as identifier. `action: "set"` for items. |
+| `get()`      | `GET /v5/datasets/{id}`                      | Yes       | Supports `version_id`, `environment` params.     |
+| `list()`     | `GET /v5/datasets`                           | Yes       | Page-based. Name filter, sort.                   |
+| `update()`   | `POST /v5/datasets` (upsert same path)       | Partial   | No PATCH — upsert creates new version.           |
+| `delete()`   | `DELETE /v5/datasets/{id}`                   | Yes       | Supported.                                       |
+| `getItems()` | `GET /v5/datasets/{id}/datapoints`           | Yes       | Page-based. Version/environment filter.          |
+| `addItems()` | `POST /v5/datasets` (upsert `action: "add"`) | Yes       | Append items to existing dataset.                |
 
 ## EvalProvider Mapping
 
-| Method        | Endpoint / SDK Method                              | Supported | Notes                                                          |
-| ------------- | -------------------------------------------------- | --------- | -------------------------------------------------------------- |
-| `create()`    | `POST /v5/evaluations` + `POST .../runs`           | Yes       | Two-step. Evaluation requires a File (Prompt/Flow) reference.  |
-| `get()`       | `GET /v5/evaluations/{id}` + `.../stats`           | Partial   | No single endpoint with results. Stats are separate.           |
-| `list()`      | `GET /v5/evaluations?file_id=`                     | Partial   | Filter by `file_id` only. No datasetId/status/tags filter.    |
-| `addResult()` | `POST /v5/prompts/log`                             | Yes*      | Scores are NOT pushable. Humanloop computes them via Evaluators. |
-| `complete()`  | `PATCH /v5/evaluations/{id}/runs/{run_id}`         | Yes       | `status: "completed"` or `"cancelled"`. No `"failed"`.        |
+| Method        | Endpoint / SDK Method                      | Supported | Notes                                                            |
+| ------------- | ------------------------------------------ | --------- | ---------------------------------------------------------------- |
+| `create()`    | `POST /v5/evaluations` + `POST .../runs`   | Yes       | Two-step. Evaluation requires a File (Prompt/Flow) reference.    |
+| `get()`       | `GET /v5/evaluations/{id}` + `.../stats`   | Partial   | No single endpoint with results. Stats are separate.             |
+| `list()`      | `GET /v5/evaluations?file_id=`             | Partial   | Filter by `file_id` only. No datasetId/status/tags filter.       |
+| `addResult()` | `POST /v5/prompts/log`                     | Yes\*     | Scores are NOT pushable. Humanloop computes them via Evaluators. |
+| `complete()`  | `PATCH /v5/evaluations/{id}/runs/{run_id}` | Yes       | `status: "completed"` or `"cancelled"`. No `"failed"`.           |
 
 ## Gaps
 

@@ -117,11 +117,17 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
           where: { id: params.id },
         });
 
-        if (!run) {return null;}
+        if (!run) {
+          return null;
+        }
 
         const mapped = mapEvalRun(run);
 
-        if (params.includeResults && 'results' in run && Array.isArray(run.results)) {
+        if (
+          params.includeResults &&
+          'results' in run &&
+          Array.isArray(run.results)
+        ) {
           mapped.results = run.results.map(mapEvalResult);
         }
 
@@ -160,20 +166,18 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
 |------------------
 */
 
-function mapEvalRun(
-  row: {
-    id: string;
-    name: string;
-    datasetId: string | null;
-    status: string;
-    config: string;
-    summary: string | null;
-    tags: string;
-    metadata: string;
-    startedAt: Date;
-    completedAt: Date | null;
-  }
-): StoredEvalRun {
+function mapEvalRun(row: {
+  id: string;
+  name: string;
+  datasetId: string | null;
+  status: string;
+  config: string;
+  summary: string | null;
+  tags: string;
+  metadata: string;
+  startedAt: Date;
+  completedAt: Date | null;
+}): StoredEvalRun {
   return {
     completedAt: row.completedAt ?? undefined,
     config: JSON.parse(row.config),
@@ -188,22 +192,20 @@ function mapEvalRun(
   };
 }
 
-function mapEvalResult(
-  row: {
-    id: string;
-    evalRunId: string;
-    input: string;
-    expected: string;
-    output: string;
-    scores: string;
-    meanScore: number;
-    medianScore: number;
-    sumScore: number;
-    passed: boolean;
-    duration: number | null;
-    metadata: string;
-  }
-): StoredEvalResult {
+function mapEvalResult(row: {
+  id: string;
+  evalRunId: string;
+  input: string;
+  expected: string;
+  output: string;
+  scores: string;
+  meanScore: number;
+  medianScore: number;
+  sumScore: number;
+  passed: boolean;
+  duration: number | null;
+  metadata: string;
+}): StoredEvalResult {
   return {
     duration: row.duration ?? undefined,
     evalRunId: row.evalRunId,

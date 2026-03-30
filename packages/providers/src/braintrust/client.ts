@@ -16,7 +16,9 @@ export function createBraintrustClient(
   let client: Braintrust | undefined;
 
   return async () => {
-    if (client) {return client;}
+    if (client) {
+      return client;
+    }
 
     let BraintrustClient: new (
       opts: ConstructorParameters<typeof Braintrust>[0]

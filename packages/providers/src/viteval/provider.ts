@@ -90,7 +90,9 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
 
         // Ensure the .viteval directory exists for SQLite
         if (!isPostgres) {
-          await mkdir(path.dirname(resolveSqlitePath(options)), { recursive: true });
+          await mkdir(path.dirname(resolveSqlitePath(options)), {
+            recursive: true,
+          });
         }
 
         await ensureSchema(prisma, isPostgres);
@@ -106,10 +108,15 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
 |------------------
 */
 
-async function ensureSchema(prisma: PrismaClient, isPostgres: boolean): Promise<void> {
+async function ensureSchema(
+  prisma: PrismaClient,
+  isPostgres: boolean
+): Promise<void> {
   // Create tables if they don't exist using raw SQL.
   // This avoids requiring prisma migrate in production.
-  const timestamp = isPostgres ? 'TIMESTAMP NOT NULL DEFAULT NOW()' : 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
+  const timestamp = isPostgres
+    ? 'TIMESTAMP NOT NULL DEFAULT NOW()'
+    : 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
   const timestampNullable = isPostgres ? 'TIMESTAMP' : 'DATETIME';
   const real = isPostgres ? 'DOUBLE PRECISION' : 'REAL';
 

@@ -17,35 +17,35 @@ LangChain's eval, testing, and observability platform. Full CRUD on datasets wit
 
 ## Concepts
 
-| Viteval Concept | LangSmith Equivalent | Notes                                              |
-| --------------- | -------------------- | -------------------------------------------------- |
-| Dataset         | Dataset              | Versioned, with splits. Full CRUD.                 |
-| DatasetItem     | Example              | `inputs` (dict), `outputs` (expected), `metadata`. |
-| EvalRun         | Session / Project    | Experiments are sessions. No status lifecycle.     |
-| EvalResult      | Run                  | Execution trace linked to an Example.              |
+| Viteval Concept | LangSmith Equivalent | Notes                                                |
+| --------------- | -------------------- | ---------------------------------------------------- |
+| Dataset         | Dataset              | Versioned, with splits. Full CRUD.                   |
+| DatasetItem     | Example              | `inputs` (dict), `outputs` (expected), `metadata`.   |
+| EvalRun         | Session / Project    | Experiments are sessions. No status lifecycle.       |
+| EvalResult      | Run                  | Execution trace linked to an Example.                |
 | Score           | Feedback             | Separate entity. `key`, `score`, `value`, `comment`. |
 
 ## DatasetProvider Mapping
 
-| Method       | Endpoint / SDK Method                        | Supported | Notes                                    |
-| ------------ | -------------------------------------------- | --------- | ---------------------------------------- |
-| `create()`   | `POST /api/v1/datasets` + bulk examples      | Yes       | Two-step. Description + metadata.        |
-| `get()`      | `GET /api/v1/datasets/{id}` or by name       | Yes       | Both ID and name lookup supported.       |
-| `list()`     | `GET /api/v1/datasets`                       | Yes       | Pagination, name/type filters.           |
-| `update()`   | `PATCH /api/v1/datasets/{id}`                | Yes       | Name, description updatable.             |
-| `delete()`   | `DELETE /api/v1/datasets/{id}`               | Yes       | Supported.                               |
-| `getItems()` | `GET /api/v1/examples?dataset_id=`           | Yes       | Pagination, metadata/split filters.      |
-| `addItems()` | `POST /api/v1/examples/bulk`                 | Yes       | Bulk creation supported natively.        |
+| Method       | Endpoint / SDK Method                   | Supported | Notes                               |
+| ------------ | --------------------------------------- | --------- | ----------------------------------- |
+| `create()`   | `POST /api/v1/datasets` + bulk examples | Yes       | Two-step. Description + metadata.   |
+| `get()`      | `GET /api/v1/datasets/{id}` or by name  | Yes       | Both ID and name lookup supported.  |
+| `list()`     | `GET /api/v1/datasets`                  | Yes       | Pagination, name/type filters.      |
+| `update()`   | `PATCH /api/v1/datasets/{id}`           | Yes       | Name, description updatable.        |
+| `delete()`   | `DELETE /api/v1/datasets/{id}`          | Yes       | Supported.                          |
+| `getItems()` | `GET /api/v1/examples?dataset_id=`      | Yes       | Pagination, metadata/split filters. |
+| `addItems()` | `POST /api/v1/examples/bulk`            | Yes       | Bulk creation supported natively.   |
 
 ## EvalProvider Mapping
 
-| Method        | Endpoint / SDK Method                       | Supported | Notes                                                 |
-| ------------- | ------------------------------------------- | --------- | ----------------------------------------------------- |
-| `create()`    | `POST /api/v1/sessions`                     | Yes       | Name, tags, metadata. No explicit status field.       |
-| `get()`       | `GET /api/v1/sessions/{id}?include_stats`   | Yes       | Stats include latency, cost, feedback aggregates.     |
-| `list()`      | `GET /api/v1/sessions`                      | Partial   | Filter by name/metadata. No `datasetId` filter.       |
-| `addResult()` | `createRun()` + `createFeedback()` per score | Yes*      | Two+ API calls. Run linked via `reference_example_id`. |
-| `complete()`  | `PATCH /api/v1/sessions/{id}`               | Partial   | Can update metadata but no status field.              |
+| Method        | Endpoint / SDK Method                        | Supported | Notes                                                  |
+| ------------- | -------------------------------------------- | --------- | ------------------------------------------------------ |
+| `create()`    | `POST /api/v1/sessions`                      | Yes       | Name, tags, metadata. No explicit status field.        |
+| `get()`       | `GET /api/v1/sessions/{id}?include_stats`    | Yes       | Stats include latency, cost, feedback aggregates.      |
+| `list()`      | `GET /api/v1/sessions`                       | Partial   | Filter by name/metadata. No `datasetId` filter.        |
+| `addResult()` | `createRun()` + `createFeedback()` per score | Yes\*     | Two+ API calls. Run linked via `reference_example_id`. |
+| `complete()`  | `PATCH /api/v1/sessions/{id}`                | Partial   | Can update metadata but no status field.               |
 
 ## Gaps
 

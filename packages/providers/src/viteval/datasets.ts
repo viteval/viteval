@@ -79,11 +79,13 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       withResult(async () => {
         const where = params.id
           ? { id: params.id }
-          : (params.name
+          : params.name
             ? { name: params.name }
-            : undefined);
+            : undefined;
 
-        if (!where) {return null;}
+        if (!where) {
+          return null;
+        }
 
         const dataset = await prisma.dataset.findUnique({
           include: { _count: { select: { items: true } } },
@@ -142,18 +144,16 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
 |------------------
 */
 
-function mapDataset(
-  row: {
-    id: string;
-    name: string;
-    description: string | null;
-    version: number;
-    metadata: string;
-    createdAt: Date;
-    updatedAt: Date;
-    _count: { items: number };
-  }
-): StoredDataset {
+function mapDataset(row: {
+  id: string;
+  name: string;
+  description: string | null;
+  version: number;
+  metadata: string;
+  createdAt: Date;
+  updatedAt: Date;
+  _count: { items: number };
+}): StoredDataset {
   return {
     createdAt: row.createdAt,
     description: row.description ?? undefined,
@@ -166,16 +166,14 @@ function mapDataset(
   };
 }
 
-function mapDatasetItem(
-  row: {
-    id: string;
-    datasetId: string;
-    input: string;
-    expected: string;
-    extra: string;
-    ordinal: number;
-  }
-): StoredDataItem {
+function mapDatasetItem(row: {
+  id: string;
+  datasetId: string;
+  input: string;
+  expected: string;
+  extra: string;
+  ordinal: number;
+}): StoredDataItem {
   return {
     datasetId: row.datasetId,
     expected: JSON.parse(row.expected) as unknown,

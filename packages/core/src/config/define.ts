@@ -38,7 +38,10 @@ export function defineConfig({
       // eslint-disable-next-line no-explicit-any -- Vitest 4.x changed server types
       server: server as any,
       provide: {
-        config: { ...config, eval: evalConfig, model, provider } as Record<string, unknown>,
+        config: { ...config, eval: evalConfig, model, provider } as Record<
+          string,
+          unknown
+        >,
       },
       environment: 'node',
       // We default to a very long timeout for evals since they can be slow

@@ -13,7 +13,9 @@ import type {
  *
  * @param config - The provider config (single provider or per-domain).
  */
-export async function initializeProvider(config: ProviderConfig): Promise<void> {
+export async function initializeProvider(
+  config: ProviderConfig
+): Promise<void> {
   if (globalThis.__viteval_providerInitialized) {
     return;
   }
@@ -36,15 +38,25 @@ export async function initializeProvider(config: ProviderConfig): Promise<void> 
         throw result.result;
       }
     }
-    if (config.evals && isProvider(config.evals) && config.evals !== config.datasets) {
+    if (
+      config.evals &&
+      isProvider(config.evals) &&
+      config.evals !== config.datasets
+    ) {
       const result = await config.evals.initialize();
       if (!result.ok) {
         throw result.result;
       }
     }
 
-    globalThis.__viteval_datasetProvider = resolveSubProvider(config.datasets, 'datasets');
-    globalThis.__viteval_evalProvider = resolveSubProvider(config.evals, 'evals');
+    globalThis.__viteval_datasetProvider = resolveSubProvider(
+      config.datasets,
+      'datasets'
+    );
+    globalThis.__viteval_evalProvider = resolveSubProvider(
+      config.evals,
+      'evals'
+    );
   }
 
   globalThis.__viteval_providerInitialized = true;
@@ -70,7 +82,9 @@ function resolveSubProvider<K extends 'datasets' | 'evals'>(
   value: DatasetProvider | EvalProvider | Provider | undefined,
   key: K
 ): (K extends 'datasets' ? DatasetProvider : EvalProvider) | undefined {
-  if (!value) {return undefined;}
+  if (!value) {
+    return undefined;
+  }
   if (isProvider(value)) {
     // eslint-disable-next-line no-explicit-any -- narrowing from union
     return value[key] as any;

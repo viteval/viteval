@@ -10,7 +10,9 @@ import type { VitevalConfig } from '@viteval/core/config';
  * @param config - The viteval config.
  * @returns The viteval config.
  */
-export function defineConfig(config: VitevalConfig): ReturnType<typeof coreDefineConfig> {
+export function defineConfig(
+  config: VitevalConfig
+): ReturnType<typeof coreDefineConfig> {
   return coreDefineConfig({
     ...config,
     provider: config.provider ?? viteval(),

@@ -74,7 +74,7 @@ export function createBraintrustDatasetOps(
             project_id: getProjectId(),
           });
 
-          const datasets: (Braintrust.Dataset)[] = [];
+          const datasets: Braintrust.Dataset[] = [];
           for await (const d of page) {
             datasets.push(d);
             break; // We only need the first match
@@ -90,13 +90,15 @@ export function createBraintrustDatasetOps(
       withResult(async () => {
         const client = await getClient();
         const fetchLimit = params.limit
-          ? (params.offset ? params.offset + params.limit : params.limit)
+          ? params.offset
+            ? params.offset + params.limit
+            : params.limit
           : undefined;
         const response = await client.datasets.fetch(params.datasetId, {
           limit: fetchLimit,
         });
 
-        let {events} = response;
+        let { events } = response;
         if (params.offset) {
           events = events.slice(params.offset);
         }
@@ -104,21 +106,25 @@ export function createBraintrustDatasetOps(
           events = events.slice(0, params.limit);
         }
 
-        return events.map((event, i) => mapDatasetItem(event, params.datasetId, (params.offset ?? 0) + i));
+        return events.map((event, i) =>
+          mapDatasetItem(event, params.datasetId, (params.offset ?? 0) + i)
+        );
       }),
 
     list: (params) =>
       withResult(async () => {
         const client = await getClient();
         const fetchLimit = params?.limit
-          ? (params?.offset ? params.offset + params.limit : params.limit)
+          ? params?.offset
+            ? params.offset + params.limit
+            : params.limit
           : undefined;
         const page = await client.datasets.list({
           limit: fetchLimit,
           project_id: getProjectId(),
         });
 
-        const datasets: (Braintrust.Dataset)[] = [];
+        const datasets: Braintrust.Dataset[] = [];
         let skipped = 0;
         for await (const d of page) {
           if (params?.offset && skipped < params.offset) {
@@ -126,7 +132,9 @@ export function createBraintrustDatasetOps(
             continue;
           }
           datasets.push(d);
-          if (params?.limit && datasets.length >= params.limit) {break;}
+          if (params?.limit && datasets.length >= params.limit) {
+            break;
+          }
         }
 
         return datasets.map((d) => mapDataset(d));
@@ -152,10 +160,7 @@ export function createBraintrustDatasetOps(
 |------------------
 */
 
-function mapDataset(
-  dataset: Braintrust.Dataset,
-  itemCount = 0
-): StoredDataset {
+function mapDataset(dataset: Braintrust.Dataset, itemCount = 0): StoredDataset {
   return {
     id: dataset.id,
     name: dataset.name,

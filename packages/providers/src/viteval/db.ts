@@ -8,7 +8,9 @@ import type { VitevalProviderOptions } from './types';
  * @param options - Provider options determining database type and connection.
  * @returns A configured PrismaClient instance.
  */
-export function createPrismaClient(options: VitevalProviderOptions): PrismaClient {
+export function createPrismaClient(
+  options: VitevalProviderOptions
+): PrismaClient {
   const url = resolveUrl(options);
 
   return new PrismaClient({

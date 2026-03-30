@@ -231,7 +231,9 @@ export interface EvalProvider {
    * Providers that support batch insert (Braintrust, VoltAgent) should implement
    * this for better performance with large datasets.
    */
-  addResults?(params: AddEvalResultParams[]): Promise<Result<StoredEvalResult[]>>;
+  addResults?(
+    params: AddEvalResultParams[]
+  ): Promise<Result<StoredEvalResult[]>>;
   complete(params: CompleteEvalRunParams): Promise<Result<StoredEvalRun>>;
 }
 

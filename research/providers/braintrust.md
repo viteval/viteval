@@ -17,35 +17,35 @@ Full-featured LLM eval platform. Experiments, datasets, production logging, prom
 
 ## Concepts
 
-| Viteval Concept | Braintrust Equivalent | Notes                                           |
-| --------------- | --------------------- | ----------------------------------------------- |
-| Dataset         | Dataset               | Direct match. Requires `project_id`.            |
-| DatasetItem     | Dataset Event         | `input`, `expected`, `metadata`, `tags`          |
-| EvalRun         | Experiment            | No status lifecycle. Implicitly complete.        |
+| Viteval Concept | Braintrust Equivalent | Notes                                              |
+| --------------- | --------------------- | -------------------------------------------------- |
+| Dataset         | Dataset               | Direct match. Requires `project_id`.               |
+| DatasetItem     | Dataset Event         | `input`, `expected`, `metadata`, `tags`            |
+| EvalRun         | Experiment            | No status lifecycle. Implicitly complete.          |
 | EvalResult      | Experiment Event      | `input`, `output`, `expected`, `scores`, `metrics` |
-| Score           | `scores` object       | Key-value, values 0-1.                           |
+| Score           | `scores` object       | Key-value, values 0-1.                             |
 
 ## DatasetProvider Mapping
 
-| Method       | Endpoint / SDK Method                  | Supported | Notes                                           |
-| ------------ | -------------------------------------- | --------- | ----------------------------------------------- |
-| `create()`   | `POST /v1/dataset`                     | Yes       | `project_id` required. Items added separately.  |
-| `get()`      | `GET /v1/dataset?dataset_name=`        | Yes       | By name filter on list. No `GET /{id}` in docs. |
-| `list()`     | `GET /v1/dataset`                      | Yes       | Cursor-based pagination, not offset.            |
-| `update()`   | Unclear                                | Partial   | SDK `update()` operates on rows, not metadata.  |
-| `delete()`   | `DELETE /v1/dataset/{id}`              | Likely    | Referenced but not fully documented.            |
-| `getItems()` | `GET /v1/dataset/{id}/fetch`           | Yes       | Cursor pagination.                              |
-| `addItems()` | `POST /v1/dataset/{id}/insert`         | Yes       | Batch insert. Returns `row_ids[]`.              |
+| Method       | Endpoint / SDK Method           | Supported | Notes                                           |
+| ------------ | ------------------------------- | --------- | ----------------------------------------------- |
+| `create()`   | `POST /v1/dataset`              | Yes       | `project_id` required. Items added separately.  |
+| `get()`      | `GET /v1/dataset?dataset_name=` | Yes       | By name filter on list. No `GET /{id}` in docs. |
+| `list()`     | `GET /v1/dataset`               | Yes       | Cursor-based pagination, not offset.            |
+| `update()`   | Unclear                         | Partial   | SDK `update()` operates on rows, not metadata.  |
+| `delete()`   | `DELETE /v1/dataset/{id}`       | Likely    | Referenced but not fully documented.            |
+| `getItems()` | `GET /v1/dataset/{id}/fetch`    | Yes       | Cursor pagination.                              |
+| `addItems()` | `POST /v1/dataset/{id}/insert`  | Yes       | Batch insert. Returns `row_ids[]`.              |
 
 ## EvalProvider Mapping
 
-| Method        | Endpoint / SDK Method                  | Supported | Notes                                              |
-| ------------- | -------------------------------------- | --------- | -------------------------------------------------- |
-| `create()`    | `POST /v1/experiment`                  | Yes       | `project_id` required. No status field.            |
-| `get()`       | `GET /v1/experiment/{id}`              | Yes       | Results via separate `/fetch` endpoint.            |
-| `list()`      | `GET /v1/experiment`                   | Partial   | No tag/status/datasetId server-side filters.       |
-| `addResult()` | `POST /v1/experiment/{id}/insert`      | Yes       | Batch events. Duration → `metrics.start/end`.      |
-| `complete()`  | N/A                                    | No        | No explicit complete. `summarize` is read-only.    |
+| Method        | Endpoint / SDK Method             | Supported | Notes                                           |
+| ------------- | --------------------------------- | --------- | ----------------------------------------------- |
+| `create()`    | `POST /v1/experiment`             | Yes       | `project_id` required. No status field.         |
+| `get()`       | `GET /v1/experiment/{id}`         | Yes       | Results via separate `/fetch` endpoint.         |
+| `list()`      | `GET /v1/experiment`              | Partial   | No tag/status/datasetId server-side filters.    |
+| `addResult()` | `POST /v1/experiment/{id}/insert` | Yes       | Batch events. Duration → `metrics.start/end`.   |
+| `complete()`  | N/A                               | No        | No explicit complete. `summarize` is read-only. |
 
 ## Gaps
 
