@@ -9,14 +9,30 @@ import { initializeProvider } from '#/provider/initialize';
 export function getClient(): OpenAI | null {
   try {
     if (globalThis.__client) {
-      return globalThis.__client as unknown as OpenAI;
+      return globalThis.__client;
     }
 
     // Attempt to initialize the provider
     initializeProvider();
 
-    return globalThis.__client as unknown as OpenAI;
+    return globalThis.__client ?? null;
   } catch {
     return null;
   }
+}
+
+/**
+ * Get the client for the provider, throwing if not initialized.
+ *
+ * @returns The initialized OpenAI client.
+ * @throws If the client has not been initialized via `initializeProvider()`.
+ */
+export function requireClient(): OpenAI {
+  const client = getClient();
+  if (!client) {
+    throw new Error(
+      'OpenAI client not initialized. Call initializeProvider() first.'
+    );
+  }
+  return client;
 }

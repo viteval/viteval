@@ -131,7 +131,6 @@
 - 864c595: ## Viteval UI (beta)
 
   This release includes major improvements to the Viteval UI, including:
-
   - Adding a new `datasets` page to view and manage your evaluation datasets
   - Adding UI states to show when an evaluation is running and updating it as it runs/finishes
   - Cleaning up the UI for Results List and Result Detail pages
@@ -149,7 +148,6 @@
 ### Patch Changes
 
 - 9db42c7: # What's changed?
-
   - Add a wrapper to prevent `resolveConfig` from throwing an error, and add logging for debugging.
   - Added a `createVitevalServer` for the `ui` that can be used in a more standard way/approach
 

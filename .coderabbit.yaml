@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+early_access: false
+enable_free_tier: true
+tone_instructions: Be direct and technical. Flag bugs, security issues, and standard violations only. Skip style, subjective suggestions, and pre-existing issues.
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  high_level_summary: false
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: false
+  suggested_reviewers: false
+  in_progress_fortune: false
+  enable_prompt_for_ai_agents: true
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - '.*'
+    ignore_title_keywords:
+      - 'WIP'
+      - 'DO NOT MERGE'
+
+  path_filters:
+    - '!**/node_modules/**'
+    - '!**/dist/**'
+    - '!**/coverage/**'
+    - '!**/*.generated.*'
+    - '!**/.claude/**'
+    - '!**/fixtures/**'
+
+  path_instructions:
+    - path: '**'
+      instructions: |
+        ## Review Standards
+        Check CLAUDE.md and contributing/ directory for standards and guidelines before reviewing.
+        Key areas:
+        - contributing/standards.md - Code standards and conventions
+        - contributing/patterns.md - Code patterns
+        - contributing/architecture.md - Package relationships and design
+        - CLAUDE.md - Repository rules and conventions
+
+        ## High Signal Only
+        Only flag issues that meet these criteria:
+        - Code will fail or produce wrong results (clear bugs)
+        - Security vulnerabilities with concrete risk
+        - Clear violations of documented standards with exact citations
+        - Breaking changes without proper documentation
+
+        Do NOT flag:
+        - Style/formatting (oxfmt handles this)
+        - Subjective improvements or suggestions
+        - Pre-existing issues not introduced in this PR
+        - Issues already handled by linters or type checkers
+
+    - path: '**/*.ts'
+      instructions: |
+        ## TypeScript Patterns
+        Check contributing/standards.md for conventions:
+        - Use ts-pattern for conditional logic with 2+ branches instead of switch statements
+        - Prefer exhaustive pattern matching for type safety
+        - No 'any' type - use 'unknown' and narrow appropriately
+        - Object params when 2+ parameters (define *Params interface)
+        - Pure functions preferred, factories over classes
+        - Result pattern (ok/err) for expected failures
+
+    - path: 'packages/core/**'
+      instructions: |
+        ## Core Package
+        This is the main evaluation framework package. Check:
+        - Scorers follow createScorer() factory pattern
+        - Provider interactions use requireClient() from client.ts
+        - LLM judge scorers use createJudgeScorer() factory
+        - Embedding scorers use computeEmbeddingSimilarity() shared helper
+
+    - path: '**/package.json'
+      instructions: |
+        ## Dependency Review
+        - Check changelogs for breaking changes in major version bumps
+        - Verify peer dependency compatibility
+        - Cross-reference with other package.json files in the monorepo for version consistency
+        - Flag if a dependency upgrade requires code changes not included in the PR
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
+  tools:
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+    oxlint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    actionlint:
+      enabled: true
+    shellcheck:
+      enabled: true
+    semgrep:
+      enabled: true
+    markdownlint:
+      enabled: true
+    languagetool:
+      enabled: true
+
+chat:
+  auto_reply: true
+  art: false
+
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto
