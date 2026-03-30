@@ -1,5 +1,13 @@
 export { evaluate } from './evaluate';
-export { initializeProvider } from './provider';
+export { initializeModel } from './model';
+export {
+  createProvider,
+  getProvider,
+  getDatasetProvider,
+  requireDatasetProvider,
+  getEvalProvider,
+  requireEvalProvider,
+} from './provider';
 export { createScorer, scorers } from './scorer';
 export type {
   Data,
@@ -14,3 +22,29 @@ export type {
   Task,
   TaskArgs,
 } from './types';
+export type { ModelConfig, ModelConfigFull } from './model';
+export type {
+  Provider,
+  ProviderConfig,
+  DatasetProvider,
+  EvalProvider,
+  CreateProviderParams,
+  StoredDataset,
+  StoredDataItem,
+  StoredEvalRun,
+  StoredEvalResult,
+  StoredEvalConfig,
+  StoredEvalSummary,
+  CreateDatasetParams,
+  GetDatasetParams,
+  ListDatasetsParams,
+  UpdateDatasetParams,
+  DeleteDatasetParams,
+  GetDatasetItemsParams,
+  AddDatasetItemsParams,
+  CreateEvalRunParams,
+  GetEvalRunParams,
+  ListEvalRunsParams,
+  AddEvalResultParams,
+  CompleteEvalRunParams,
+} from './provider';

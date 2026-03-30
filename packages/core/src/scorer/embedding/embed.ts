@@ -1,7 +1,7 @@
 import { embed } from 'ai';
 import { clamp } from '@viteval/internal';
 import cosineSimilarity from 'compute-cosine-similarity';
-import { requireEmbeddingModel } from '#/provider/client';
+import { requireEmbeddingModel } from '#/model/client';
 
 /**
  * Get an embedding vector for the given text using the configured embedding model.

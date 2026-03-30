@@ -1,51 +1,60 @@
-import type { EmbeddingModel, LanguageModel } from 'ai';
+import type { DatasetProvider, EvalProvider, Provider } from './types';
 
 /**
- * Get the language model for the provider.
+ * Get the full provider, if one was configured.
  *
- * @returns The language model, or null if not initialized.
+ * @returns The provider, or null if not configured.
  */
-export function getModel(): LanguageModel | null {
-  return globalThis.__model ?? null;
+export function getProvider(): Provider | null {
+  return globalThis.__provider ?? null;
 }
 
 /**
- * Get the language model, throwing if not initialized.
+ * Get the dataset provider.
  *
- * @returns The initialized language model.
- * @throws If the provider has not been initialized via `initializeProvider()`.
+ * @returns The dataset provider, or null if not configured.
  */
-export function requireModel(): LanguageModel {
-  const model = getModel();
-  if (!model) {
+export function getDatasetProvider(): DatasetProvider | null {
+  return globalThis.__datasetProvider ?? null;
+}
+
+/**
+ * Get the dataset provider, throwing if not configured.
+ *
+ * @returns The dataset provider.
+ * @throws If no provider with dataset support is configured.
+ */
+export function requireDatasetProvider(): DatasetProvider {
+  const provider = getDatasetProvider();
+  if (!provider) {
     throw new Error(
-      'Provider not initialized. Configure a provider in your viteval config or call initializeProvider() first.'
+      'No dataset provider configured. Add a provider with dataset support to your viteval config.'
     );
   }
-  return model;
+  return provider;
 }
 
 /**
- * Get the embedding model for the provider.
+ * Get the eval provider.
  *
- * @returns The embedding model, or null if not configured.
+ * @returns The eval provider, or null if not configured.
  */
-export function getEmbeddingModel(): EmbeddingModel | null {
-  return globalThis.__embeddingModel ?? null;
+export function getEvalProvider(): EvalProvider | null {
+  return globalThis.__evalProvider ?? null;
 }
 
 /**
- * Get the embedding model, throwing if not configured.
+ * Get the eval provider, throwing if not configured.
  *
- * @returns The initialized embedding model.
- * @throws If no embedding model was provided in the provider config.
+ * @returns The eval provider.
+ * @throws If no provider with eval support is configured.
  */
-export function requireEmbeddingModel(): EmbeddingModel {
-  const model = getEmbeddingModel();
-  if (!model) {
+export function requireEvalProvider(): EvalProvider {
+  const provider = getEvalProvider();
+  if (!provider) {
     throw new Error(
-      'Embedding model not configured. Add an embeddingModel to your provider config to use embedding-based scorers.'
+      'No eval provider configured. Add a provider with eval support to your viteval config.'
     );
   }
-  return model;
+  return provider;
 }

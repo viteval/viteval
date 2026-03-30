@@ -3,6 +3,8 @@ import { match } from 'ts-pattern';
 import { afterAll, assert, beforeAll, describe, test } from 'vitest';
 import { getRuntimeConfig } from '#/internals/config';
 import { resolve } from '#/internals/utils';
+import { initializeModel } from '#/model/initialize';
+import { getEvalProvider } from '#/provider/client';
 import { initializeProvider } from '#/provider/initialize';
 import {
   getMeanScore,
@@ -61,17 +63,37 @@ export function evaluate<
     const results: EvalResult[] = [];
     const config = getRuntimeConfig();
 
-    beforeAll(() => {
+    beforeAll(async () => {
+      if (config.model) {
+        initializeModel(config.model);
+      }
       if (config.provider) {
-        initializeProvider(config.provider);
+        await initializeProvider(config.provider);
       }
     });
 
     // eslint-disable-next-line no-empty-pattern -- vitest 4.1 requires destructured 1st arg for fixtures
-    afterAll(({}, { suite }) => {
+    afterAll(async ({}, { suite }) => {
       if (suite) {
         // @ts-expect-error - this is valid
         suite.meta.results = results;
+      }
+
+      // Auto-persist results to eval provider if configured
+      const evalProvider = getEvalProvider();
+      if (evalProvider) {
+        await persistEvalRun(name, results, {
+          aggregation,
+          threshold,
+          scorerNames: scorers.map((s) => s.name),
+          timeout,
+        });
+      }
+
+      // Close provider connections when done
+      const provider = globalThis.__provider;
+      if (provider) {
+        await provider.close();
       }
     });
 
@@ -79,9 +101,9 @@ export function evaluate<
 
     for (const dataItem of formattedData) {
       const { input, ...params } = dataItem;
-      const name = formatTestName(dataItem);
+      const testName = formatTestName(dataItem);
       test(
-        formatTestName(dataItem),
+        testName,
         {
           timeout: timeout ?? config.eval?.timeout ?? 25_000,
         },
@@ -129,7 +151,7 @@ export function evaluate<
             mean: meanScore,
             median: medianScore,
             metadata,
-            name,
+            name: testName,
             output: taskResult,
             scores: scoresWithName,
             sum: sumScore,
@@ -190,4 +212,86 @@ function formatTestName(dataItem: DataItem): string {
   }
 
   return `input: ${JSON.stringify(dataItem.input)}`;
+}
+
+async function persistEvalRun(
+  name: string,
+  results: EvalResult[],
+  config: {
+    aggregation: 'mean' | 'median' | 'sum';
+    threshold: number;
+    scorerNames: string[];
+    timeout?: number;
+  }
+): Promise<void> {
+  const evalProvider = getEvalProvider();
+  if (!evalProvider || results.length === 0) return;
+
+  const runResult = await evalProvider.create({
+    name,
+    config,
+  });
+
+  if (!runResult.ok) return;
+
+  const run = runResult.result;
+  let failed = false;
+
+  const resultParams = results.map((result) => ({
+    evalRunId: run.id,
+    input: result.input,
+    expected: result.expected,
+    output: result.output,
+    scores: result.scores.map((s) => ({
+      name: s.name,
+      score: s.score ?? 0,
+      metadata: s.metadata,
+    })),
+    meanScore: result.mean,
+    medianScore: result.median,
+    sumScore: result.sum,
+    passed: match(result.aggregation)
+      .with('mean', () => result.mean >= result.threshold)
+      .with('median', () => result.median >= result.threshold)
+      .with('sum', () => result.sum >= result.threshold)
+      .exhaustive(),
+    metadata: result.metadata,
+  }));
+
+  // Use batch addResults if available, otherwise fall back to sequential
+  if (evalProvider.addResults) {
+    const batchResult = await evalProvider.addResults(resultParams);
+    if (!batchResult.ok) {
+      failed = true;
+    }
+  } else {
+    for (const params of resultParams) {
+      const addResult = await evalProvider.addResult(params);
+      if (!addResult.ok) {
+        failed = true;
+      }
+    }
+  }
+
+  const passedCount = results.filter((r) =>
+    match(r.aggregation)
+      .with('mean', () => r.mean >= r.threshold)
+      .with('median', () => r.median >= r.threshold)
+      .with('sum', () => r.sum >= r.threshold)
+      .exhaustive()
+  ).length;
+
+  await evalProvider.complete({
+    id: run.id,
+    status: failed ? 'failed' : 'completed',
+    summary: {
+      meanScore: results.reduce((acc, r) => acc + r.mean, 0) / results.length,
+      medianScore: results.reduce((acc, r) => acc + r.median, 0) / results.length,
+      sumScore: results.reduce((acc, r) => acc + r.sum, 0),
+      passedCount,
+      failedCount: results.length - passedCount,
+      totalCount: results.length,
+      passed: passedCount === results.length,
+    },
+  });
 }

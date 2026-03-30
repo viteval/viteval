@@ -1,0 +1,12 @@
+{
+  "name": "providers",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/providers/src",
+  "targets": {
+    "validate": {
+      "command": "echo \"Running validation\"",
+      "dependsOn": ["test", "types", "check"]
+    }
+  }
+}

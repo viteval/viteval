@@ -155,6 +155,9 @@ dist
 .nx/workspace-data
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+# Prisma generated client
+**/src/generated/
+
 # Nuke (nuka-cola)
 .nuke
 !.nukeignore
