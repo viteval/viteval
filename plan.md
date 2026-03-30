@@ -457,7 +457,7 @@ Tracked separately: [#121](https://github.com/viteval/viteval/issues/121) — ex
 
 ## Execution Strategy
 
-```
+```text
 Phase 1 (types-and-meta)
   |
   +---> Phase 2 (reporter-rewrite)  \

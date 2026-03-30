@@ -28,6 +28,8 @@ function createMockEvalResult(overrides: Partial<EvalResult> = {}): EvalResult {
   };
 }
 
+let suiteIdCounter = 0;
+
 function createMockTestCase(options: {
   evalResult?: EvalResult | null;
   state?: 'passed' | 'failed';
@@ -36,6 +38,7 @@ function createMockTestCase(options: {
   duration?: number;
   parentType?: 'suite' | 'module';
   parentName?: string;
+  parentId?: string;
   moduleId?: string;
 }): TestCase {
   const {
@@ -46,6 +49,7 @@ function createMockTestCase(options: {
     duration = 500,
     parentType = 'suite',
     parentName = 'my eval suite',
+    parentId = `suite-${suiteIdCounter++}`,
     moduleId = '/path/to/test.ts',
   } = options;
 
@@ -53,7 +57,7 @@ function createMockTestCase(options: {
     diagnostic: () => ({ duration, startTime }),
     meta: () => ({ evalResult }),
     module: { moduleId },
-    parent: { name: parentName, type: parentType },
+    parent: { id: parentId, name: parentName, type: parentType },
     result: () => ({ errors, state }),
   } as unknown as TestCase;
 }
@@ -61,6 +65,7 @@ function createMockTestCase(options: {
 describe('JsonReporter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    suiteIdCounter = 0;
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
@@ -211,6 +216,53 @@ describe('JsonReporter', () => {
       expect(writtenJson.success).toBe(false);
     });
 
+    it('should set success to false when reason is failed', () => {
+      const reporter = new JsonReporter({ outputFile: 'results.json' });
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
+      const passingResult = createMockEvalResult({ mean: 0.9, threshold: 0.7 });
+      reporter.onTestCaseResult(
+        createMockTestCase({ evalResult: passingResult })
+      );
+
+      reporter.onTestRunEnd([], [], 'failed');
+
+      const writtenJson = JSON.parse(
+        vi.mocked(fs.writeFileSync).mock.calls[0][1] as string
+      );
+      expect(writtenJson.success).toBe(false);
+    });
+
+    it('should set success to false when reason is interrupted', () => {
+      const reporter = new JsonReporter({ outputFile: 'results.json' });
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
+      reporter.onTestRunEnd([], [], 'interrupted');
+
+      const writtenJson = JSON.parse(
+        vi.mocked(fs.writeFileSync).mock.calls[0][1] as string
+      );
+      expect(writtenJson.success).toBe(false);
+    });
+
+    it('should set success to false when there are unhandled errors', () => {
+      const reporter = new JsonReporter({ outputFile: 'results.json' });
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
+      const passingResult = createMockEvalResult({ mean: 0.9, threshold: 0.7 });
+      reporter.onTestCaseResult(
+        createMockTestCase({ evalResult: passingResult })
+      );
+
+      const unhandledError = { message: 'Unhandled rejection' };
+      reporter.onTestRunEnd([], [unhandledError as never], 'passed');
+
+      const writtenJson = JSON.parse(
+        vi.mocked(fs.writeFileSync).mock.calls[0][1] as string
+      );
+      expect(writtenJson.success).toBe(false);
+    });
+
     it('should set success to true when all suites pass', () => {
       const reporter = new JsonReporter({ outputFile: 'results.json' });
       vi.mocked(fs.existsSync).mockReturnValue(true);
@@ -245,10 +297,12 @@ describe('JsonReporter', () => {
         sum: 1.8,
       });
 
+      const sharedSuiteId = 'shared-suite-1';
       reporter.onTestCaseResult(
         createMockTestCase({
           evalResult: result1,
           moduleId: '/test.ts',
+          parentId: sharedSuiteId,
           parentName: 'suite',
         })
       );
@@ -256,6 +310,7 @@ describe('JsonReporter', () => {
         createMockTestCase({
           evalResult: result2,
           moduleId: '/test.ts',
+          parentId: sharedSuiteId,
           parentName: 'suite',
         })
       );

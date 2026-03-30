@@ -261,8 +261,8 @@ export default class JsonReporter implements Reporter {
    */
   onTestRunEnd(
     _testModules: readonly TestModule[],
-    _unhandledErrors: readonly SerializedError[],
-    _reason: TestRunEndReason
+    unhandledErrors: readonly SerializedError[],
+    reason: TestRunEndReason
   ) {
     this.results.endTime = Date.now();
     this.results.duration = this.results.endTime - this.results.startTime;
@@ -319,7 +319,10 @@ export default class JsonReporter implements Reporter {
       this.results.evalResults.push(suiteResult);
     }
 
-    this.results.success = this.results.numFailedEvalSuites === 0;
+    this.results.success =
+      reason === 'passed' &&
+      unhandledErrors.length === 0 &&
+      this.results.numFailedEvalSuites === 0;
 
     this.writeResults();
   }
@@ -385,7 +388,7 @@ export default class JsonReporter implements Reporter {
 function getSuiteKey(testCase: TestCase): string {
   const { parent } = testCase;
   if (parent.type === 'suite') {
-    return `${testCase.module.moduleId}::${parent.name}`;
+    return `${testCase.module.moduleId}::${parent.id}`;
   }
   return testCase.module.moduleId;
 }
