@@ -42,9 +42,7 @@ const CHOICE_SCORES: Record<string, number> = { N: 0, Y: 1 };
  * scorers: [scorers.translation()]
  * ```
  */
-export function translation(
-  options?: TranslationOptions
-): Scorer {
+export function translation(options?: TranslationOptions): Scorer {
   return createScorer({
     name: 'Translation',
     score: async ({ output, expected, input, ...extra }) => {

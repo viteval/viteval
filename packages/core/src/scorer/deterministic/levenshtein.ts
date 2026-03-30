@@ -32,9 +32,7 @@ export interface LevenshteinOptions {
  * scorers: [scorers.levenshtein({ threshold: 0.8 })]
  * ```
  */
-export function levenshteinScorer(
-  options?: LevenshteinOptions
-): Scorer {
+export function levenshteinScorer(options?: LevenshteinOptions): Scorer {
   const { threshold = 0 } = options ?? {};
 
   return createScorer({

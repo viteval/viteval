@@ -33,9 +33,7 @@ export interface ListContainsOptions {
  * scorers: [scorers.listContains({ threshold: 0.8 })]
  * ```
  */
-export function listContains(
-  options?: ListContainsOptions
-): Scorer {
+export function listContains(options?: ListContainsOptions): Scorer {
   const { threshold = 0 } = options ?? {};
 
   return createScorer({

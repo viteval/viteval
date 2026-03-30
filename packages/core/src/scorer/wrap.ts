@@ -65,7 +65,7 @@ export function wrapScorer<
   EXTRA extends Extra = Extra,
 >(
   scorer: Scorer<INNER_OUTPUT, INNER_EXPECTED, EXTRA>,
-  options: WrapScorerOptions<OUTPUT, EXPECTED, INNER_OUTPUT, INNER_EXPECTED>,
+  options: WrapScorerOptions<OUTPUT, EXPECTED, INNER_OUTPUT, INNER_EXPECTED>
 ): Scorer<OUTPUT, EXPECTED, EXTRA> {
   const wrapped: Scorer<OUTPUT, EXPECTED, EXTRA> = (args) => {
     const mappedArgs = {

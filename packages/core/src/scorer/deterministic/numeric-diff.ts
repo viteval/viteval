@@ -32,9 +32,7 @@ export interface NumericDiffOptions {
  * scorers: [scorers.numericDiff({ tolerance: 2 })]
  * ```
  */
-export function numericDiff(
-  options?: NumericDiffOptions
-): Scorer {
+export function numericDiff(options?: NumericDiffOptions): Scorer {
   const { tolerance = 0 } = options ?? {};
 
   return createScorer({
