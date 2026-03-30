@@ -6,7 +6,6 @@ const baseConfig = defineConfig({
   external: [
     'vitest',
     'openai',
-    'autoevals',
     '@viteval/internal',
     /^vitest\//,
     /^vite\//,

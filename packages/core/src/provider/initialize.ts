@@ -1,4 +1,3 @@
-import { init as initAutoevals } from 'autoevals';
 import { OpenAI } from 'openai';
 import { P, match } from 'ts-pattern';
 import type { VitevalProviderConfig } from '#/config/types';
@@ -43,8 +42,7 @@ export function initializeProvider(config?: VitevalProviderConfig) {
     throw new Error('No provider client found');
   }
 
-  // @ts-expect-error - `init` is not typed correctly and using old version of openai
-  initAutoevals({ client });
+  globalThis.__client = client;
 }
 
 /*

@@ -6,6 +6,7 @@ import {
   isEmptyObject,
   isFunction,
   isNil,
+  isNumber,
   isObject,
   isPlainObject,
   isPromise,
@@ -373,6 +374,43 @@ describe('isPromise', () => {
     expect(isPromise('string')).toBe(false);
     expect(isPromise(42)).toBe(false);
     expect(isPromise(true)).toBe(false);
+  });
+});
+
+describe('isNumber', () => {
+  it('should return true for finite numbers', () => {
+    expect(isNumber(0)).toBe(true);
+    expect(isNumber(42)).toBe(true);
+    expect(isNumber(-7)).toBe(true);
+    expect(isNumber(3.14)).toBe(true);
+  });
+
+  it('should return false for NaN', () => {
+    expect(isNumber(Number.NaN)).toBe(false);
+  });
+
+  it('should return false for Infinity', () => {
+    expect(isNumber(Number.POSITIVE_INFINITY)).toBe(false);
+    expect(isNumber(Number.NEGATIVE_INFINITY)).toBe(false);
+  });
+
+  it('should return false for non-numbers', () => {
+    expect(isNumber('42')).toBe(false);
+    expect(isNumber(null)).toBe(false);
+    expect(isNumber(undefined)).toBe(false);
+    expect(isNumber(true)).toBe(false);
+    expect(isNumber({})).toBe(false);
+    expect(isNumber([])).toBe(false);
+  });
+
+  it('should have correct type guard behavior', () => {
+    const testValue: unknown = 42;
+
+    if (isNumber(testValue)) {
+      expectTypeOf(testValue).toEqualTypeOf<number>();
+    } else {
+      expectTypeOf(testValue).not.toEqualTypeOf<number>();
+    }
   });
 });
 

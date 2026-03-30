@@ -1,68 +1,46 @@
 import {
-  AnswerCorrectness,
-  AnswerRelevancy,
-  AnswerSimilarity,
-  ContextEntityRecall,
-  ContextPrecision,
-  ContextRecall,
-  ContextRelevancy,
-  EmbeddingSimilarity,
-  ExactMatch,
-  Factuality,
-  Humor,
-  JSONDiff,
-  Levenshtein,
-  ListContains,
-  Moderation,
-  NumericDiff,
-  Possible,
-  Sql,
-  Summary,
-  Translation,
-} from 'autoevals';
+  exactMatch,
+  levenshteinScorer,
+  numericDiff,
+  jsonDiff,
+  listContains,
+} from './deterministic';
+import { embeddingSimilarity, answerSimilarity } from './embedding';
+import {
+  factuality,
+  summary,
+  translation,
+  moderation,
+  answerCorrectness,
+  answerRelevancy,
+  contextEntityRecall,
+  contextPrecision,
+  contextRecall,
+  contextRelevancy,
+  possible,
+  humor,
+  sql,
+} from './llm';
 
-interface Scorers {
-  factual: typeof Factuality;
-  levenshtein: typeof Levenshtein;
-  exactMatch: typeof ExactMatch;
-  moderation: typeof Moderation;
-  sql: typeof Sql;
-  summary: typeof Summary;
-  translation: typeof Translation;
-  answerCorrectness: typeof AnswerCorrectness;
-  answerRelevancy: typeof AnswerRelevancy;
-  answerSimilarity: typeof AnswerSimilarity;
-  contextEntityRecall: typeof ContextEntityRecall;
-  contextPrecision: typeof ContextPrecision;
-  contextRecall: typeof ContextRecall;
-  contextRelevancy: typeof ContextRelevancy;
-  possible: typeof Possible;
-  embeddingSimilarity: typeof EmbeddingSimilarity;
-  listContains: typeof ListContains;
-  numericDiff: typeof NumericDiff;
-  jsonDiff: typeof JSONDiff;
-  humor: typeof Humor;
-}
-
-export const scorers: Scorers = {
-  answerCorrectness: AnswerCorrectness,
-  answerRelevancy: AnswerRelevancy,
-  answerSimilarity: AnswerSimilarity,
-  contextEntityRecall: ContextEntityRecall,
-  contextPrecision: ContextPrecision,
-  contextRecall: ContextRecall,
-  contextRelevancy: ContextRelevancy,
-  embeddingSimilarity: EmbeddingSimilarity,
-  exactMatch: ExactMatch,
-  factual: Factuality,
-  humor: Humor,
-  jsonDiff: JSONDiff,
-  levenshtein: Levenshtein,
-  listContains: ListContains,
-  moderation: Moderation,
-  numericDiff: NumericDiff,
-  possible: Possible,
-  sql: Sql,
-  summary: Summary,
-  translation: Translation,
+export const scorers = {
+  factual: factuality,
+  levenshtein: levenshteinScorer,
+  exactMatch,
+  moderation,
+  sql,
+  summary,
+  translation,
+  answerCorrectness,
+  answerRelevancy,
+  answerSimilarity,
+  contextEntityRecall,
+  contextPrecision,
+  contextRecall,
+  contextRelevancy,
+  possible,
+  embeddingSimilarity,
+  listContains,
+  numericDiff,
+  jsonDiff,
+  humor,
 };
