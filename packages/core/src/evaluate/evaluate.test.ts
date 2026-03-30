@@ -5,12 +5,7 @@ import { evaluate } from './evaluate';
 vi.mock('#/internals/config', () => ({
   getRuntimeConfig: () => ({
     eval: { timeout: 25_000 },
-    provider: undefined,
   }),
-}));
-
-vi.mock('#/provider/initialize', () => ({
-  initializeProvider: vi.fn(),
 }));
 
 describe('evaluate', () => {

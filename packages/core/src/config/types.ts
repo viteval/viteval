@@ -1,6 +1,5 @@
 import type { EmbeddingModel, LanguageModel } from 'ai';
 import type { AliasOptions, UserConfig } from 'vite';
-import type { DebuggerOptions, DepsHandlingOptions } from 'vite-node';
 import type { DepsOptimizationOptions } from 'vitest/node';
 
 /**
@@ -90,20 +89,30 @@ export interface VitevalConfig {
   };
   /**
    * Server configuration.
+   *
+   * Aligns with Vitest 4's `test.server` options.
    */
   server?: {
     /**
-     * Sourcemap options.
+     * Deps handling options for the Vite server.
      */
-    sourcemap?: boolean | 'inline';
+    deps?: {
+      /** Externalized dependencies (bypassed to native Node). */
+      external?: (string | RegExp)[];
+      /** Inlined dependencies (processed by Vite). */
+      inline?: (string | RegExp)[] | true;
+      /** Try to guess the CJS version of a package when it's invalid ESM. */
+      fallbackCJS?: boolean;
+    };
     /**
-     * Deps handling options.
+     * Debug options for inspecting transformed test files.
      */
-    deps?: DepsHandlingOptions;
-    /**
-     * Debug options.
-     */
-    debug?: DebuggerOptions;
+    debug?: {
+      /** Folder where Vitest stores transformed test files. If `true`, uses `.vitest-dump`. */
+      dump?: string | true;
+      /** Load files from the dump folder instead of transforming. */
+      load?: boolean;
+    };
   };
   /**
    * Configuration for the deps optimizer.

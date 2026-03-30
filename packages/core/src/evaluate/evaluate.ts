@@ -1,9 +1,8 @@
 import { hasKey, isObject } from '@viteval/internal';
 import { match } from 'ts-pattern';
-import { afterAll, assert, beforeAll, describe, test } from 'vitest';
+import { assert, describe, test } from 'vitest';
 import { getRuntimeConfig } from '#/internals/config';
 import { resolve } from '#/internals/utils';
-import { initializeProvider } from '#/provider/initialize';
 import {
   getMeanScore,
   getMedianScore,
@@ -58,34 +57,18 @@ export function evaluate<
   }: Eval<DATA>
 ) {
   return describe(name, async () => {
-    const results: EvalResult[] = [];
     const config = getRuntimeConfig();
-
-    beforeAll(() => {
-      if (config.provider) {
-        initializeProvider(config.provider);
-      }
-    });
-
-    // eslint-disable-next-line no-empty-pattern -- vitest 4.1 requires destructured 1st arg for fixtures
-    afterAll(({}, { suite }) => {
-      if (suite) {
-        // @ts-expect-error - this is valid
-        suite.meta.results = results;
-      }
-    });
-
     const formattedData = await formatData(data);
 
     for (const dataItem of formattedData) {
       const { input, ...params } = dataItem;
-      const name = formatTestName(dataItem);
+      const testName = formatTestName(dataItem);
       test(
-        formatTestName(dataItem),
+        testName,
         {
           timeout: timeout ?? config.eval?.timeout ?? 25_000,
         },
-        async () => {
+        async ({ task: currentTask, annotate }) => {
           // @ts-expect-error - this is valid
           const taskResult = await task({
             ...params,
@@ -122,19 +105,26 @@ export function evaluate<
             ...metadata
           } = params;
 
-          results.push({
+          currentTask.meta.evalResult = {
             aggregation,
             expected: dataItem.expected,
             input: dataItem.input,
             mean: meanScore,
             median: medianScore,
             metadata,
-            name,
+            name: testName,
             output: taskResult,
             scores: scoresWithName,
             sum: sumScore,
             threshold,
-          });
+          };
+
+          for (const score of scoresWithName) {
+            await annotate(
+              `${score.name}: ${score.score}`,
+              score.score >= threshold ? 'notice' : 'warning'
+            );
+          }
 
           if (threshold) {
             const pass = match(aggregation)

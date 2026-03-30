@@ -1,131 +1,158 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { DangerouslyAllowAny } from '@viteval/internal';
-import type { Reporter } from 'vitest/reporters';
+import type {
+	Reporter,
+	SerializedError,
+	TestCase,
+	TestModule,
+	TestRunEndReason,
+	Vitest,
+} from 'vitest/node';
 import type { EvalResult } from '#/types';
 
 /**
  * JSON output format for LLM evaluation results
  */
 export interface JsonEvalResults {
-  /**
-   * Status of the evaluation run
-   */
-  status: 'running' | 'finished';
-  /**
-   * Whether all evaluations passed their thresholds
-   */
-  success: boolean;
-  /**
-   * Number of total evaluation suites run
-   */
-  numTotalEvalSuites: number;
-  /**
-   * Number of evaluation suites that passed
-   */
-  numPassedEvalSuites: number;
-  /**
-   * Number of evaluation suites that failed
-   */
-  numFailedEvalSuites: number;
-  /**
-   * Number of total individual evaluations
-   */
-  numTotalEvals: number;
-  /**
-   * Number of individual evaluations that passed
-   */
-  numPassedEvals: number;
-  /**
-   * Number of individual evaluations that failed
-   */
-  numFailedEvals: number;
-  /**
-   * Timestamp when evaluation started
-   */
-  startTime: number;
-  /**
-   * Timestamp when evaluation ended
-   */
-  endTime?: number;
-  /**
-   * Total duration of evaluation in milliseconds
-   */
-  duration?: number;
-  /**
-   * Results for each evaluation suite
-   */
-  evalResults: JsonEvalSuite[];
+	/**
+	 * Status of the evaluation run
+	 */
+	status: 'running' | 'finished';
+	/**
+	 * Whether all evaluations passed their thresholds
+	 */
+	success: boolean;
+	/**
+	 * Number of total evaluation suites run
+	 */
+	numTotalEvalSuites: number;
+	/**
+	 * Number of evaluation suites that passed
+	 */
+	numPassedEvalSuites: number;
+	/**
+	 * Number of evaluation suites that failed
+	 */
+	numFailedEvalSuites: number;
+	/**
+	 * Number of total individual evaluations
+	 */
+	numTotalEvals: number;
+	/**
+	 * Number of individual evaluations that passed
+	 */
+	numPassedEvals: number;
+	/**
+	 * Number of individual evaluations that failed
+	 */
+	numFailedEvals: number;
+	/**
+	 * Timestamp when evaluation started
+	 */
+	startTime: number;
+	/**
+	 * Timestamp when evaluation ended
+	 */
+	endTime?: number;
+	/**
+	 * Total duration of evaluation in milliseconds
+	 */
+	duration?: number;
+	/**
+	 * Results for each evaluation suite
+	 */
+	evalResults: JsonEvalSuite[];
 }
 
 /**
  * JSON format for an evaluation suite result
  */
 export interface JsonEvalSuite {
-  /**
-   * Name of the evaluation suite
-   */
-  name: string;
-  /**
-   * Filepath of the evaluation suite
-   */
-  filepath: string;
-  /**
-   * Whether the suite passed (all evals met threshold)
-   */
-  status: 'passed' | 'failed';
-  /**
-   * Timestamp when suite started
-   */
-  startTime: number;
-  /**
-   * Timestamp when suite ended
-   */
-  endTime: number;
-  /**
-   * Duration of the suite in milliseconds
-   */
-  duration: number;
-  /**
-   * Individual evaluation results within this suite
-   */
-  evalResults: EvalResult[];
-  /**
-   * Error message if suite failed
-   */
-  message?: string;
-  /**
-   * Suite-level aggregated metrics
-   */
-  summary: {
-    /**
-     * Overall mean score across all evals in suite
-     */
-    meanScore: number;
-    /**
-     * Overall median score across all evals in suite
-     */
-    medianScore: number;
-    /**
-     * Overall sum score across all evals in suite
-     */
-    sumScore: number;
-    /**
-     * Number of evals that passed threshold
-     */
-    passedCount: number;
-    /**
-     * Total number of evals
-     */
-    totalCount: number;
-  };
+	/**
+	 * Name of the evaluation suite
+	 */
+	name: string;
+	/**
+	 * Filepath of the evaluation suite
+	 */
+	filepath: string;
+	/**
+	 * Whether the suite passed (all evals met threshold)
+	 */
+	status: 'passed' | 'failed';
+	/**
+	 * Timestamp when suite started
+	 */
+	startTime: number;
+	/**
+	 * Timestamp when suite ended
+	 */
+	endTime: number;
+	/**
+	 * Duration of the suite in milliseconds
+	 */
+	duration: number;
+	/**
+	 * Individual evaluation results within this suite
+	 */
+	evalResults: EvalResult[];
+	/**
+	 * Error message if suite failed
+	 */
+	message?: string;
+	/**
+	 * Suite-level aggregated metrics
+	 */
+	summary: {
+		/**
+		 * Overall mean score across all evals in suite
+		 */
+		meanScore: number;
+		/**
+		 * Overall median score across all evals in suite
+		 */
+		medianScore: number;
+		/**
+		 * Overall sum score across all evals in suite
+		 */
+		sumScore: number;
+		/**
+		 * Number of evals that passed threshold
+		 */
+		passedCount: number;
+		/**
+		 * Total number of evals
+		 */
+		totalCount: number;
+	};
+}
+
+/**
+ * Params for constructing a JsonReporter
+ */
+interface JsonReporterOptions {
+	outputFile?: string;
+}
+
+/**
+ * Collected eval results keyed by suite identifier (parent suite name or module ID)
+ */
+interface SuiteAccumulator {
+	name: string;
+	moduleId: string;
+	evalResults: EvalResult[];
+	hasFailedTests: boolean;
+	startTime: number;
+	endTime: number;
+	errorMessages: string[];
 }
 
 /**
  * JSON reporter for LLM evaluations
  *
- * Collects evaluation results from suite metadata and outputs comprehensive
- * JSON format suitable for UI generation and analysis
+ * Collects evaluation results from test case metadata using Vitest v4's
+ * granular Reporter API and outputs comprehensive JSON format suitable
+ * for UI generation and analysis.
  *
  * @example
  * ```ts
@@ -141,199 +168,274 @@ export interface JsonEvalSuite {
  * ```
  */
 export default class JsonReporter implements Reporter {
-  private results: JsonEvalResults;
-  private outputFile: string | null;
+	private results: JsonEvalResults;
+	private outputFile: string | null;
+	private suiteAccumulators: Map<string, SuiteAccumulator>;
 
-  constructor(options: { outputFile?: string } = {}) {
-    this.outputFile = options.outputFile || null;
-    this.results = {
-      evalResults: [],
-      numFailedEvalSuites: 0,
-      numFailedEvals: 0,
-      numPassedEvalSuites: 0,
-      numPassedEvals: 0,
-      numTotalEvalSuites: 0,
-      numTotalEvals: 0,
-      startTime: Date.now(),
-      status: 'running',
-      success: true,
-    };
-  }
+	constructor(options: JsonReporterOptions = {}) {
+		this.outputFile = options.outputFile || null;
+		this.suiteAccumulators = new Map();
+		this.results = {
+			evalResults: [],
+			numFailedEvalSuites: 0,
+			numFailedEvals: 0,
+			numPassedEvalSuites: 0,
+			numPassedEvals: 0,
+			numTotalEvalSuites: 0,
+			numTotalEvals: 0,
+			startTime: Date.now(),
+			status: 'running',
+			success: true,
+		};
+	}
 
-  onInit() {
-    this.results.startTime = Date.now();
-    this.results.status = 'running';
+	/**
+	 * Called when Vitest is initialized. Stores a reference and sets the start time.
+	 *
+	 * @param vitest - The Vitest instance
+	 */
+	onInit(_vitest: Vitest) {
+		this.results.startTime = Date.now();
+		this.results.status = 'running';
 
-    // Write initial file with 'running' status
-    this.writeResults();
-  }
+		// Write initial file with 'running' status
+		this.writeResults();
+	}
 
-  onFinished(files: DangerouslyAllowAny[] = []) {
-    this.results.endTime = Date.now();
-    this.results.duration = this.results.endTime - this.results.startTime;
-    this.results.status = 'finished';
+	/**
+	 * Called after each test case finishes. Reads evalResult from task meta
+	 * and accumulates it into the appropriate suite bucket.
+	 *
+	 * @param testCase - The completed test case
+	 */
+	onTestCaseResult(testCase: TestCase) {
+		const {evalResult} = testCase.meta();
+		if (!evalResult) {
+			return;
+		}
 
-    // Process each test file/suite
-    for (const file of files) {
-      this.processTestSuite(file);
-    }
+		const suiteKey = getSuiteKey(testCase);
+		const accumulator = this.getOrCreateAccumulator(testCase, suiteKey);
+		accumulator.evalResults.push(evalResult);
 
-    // Calculate final metrics
-    this.results.success = this.results.numFailedEvalSuites === 0;
+		const testResult = testCase.result();
+		if (testResult.state === 'failed') {
+			accumulator.hasFailedTests = true;
+			if (testResult.errors) {
+				for (const err of testResult.errors) {
+					accumulator.errorMessages.push(err.message);
+				}
+			}
+		}
 
-    // Write final results to file
-    if (this.outputFile) {
-      this.writeResults();
-    }
-  }
+		const diagnostic = testCase.diagnostic();
+		if (diagnostic) {
+			const testEndTime = diagnostic.startTime + diagnostic.duration;
+			if (testEndTime > accumulator.endTime) {
+				accumulator.endTime = testEndTime;
+			}
+			if (diagnostic.startTime < accumulator.startTime) {
+				accumulator.startTime = diagnostic.startTime;
+			}
+		}
+	}
 
-  private processTestSuite(file: DangerouslyAllowAny) {
-    const suiteName =
-      file.tasks?.[0]?.name || file.name || file.filepath || 'Unknown Suite';
-    const startTime = file.result?.startTime || Date.now();
-    const endTime = file.result?.endTime || Date.now();
-    const duration = endTime - startTime;
+	/**
+	 * Called when a test module finishes. Writes incremental output so
+	 * consumers can see partial results.
+	 *
+	 * @param _testModule - The completed test module
+	 */
+	onTestModuleEnd(_testModule: TestModule) {
+		this.writeResults();
+	}
 
-    // Extract eval results from suite meta
-    const evalResults: EvalResult[] = this.extractEvalResults(file);
+	/**
+	 * Called when the entire test run ends. Finalizes all suite accumulators
+	 * into the output format and writes the final results.
+	 *
+	 * @param _testModules - All test modules from the run
+	 * @param _unhandledErrors - Unhandled errors during the run
+	 * @param _reason - Why the run ended (passed, failed, interrupted)
+	 */
+	onTestRunEnd(
+		_testModules: readonly TestModule[],
+		_unhandledErrors: readonly SerializedError[],
+		_reason: TestRunEndReason
+	) {
+		this.results.endTime = Date.now();
+		this.results.duration = this.results.endTime - this.results.startTime;
+		this.results.status = 'finished';
 
-    if (evalResults.length === 0) {
-      // This might be a regular test suite, not an eval suite
-      return;
-    }
+		// Reset aggregated results before finalizing
+		this.results.evalResults = [];
+		this.results.numTotalEvalSuites = 0;
+		this.results.numPassedEvalSuites = 0;
+		this.results.numFailedEvalSuites = 0;
+		this.results.numTotalEvals = 0;
+		this.results.numPassedEvals = 0;
+		this.results.numFailedEvals = 0;
 
-    this.results.numTotalEvalSuites++;
-    this.results.numTotalEvals += evalResults.length;
+		for (const accumulator of this.suiteAccumulators.values()) {
+			if (accumulator.evalResults.length === 0) {
+				continue;
+			}
 
-    // Calculate suite-level metrics
-    const summary = this.calculateSuiteSummary(evalResults);
-    const suitePassed = this.isSuitePassed(file, evalResults);
+			this.results.numTotalEvalSuites++;
+			this.results.numTotalEvals += accumulator.evalResults.length;
 
-    if (suitePassed) {
-      this.results.numPassedEvalSuites++;
-      this.results.numPassedEvals += summary.passedCount;
-    } else {
-      this.results.numFailedEvalSuites++;
-      this.results.numPassedEvals += summary.passedCount;
-    }
+			const summary = calculateSuiteSummary(accumulator.evalResults);
+			const suitePassed =
+				!accumulator.hasFailedTests && isAllThresholdsMet(accumulator.evalResults);
 
-    this.results.numFailedEvals += summary.totalCount - summary.passedCount;
+			if (suitePassed) {
+				this.results.numPassedEvalSuites++;
+			} else {
+				this.results.numFailedEvalSuites++;
+			}
 
-    const suiteResult: JsonEvalSuite = {
-      duration,
-      endTime,
-      evalResults,
-      filepath: path.relative(process.cwd(), file.filepath),
-      message: this.extractErrorMessage(file),
-      name: suiteName,
-      startTime,
-      status: suitePassed ? 'passed' : 'failed',
-      summary,
-    };
+			this.results.numPassedEvals += summary.passedCount;
+			this.results.numFailedEvals += summary.totalCount - summary.passedCount;
 
-    this.results.evalResults.push(suiteResult);
+			const duration = accumulator.endTime - accumulator.startTime;
 
-    // Write updated results after each suite completes
-    this.writeResults();
-  }
+			const suiteResult: JsonEvalSuite = {
+				duration,
+				endTime: accumulator.endTime,
+				evalResults: accumulator.evalResults,
+				filepath: path.relative(process.cwd(), accumulator.moduleId),
+				message:
+					accumulator.errorMessages.length > 0
+						? accumulator.errorMessages.join('\n')
+						: undefined,
+				name: accumulator.name,
+				startTime: accumulator.startTime,
+				status: suitePassed ? 'passed' : 'failed',
+				summary,
+			};
 
-  private extractEvalResults(file: DangerouslyAllowAny): EvalResult[] {
-    // Try different paths where results might be stored
-    const results =
-      file.meta?.results ||
-      file.result?.meta?.results ||
-      file.tasks?.[0]?.meta?.results ||
-      [];
+			this.results.evalResults.push(suiteResult);
+		}
 
-    return Array.isArray(results) ? results : [];
-  }
+		this.results.success = this.results.numFailedEvalSuites === 0;
 
-  private calculateSuiteSummary(evalResults: EvalResult[]) {
-    const totalCount = evalResults.length;
-    let passedCount = 0;
-    let totalMean = 0;
-    let totalMedian = 0;
-    let totalSum = 0;
+		if (this.outputFile) {
+			this.writeResults();
+		}
+	}
 
-    for (const result of evalResults) {
-      totalMean += result.mean;
-      totalMedian += result.median;
-      totalSum += result.sum;
+	private getOrCreateAccumulator(
+		testCase: TestCase,
+		suiteKey: string
+	): SuiteAccumulator {
+		const existing = this.suiteAccumulators.get(suiteKey);
+		if (existing) {
+			return existing;
+		}
 
-      // Check if eval passed based on its aggregation method and threshold
-      const score =
-        result.aggregation === 'mean'
-          ? result.mean
-          : result.aggregation === 'median'
-            ? result.median
-            : result.sum;
+		const suiteName = getSuiteName(testCase);
+		const now = Date.now();
 
-      if (score >= result.threshold) {
-        passedCount++;
-      }
-    }
+		const accumulator: SuiteAccumulator = {
+			endTime: now,
+			errorMessages: [],
+			evalResults: [],
+			hasFailedTests: false,
+			moduleId: testCase.module.moduleId,
+			name: suiteName,
+			startTime: now,
+		};
 
-    return {
-      meanScore: totalCount > 0 ? totalMean / totalCount : 0,
-      medianScore: totalCount > 0 ? totalMedian / totalCount : 0,
-      passedCount,
-      sumScore: totalSum,
-      totalCount,
-    };
-  }
+		this.suiteAccumulators.set(suiteKey, accumulator);
+		return accumulator;
+	}
 
-  private isSuitePassed(
-    file: DangerouslyAllowAny,
-    evalResults: EvalResult[]
-  ): boolean {
-    // Check if any tests failed in this suite
-    if (file.result?.state === 'fail') {
-      return false;
-    }
+	private writeResults() {
+		try {
+			const output = JSON.stringify(this.results, null, 2);
 
-    // Check if all eval results met their thresholds
-    return evalResults.every((result) => {
-      const score =
-        result.aggregation === 'mean'
-          ? result.mean
-          : result.aggregation === 'median'
-            ? result.median
-            : result.sum;
-      return score >= result.threshold;
-    });
-  }
+			if (this.outputFile) {
+				const outputPath = path.resolve(this.outputFile);
 
-  private extractErrorMessage(file: DangerouslyAllowAny): string | undefined {
-    if (file.result?.errors?.length > 0) {
-      return file.result.errors
-        .map((e: DangerouslyAllowAny) => e.message || e.toString())
-        .join('\n');
-    }
-    return undefined;
-  }
+				// Ensure directory exists
+				const dir = path.dirname(outputPath);
+				if (!fs.existsSync(dir)) {
+					fs.mkdirSync(dir, { recursive: true });
+				}
 
-  private writeResults() {
-    try {
-      const output = JSON.stringify(this.results, null, 2);
+				fs.writeFileSync(outputPath, output);
+			} else {
+				process.stdout.write(output);
+				process.stdout.write('\n');
+			}
+		} catch (error) {
+			throw new Error(`Failed to write evaluation results: ${error}`, {
+				cause: error,
+			});
+		}
+	}
+}
 
-      if (this.outputFile) {
-        const outputPath = path.resolve(this.outputFile);
+/*
+|------------------
+| Internals
+|------------------
+*/
 
-        // Ensure directory exists
-        const dir = path.dirname(outputPath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
+function getSuiteKey(testCase: TestCase): string {
+	const {parent} = testCase;
+	if (parent.type === 'suite') {
+		return `${testCase.module.moduleId}::${parent.name}`;
+	}
+	return testCase.module.moduleId;
+}
 
-        fs.writeFileSync(outputPath, output);
-      } else {
-        process.stdout.write(output);
-        process.stdout.write('\n');
-      }
-    } catch (error) {
-      throw new Error(`Failed to write evaluation results: ${error}`, {
-        cause: error,
-      });
-    }
-  }
+function getSuiteName(testCase: TestCase): string {
+	const {parent} = testCase;
+	if (parent.type === 'suite') {
+		return parent.name;
+	}
+	return testCase.module.moduleId;
+}
+
+function getAggregatedScore(result: EvalResult): number {
+	if (result.aggregation === 'mean') {
+		return result.mean;
+	}
+	if (result.aggregation === 'median') {
+		return result.median;
+	}
+	return result.sum;
+}
+
+function calculateSuiteSummary(evalResults: EvalResult[]) {
+	const totalCount = evalResults.length;
+	let passedCount = 0;
+	let totalMean = 0;
+	let totalMedian = 0;
+	let totalSum = 0;
+
+	for (const result of evalResults) {
+		totalMean += result.mean;
+		totalMedian += result.median;
+		totalSum += result.sum;
+
+		if (getAggregatedScore(result) >= result.threshold) {
+			passedCount++;
+		}
+	}
+
+	return {
+		meanScore: totalCount > 0 ? totalMean / totalCount : 0,
+		medianScore: totalCount > 0 ? totalMedian / totalCount : 0,
+		passedCount,
+		sumScore: totalSum,
+		totalCount,
+	};
+}
+
+function isAllThresholdsMet(evalResults: EvalResult[]): boolean {
+	return evalResults.every(
+		(result) => getAggregatedScore(result) >= result.threshold
+	);
 }

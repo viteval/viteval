@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
-import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
+import { withResult } from '@viteval/internal';
 import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
 import { findUp } from 'find-up';
@@ -81,8 +81,8 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
 
     const reporters = getReporters(argv, vitestConfig);
 
-    // We don't want to have the field present as it causes issues with Vitest's config merging
-    const cliConfig: DangerouslyAllowAny = {};
+    // Only include pattern filter when explicitly provided to avoid issues with Vitest's config merging
+    const cliConfig: { include?: string[] } = {};
     if (argv.pattern) {
       cliConfig.include = [argv.pattern];
     }
@@ -184,7 +184,7 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
 function buildReporters(
   input: {
     reporter: VitevalReporter;
-    options: Record<string, DangerouslyAllowAny>;
+    options: Record<string, string | undefined>;
   }[]
 ) {
   const reporters: (Reporter | string)[] = [];
