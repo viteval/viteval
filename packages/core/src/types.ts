@@ -36,7 +36,6 @@ export type Scorer<OUTPUT, EXTRA extends Extra> = (
   args: ScorerArgs<OUTPUT, EXTRA>
 ) => Score | Promise<Score>;
 
-
 export type TaskArgs<INPUT, EXTRA extends Extra> = Merge<
   EXTRA,
   {

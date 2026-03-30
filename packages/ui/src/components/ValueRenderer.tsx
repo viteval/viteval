@@ -94,7 +94,6 @@ export function ValueRenderer({
 
   if (isJson) {
     return (
-      // Biome-ignore lint/a11y/noStaticElementInteractions: allow it
       <div
         className={wrapperClass}
         onMouseEnter={() => setShowCopyButton(true)}
