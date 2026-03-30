@@ -1,0 +1,61 @@
+{
+  "name": "@viteval/providers",
+  "version": "0.5.9",
+  "description": "Provider implementations for Viteval — SQLite (default), PostgreSQL, and third-party platforms.",
+  "homepage": "https://github.com/viteval/viteval#readme",
+  "bugs": "https://github.com/viteval/viteval/issues",
+  "license": "MIT",
+  "repository": "viteval/viteval",
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./viteval": {
+      "types": "./dist/viteval.d.mts",
+      "import": "./dist/viteval.mjs"
+    },
+    "./braintrust": {
+      "types": "./dist/braintrust.d.mts",
+      "import": "./dist/braintrust.mjs"
+    }
+  },
+  "scripts": {
+    "build": "prisma generate && tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest --typecheck --passWithNoTests",
+    "types": "tsc --noEmit",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@prisma/client": "^6.10.1",
+    "@viteval/core": "workspace:^",
+    "@viteval/internal": "workspace:^"
+  },
+  "devDependencies": {
+    "@braintrust/api": "^0.5.0",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "^25.5.0",
+    "prisma": "^6.10.1",
+    "tsdown": "^0.21.7",
+    "type-fest": "^5.5.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  },
+  "peerDependencies": {
+    "@braintrust/api": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@braintrust/api": {
+      "optional": true
+    }
+  }
+}

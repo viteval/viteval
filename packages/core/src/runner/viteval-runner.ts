@@ -1,5 +1,5 @@
 import { type SerializedConfig, type TestContext, TestRunner } from 'vitest';
-import { getEmbeddingModel, getModel } from '#/provider/client';
+import { getEmbeddingModel, getModel } from '#/model/client';
 
 /**
  * Custom Vitest runner for viteval evaluations.

@@ -20,12 +20,12 @@ vi.mock('vitest', () => ({
   TestRunner: MockTestRunner,
 }));
 
-vi.mock('#/provider/client', () => ({
+vi.mock('#/model/client', () => ({
   getEmbeddingModel: vi.fn(),
   getModel: vi.fn(),
 }));
 
-import { getEmbeddingModel, getModel } from '#/provider/client';
+import { getEmbeddingModel, getModel } from '#/model/client';
 import VitevalRunner from './viteval-runner';
 
 const mockGetModel = vi.mocked(getModel);

@@ -2,7 +2,7 @@ import type { LanguageModel } from 'ai';
 import { generateObject } from 'ai';
 import Mustache from 'mustache';
 import { z } from 'zod';
-import { requireModel } from '#/provider/client';
+import { requireModel } from '#/model/client';
 
 /**
  * Configuration for an LLM-as-judge evaluation.

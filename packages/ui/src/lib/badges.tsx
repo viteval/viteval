@@ -4,9 +4,9 @@ export function getStatusBadge(status: string) {
   const variant =
     status === 'passed'
       ? 'default'
-      : status === 'failed'
+      : (status === 'failed'
         ? 'destructive'
-        : 'secondary';
+        : 'secondary');
   return <Badge variant={variant}>{status}</Badge>;
 }
 

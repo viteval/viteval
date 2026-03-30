@@ -2,6 +2,7 @@ import { dirname, resolve as pathResolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { P, match } from 'ts-pattern';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
+import { initializeModel } from '#/model/initialize';
 import { vitevalPlugin } from '#/plugin/viteval-plugin';
 import { initializeProvider } from '#/provider/initialize';
 import type { VitevalConfig } from './types';
@@ -41,15 +42,25 @@ export function defineConfig(config: VitevalConfig) {
     reporters,
     deps,
     server,
+    model,
     provider,
   } = config;
 
-  // Initialize the provider eagerly — AI SDK model instances are not
+  // Initialize the model eagerly — AI SDK model instances are not
   // Serializable so they cannot go through Vitest's provide/inject.
   // The custom VitevalRunner reads them from globalThis via lazy getters.
+  if (model) {
+    initializeModel(model);
+  }
+
+  // Initialize the provider eagerly for dataset/eval persistence.
   if (provider) {
     initializeProvider(provider);
   }
+
+  // Provider initialization is deferred — it's async (DB migrations, connections)
+  // And will be triggered lazily on first provider access.
+  // We store the config for lazy init in evaluate()'s beforeAll hook.
 
   return defineVitestConfig({
     plugins: [vitevalPlugin({ config }), ...plugins],

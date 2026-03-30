@@ -1,35 +1,7 @@
-import type { EmbeddingModel, LanguageModel } from 'ai';
 import type { AliasOptions, UserConfig } from 'vite';
 import type { DepsOptimizationOptions } from 'vitest/node';
-
-/**
- * Provider configuration for LLM-based scorers.
- *
- * Uses Vercel AI SDK models — bring your own provider package
- * (`@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`, etc.).
- *
- * @example
- * ```ts
- * import { openai } from '@ai-sdk/openai';
- *
- * const provider: VitevalProviderConfig = {
- *   model: openai('gpt-4o-mini'),
- *   embeddingModel: openai.embedding('text-embedding-3-small'),
- * };
- * ```
- */
-export interface VitevalProviderConfig {
-  /**
-   * Language model used for LLM-as-judge scorers.
-   */
-  model: LanguageModel;
-  /**
-   * Embedding model used for embedding-based scorers (e.g. `embeddingSimilarity`, `answerSimilarity`).
-   *
-   * Only required if you use embedding scorers.
-   */
-  embeddingModel?: EmbeddingModel;
-}
+import type { ModelConfig } from '#/model/types';
+import type { ProviderConfig } from '#/provider/types';
 
 // TODO: Add support for braintrust reporter
 // Export type VitevalReporterBraintrust = {
@@ -45,21 +17,61 @@ export type VitevalReporter = 'default' | 'json' | 'file'; // | VitevalReporterB
  */
 export interface VitevalConfig {
   /**
-   * Provider configuration for LLM-based and embedding-based scorers.
+   * Model configuration for LLM-based and embedding-based scorers.
    *
-   * @example
+   * Accepts a `LanguageModel` directly (shorthand), or a config object
+   * with `language` and optional `embedding` models.
+   *
+   * @example Shorthand
    * ```ts
    * import { openai } from '@ai-sdk/openai';
    *
    * defineConfig({
-   *   provider: {
-   *     model: openai('gpt-4o-mini'),
-   *     embeddingModel: openai.embedding('text-embedding-3-small'),
+   *   model: openai('gpt-4o'),
+   * });
+   * ```
+   *
+   * @example Full config
+   * ```ts
+   * import { openai } from '@ai-sdk/openai';
+   *
+   * defineConfig({
+   *   model: {
+   *     language: openai('gpt-4o'),
+   *     embedding: openai.embedding('text-embedding-3-small'),
    *   },
    * });
    * ```
    */
-  provider?: VitevalProviderConfig;
+  model?: ModelConfig;
+  /**
+   * Provider for persisting datasets and evaluation runs.
+   *
+   * Accepts a single provider, or per-domain providers for composable setups.
+   *
+   * @example Single provider
+   * ```ts
+   * import { viteval } from '@viteval/providers';
+   *
+   * defineConfig({
+   *   provider: viteval(),
+   * });
+   * ```
+   *
+   * @example Composable providers
+   * ```ts
+   * import { viteval } from '@viteval/providers';
+   * import { braintrust } from '@viteval/providers/braintrust';
+   *
+   * defineConfig({
+   *   provider: {
+   *     datasets: viteval(),
+   *     evals: braintrust({ project: 'my-project', apiKey: '...' }),
+   *   },
+   * });
+   * ```
+   */
+  provider?: ProviderConfig;
   /**
    * Reporters to use.
    */
