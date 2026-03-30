@@ -12,14 +12,14 @@ export default defineConfig({
     presetWind3(),
     presetIcons({
       scale: 1.2,
-      warn: true,
       unit: 'em',
+      warn: true,
     }),
     presetWebFonts({
-      provider: 'bunny',
       fonts: {
         sans: 'Inter',
       },
+      provider: 'bunny',
     }),
   ],
   transformers: [transformerDirectives(), transformerVariantGroup()],

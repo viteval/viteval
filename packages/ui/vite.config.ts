@@ -7,15 +7,15 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const config = defineConfig({
   plugins: [
-    // this is the plugin that enables path aliases
+    // This is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
     viteUnpluginIcon({
-      compiler: 'jsx',
-      jsx: 'react',
-      defaultClass: 'icon',
       autoInstall: true,
+      compiler: 'jsx',
+      defaultClass: 'icon',
+      jsx: 'react',
     }),
     tailwindcss(),
     tanstackStart(),

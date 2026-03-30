@@ -14,8 +14,6 @@ export const dataCommand: CommandModule<
   unknown,
   { pattern: string; overwrite?: boolean; verbose?: boolean }
 > = {
-  command: 'data [pattern]',
-  describe: 'Generate the datasets in your codebase',
   builder: (yargs) => {
     return yargs
       .positional('pattern', {
@@ -35,6 +33,8 @@ export const dataCommand: CommandModule<
         default: false,
       });
   },
+  command: 'data [pattern]',
+  describe: 'Generate the datasets in your codebase',
   handler: async (argv) => {
     const logger = createLogger();
 

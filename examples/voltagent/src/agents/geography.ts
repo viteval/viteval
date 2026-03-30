@@ -14,7 +14,6 @@ export interface GeographyOutput {
 }
 
 export const geographyAgent = new Agent({
-  name: 'geography-agent',
   instructions: `You are a specialized geography agent with expertise in countries, cities, landmarks, and geographical features.
 Your knowledge covers:
 - Countries and their capitals, populations, and characteristics
@@ -37,4 +36,5 @@ Return your response in the following JSON format:
   "confidence": 0.95
 }`,
   model: openai('gpt-4o-mini'),
+  name: 'geography-agent',
 });

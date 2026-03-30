@@ -6,27 +6,27 @@ describe('createScorer', () => {
     const scorer = createScorer({
       name: 'exact-match',
       score: ({ output, expected }) => ({
-        score: output === expected ? 1.0 : 0.0,
+        score: output === expected ? 1 : 0,
       }),
     });
 
     const result = await scorer({
+      expected: 'hello',
       input: 'test',
       output: 'hello',
-      expected: 'hello',
     });
 
     expect(result).toEqual({
+      metadata: undefined,
       name: 'exact-match',
       score: 1.0,
-      metadata: undefined,
     });
   });
 
   it('should create a scorer with a name', () => {
     const scorer = createScorer({
       name: 'test-scorer',
-      score: () => ({ score: 1.0 }),
+      score: () => ({ score: 1 }),
     });
     expect(scorer.name).toBe('test-scorer');
   });
@@ -38,7 +38,7 @@ describe('createScorer', () => {
         await new Promise((resolve) => setTimeout(resolve, 10));
         return {
           // @ts-expect-error - output is of type unknown
-          score: output.length > 5 ? 1.0 : 0.0,
+          score: output.length > 5 ? 1 : 0,
         };
       },
     });
@@ -49,9 +49,9 @@ describe('createScorer', () => {
     });
 
     expect(result).toEqual({
+      metadata: undefined,
       name: 'async-scorer',
       score: 1.0,
-      metadata: undefined,
     });
   });
 
@@ -59,24 +59,24 @@ describe('createScorer', () => {
     const scorer = createScorer({
       name: 'metadata-scorer',
       score: ({ output, expected }) => ({
-        score: output === expected ? 1.0 : 0.0,
         metadata: {
           // @ts-expect-error - output is of type unknown
           outputLength: output.length,
           comparison: output === expected,
           timestamp: Date.now(),
         },
+        score: output === expected ? 1.0 : 0.0,
       }),
     });
 
     const result = await scorer({
+      expected: 'world',
       input: 'test',
       output: 'hello',
-      expected: 'world',
     });
 
     expect(result.name).toBe('metadata-scorer');
-    expect(result.score).toBe(0.0);
+    expect(result.score).toBe(0);
     expect(result.metadata).toBeDefined();
     expect(result.metadata?.outputLength).toBe(5);
     expect(result.metadata?.comparison).toBe(false);
@@ -93,26 +93,26 @@ describe('createScorer', () => {
     const scorer = createScorer<string, ExtraArgs>({
       name: 'extra-args-scorer',
       score: ({ output, customParam, threshold }) => ({
-        score:
-          output.includes(customParam) && output.length > threshold ? 1.0 : 0.0,
         metadata: {
           customParam,
           threshold,
           outputLength: output.length,
         },
+        score:
+          output.includes(customParam) && output.length > threshold ? 1.0 : 0.0,
       }),
     });
 
     const result = await scorer({
       // @ts-expect-error - input is of type unknown
+      customParam: 'test',
       input: 'test input',
       output: 'hello world test',
-      customParam: 'test',
       threshold: 10,
     });
 
     expect(result.name).toBe('extra-args-scorer');
-    expect(result.score).toBe(1.0);
+    expect(result.score).toBe(1);
     expect(result.metadata?.customParam).toBe('test');
     expect(result.metadata?.threshold).toBe(10);
   });
@@ -121,8 +121,8 @@ describe('createScorer', () => {
     const scorer = createScorer({
       name: 'null-scorer',
       score: () => ({
-        score: null,
         metadata: { reason: 'unable to score' },
+        score: null,
       }),
     });
 
@@ -141,7 +141,7 @@ describe('createScorer', () => {
       name: 'complex-scorer',
       score: ({ output, expected }) => {
         if (!expected) {
-          return { score: null, metadata: { error: 'No expected value' } };
+          return { metadata: { error: 'No expected value' }, score: null };
         }
 
         // @ts-expect-error - expected is of type unknown
@@ -149,7 +149,6 @@ describe('createScorer', () => {
         const passed = similarity > 0.8;
 
         return {
-          score: passed ? similarity : 0.0,
           metadata: {
             similarity,
             passed,
@@ -158,14 +157,15 @@ describe('createScorer', () => {
             // @ts-expect-error - expected is of type unknown
             expectedWords: expected.split(' ').length,
           },
+          score: passed ? similarity : 0.0,
         };
       },
     });
 
     const result = await scorer({
+      expected: 'the quick brown dog',
       input: 'test',
       output: 'the quick brown fox',
-      expected: 'the quick brown dog',
     });
 
     expect(result.name).toBe('complex-scorer');

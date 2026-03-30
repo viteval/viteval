@@ -5,18 +5,16 @@ import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
 import { findUp } from 'find-up';
 import open from 'open';
-import { match, P } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 import {
-  createVitest,
   type Reporter,
   type ResolvedConfig,
+  createVitest,
   resolveConfig,
 } from 'vitest/node';
 import type { CommandModule } from 'yargs';
 
 export const runCommand: CommandModule<unknown, EvalOptions> = {
-  command: 'run [pattern] [options]',
-  describe: 'Run evaluations',
   aliases: ['*'],
   builder: (yargs) => {
     return yargs
@@ -46,6 +44,8 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
         type: 'string',
       });
   },
+  command: 'run [pattern] [options]',
+  describe: 'Run evaluations',
   handler: async (argv) => {
     const root = path
       .resolve(process.cwd(), argv.root ?? '.')
@@ -139,7 +139,6 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
   if (argReporters.length > 0) {
     return buildReporters(
       argReporters.map((reporter) => ({
-        reporter,
         options: match(reporter)
           .with('json', () => ({
             outputFile: argv.outputPath
@@ -152,6 +151,7 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
               : formatOutputFile('.viteval/results/<timestamp>.json'),
           }))
           .otherwise(() => ({})),
+        reporter,
       }))
     );
   }
@@ -160,36 +160,34 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
     const formattedReporters = config.reporters
       .flatMap((reporter) =>
         match(reporter)
-          .with(P.array(), (r) => {
-            return r.filter((r) => typeof r === 'string');
-          })
+          .with(P.array(), (r) => r.filter((r) => typeof r === 'string'))
           .otherwise(() => null)
       )
       .filter((reporter) => reporter !== null) as VitevalReporter[];
 
     return buildReporters(
       formattedReporters.map((reporter) => ({
-        reporter,
         options: {},
+        reporter,
       }))
     );
   }
 
   return buildReporters([
     {
-      reporter: 'default',
       options: {},
+      reporter: 'default',
     },
   ]);
 }
 
 function buildReporters(
-  input: Array<{
+  input: {
     reporter: VitevalReporter;
     options: Record<string, DangerouslyAllowAny>;
-  }>
+  }[]
 ) {
-  const reporters: Array<Reporter | string> = [];
+  const reporters: (Reporter | string)[] = [];
 
   for (const { reporter, options } of input) {
     if (reporter === 'json' || reporter === 'file') {

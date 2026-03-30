@@ -4,7 +4,6 @@ import { defineDataset } from 'viteval/dataset';
 import { z } from 'zod';
 
 export default defineDataset({
-  name: 'history',
   data: async () => {
     const data = [];
 
@@ -29,4 +28,5 @@ export default defineDataset({
 
     return data;
   },
+  name: 'history',
 });

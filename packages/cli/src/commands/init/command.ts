@@ -13,8 +13,6 @@ export const initCommand: CommandModule<
     envFilePath?: string;
   }
 > = {
-  command: 'init [options]',
-  describe: 'Initialize a new project',
   builder: (yargs) => {
     return yargs
       .option('env-file', {
@@ -27,6 +25,8 @@ export const initCommand: CommandModule<
         default: '.env',
       });
   },
+  command: 'init [options]',
+  describe: 'Initialize a new project',
   handler: async (argv) => {
     const cwd = process.cwd().replace(/\\/g, '/');
     const logger = createLogger();

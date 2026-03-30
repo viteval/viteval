@@ -8,8 +8,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '#models': path.resolve(import.meta.dirname, 'src/models'),
       '#': path.resolve(import.meta.dirname, 'src'),
+      '#models': path.resolve(import.meta.dirname, 'src/models'),
     },
   },
 });

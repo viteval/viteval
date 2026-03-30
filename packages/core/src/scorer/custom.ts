@@ -30,9 +30,9 @@ export function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
     async (args: ScorerArgs<OUTPUT, EXTRA>) => {
       const result = await config.score(args);
       return {
+        metadata: result.metadata,
         name: config.name,
         score: result.score,
-        metadata: result.metadata,
       };
     },
     'name',

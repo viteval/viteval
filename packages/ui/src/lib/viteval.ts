@@ -108,7 +108,7 @@ class VitevalFileReader {
       const fileIds = (await fs.readdir(fullPath))
         .filter((file) => file.endsWith('.json'))
         .map((file) => file.replace('.json', ''))
-        .sort(sortFn);
+        .toSorted(sortFn);
 
       return fileIds;
     } catch {
@@ -155,7 +155,6 @@ class VitevalFileReader {
         id,
         name: fileName,
         path: filePath,
-        timestamp: id,
         size: stats.size,
         summary: {
           status: results.status,
@@ -170,6 +169,7 @@ class VitevalFileReader {
           startTime: results.startTime,
           endTime: results.endTime,
         },
+        timestamp: id,
       };
     } catch {
       return null;
@@ -186,12 +186,12 @@ class VitevalFileReader {
       const id = fileName.replace('.json', '');
 
       return {
-        id,
-        name: data.name || id,
-        description: data.description,
-        path: path.relative(this.rootPath, filePath),
-        itemCount: data.data ? data.data.length : 0,
         createdAt: data.createdAt,
+        description: data.description,
+        id,
+        itemCount: data.data ? data.data.length : 0,
+        name: data.name || id,
+        path: path.relative(this.rootPath, filePath),
         storage: data.storage || 'local',
       };
     } catch {

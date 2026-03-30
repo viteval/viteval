@@ -4,7 +4,7 @@ import { evaluate } from './evaluate';
 
 vi.mock('#/internals/config', () => ({
   getRuntimeConfig: () => ({
-    eval: { timeout: 25000 },
+    eval: { timeout: 25_000 },
     provider: undefined,
   }),
 }));
@@ -14,14 +14,14 @@ vi.mock('#/provider/initialize', () => ({
 }));
 
 describe('evaluate', () => {
-  const mockTask = vi.fn(async ({ input }: { input: string }) => {
-    return input.toUpperCase();
-  });
+  const mockTask = vi.fn(async ({ input }: { input: string }) =>
+    input.toUpperCase()
+  );
 
   const mockScorer = createScorer({
     name: 'test-scorer',
     score: ({ output, expected }) => ({
-      score: output === expected ? 1.0 : 0.0,
+      score: output === expected ? 1 : 0,
     }),
   });
 
@@ -30,54 +30,53 @@ describe('evaluate', () => {
       { input: 'hello', expected: 'HELLO' },
       { input: 'world', expected: 'WORLD' },
     ],
-    task: mockTask,
     scorers: [mockScorer],
+    task: mockTask,
   });
 
   evaluate('threshold enforcement with mean aggregation', {
+    aggregation: 'mean',
     data: [
       { input: 'pass', expected: 'PASS' },
       { input: 'also-pass', expected: 'ALSO-PASS' },
     ],
-    task: mockTask,
     scorers: [mockScorer],
+    task: mockTask,
     threshold: 0.8,
-    aggregation: 'mean',
   });
 
   evaluate('median aggregation', {
-    data: [{ input: 'test', expected: 'TEST' }],
-    task: mockTask,
-    scorers: [mockScorer],
     aggregation: 'median',
+    data: [{ input: 'test', expected: 'TEST' }],
+    scorers: [mockScorer],
+    task: mockTask,
   });
 
   evaluate('sum aggregation', {
-    data: [{ input: 'test', expected: 'TEST' }],
-    task: mockTask,
-    scorers: [mockScorer],
     aggregation: 'sum',
+    data: [{ input: 'test', expected: 'TEST' }],
+    scorers: [mockScorer],
+    task: mockTask,
   });
 
   evaluate('custom timeout settings', {
     data: [{ input: 'test', expected: 'test' }],
+    scorers: [mockScorer],
     task: vi.fn(async ({ input }: { input: string }) => {
       await new Promise((resolve) => setTimeout(resolve, 100));
       return input;
     }),
-    scorers: [mockScorer],
     timeout: 5000,
   });
 
   evaluate('function-based data', {
     data: async () => [{ input: 'generated', expected: 'GENERATED' }],
-    task: mockTask,
     scorers: [mockScorer],
+    task: mockTask,
   });
 
   evaluate('multiple scorers', {
     data: [{ input: 'test', expected: 'TEST' }],
-    task: mockTask,
     scorers: [
       mockScorer,
       createScorer({
@@ -87,5 +86,6 @@ describe('evaluate', () => {
         }),
       }),
     ],
+    task: mockTask,
   });
 });

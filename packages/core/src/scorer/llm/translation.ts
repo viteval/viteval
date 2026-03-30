@@ -17,7 +17,7 @@ const PROMPT = `You are comparing a submitted translation to an expert translati
 
 Does the submitted translation and the expert translation have the same meaning? Ignore any differences in style and punctuation, but check if the nouns and tenses used in the submission are the same as the expert answer and if the submission has not used any verbs or adjectives that change the meaning of the translation.`;
 
-const CHOICE_SCORES: Record<string, number> = { Y: 1.0, N: 0.0 };
+const CHOICE_SCORES: Record<string, number> = { N: 0.0, Y: 1.0 };
 
 /**
  * Scores translation accuracy by comparing a submission to an expert translation.
@@ -43,12 +43,12 @@ export const translation = createScorer({
     const language =
       ('language' in extra ? extra.language : undefined) ?? 'Unknown';
     const result = await runJudge(
-      { prompt: PROMPT, choiceScores: CHOICE_SCORES, useCoT: true },
-      { output, expected, input, language, ...extra }
+      { choiceScores: CHOICE_SCORES, prompt: PROMPT, useCoT: true },
+      { expected, input, language, output, ...extra }
     );
     return {
-      score: result.score,
       metadata: { choice: result.choice, rationale: result.rationale },
+      score: result.score,
     };
   },
 });

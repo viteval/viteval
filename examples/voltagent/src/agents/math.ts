@@ -13,12 +13,7 @@ export interface MathOutput {
 }
 
 const calculatorTool = createTool({
-  name: 'calculator',
   description: 'Perform basic arithmetic operations',
-  parameters: z.object({
-    operation: z.string().describe('The mathematical operation to perform'),
-    numbers: z.array(z.number()).describe('The numbers to operate on'),
-  }),
   execute: async ({ operation, numbers }) => {
     switch (operation) {
       case 'add':
@@ -33,10 +28,14 @@ const calculatorTool = createTool({
         throw new Error(`Unknown operation: ${operation}`);
     }
   },
+  name: 'calculator',
+  parameters: z.object({
+    operation: z.string().describe('The mathematical operation to perform'),
+    numbers: z.array(z.number()).describe('The numbers to operate on'),
+  }),
 });
 
 export const mathAgent = new Agent({
-  name: 'math-agent',
   instructions: `You are a mathematical problem-solving agent.
 Solve math problems step by step using the calculator tool when needed.
 Always show your work and explain your reasoning.
@@ -48,5 +47,6 @@ Return your response in JSON format:
   "steps": ["step 1", "step 2", ...]
 }`,
   model: openai('gpt-4o-mini'),
+  name: 'math-agent',
   tools: [calculatorTool],
 });

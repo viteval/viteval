@@ -7,7 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) {
+    return '0 B';
+  }
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -30,7 +32,9 @@ export function formatTimestamp(timestamp: string): string {
 }
 
 export function formatDuration(ms: number): string {
-  if (ms < 1000 && !isNaNFn(ms)) return `${ms}ms`;
+  if (ms < 1000 && !isNaNFn(ms)) {
+    return `${ms}ms`;
+  }
   const seconds = ms / 1000;
 
   if (isNaNFn(seconds)) {

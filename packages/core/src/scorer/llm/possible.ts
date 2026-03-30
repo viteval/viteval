@@ -36,7 +36,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 0, B: 1 };
  * ```
  */
 export const possible = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'Possible',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

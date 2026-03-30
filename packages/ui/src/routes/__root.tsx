@@ -1,4 +1,4 @@
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { Toaster } from 'sonner';
 import Header from '../components/Header';
 import appCss from '../styles.css?url';
@@ -25,8 +25,8 @@ export const Route = createRootRoute({
     ],
   }),
 
-  shellComponent: RootDocument,
   notFoundComponent: NotFound,
+  shellComponent: RootDocument,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -44,8 +44,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             className: 'font-sans',
             style: {
               background: '#18181b',
-              color: '#fafafa',
               border: '1px solid #27272a',
+              color: '#fafafa',
             },
           }}
         />

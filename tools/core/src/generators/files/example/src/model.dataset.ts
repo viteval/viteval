@@ -1,7 +1,6 @@
 import { defineDataset } from 'viteval/dataset';
 
 export default defineDataset({
-  name: 'example',
   data: async () => {
     return [
       {
@@ -18,4 +17,5 @@ export default defineDataset({
       },
     ];
   },
+  name: 'example',
 });
