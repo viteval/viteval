@@ -121,10 +121,7 @@ export function evaluate<
           };
 
           for (const score of scoresWithName) {
-            await annotate(
-              `${score.name}: ${score.score}`,
-              score.score >= threshold ? 'notice' : 'warning'
-            );
+            await annotate(`${score.name}: ${score.score}`);
           }
 
           if (threshold) {

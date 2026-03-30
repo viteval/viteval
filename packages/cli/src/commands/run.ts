@@ -81,18 +81,11 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
 
     const reporters = getReporters(argv, vitestConfig);
 
-    // Only include pattern filter when explicitly provided to avoid issues with Vitest's config merging
-    const cliConfig: { include?: string[] } = {};
-    if (argv.pattern) {
-      cliConfig.include = [argv.pattern];
-    }
-
     const vitest = await createVitest('test', {
       config: configFilePath,
       reporters,
       root,
       watch: false,
-      ...cliConfig,
     });
 
     try {
@@ -103,9 +96,10 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
           }).start()
         : undefined;
 
-      // This will set process.exitCode to 1 if tests failed,
-      // And won't close the process automatically
-      await vitest.start();
+      // Pass pattern as a filter to vitest.start() instead of overriding config.include,
+      // Which would replace the user's configured include patterns
+      const filters = argv.pattern ? [argv.pattern] : [];
+      await vitest.start(filters);
 
       if (serverResult) {
         const serverPort = await serverResult;

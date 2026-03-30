@@ -4,7 +4,7 @@ import { getEmbeddingModel, getModel } from '#/provider/client';
 /**
  * Custom Vitest runner for viteval evaluations.
  *
- * Extends the built-in `VitestTestRunner` to add eval-specific lifecycle
+ * Extends the built-in `TestRunner` to add eval-specific lifecycle
  * hooks while preserving snapshot support and all default Vitest features.
  *
  * Responsibilities:

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { match } from 'ts-pattern';
 import type {
   Reporter,
   SerializedError,
@@ -320,9 +321,7 @@ export default class JsonReporter implements Reporter {
 
     this.results.success = this.results.numFailedEvalSuites === 0;
 
-    if (this.outputFile) {
-      this.writeResults();
-    }
+    this.writeResults();
   }
 
   private getOrCreateAccumulator(
@@ -400,13 +399,11 @@ function getSuiteName(testCase: TestCase): string {
 }
 
 function getAggregatedScore(result: EvalResult): number {
-  if (result.aggregation === 'mean') {
-    return result.mean;
-  }
-  if (result.aggregation === 'median') {
-    return result.median;
-  }
-  return result.sum;
+  return match(result.aggregation)
+    .with('mean', () => result.mean)
+    .with('median', () => result.median)
+    .with('sum', () => result.sum)
+    .exhaustive();
 }
 
 function calculateSuiteSummary(evalResults: EvalResult[]) {

@@ -41,9 +41,9 @@ declare module 'vitest' {
 Instead of accumulating results in a closure and dumping them in `afterAll`, store each result on its own test's meta:
 
 ```ts
-// Before (suite-level, fragile)
-afterAll(({}, { suite }) => {
-  suite.meta.results = results;
+// Before (suite-level, fragile — this pattern no longer works in Vitest 4.1+)
+afterAll(() => {
+  // Previously smuggled results onto suite.meta via undocumented API
 });
 
 // After (per-test, robust)
@@ -104,9 +104,9 @@ Align `VitevalConfig` types with Vitest 4's actual config surface:
 Replace `onFinished(files: DangerouslyAllowAny[])` with granular hooks:
 
 ```ts
-import type { TestCase, TestSuite, TestModule } from 'vitest/node';
+import type { Reporter, TestCase, TestModule, TestRunEndReason, SerializedError, Vitest } from 'vitest/node';
 
-export default class JsonReporter {
+export default class JsonReporter implements Reporter {
   // Typed initialization
   onInit(vitest: Vitest) { ... }
 
@@ -117,18 +117,17 @@ export default class JsonReporter {
     this.addResult(testCase, evalResult);
   }
 
-  // Suite-level aggregation
-  onTestSuiteResult(testSuite: TestSuite) {
-    this.finalizeSuite(testSuite);
-  }
-
   // Module completion — write incremental output
   onTestModuleEnd(testModule: TestModule) {
     this.writeResults();
   }
 
   // Final output with summary
-  onTestRunEnd(testModules: ReadonlyArray<TestModule>, errors, reason) {
+  onTestRunEnd(
+    testModules: ReadonlyArray<TestModule>,
+    unhandledErrors: ReadonlyArray<SerializedError>,
+    reason: TestRunEndReason
+  ) {
     this.finalize(reason);
     this.writeResults();
   }
@@ -295,10 +294,20 @@ Note: Since the runner runs in the same worker thread as tests, non-serializable
 ### 3.4 Wire runner in config
 
 ```ts
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve as pathResolve } from 'node:path';
+
+const RUNNER_PATH = pathResolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'runner',
+  'index.mjs'
+);
+
 // defineConfig
 return defineVitestConfig({
   test: {
-    runner: require.resolve('@viteval/core/runner'),
+    runner: RUNNER_PATH,
     // ...
   },
 });
@@ -337,7 +346,8 @@ export function vitevalPlugin(config: VitevalConfig): Vite.Plugin {
       vitest.config.testTimeout = config.eval?.timeout ?? 100_000;
 
       // Register the custom runner
-      project.config.runner = resolve('@viteval/core/runner');
+      // Runner path is resolved at config time via import.meta.url (ESM-safe)
+      project.config.runner = RUNNER_PATH;
 
       // Provide serializable config
       vitest.provide('vitevalConfig', config.serializable());
