@@ -31,7 +31,8 @@ const CHOICE_SCORES: Record<string, number> = { Correct: 1, Incorrect: 0 };
  * ```ts
  * import { sql } from '@viteval/core';
  *
- * const result = await sql({
+ * const scorer = sql();
+ * const result = await scorer({
  *   input: 'Select all users older than 25',
  *   output: 'SELECT * FROM users WHERE age > 25',
  *   expected: 'SELECT * FROM users WHERE age > 25',
