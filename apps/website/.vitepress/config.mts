@@ -12,26 +12,26 @@ export default defineConfig({
   cleanUrls: true,
   description: 'Next generation LLM evaluation framework powered by Vitest.',
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }],
-    ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:locale', content: 'en' }],
+    ['link', { href: '/favicon.ico', rel: 'icon' }],
+    ['meta', { content: 'website', property: 'og:type' }],
+    ['meta', { content: 'en', property: 'og:locale' }],
     [
       'meta',
       {
-        property: 'og:title',
         content:
           'Viteval | Next generation LLM evaluation framework powered by Vitest.',
+        property: 'og:title',
       },
     ],
-    ['meta', { property: 'og:site_name', content: 'Viteval' }],
+    ['meta', { content: 'Viteval', property: 'og:site_name' }],
     // [
     //   'meta',
     //   {
-    //     property: 'og:image',
-    //     content: 'https://joggrdocs.github.io/tempo/images/tempo-social.png',
+    //     Property: 'og:image',
+    //     Content: 'https://joggrdocs.github.io/tempo/images/tempo-social.png',
     //   },
     // ],
-    ['meta', { property: 'og:url', content: 'https://viteval.dev/' }],
+    ['meta', { content: 'https://viteval.dev/', property: 'og:url' }],
     [
       'script',
       {
@@ -61,64 +61,64 @@ export default defineConfig({
     logo: '/assets/viteval.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'API', link: '/api/evaluate' },
-      { text: 'Examples', link: '/examples/' },
+      { link: '/', text: 'Home' },
+      { link: '/guide/getting-started', text: 'Guide' },
+      { link: '/api/evaluate', text: 'API' },
+      { link: '/examples/', text: 'Examples' },
     ],
     sidebar: {
-      '/guide/': [
-        {
-          text: 'Introduction',
-          items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
-            { text: 'Core Concepts', link: '/guide/concepts' },
-            { text: 'CLI Usage', link: '/guide/cli' },
-          ],
-        },
-        {
-          text: 'Advanced',
-          items: [
-            { text: 'CI Integration', link: '/guide/advanced/ci' },
-            { text: 'Reporters', link: '/guide/advanced/reporters' },
-          ],
-        },
-      ],
       '/api/': [
         {
-          text: 'API Reference',
           items: [
-            { text: 'defineConfig()', link: '/api/configuration' },
-            { text: 'evaluate()', link: '/api/evaluate' },
-            { text: 'defineDataset()', link: '/api/define-dataset' },
-            { text: 'createScorer()', link: '/api/create-scorer' },
-            { text: 'scorers', link: '/api/scorers' },
+            { link: '/api/configuration', text: 'defineConfig()' },
+            { link: '/api/evaluate', text: 'evaluate()' },
+            { link: '/api/define-dataset', text: 'defineDataset()' },
+            { link: '/api/create-scorer', text: 'createScorer()' },
+            { link: '/api/scorers', text: 'scorers' },
           ],
+          text: 'API Reference',
         },
       ],
       '/examples/': [
         {
-          text: 'Examples',
           items: [
             {
-              text: 'Basic',
               link: 'https://github.com/viteval/viteval/tree/main/examples/basic',
-              target: '_blank',
               rel: 'noopener noreferrer',
+              target: '_blank',
+              text: 'Basic',
             },
             {
-              text: 'Vercel AI SDK',
               link: 'https://github.com/viteval/viteval/tree/main/examples/vercel-ai',
-              target: '_blank',
               rel: 'noopener noreferrer',
+              target: '_blank',
+              text: 'Vercel AI SDK',
             },
             {
-              text: 'Voltagent',
               link: 'https://github.com/viteval/viteval/tree/main/examples/voltagent',
-              target: '_blank',
               rel: 'noopener noreferrer',
+              target: '_blank',
+              text: 'Voltagent',
             },
           ],
+          text: 'Examples',
+        },
+      ],
+      '/guide/': [
+        {
+          items: [
+            { link: '/guide/getting-started', text: 'Getting Started' },
+            { link: '/guide/concepts', text: 'Core Concepts' },
+            { link: '/guide/cli', text: 'CLI Usage' },
+          ],
+          text: 'Introduction',
+        },
+        {
+          items: [
+            { link: '/guide/advanced/ci', text: 'CI Integration' },
+            { link: '/guide/advanced/reporters', text: 'Reporters' },
+          ],
+          text: 'Advanced',
         },
       ],
     },

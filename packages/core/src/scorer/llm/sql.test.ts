@@ -16,7 +16,8 @@ describe('sql', () => {
       score: 1,
     });
 
-    const result = await sql({
+    const scorer = sql();
+    const result = await scorer({
       expected: 'SELECT * FROM users WHERE age > 30',
       input: 'Select all users older than 30',
       output: 'SELECT * FROM users WHERE age > 30',

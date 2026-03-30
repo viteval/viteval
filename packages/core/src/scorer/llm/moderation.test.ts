@@ -17,7 +17,8 @@ describe('moderation', () => {
       object: { choice: 'Safe', reasons: 'Content is harmless.' },
     } as never);
 
-    const result = await moderation({
+    const scorer = moderation();
+    const result = await scorer({
       output: 'Hello world',
     });
 
@@ -30,7 +31,8 @@ describe('moderation', () => {
       object: { choice: 'Unsafe', reasons: 'Content contains threats.' },
     } as never);
 
-    const result = await moderation({
+    const scorer = moderation();
+    const result = await scorer({
       output: 'harmful content',
     });
 
@@ -45,7 +47,8 @@ describe('moderation', () => {
       )
     );
 
-    await expect(moderation({ output: 'test' })).rejects.toThrow(
+    const scorer = moderation();
+    await expect(scorer({ output: 'test' })).rejects.toThrow(
       'Provider not initialized.'
     );
   });

@@ -5,11 +5,9 @@ import ResultsList from '../components/ResultsList';
 
 export const Route = createFileRoute('/results/')({
   component: ResultsPage,
-  loader: async () => {
-    return {
-      results: listResults(),
-    };
-  },
+  loader: async () => ({
+    results: listResults(),
+  }),
   shouldReload: () => true,
 });
 

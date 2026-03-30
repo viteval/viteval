@@ -5,7 +5,7 @@ import historyDataset from './history.dataset';
 evaluate('History Agent', {
   data: historyDataset,
   description: 'Evaluates the history agent knowledge and accuracy',
-  scorers: [scorers.answerCorrectness],
+  scorers: [scorers.answerCorrectness()],
   task: async ({ input }) => {
     const result = await historyAgent.generateText(input);
     return result.text;

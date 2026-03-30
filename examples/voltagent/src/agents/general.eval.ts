@@ -5,7 +5,7 @@ import generalDataset from './general.dataset';
 evaluate('General Agent', {
   data: generalDataset,
   description: 'Evaluates the general question-answering agent capabilities',
-  scorers: [scorers.answerCorrectness],
+  scorers: [scorers.answerCorrectness()],
   task: async ({ input }) => {
     const result = await generalAgent.generateText(input);
     return result.text;

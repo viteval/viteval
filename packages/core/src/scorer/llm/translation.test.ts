@@ -16,7 +16,8 @@ describe('translation', () => {
       score: 1,
     });
 
-    const result = await translation({
+    const scorer = translation();
+    const result = await scorer({
       expected: 'Hello world',
       input: 'Bonjour le monde',
       language: 'French',
@@ -27,7 +28,7 @@ describe('translation', () => {
     expect(result.metadata?.choice).toBe('Y');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { N: 0.0, Y: 1.0 },
+        choiceScores: { N: 0, Y: 1 },
         useCoT: true,
       }),
       expect.objectContaining({
@@ -46,7 +47,8 @@ describe('translation', () => {
       score: 0,
     });
 
-    await translation({
+    const scorer = translation();
+    await scorer({
       expected: 'Hello world',
       input: 'Hola mundo',
       output: 'Goodbye world',

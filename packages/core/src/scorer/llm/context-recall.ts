@@ -30,7 +30,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
  * ```ts
  * import { contextRecall } from '@viteval/core';
  *
- * const result = await contextRecall({
+ * const scorer = contextRecall();
+ * const result = await scorer({
  *   input: 'What year was Python created?',
  *   output: 'Python was first released in 1991 by Guido van Rossum.',
  *   expected: '1991',

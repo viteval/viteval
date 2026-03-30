@@ -16,7 +16,8 @@ describe('factuality', () => {
       score: 1,
     });
 
-    const result = await factuality({
+    const scorer = factuality();
+    const result = await scorer({
       expected: '4',
       input: 'What is 2+2?',
       output: '4',

@@ -31,7 +31,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.7, C: 0.3, D: 0 };
  * ```ts
  * import { contextEntityRecall } from '@viteval/core';
  *
- * const result = await contextEntityRecall({
+ * const scorer = contextEntityRecall();
+ * const result = await scorer({
  *   input: 'Who founded Microsoft?',
  *   output: 'Bill Gates and Paul Allen founded Microsoft in 1975.',
  *   expected: 'Bill Gates',

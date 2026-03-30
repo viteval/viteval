@@ -41,10 +41,10 @@ describe('defineConfig', () => {
   it('should handle deps configuration with optimizer', () => {
     const config = defineConfig({
       deps: {
+        interopDefault: true,
         optimizer: {
           enabled: true,
         },
-        interopDefault: true,
       },
       eval: {},
     });

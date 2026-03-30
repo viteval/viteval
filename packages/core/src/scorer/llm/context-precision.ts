@@ -30,7 +30,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
  * ```ts
  * import { contextPrecision } from '@viteval/core';
  *
- * const result = await contextPrecision({
+ * const scorer = contextPrecision();
+ * const result = await scorer({
  *   input: 'What year was Python created?',
  *   output: 'Python was created by Guido van Rossum and first released in 1991.',
  *   expected: '1991',

@@ -7,9 +7,9 @@ const PROMPT = `Is the following funny?
 </content>`;
 
 const CHOICE_SCORES: Record<string, number> = {
-  No: 0.0,
+  No: 0,
   Unsure: 0.5,
-  Yes: 1.0,
+  Yes: 1,
 };
 
 /**
@@ -21,7 +21,8 @@ const CHOICE_SCORES: Record<string, number> = {
  * ```ts
  * import { humor } from '@viteval/core';
  *
- * const result = await humor({ output: 'Why did the chicken cross the road?' });
+ * const scorer = humor();
+ * const result = await scorer({ output: 'Why did the chicken cross the road?' });
  * ```
  */
 export const humor = createJudgeScorer({

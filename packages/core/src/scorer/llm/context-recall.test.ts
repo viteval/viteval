@@ -16,7 +16,8 @@ describe('contextRecall', () => {
       score: 1,
     });
 
-    const result = await contextRecall({
+    const scorer = contextRecall();
+    const result = await scorer({
       expected: 'Paris',
       input: 'What is the capital of France?',
       output: 'Paris is the capital and largest city of France.',

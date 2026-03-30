@@ -31,7 +31,8 @@ const CHOICE_SCORES: Record<string, number> = {
  * ```ts
  * import { moderation } from '@viteval/core';
  *
- * const result = await moderation({ output: 'Hello world' });
+ * const scorer = moderation();
+ * const result = await scorer({ output: 'Hello world' });
  * // result.score === 1 (safe)
  * ```
  */

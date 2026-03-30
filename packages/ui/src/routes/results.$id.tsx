@@ -14,15 +14,15 @@ export const Route = createFileRoute('/results/$id')({
       });
 
       if (!results) {
-        return { results: null, notFound: true, error: null };
+        return { error: null, notFound: true, results: null };
       }
 
-      return { results, notFound: false, error: null };
+      return { error: null, notFound: false, results };
     } catch (error) {
       return {
-        results: null,
-        notFound: false,
         error: error instanceof Error ? error.message : 'Failed to load result',
+        notFound: false,
+        results: null,
       };
     }
   },

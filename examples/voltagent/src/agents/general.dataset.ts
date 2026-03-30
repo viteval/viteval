@@ -10,18 +10,18 @@ export default defineDataset({
     for (let i = 0; i < 10; i++) {
       const { object } = await generateObject({
         model: openai('gpt-5'),
+        prompt: 'Generate a general knowledge question and the expected answer',
+        schema: z.object({
+          answer: z.string().describe('The answer to the question'),
+          question: z.string().describe('The question to answer'),
+        }),
         system: `
           You are an expert at generating test data for a general knowledge agent. You will generate a general knowledge question and the expected answer.
           `,
-        prompt: 'Generate a general knowledge question and the expected answer',
-        schema: z.object({
-          question: z.string().describe('The question to answer'),
-          answer: z.string().describe('The answer to the question'),
-        }),
       });
       data.push({
-        input: object.question,
         expected: object.answer,
+        input: object.question,
       });
     }
 

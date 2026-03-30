@@ -7,9 +7,7 @@ import type { DatasetSummary } from '@/types';
 
 export const Route = createFileRoute('/datasets/')({
   component: DatasetsPage,
-  loader: async () => {
-    return { datasets: getDatasets() };
-  },
+  loader: async () => ({ datasets: getDatasets() }),
 });
 
 function DatasetsPage() {

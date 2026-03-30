@@ -1,24 +1,23 @@
+import type { Extra, Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { computeEmbeddingSimilarity } from './embed';
 
 /**
- * Scores semantic similarity between output and expected using embedding cosine similarity.
+ * Create a semantic similarity scorer using embedding cosine similarity.
  *
- * Embeds both strings via the configured embedding model and computes cosine similarity,
- * clamped to [0, 1].
+ * @returns A scorer that embeds both strings via the configured embedding model and computes cosine similarity.
  *
  * @example
  * ```ts
- * import { embeddingSimilarity } from '@viteval/core';
+ * import { scorers } from 'viteval';
  *
- * const result = await embeddingSimilarity({
- *   input: 'q',
- *   output: 'The cat sat on the mat.',
- *   expected: 'A cat was sitting on a mat.',
- * });
+ * scorers: [scorers.embeddingSimilarity()]
  * ```
  */
-export const embeddingSimilarity = createScorer({
-  name: 'EmbeddingSimilarity',
-  score: ({ output, expected }) => computeEmbeddingSimilarity(output, expected),
-});
+export function embeddingSimilarity(): Scorer<unknown, Extra> {
+  return createScorer({
+    name: 'EmbeddingSimilarity',
+    score: ({ output, expected }) =>
+      computeEmbeddingSimilarity(output, expected),
+  });
+}

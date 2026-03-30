@@ -3,7 +3,6 @@ import path from 'node:path';
 import express from 'express';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
-// Biome-ignore lint/suspicious/noTsIgnore: tsrServer is a valid type
 // @ts-ignore - tsrServer is a valid type
 import tsrServer from './dist/server/server.js';
 

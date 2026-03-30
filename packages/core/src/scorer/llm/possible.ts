@@ -28,7 +28,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 0, B: 1 };
  * ```ts
  * import { possible } from '@viteval/core';
  *
- * const result = await possible({
+ * const scorer = possible();
+ * const result = await scorer({
  *   input: 'Write a haiku about rain.',
  *   output: 'Drops fall from the sky / Puddles form on the wet ground / Nature sings its song',
  * });

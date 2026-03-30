@@ -16,7 +16,8 @@ describe('answerRelevancy', () => {
       score: 1,
     });
 
-    const result = await answerRelevancy({
+    const scorer = answerRelevancy();
+    const result = await scorer({
       input: 'What is 2+2?',
       output: '4',
     });

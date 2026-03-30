@@ -15,7 +15,8 @@ describe('humor', () => {
       score: 1,
     });
 
-    const result = await humor({
+    const scorer = humor();
+    const result = await scorer({
       output: 'Why did the chicken cross the road? To get to the other side!',
     });
 
@@ -23,7 +24,7 @@ describe('humor', () => {
     expect(result.metadata?.choice).toBe('Yes');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { No: 0.0, Unsure: 0.5, Yes: 1.0 },
+        choiceScores: { No: 0, Unsure: 0.5, Yes: 1 },
         useCoT: false,
       }),
       expect.objectContaining({

@@ -16,22 +16,27 @@ const calculatorTool = createTool({
   description: 'Perform basic arithmetic operations',
   execute: async ({ operation, numbers }) => {
     switch (operation) {
-      case 'add':
+      case 'add': {
         return numbers.reduce((a, b) => a + b, 0);
-      case 'subtract':
+      }
+      case 'subtract': {
         return numbers.reduce((a, b) => a - b);
-      case 'multiply':
+      }
+      case 'multiply': {
         return numbers.reduce((a, b) => a * b, 1);
-      case 'divide':
+      }
+      case 'divide': {
         return numbers.reduce((a, b) => a / b);
-      default:
+      }
+      default: {
         throw new Error(`Unknown operation: ${operation}`);
+      }
     }
   },
   name: 'calculator',
   parameters: z.object({
-    operation: z.string().describe('The mathematical operation to perform'),
     numbers: z.array(z.number()).describe('The numbers to operate on'),
+    operation: z.string().describe('The mathematical operation to perform'),
   }),
 });
 

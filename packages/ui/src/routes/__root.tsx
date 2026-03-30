@@ -5,22 +5,22 @@ import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
   head: () => ({
+    links: [
+      {
+        href: appCss,
+        rel: 'stylesheet',
+      },
+    ],
     meta: [
       {
         charSet: 'utf-8',
       },
       {
-        name: 'viewport',
         content: 'width=device-width, initial-scale=1',
+        name: 'viewport',
       },
       {
         title: 'Viteval | Evaluation Results',
-      },
-    ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
       },
     ],
   }),

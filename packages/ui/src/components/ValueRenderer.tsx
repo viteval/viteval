@@ -94,7 +94,6 @@ export function ValueRenderer({
 
   if (isJson) {
     return (
-      // Biome-ignore lint/a11y/noStaticElementInteractions: allow it
       <div
         className={wrapperClass}
         onMouseEnter={() => setShowCopyButton(true)}
@@ -217,10 +216,10 @@ export function ValueRenderer({
                     language={language}
                     style={oneDark}
                     customStyle={{
-                      margin: 0,
                       borderRadius: '0.375rem',
                       fontSize: '0.75rem',
                       lineHeight: '1rem',
+                      margin: 0,
                       paddingRight: showCopyButton ? '3rem' : undefined,
                     }}
                   >
