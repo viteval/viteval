@@ -53,7 +53,7 @@ export function evaluate<
     aggregation = 'mean',
     task,
     scorers,
-    threshold = 1.0,
+    threshold = 1,
     timeout,
   }: Eval<DATA>
 ) {
@@ -61,7 +61,7 @@ export function evaluate<
     const results: EvalResult[] = [];
     const config = getRuntimeConfig();
 
-    beforeAll(async () => {
+    beforeAll(() => {
       if (config.provider) {
         initializeProvider(config.provider);
       }
@@ -83,7 +83,7 @@ export function evaluate<
       test(
         formatTestName(dataItem),
         {
-          timeout: timeout ?? config.eval?.timeout ?? 25000,
+          timeout: timeout ?? config.eval?.timeout ?? 25_000,
         },
         async () => {
           // @ts-expect-error - this is valid
@@ -107,8 +107,8 @@ export function evaluate<
 
           const scoresWithName = scores.map((s, i) => ({
             ...s,
-            score: s.score ?? 0,
             name: scorers[i].name,
+            score: s.score ?? 0,
           }));
 
           const meanScore = getMeanScore(scores);
@@ -123,17 +123,17 @@ export function evaluate<
           } = params;
 
           results.push({
-            name,
-            sum: sumScore,
-            median: medianScore,
-            mean: meanScore,
-            threshold,
             aggregation,
-            scores: scoresWithName,
-            input: dataItem.input,
             expected: dataItem.expected,
-            output: taskResult,
+            input: dataItem.input,
+            mean: meanScore,
+            median: medianScore,
             metadata,
+            name,
+            output: taskResult,
+            scores: scoresWithName,
+            sum: sumScore,
+            threshold,
           });
 
           if (threshold) {

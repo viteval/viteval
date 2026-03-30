@@ -1,3 +1,4 @@
+import type { LanguageModel } from 'ai';
 import { createScorer } from '#/scorer/custom';
 import type { Scorer } from '#/types';
 import { runJudge } from './judge';
@@ -14,6 +15,8 @@ export interface JudgeScorerConfig {
   choiceScores: Record<string, number>;
   /** Whether to use chain-of-thought reasoning (default: true) */
   useCoT?: boolean;
+  /** Model override for this scorer */
+  model?: LanguageModel;
 }
 
 /**
@@ -39,15 +42,16 @@ export function createJudgeScorer(
     score: async ({ output, expected, input, ...extra }) => {
       const result = await runJudge(
         {
-          prompt: config.prompt,
           choiceScores: config.choiceScores,
+          model: config.model,
+          prompt: config.prompt,
           useCoT: config.useCoT ?? true,
         },
-        { output, expected, input, ...extra }
+        { expected, input, output, ...extra }
       );
       return {
-        score: result.score,
         metadata: { choice: result.choice, rationale: result.rationale },
+        score: result.score,
       };
     },
   });

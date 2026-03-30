@@ -1,14 +1,12 @@
+import { embed } from 'ai';
 import { clamp } from '@viteval/internal';
 import cosineSimilarity from 'compute-cosine-similarity';
-import { requireClient } from '#/provider/client';
-
-const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
+import { requireEmbeddingModel } from '#/provider/client';
 
 /**
- * Get an embedding vector for the given text using OpenAI's embeddings API.
+ * Get an embedding vector for the given text using the configured embedding model.
  *
  * @param text - The text to embed.
- * @param model - The embedding model to use.
  * @returns The embedding vector as a number array.
  *
  * @example
@@ -16,18 +14,15 @@ const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
  * const vector = await getEmbedding('Hello world');
  * ```
  */
-export async function getEmbedding(
-  text: string,
-  model: string = DEFAULT_EMBEDDING_MODEL
-): Promise<number[]> {
-  const client = requireClient();
+export async function getEmbedding(text: string): Promise<number[]> {
+  const model = requireEmbeddingModel();
 
-  const response = await client.embeddings.create({
+  const { embedding } = await embed({
     model,
-    input: text,
+    value: text,
   });
 
-  return response.data[0].embedding;
+  return embedding;
 }
 
 /**
@@ -45,7 +40,7 @@ export async function computeEmbeddingSimilarity(
   const expectedStr = String(expected);
 
   if (outputStr === expectedStr) {
-    return { score: 1, metadata: { similarity: 1 } };
+    return { metadata: { similarity: 1 }, score: 1 };
   }
 
   const [outputEmb, expectedEmb] = await Promise.all([
@@ -56,5 +51,5 @@ export async function computeEmbeddingSimilarity(
   const similarity = cosineSimilarity(outputEmb, expectedEmb) ?? 0;
   const score = clamp(similarity, 0, 1);
 
-  return { score, metadata: { similarity } };
+  return { metadata: { similarity }, score };
 }

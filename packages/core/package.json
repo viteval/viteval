@@ -39,6 +39,7 @@
   "dependencies": {
     "@vitest/runner": "^4.1.2",
     "@viteval/internal": "workspace:^",
+    "ai": "^6.0.141",
     "ajv": "^8.18.0",
     "chalk": "^5.6.2",
     "compute-cosine-similarity": "^1.1.0",
@@ -47,7 +48,6 @@
     "js-yaml": "^4.1.1",
     "linear-sum-assignment": "^1.0.9",
     "mustache": "^4.2.0",
-    "openai": "^6.33.0",
     "ts-pattern": "^5.9.0",
     "vite-node": "^6.0.0",
     "zod": "^4.3.6"
