@@ -107,6 +107,10 @@ export function createBraintrustEvalOps(
         if (paramsList.length === 0) return [];
 
         const evalRunId = paramsList[0]!.evalRunId;
+        if (paramsList.some((p) => p.evalRunId !== evalRunId)) {
+          throw new Error('All results must belong to the same eval run');
+        }
+
         const client = await getClient();
 
         const response = await client.experiments.insert(evalRunId, {

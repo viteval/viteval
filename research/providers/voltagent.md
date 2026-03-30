@@ -45,7 +45,7 @@ TypeScript AI agent framework with built-in eval and observability. VoltOps plat
 | `get()`       | N/A                                             | No        | No `GET /evals/runs/{id}` in SDK. State returned inline. |
 | `list()`      | N/A                                             | No        | No list-runs endpoint. Experiments have `lastRunId`.      |
 | `addResult()` | `POST /evals/runs/{id}/results`                 | Yes       | Batch results. Rich payload with scores, status, traces.  |
-| `complete()`  | `POST /evals/runs/{id}/complete`                | Yes       | `status: "succeeded" | "failed" | "cancelled"`, summary. |
+| `complete()`  | `POST /evals/runs/{id}/complete`                | Yes       | `status: "succeeded" \| "failed" \| "cancelled"`, summary. |
 
 ## Gaps
 

@@ -7,6 +7,10 @@ import type { ModelConfig, ModelConfigFull } from './types';
  */
 export function initializeModel(config: ModelConfig) {
   if (globalThis.__viteval_model) {
+    // Backfill embedding model if a full config is provided after a shorthand init
+    if (isFullConfig(config) && !globalThis.__viteval_embeddingModel && config.embedding) {
+      globalThis.__viteval_embeddingModel = config.embedding;
+    }
     return;
   }
 

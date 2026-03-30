@@ -47,7 +47,7 @@ TypeScript AI framework with built-in eval, dataset management, and agent orches
 | `get()`       | `ExperimentsStorage.getExperimentById()`            | Yes*      | Internal only.                                             |
 | `list()`      | `ExperimentsStorage.listExperiments()`              | Yes*      | `datasetId` filter, pagination.                            |
 | `addResult()` | `ExperimentsStorage.addExperimentResult()`          | Partial*  | No `scores`, `passed`, `duration` fields on their results. |
-| `complete()`  | `ExperimentsStorage.updateExperiment()`             | Yes*      | Status: `pending | running | completed | failed`. Match.   |
+| `complete()`  | `ExperimentsStorage.updateExperiment()`             | Yes*      | Status: `pending \| running \| completed \| failed`. Match. |
 
 ## Gaps
 

@@ -114,28 +114,30 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
 
     addItems: (params) =>
       withResult(async () => {
-        const maxOrdinal = await prisma.datasetItem
-          .findFirst({
-            where: { datasetId: params.datasetId },
-            orderBy: { ordinal: 'desc' },
-            select: { ordinal: true },
-          })
-          .then((r) => r?.ordinal ?? -1);
+        await prisma.$transaction(async (tx) => {
+          const maxOrdinal = await tx.datasetItem
+            .findFirst({
+              where: { datasetId: params.datasetId },
+              orderBy: { ordinal: 'desc' },
+              select: { ordinal: true },
+            })
+            .then((r) => r?.ordinal ?? -1);
 
-        await prisma.datasetItem.createMany({
-          data: params.items.map((item, i) => ({
-            id: createId(),
-            datasetId: params.datasetId,
-            input: JSON.stringify(item.input),
-            expected: JSON.stringify(item.expected),
-            extra: JSON.stringify(item.extra ?? {}),
-            ordinal: maxOrdinal + 1 + i,
-          })),
-        });
+          await tx.datasetItem.createMany({
+            data: params.items.map((item, i) => ({
+              id: createId(),
+              datasetId: params.datasetId,
+              input: JSON.stringify(item.input),
+              expected: JSON.stringify(item.expected),
+              extra: JSON.stringify(item.extra ?? {}),
+              ordinal: maxOrdinal + 1 + i,
+            })),
+          });
 
-        await prisma.dataset.update({
-          where: { id: params.datasetId },
-          data: { version: { increment: 1 } },
+          await tx.dataset.update({
+            where: { id: params.datasetId },
+            data: { version: { increment: 1 } },
+          });
         });
       }),
   };

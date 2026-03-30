@@ -67,7 +67,7 @@ export interface VitevalConfig {
    * defineConfig({
    *   provider: {
    *     datasets: viteval(),
-   *     evals: braintrust({ apiKey: '...' }),
+   *     evals: braintrust({ project: 'my-project', apiKey: '...' }),
    *   },
    * });
    * ```
