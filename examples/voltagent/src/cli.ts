@@ -17,18 +17,18 @@ dotenv.config();
         describe: 'Generate an answer to a question',
         handler: async () => {
           const category = await consola.prompt('What is the category?', {
-            type: 'select',
             options: categories.map(({ name, description }) => ({
+              hint: description,
               label: name,
               value: name,
-              hint: description,
             })),
             required: true,
+            type: 'select',
           });
 
           const question = await consola.prompt('What is the question?', {
-            type: 'text',
             placeholder: 'What is the capital of France?',
+            type: 'text',
           });
 
           const answer = await generateAnswer(question, category);

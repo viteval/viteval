@@ -14,7 +14,6 @@ export interface ScienceOutput {
 }
 
 export const scienceAgent = new Agent({
-  name: 'science-agent',
   instructions: `You are a specialized science agent with expertise in physics, chemistry, biology, and other scientific disciplines.
 Your knowledge covers:
 - Physics: mechanics, thermodynamics, electromagnetism, quantum physics
@@ -39,4 +38,5 @@ Return your response in the following JSON format:
   "confidence": 0.95
 }`,
   model: openai('gpt-4o-mini'),
+  name: 'science-agent',
 });

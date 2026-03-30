@@ -39,8 +39,8 @@ export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
         filePath,
         JSON.stringify(
           {
-            timestamp: new Date().toISOString(),
             data,
+            timestamp: new Date().toISOString(),
           },
           null,
           2
@@ -57,7 +57,7 @@ export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
         if (!(await this.exists())) {
           return null;
         }
-        const data = await readFile(filePath, 'utf-8');
+        const data = await readFile(filePath, 'utf8');
         return JSON.parse(data).data as DataItem<INPUT, OUTPUT, EXTRA>[];
       });
 

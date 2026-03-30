@@ -1,15 +1,13 @@
 import { Icon } from '@iconify/react';
-import { Await, createFileRoute, Link } from '@tanstack/react-router';
+import { Await, Link, createFileRoute } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getDatasets } from '@/fx/datasets';
 import type { DatasetSummary } from '@/types';
 
 export const Route = createFileRoute('/datasets/')({
-  loader: async () => {
-    return { datasets: getDatasets() };
-  },
   component: DatasetsPage,
+  loader: async () => ({ datasets: getDatasets() }),
 });
 
 function DatasetsPage() {

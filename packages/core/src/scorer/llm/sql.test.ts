@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,15 +11,16 @@ import { sql } from './sql';
 describe('sql', () => {
   it('should call runJudge with sql prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'Correct',
       rationale: 'Semantically equivalent queries',
+      score: 1,
     });
 
-    const result = await sql({
+    const scorer = sql();
+    const result = await scorer({
+      expected: 'SELECT * FROM users WHERE age > 30',
       input: 'Select all users older than 30',
       output: 'SELECT * FROM users WHERE age > 30',
-      expected: 'SELECT * FROM users WHERE age > 30',
     });
 
     expect(result.score).toBe(1);
@@ -27,13 +28,13 @@ describe('sql', () => {
     expect(result.metadata?.rationale).toBe('Semantically equivalent queries');
     expect(vi.mocked(runJudge)).toHaveBeenCalledWith(
       expect.objectContaining({
-        choiceScores: { Correct: 1.0, Incorrect: 0 },
+        choiceScores: { Correct: 1, Incorrect: 0 },
         useCoT: true,
       }),
       expect.objectContaining({
+        expected: 'SELECT * FROM users WHERE age > 30',
         input: 'Select all users older than 30',
         output: 'SELECT * FROM users WHERE age > 30',
-        expected: 'SELECT * FROM users WHERE age > 30',
       })
     );
   });

@@ -14,12 +14,12 @@ const env = cleanEnv(process.env, {
 
 export const voltagent = new VoltAgent({
   agents: {
-    supervisor: supervisorAgent,
     general: generalAgent,
-    math: mathAgent,
     geography: geographyAgent,
     history: historyAgent,
+    math: mathAgent,
     science: scienceAgent,
+    supervisor: supervisorAgent,
   },
   voltOpsClient: new VoltOpsClient({
     publicKey: env.VOLTOPS_PUBLIC_KEY,

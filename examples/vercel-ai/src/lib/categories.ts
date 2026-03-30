@@ -1,25 +1,25 @@
 export const categories = [
   {
-    name: 'geography',
     description: 'Geography questions about countries, cities, and landmarks',
+    name: 'geography',
   },
   {
-    name: 'history',
     description: 'History questions about events, people, and places',
+    name: 'history',
   },
   {
-    name: 'science',
     description:
       'Science questions about physics, chemistry, biology, and other sciences',
+    name: 'science',
   },
   {
-    name: 'math',
     description:
       'Math questions about algebra, geometry, and other math topics',
+    name: 'math',
   },
   {
-    name: 'general',
     description: 'General questions about anything',
+    name: 'general',
   },
 ];
 

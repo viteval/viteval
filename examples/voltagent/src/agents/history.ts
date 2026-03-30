@@ -14,7 +14,6 @@ export interface HistoryOutput {
 }
 
 export const historyAgent = new Agent({
-  name: 'history-agent',
   instructions: `You are a specialized history agent with expertise in historical events, people, and places.
 Your knowledge covers:
 - Major historical events and their significance
@@ -39,4 +38,5 @@ Return your response in the following JSON format:
   "confidence": 0.95
 }`,
   model: openai('gpt-4o-mini'),
+  name: 'history-agent',
 });

@@ -6,16 +6,9 @@ const OUTPUT_DIR = path.join(import.meta.dirname, 'dist');
 const TEMPLATES_DIR = path.join(import.meta.dirname, 'src', 'templates');
 
 export default defineConfig({
-  entry: ['src/index.ts'],
-  outDir: OUTPUT_DIR,
-  format: ['esm'],
-  dts: false,
   clean: true,
-  target: 'es2022',
-  splitting: false,
-  sourcemap: true,
-  minify: true,
-  platform: 'node',
+  dts: false,
+  entry: ['src/index.ts'],
   external: [
     'vitest',
     'find-up',
@@ -31,6 +24,8 @@ export default defineConfig({
     'fsevents',
     'lightningcss',
   ],
+  format: ['esm'],
+  minify: true,
   async onSuccess() {
     const files = await fs.readdir(TEMPLATES_DIR);
     for (const file of files) {
@@ -42,4 +37,9 @@ export default defineConfig({
       }
     }
   },
+  outDir: OUTPUT_DIR,
+  platform: 'node',
+  sourcemap: true,
+  splitting: false,
+  target: 'es2022',
 });

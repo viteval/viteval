@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { getResult } from '@/fx/results';
 import ResultsDetail from '../components/ResultsDetail';
@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 
 export const Route = createFileRoute('/results/$id')({
+  component: ResultDetailPage,
   loader: async ({ params }) => {
     try {
       const results = await getResult({
@@ -13,19 +14,18 @@ export const Route = createFileRoute('/results/$id')({
       });
 
       if (!results) {
-        return { results: null, notFound: true, error: null };
+        return { error: null, notFound: true, results: null };
       }
 
-      return { results, notFound: false, error: null };
+      return { error: null, notFound: false, results };
     } catch (error) {
       return {
-        results: null,
-        notFound: false,
         error: error instanceof Error ? error.message : 'Failed to load result',
+        notFound: false,
+        results: null,
       };
     }
   },
-  component: ResultDetailPage,
 });
 
 function ResultDetailPage() {
@@ -37,7 +37,7 @@ function ResultDetailPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       void router.invalidate();
-    }, 20000);
+    }, 20_000);
     return () => clearInterval(interval);
   }, [router]);
 

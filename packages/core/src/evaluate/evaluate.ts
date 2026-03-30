@@ -29,7 +29,7 @@ import type {
  *   task: async () => {
  *     return 'Generate a random number between 0 and 100';
  *   },
- *   scorers: [scorers.exactMatch],
+ *   scorers: [scorers.exactMatch()],
  *   data: [
  *     {
  *       input: 'Generate a random number between 0 and 100',

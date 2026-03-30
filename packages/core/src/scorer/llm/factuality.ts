@@ -49,7 +49,7 @@ const CHOICE_SCORES: Record<string, number> = {
  * ```
  */
 export const factuality = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'Factuality',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

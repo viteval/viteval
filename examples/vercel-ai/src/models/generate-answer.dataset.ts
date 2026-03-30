@@ -5,10 +5,7 @@ import { z } from 'zod';
 import { categories } from '#/lib/categories';
 
 export default defineDataset({
-  name: 'generate-answer',
-  storage: 'memory',
-  data: async () => {
-    return await Promise.all(
+  data: async () => await Promise.all(
       categories.map(async ({ name, description }) => {
         const { object } = await generateObject({
           model: openai('gpt-5'),
@@ -35,6 +32,7 @@ export default defineDataset({
           category: name,
         };
       })
-    );
-  },
+    ),
+  name: 'generate-answer',
+  storage: 'memory',
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./judge', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./judge')>();
@@ -11,12 +11,13 @@ import { possible } from './possible';
 describe('possible', () => {
   it('should call runJudge with possible prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      score: 1,
       choice: 'B',
       rationale: 'Provides a solution',
+      score: 1,
     });
 
-    const result = await possible({
+    const scorer = possible();
+    const result = await scorer({
       input: 'How do you sort an array?',
       output: 'Use Array.prototype.sort()',
     });

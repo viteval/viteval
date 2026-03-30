@@ -303,8 +303,8 @@ describe('isEmptyObject', () => {
   it('should return false for objects with non-enumerable properties', () => {
     const obj = {};
     Object.defineProperty(obj, 'nonEnumerable', {
-      value: 'test',
       enumerable: false,
+      value: 'test',
     });
     expect(isEmptyObject(obj)).toBe(false);
   });
@@ -442,7 +442,7 @@ describe('isString', () => {
     expect(isString(true)).toBe(false);
     expect(isString(false)).toBe(false);
     expect(isString(Symbol('test'))).toBe(false);
-    expect(isString(BigInt(123))).toBe(false);
+    expect(isString(123n)).toBe(false);
   });
 
   it('should return false for objects and arrays', () => {

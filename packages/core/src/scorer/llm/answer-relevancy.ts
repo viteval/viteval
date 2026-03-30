@@ -15,7 +15,7 @@ Evaluate whether the answer is relevant to the question asked. Consider whether 
 (B) The answer is somewhat relevant but includes unnecessary information or partially addresses the question.
 (C) The answer is not relevant to the question.`;
 
-const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
+const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
 
 /**
  * Scores how relevant an answer is to the given question.
@@ -33,7 +33,7 @@ const CHOICE_SCORES: Record<string, number> = { A: 1.0, B: 0.5, C: 0 };
  * ```
  */
 export const answerRelevancy = createJudgeScorer({
+  choiceScores: CHOICE_SCORES,
   name: 'AnswerRelevancy',
   prompt: PROMPT,
-  choiceScores: CHOICE_SCORES,
 });

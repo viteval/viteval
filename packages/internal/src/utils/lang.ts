@@ -7,7 +7,7 @@ import type { AnyFunction, Nil, PlainObject } from '../types';
  * @param value - The value to check
  * @returns True if the value is an array, false otherwise
  */
-export function isArray<T extends Array<unknown>>(value: unknown): value is T {
+export function isArray<T extends unknown[]>(value: unknown): value is T {
   return Array.isArray(value);
 }
 

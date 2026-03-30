@@ -1,9 +1,7 @@
 import { defineDataset } from 'viteval/dataset';
 
 export default defineDataset({
-  name: 'example',
-  data: async () => {
-    return [
+  data: async () => [
       {
         input: 'Generate a random number between 0 and 100',
         expected: 1,
@@ -16,6 +14,6 @@ export default defineDataset({
         input: 'Generate a random number between 0 and 100',
         expected: 3,
       },
-    ];
-  },
+    ],
+  name: 'example',
 });

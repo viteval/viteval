@@ -8,35 +8,30 @@ import llmstxt from 'vitepress-plugin-llms';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'Viteval',
-  lang: 'en-US',
   appearance: 'force-dark',
-  description: 'Next generation LLM evaluation framework powered by Vitest.',
   cleanUrls: true,
-  sitemap: {
-    hostname: 'https://viteval.dev',
-  },
+  description: 'Next generation LLM evaluation framework powered by Vitest.',
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }],
-    ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:locale', content: 'en' }],
+    ['link', { href: '/favicon.ico', rel: 'icon' }],
+    ['meta', { content: 'website', property: 'og:type' }],
+    ['meta', { content: 'en', property: 'og:locale' }],
     [
       'meta',
       {
-        property: 'og:title',
         content:
           'Viteval | Next generation LLM evaluation framework powered by Vitest.',
+        property: 'og:title',
       },
     ],
-    ['meta', { property: 'og:site_name', content: 'Viteval' }],
+    ['meta', { content: 'Viteval', property: 'og:site_name' }],
     // [
     //   'meta',
     //   {
-    //     property: 'og:image',
-    //     content: 'https://joggrdocs.github.io/tempo/images/tempo-social.png',
+    //     Property: 'og:image',
+    //     Content: 'https://joggrdocs.github.io/tempo/images/tempo-social.png',
     //   },
     // ],
-    ['meta', { property: 'og:url', content: 'https://viteval.dev/' }],
+    ['meta', { content: 'https://viteval.dev/', property: 'og:url' }],
     [
       'script',
       {
@@ -53,33 +48,25 @@ export default defineConfig({
       gtag('config', 'G-FEVDX1MG6E');`,
     ],
   ],
+  lang: 'en-US',
+  markdown: {
+    config: (md) => {
+      md.use(groupIconMdPlugin);
+    },
+  },
+  sitemap: {
+    hostname: 'https://viteval.dev',
+  },
   themeConfig: {
     logo: '/assets/viteval.png',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'API', link: '/api/evaluate' },
-      { text: 'Examples', link: '/examples/' },
+      { link: '/', text: 'Home' },
+      { link: '/guide/getting-started', text: 'Guide' },
+      { link: '/api/evaluate', text: 'API' },
+      { link: '/examples/', text: 'Examples' },
     ],
     sidebar: {
-      '/guide/': [
-        {
-          text: 'Introduction',
-          items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
-            { text: 'Core Concepts', link: '/guide/concepts' },
-            { text: 'CLI Usage', link: '/guide/cli' },
-          ],
-        },
-        {
-          text: 'Advanced',
-          items: [
-            { text: 'CI Integration', link: '/guide/advanced/ci' },
-            { text: 'Reporters', link: '/guide/advanced/reporters' },
-          ],
-        },
-      ],
       '/api/': [
         {
           text: 'API Reference',
@@ -117,6 +104,23 @@ export default defineConfig({
           ],
         },
       ],
+      '/guide/': [
+        {
+          text: 'Introduction',
+          items: [
+            { text: 'Getting Started', link: '/guide/getting-started' },
+            { text: 'Core Concepts', link: '/guide/concepts' },
+            { text: 'CLI Usage', link: '/guide/cli' },
+          ],
+        },
+        {
+          text: 'Advanced',
+          items: [
+            { text: 'CI Integration', link: '/guide/advanced/ci' },
+            { text: 'Reporters', link: '/guide/advanced/reporters' },
+          ],
+        },
+      ],
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/viteval/viteval' },
@@ -130,11 +134,7 @@ export default defineConfig({
         'https://github.com/viteval/viteval/edit/main/apps/website/:path',
     },
   },
-  markdown: {
-    config: (md) => {
-      md.use(groupIconMdPlugin);
-    },
-  },
+  title: 'Viteval',
   vite: {
     plugins: [UnoCSS(), groupIconVitePlugin(), llmstxt()],
   },
