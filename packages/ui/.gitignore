@@ -13,5 +13,7 @@ todos.json
 
 # build output
 server.d.ts
+server.d.mts
+server.d.mts.map
 server.mjs
 server.mjs.map
