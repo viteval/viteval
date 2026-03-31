@@ -1,5 +1,86 @@
 # @viteval/core
 
+## 1.0.0-rc.1
+
+### Major Changes
+
+- 7cda487: Convert all scorers to configurable factory functions
+
+  - **BREAKING**: All scorers are now factory functions that must be called: `scorers.exactMatch()` instead of `scorers.exactMatch`
+  - Deterministic scorers accept typed options: `exactMatch({ caseSensitive, trim })`, `levenshtein({ threshold })`, `numericDiff({ tolerance })`, `jsonDiff({ threshold })`, `listContains({ threshold })`
+  - LLM scorers accept per-scorer model overrides: `scorers.answerCorrectness({ model: openai('gpt-4o') })`
+  - `createJudgeScorer` now returns a factory `(options?) => Scorer` instead of a bare `Scorer`
+  - Update all examples to use factory call syntax
+
+  Closes #36
+
+- 81e6d77: Replace OpenAI SDK with Vercel AI SDK for provider-agnostic model support
+
+  - **BREAKING**: Remove `openai` dependency, add `ai` (Vercel AI SDK) as the provider abstraction
+  - **BREAKING**: `VitevalProviderConfig` now accepts `model` (LanguageModel) and optional `embeddingModel` (EmbeddingModel) instead of `openai` config
+  - **BREAKING**: Remove automatic `OPENAI_API_KEY` env var detection — users must explicitly configure a provider
+  - Replace `requireClient()` / `getClient()` with `requireModel()` / `requireEmbeddingModel()`
+  - Rewrite `runJudge` to use `generateObject()` from AI SDK instead of OpenAI function calling
+  - Rewrite `getEmbedding` to use `embed()` from AI SDK instead of OpenAI embeddings API
+  - Convert `moderation` scorer from OpenAI moderation API to LLM judge (now provider-agnostic)
+  - Export `initializeProvider()` from public API for setup file usage
+  - Users can now use any AI SDK-compatible provider: OpenAI, Anthropic, Google, Mistral, etc.
+
+- f862d31: Replace autoevals dependency with custom scorer implementations
+
+  - Remove `autoevals` third-party dependency
+  - Implement all 20 scorers in-house (deterministic, embedding, LLM-based)
+  - Add shared `runJudge` helper for LLM-as-judge scoring via OpenAI function calling
+  - Add shared `getEmbedding` helper for OpenAI embeddings API
+  - Add `isNumber` and `clamp` utilities to `@viteval/internal`
+  - Simplify provider initialization by removing autoevals init workaround
+
+- 92023da: Modernize Vitest integration with v4 runner, reporter, and plugin APIs
+
+  - **BREAKING**: `JsonReporter` rewritten with Vitest v4 granular lifecycle hooks (`onTestCaseResult`, `onTestRunEnd`). Custom reporters extending the old `onFinished(files)` API must migrate.
+  - Add custom `VitevalRunner` extending Vitest 4's `TestRunner` with `extendTaskContext` for lazy model injection
+  - Add `vitevalPlugin` with `configureVitest` hook for typed config injection via `ProvidedContext`
+  - Move from suite-level meta smuggling to per-test `task.meta.evalResult` with proper `TaskMeta` module augmentation
+  - Add test annotations (`context.annotate`) for inline score reporting in default and GitHub Actions reporters
+  - Eliminate all `DangerouslyAllowAny` and `as any` casts from core package
+  - New package exports: `@viteval/core/runner`, `@viteval/core/plugin`
+
+### Minor Changes
+
+- 7f3ba21: Decouple task return type from expected type in evaluations
+
+  - `Scorer`, `ScorerArgs`, and `createScorer` now accept separate `OUTPUT` and `EXPECTED` type parameters (defaults preserve backward compat)
+  - `Eval` and `evaluate()` infer `TASK_OUTPUT` from the task function independently of the data's expected type
+  - Scorers receive `output: TASK_OUTPUT` and `expected: EXPECTED` as distinct types
+  - Add `wrapScorer()` utility to adapt existing scorers for mismatched types via `output`/`expected` mapping functions
+  - Fix prebuilt scorer return types for the new type parameter ordering
+
+  Closes #110
+
+- 878f3d5: Add provider abstraction for datasets and eval runs with built-in Braintrust support
+
+  - Add `Provider`, `DatasetProvider`, and `EvalProvider` interfaces to `@viteval/core`
+  - Add `@viteval/providers` package with scoped provider implementations
+  - Built-in `viteval()` provider using SQLite (default) or PostgreSQL via Prisma
+  - Built-in `braintrust()` provider using `@braintrust/api` (optional peer dep)
+  - Auto-inject default SQLite provider in `defineConfig()` when no provider is specified
+  - Support composable providers (mix different providers for datasets vs evals)
+  - Auto-persist eval results when a provider is configured
+  - Add `addResults` batch method on `EvalProvider` for providers supporting bulk insert
+
+- de505ac: Add `sampleItems` utility for generating N dataset items from a single factory function
+
+  - `sampleItems({ item, count })` returns a `DataGenerator` compatible with `defineDataset()` and `evaluate()`
+  - Items are generated sequentially to respect rate limits on LLM calls
+  - Validates that `count >= 1`
+
+  Closes #38
+
+### Patch Changes
+
+- Updated dependencies [f862d31]
+  - @viteval/internal@1.0.0-rc.1
+
 ## 1.0.0-rc.0
 
 ### Patch Changes
@@ -101,6 +182,7 @@
 - 864c595: ## Viteval UI (beta)
 
   This release includes major improvements to the Viteval UI, including:
+
   - Adding a new `datasets` page to view and manage your evaluation datasets
   - Adding UI states to show when an evaluation is running and updating it as it runs/finishes
   - Cleaning up the UI for Results List and Result Detail pages
@@ -115,6 +197,7 @@
 ### Patch Changes
 
 - 9db42c7: # What's changed?
+
   - Add a wrapper to prevent `resolveConfig` from throwing an error, and add logging for debugging.
   - Added a `createVitevalServer` for the `ui` that can be used in a more standard way/approach
 

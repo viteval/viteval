@@ -1,6 +1,6 @@
 {
   "name": "@viteval/providers",
-  "version": "0.5.9",
+  "version": "1.0.0-rc.1",
   "description": "Provider implementations for Viteval — SQLite (default), PostgreSQL, and third-party platforms.",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",

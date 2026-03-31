@@ -1,5 +1,19 @@
 # @viteval/ui
 
+## 1.0.0-rc.1
+
+### Major Changes
+
+- 2426852: Migrate @viteval/ui from TanStack Start + Express to Next.js 16 + Hono + shadcn dashboard
+
+  - Replace TanStack Start/Router with Next.js 16 App Router (standalone output)
+  - Replace Express with Hono + @hono/node-server as production server wrapper
+  - Replace header navigation with shadcn sidebar layout
+  - Add dashboard home page with summary cards
+  - Install all shadcn UI primitives via CLI
+  - Replace @iconify/react with lucide-react
+  - Add /api/results/[id] route for polling refresh
+
 ## 1.0.0-rc.0
 
 ### Major Changes
@@ -73,6 +87,7 @@
 - 864c595: ## Viteval UI (beta)
 
   This release includes major improvements to the Viteval UI, including:
+
   - Adding a new `datasets` page to view and manage your evaluation datasets
   - Adding UI states to show when an evaluation is running and updating it as it runs/finishes
   - Cleaning up the UI for Results List and Result Detail pages
