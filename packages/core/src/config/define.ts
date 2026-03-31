@@ -57,7 +57,9 @@ export function defineConfig(config: VitevalConfig) {
   // defineConfig is synchronous (Vitest requires it), so we can't await here.
   // Provider client functions will await this promise before returning.
   if (provider) {
-    globalThis.__viteval_providerInitPromise = initializeProvider(provider);
+    const initPromise = initializeProvider(provider);
+    globalThis.__viteval_providerInitPromise = initPromise;
+    void initPromise.catch(() => undefined);
   }
 
   return defineVitestConfig({
