@@ -31,7 +31,7 @@
     "build": "prisma generate && tsdown",
     "dev": "tsdown --watch",
     "test": "vitest --typecheck --passWithNoTests",
-    "types": "tsc --noEmit",
+    "types": "prisma generate && tsc --noEmit",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
