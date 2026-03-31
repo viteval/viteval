@@ -6,6 +6,8 @@ import type { DatasetProvider, EvalProvider, Provider } from './types';
  * `defineConfig` fires off `initializeProvider()` without awaiting it
  * (Vitest requires synchronous config). This helper awaits the stored
  * promise so callers that need the provider can safely wait for it.
+ *
+ * @returns A promise that resolves once provider initialization has finished.
  */
 export async function ensureProviderReady(): Promise<void> {
   if (globalThis.__viteval_providerInitialized) return;
