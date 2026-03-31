@@ -5,6 +5,7 @@
     "@viteval/cli": "0.5.9",
     "@viteval/core": "0.5.9",
     "@viteval/internal": "0.5.9",
+    "@viteval/providers": "0.5.9",
     "@viteval/ui": "0.5.9",
     "viteval": "0.5.9"
   },

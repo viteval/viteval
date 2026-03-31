@@ -53,14 +53,14 @@ export function defineConfig(config: VitevalConfig) {
     initializeModel(model);
   }
 
-  // Initialize the provider eagerly for dataset/eval persistence.
+  // Store the provider initialization promise for deferred awaiting.
+  // defineConfig is synchronous (Vitest requires it), so we can't await here.
+  // Provider client functions will await this promise before returning.
   if (provider) {
-    initializeProvider(provider);
+    const initPromise = initializeProvider(provider);
+    globalThis.__viteval_providerInitPromise = initPromise;
+    void initPromise.catch(() => undefined);
   }
-
-  // Provider initialization is deferred — it's async (DB migrations, connections)
-  // And will be triggered lazily on first provider access.
-  // We store the config for lazy init in evaluate()'s beforeAll hook.
 
   return defineVitestConfig({
     plugins: [vitevalPlugin({ config }), ...plugins],

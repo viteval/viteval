@@ -60,6 +60,7 @@ export async function initializeProvider(
   }
 
   globalThis.__viteval_providerInitialized = true;
+  globalThis.__viteval_providerInitPromise = undefined;
 }
 
 /*
