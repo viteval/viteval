@@ -5,7 +5,7 @@ import type {
   StoredDataItem,
   StoredDataset,
 } from '@viteval/core';
-import type { PrismaClient } from '#/generated/client';
+import type { PrismaClient } from '@prisma/client';
 
 /**
  * Create dataset operations backed by Prisma.

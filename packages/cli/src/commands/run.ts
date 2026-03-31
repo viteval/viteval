@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
-import { type DangerouslyAllowAny, withResult } from '@viteval/internal';
+import { withResult } from '@viteval/internal';
 import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
 import { findUp } from 'find-up';
@@ -81,18 +81,11 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
 
     const reporters = getReporters(argv, vitestConfig);
 
-    // We don't want to have the field present as it causes issues with Vitest's config merging
-    const cliConfig: DangerouslyAllowAny = {};
-    if (argv.pattern) {
-      cliConfig.include = [argv.pattern];
-    }
-
     const vitest = await createVitest('test', {
       config: configFilePath,
       reporters,
       root,
       watch: false,
-      ...cliConfig,
     });
 
     try {
@@ -103,9 +96,10 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
           }).start()
         : undefined;
 
-      // This will set process.exitCode to 1 if tests failed,
-      // And won't close the process automatically
-      await vitest.start();
+      // Pass pattern as a filter to vitest.start() instead of overriding config.include,
+      // Which would replace the user's configured include patterns
+      const filters = argv.pattern ? [argv.pattern] : [];
+      await vitest.start(filters);
 
       if (serverResult) {
         const serverPort = await serverResult;
@@ -184,7 +178,7 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
 function buildReporters(
   input: {
     reporter: VitevalReporter;
-    options: Record<string, DangerouslyAllowAny>;
+    options: Record<string, string | undefined>;
   }[]
 ) {
   const reporters: (Reporter | string)[] = [];

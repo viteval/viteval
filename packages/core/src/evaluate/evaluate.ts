@@ -1,11 +1,8 @@
 import { hasKey, isObject } from '@viteval/internal';
 import { match } from 'ts-pattern';
-import { afterAll, assert, beforeAll, describe, test } from 'vitest';
+import { assert, describe, test } from 'vitest';
 import { getRuntimeConfig } from '#/internals/config';
 import { resolve } from '#/internals/utils';
-import { initializeModel } from '#/model/initialize';
-import { getEvalProvider } from '#/provider/client';
-import { initializeProvider } from '#/provider/initialize';
 import {
   getMeanScore,
   getMedianScore,
@@ -63,37 +60,7 @@ export function evaluate<
   }: Eval<DATA, TASK_OUTPUT>
 ) {
   return describe(name, async () => {
-    const results: EvalResult[] = [];
     const config = getRuntimeConfig();
-
-    beforeAll(async () => {
-      if (config.model) {
-        initializeModel(config.model);
-      }
-      if (config.provider) {
-        await initializeProvider(config.provider);
-      }
-    });
-
-    // eslint-disable-next-line no-empty-pattern -- vitest 4.1 requires destructured 1st arg for fixtures
-    afterAll(async ({}, { suite }) => {
-      if (suite) {
-        // @ts-expect-error - this is valid
-        suite.meta.results = results;
-      }
-
-      // Auto-persist results to eval provider if configured
-      const evalProvider = getEvalProvider();
-      if (evalProvider) {
-        await persistEvalRun(evalProvider, name, results, {
-          aggregation,
-          scorerNames: scorers.map((s) => s.name),
-          threshold,
-          timeout,
-        });
-      }
-    });
-
     const formattedData = await formatData(data);
 
     for (const dataItem of formattedData) {
@@ -104,7 +71,7 @@ export function evaluate<
         {
           timeout: timeout ?? config.eval?.timeout ?? 25_000,
         },
-        async () => {
+        async ({ task: currentTask, annotate }) => {
           // @ts-expect-error - this is valid
           const taskResult = await task({
             ...params,
@@ -141,7 +108,7 @@ export function evaluate<
             ...metadata
           } = params;
 
-          results.push({
+          currentTask.meta.evalResult = {
             aggregation,
             expected: dataItem.expected,
             input: dataItem.input,
@@ -153,7 +120,11 @@ export function evaluate<
             scores: scoresWithName,
             sum: sumScore,
             threshold,
-          });
+          };
+
+          for (const score of scoresWithName) {
+            await annotate(`${score.name}: ${score.score}`);
+          }
 
           if (threshold) {
             const pass = match(aggregation)
@@ -211,7 +182,15 @@ function formatTestName(dataItem: DataItem): string {
   return `input: ${JSON.stringify(dataItem.input)}`;
 }
 
-async function persistEvalRun(
+/**
+ * Persist evaluation results to the configured eval provider.
+ *
+ * @param evalProvider - The eval provider to persist to.
+ * @param name - The name of the evaluation run.
+ * @param results - The evaluation results to persist.
+ * @param config - Configuration for the eval run.
+ */
+export async function persistEvalRun(
   evalProvider: EvalProvider,
   name: string,
   results: EvalResult[],

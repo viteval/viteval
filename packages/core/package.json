@@ -28,6 +28,14 @@
     "./reporters": {
       "types": "./dist/reporters/index.d.mts",
       "import": "./dist/reporters/index.mjs"
+    },
+    "./runner": {
+      "types": "./dist/runner/index.d.mts",
+      "import": "./dist/runner/index.mjs"
+    },
+    "./plugin": {
+      "types": "./dist/plugin/index.d.mts",
+      "import": "./dist/plugin/index.mjs"
     }
   },
   "scripts": {

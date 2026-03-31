@@ -76,24 +76,20 @@ describe('defineConfig', () => {
       plugins: [mockPlugin],
     });
 
-    expect(config.plugins).toEqual([mockPlugin]);
+    const pluginList = config.plugins as { name: string }[];
+    expect(pluginList).toHaveLength(2);
+    expect(pluginList[0].name).toBe('viteval');
+    expect(pluginList[1].name).toBe('test-plugin');
   });
 
-  it('should set config in test provide', () => {
-    const customConfig = {
-      custom: { value: 'test' },
+  it('should include the viteval plugin', () => {
+    const config = defineConfig({
       eval: { timeout: 7000 },
-    };
-
-    const config = defineConfig(customConfig);
-
-    // @ts-expect-error - this is valid
-    expect(config.test?.provide?.config).toEqual({
-      custom: { value: 'test' },
-      eval: { timeout: 7000 },
-      model: undefined,
-      provider: undefined,
     });
+
+    const pluginList = config.plugins as { name: string }[];
+    const vitevalEntry = pluginList.find((p) => p.name === 'viteval');
+    expect(vitevalEntry).toBeDefined();
   });
 
   it('should handle undefined deps configuration', () => {
