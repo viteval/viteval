@@ -29,7 +29,7 @@ const RUNNER_PATH = pathResolve(
  * import { openai } from '@ai-sdk/openai';
  *
  * export default defineConfig({
- *   provider: { model: openai('gpt-4o-mini') },
+ *   model: openai('gpt-4o-mini'),
  *   eval: { include: ['**\/*.eval.ts'] },
  * });
  * ```

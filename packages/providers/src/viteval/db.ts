@@ -1,28 +1,30 @@
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
-import { PrismaPg } from '@prisma/adapter-pg';
 import type { VitevalProviderOptions } from './types';
 
 /**
  * Create a Prisma client configured for the specified database.
  *
  * Prisma 7 requires a driver adapter instead of a connection URL.
- * Uses `@prisma/adapter-better-sqlite3` for SQLite and
- * `@prisma/adapter-pg` for PostgreSQL.
+ * Adapters are dynamically imported so the optional Postgres peer
+ * dependency is only loaded when actually needed.
  *
  * @param options - Provider options determining database type and connection.
  * @returns A configured PrismaClient instance.
  */
-export function createPrismaClient(
+export async function createPrismaClient(
   options: VitevalProviderOptions
-): PrismaClient {
-  const adapter =
-    options.database === 'postgres'
-      ? new PrismaPg(options.url)
-      : new PrismaBetterSqlite3({ url: resolveSqlitePath(options) });
+): Promise<PrismaClient> {
+  if (options.database === 'postgres') {
+    const { PrismaPg } = await import('@prisma/adapter-pg');
+    return new PrismaClient({ adapter: new PrismaPg(options.url) });
+  }
 
-  return new PrismaClient({ adapter });
+  const { PrismaBetterSqlite3 } =
+    await import('@prisma/adapter-better-sqlite3');
+  return new PrismaClient({
+    adapter: new PrismaBetterSqlite3({ url: resolveSqlitePath(options) }),
+  });
 }
 
 /*

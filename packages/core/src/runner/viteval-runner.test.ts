@@ -35,7 +35,7 @@ describe('VitevalRunner', () => {
   const mockConfig = { root: '/test' } as never;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should construct with a serialized config', () => {

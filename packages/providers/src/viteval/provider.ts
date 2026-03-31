@@ -85,7 +85,7 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
     initialize: () =>
       withResult(async () => {
         if (!prisma) {
-          prisma = createPrismaClient(options);
+          prisma = await createPrismaClient(options);
         }
 
         // Ensure the .viteval directory exists for SQLite

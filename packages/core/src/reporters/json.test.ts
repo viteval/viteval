@@ -64,7 +64,7 @@ function createMockTestCase(options: {
 
 describe('JsonReporter', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     suiteIdCounter = 0;
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
