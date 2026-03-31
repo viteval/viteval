@@ -49,7 +49,7 @@ export function SiteHeader() {
       <Breadcrumb>
         <BreadcrumbList>
           {crumbs.map((crumb, i) => (
-            <span key={crumb.label} className="contents">
+            <span key={crumb.href ?? `crumb-${i}`} className="contents">
               {i > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {crumb.href ? (
