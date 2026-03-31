@@ -14,4 +14,6 @@ declare global {
   var __viteval_evalProvider: EvalProvider | undefined;
   // Biome-ignore lint: used by provider internals
   var __viteval_providerInitialized: boolean | undefined;
+  // Biome-ignore lint: used by provider internals
+  var __viteval_providerInitPromise: Promise<void> | undefined;
 }
