@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { PrismaClient } from '#/generated/client';
+import { PrismaClient } from '@prisma/client';
 import type { VitevalProviderOptions } from './types';
 
 /**

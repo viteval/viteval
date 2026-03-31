@@ -2,7 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { withResult } from '@viteval/internal';
 import type { Provider } from '@viteval/core';
-import type { PrismaClient } from '#/generated/client';
+import type { PrismaClient } from '@prisma/client';
 import { createPrismaClient, resolveSqlitePath } from './db';
 import { createDatasetOps } from './datasets';
 import { createEvalOps } from './evals';

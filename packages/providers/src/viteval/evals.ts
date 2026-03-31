@@ -5,7 +5,7 @@ import type {
   StoredEvalResult,
   StoredEvalRun,
 } from '@viteval/core';
-import type { PrismaClient } from '#/generated/client';
+import type { PrismaClient } from '@prisma/client';
 
 /**
  * Create eval run operations backed by Prisma.
