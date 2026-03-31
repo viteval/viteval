@@ -1,9 +1,15 @@
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaPg } from '@prisma/adapter-pg';
 import type { VitevalProviderOptions } from './types';
 
 /**
  * Create a Prisma client configured for the specified database.
+ *
+ * Prisma 7 requires a driver adapter instead of a connection URL.
+ * Uses `@prisma/adapter-better-sqlite3` for SQLite and
+ * `@prisma/adapter-pg` for PostgreSQL.
  *
  * @param options - Provider options determining database type and connection.
  * @returns A configured PrismaClient instance.
@@ -11,11 +17,12 @@ import type { VitevalProviderOptions } from './types';
 export function createPrismaClient(
   options: VitevalProviderOptions
 ): PrismaClient {
-  const url = resolveUrl(options);
+  const adapter =
+    options.database === 'postgres'
+      ? new PrismaPg(options.url)
+      : new PrismaBetterSqlite3({ url: resolveSqlitePath(options) });
 
-  return new PrismaClient({
-    datasourceUrl: url,
-  });
+  return new PrismaClient({ adapter });
 }
 
 /*
@@ -37,12 +44,4 @@ export function resolveSqlitePath(options: VitevalProviderOptions): string {
 
   const dbPath = options.path ?? path.join('.viteval', 'viteval.db');
   return path.isAbsolute(dbPath) ? dbPath : path.resolve(process.cwd(), dbPath);
-}
-
-function resolveUrl(options: VitevalProviderOptions): string {
-  if (options.database === 'postgres') {
-    return options.url;
-  }
-
-  return `file:${resolveSqlitePath(options)}`;
 }

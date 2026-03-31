@@ -31,30 +31,43 @@
     "build": "prisma generate && tsdown",
     "dev": "tsdown --watch",
     "test": "vitest --typecheck --passWithNoTests",
-    "types": "tsc --noEmit",
+    "types": "prisma generate && tsc --noEmit",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
-    "@prisma/client": "^6.10.1",
+    "@prisma/adapter-better-sqlite3": "^7.6.0",
+    "@prisma/client": "^7.6.0",
     "@viteval/core": "workspace:^",
-    "@viteval/internal": "workspace:^"
+    "@viteval/internal": "workspace:^",
+    "better-sqlite3": "^12.8.0"
   },
   "devDependencies": {
     "@braintrust/api": "^0.5.0",
+    "@prisma/adapter-pg": "^7.6.0",
     "@tsconfig/node24": "^24.0.4",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.5.0",
-    "prisma": "^6.10.1",
+    "pg": "^8.16.2",
+    "prisma": "^7.6.0",
     "tsdown": "^0.21.7",
     "type-fest": "^5.5.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   },
   "peerDependencies": {
-    "@braintrust/api": ">=0.5.0"
+    "@braintrust/api": ">=0.5.0",
+    "@prisma/adapter-pg": ">=7.0.0",
+    "pg": ">=8.0.0"
   },
   "peerDependenciesMeta": {
     "@braintrust/api": {
+      "optional": true
+    },
+    "@prisma/adapter-pg": {
+      "optional": true
+    },
+    "pg": {
       "optional": true
     }
   }
