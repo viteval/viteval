@@ -8,6 +8,8 @@ import { computeEmbeddingSimilarity } from './embed';
 import { embeddingSimilarity } from './embedding-similarity';
 
 describe('EmbeddingSimilarity', () => {
+  const scorer = embeddingSimilarity();
+
   beforeEach(() => {
     vi.mocked(computeEmbeddingSimilarity).mockReset();
   });
@@ -18,7 +20,7 @@ describe('EmbeddingSimilarity', () => {
       score: 1,
     });
 
-    const result = await embeddingSimilarity({
+    const result = await scorer({
       expected: 'hello',
       input: 'test',
       output: 'hello',
@@ -35,7 +37,7 @@ describe('EmbeddingSimilarity', () => {
       score: 0,
     });
 
-    const result = await embeddingSimilarity({
+    const result = await scorer({
       expected: 'world',
       input: 'test',
       output: 'hello',
@@ -51,7 +53,7 @@ describe('EmbeddingSimilarity', () => {
       score: 0.95,
     });
 
-    const result = await embeddingSimilarity({
+    const result = await scorer({
       expected: 'hello',
       input: 'test',
       output: 'hi',
@@ -67,7 +69,7 @@ describe('EmbeddingSimilarity', () => {
       score: 0,
     });
 
-    const result = await embeddingSimilarity({
+    const result = await scorer({
       expected: 'goodbye',
       input: 'test',
       output: 'hello',
@@ -83,7 +85,7 @@ describe('EmbeddingSimilarity', () => {
       score: 1,
     });
 
-    await embeddingSimilarity({
+    await scorer({
       expected: 'world',
       input: 'test',
       output: 'hello',

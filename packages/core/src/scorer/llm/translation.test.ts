@@ -16,7 +16,8 @@ describe('translation', () => {
       score: 1,
     });
 
-    const result = await translation({
+    const scorer = translation();
+    const result = await scorer({
       expected: 'Hello world',
       input: 'Bonjour le monde',
       language: 'French',
@@ -46,7 +47,8 @@ describe('translation', () => {
       score: 0,
     });
 
-    await translation({
+    const scorer = translation();
+    await scorer({
       expected: 'Hello world',
       input: 'Hola mundo',
       output: 'Goodbye world',

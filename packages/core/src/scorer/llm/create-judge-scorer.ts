@@ -1,6 +1,15 @@
-import { createScorer } from '#/scorer/custom';
+import type { LanguageModel } from 'ai';
 import type { Scorer } from '#/types';
+import { createScorer } from '#/scorer/custom';
 import { runJudge } from './judge';
+
+/**
+ * Options for a judge-based scorer.
+ */
+export interface JudgeScorerOptions {
+  /** Model override for this scorer */
+  model?: LanguageModel;
+}
 
 /**
  * Configuration for creating a judge-based scorer via {@link createJudgeScorer}.
@@ -17,10 +26,10 @@ export interface JudgeScorerConfig {
 }
 
 /**
- * Create a scorer that delegates to an LLM judge.
+ * Create a scorer factory that delegates to an LLM judge.
  *
  * @param config - The judge scorer configuration.
- * @returns A scorer that calls {@link runJudge} and returns the score with choice/rationale metadata.
+ * @returns A factory function that accepts optional {@link JudgeScorerOptions} and returns a scorer.
  *
  * @example
  * ```ts
@@ -29,26 +38,34 @@ export interface JudgeScorerConfig {
  *   prompt: 'Is {{output}} correct given {{input}}?',
  *   choiceScores: { Yes: 1, No: 0 },
  * });
+ *
+ * // Use with defaults
+ * evaluate('test', { scorers: [myScorer()] });
+ *
+ * // Use with model override
+ * evaluate('test', { scorers: [myScorer({ model: openai('gpt-4o') })] });
  * ```
  */
 export function createJudgeScorer(
   config: JudgeScorerConfig
-): Scorer<unknown, Record<string, unknown>> {
-  return createScorer({
-    name: config.name,
-    score: async ({ output, expected, input, ...extra }) => {
-      const result = await runJudge(
-        {
-          choiceScores: config.choiceScores,
-          prompt: config.prompt,
-          useCoT: config.useCoT ?? true,
-        },
-        { expected, input, output, ...extra }
-      );
-      return {
-        metadata: { choice: result.choice, rationale: result.rationale },
-        score: result.score,
-      };
-    },
-  });
+): (options?: JudgeScorerOptions) => Scorer {
+  return (options) =>
+    createScorer({
+      name: config.name,
+      score: async ({ output, expected, input, ...extra }) => {
+        const result = await runJudge(
+          {
+            choiceScores: config.choiceScores,
+            model: options?.model,
+            prompt: config.prompt,
+            useCoT: config.useCoT ?? true,
+          },
+          { expected, input, output, ...extra }
+        );
+        return {
+          metadata: { choice: result.choice, rationale: result.rationale },
+          score: result.score,
+        };
+      },
+    });
 }

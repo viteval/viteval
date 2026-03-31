@@ -16,7 +16,8 @@ describe('answerCorrectness', () => {
       score: 1,
     });
 
-    const result = await answerCorrectness({
+    const scorer = answerCorrectness();
+    const result = await scorer({
       expected: 'Paris',
       input: 'What is the capital of France?',
       output: 'Paris',

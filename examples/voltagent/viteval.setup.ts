@@ -1,3 +1,9 @@
+import { openai } from '@ai-sdk/openai';
 import dotenv from 'dotenv';
+import { initializeModel } from 'viteval';
 
 dotenv.config({ path: './.env', quiet: true });
+
+initializeModel({
+  language: openai('gpt-4o-mini'),
+});

@@ -5,12 +5,7 @@ import { evaluate } from './evaluate';
 vi.mock('#/internals/config', () => ({
   getRuntimeConfig: () => ({
     eval: { timeout: 25_000 },
-    provider: undefined,
   }),
-}));
-
-vi.mock('#/provider/initialize', () => ({
-  initializeProvider: vi.fn(),
 }));
 
 describe('evaluate', () => {
@@ -87,5 +82,32 @@ describe('evaluate', () => {
       }),
     ],
     task: mockTask,
+  });
+
+  evaluate('decoupled task output and expected types', {
+    data: [
+      {
+        expected: { bad: 'strawberry', good: 'banana' },
+        input: 'What is the best fruit?',
+      },
+    ],
+    scorers: [
+      createScorer<string, { good: string; bad: string }>({
+        name: 'good-keyword',
+        score: ({ output, expected }) => ({
+          score: output.includes(expected.good) ? 1 : 0,
+        }),
+      }),
+      createScorer<string, { good: string; bad: string }>({
+        name: 'bad-keyword',
+        score: ({ output, expected }) => ({
+          score: output.includes(expected.bad) ? 0 : 1,
+        }),
+      }),
+    ],
+    task: vi.fn(
+      async ({ input }: { input: string }) =>
+        `The best fruit is banana, ${input}`
+    ),
   });
 });

@@ -1,69 +1,55 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('#/provider/client', () => ({
-  requireClient: vi.fn(),
+vi.mock('#/model/client', () => ({
+  requireModel: vi.fn(),
 }));
 
-import { requireClient } from '#/provider/client';
+vi.mock('ai', () => ({
+  generateObject: vi.fn(),
+}));
+
+import { generateObject } from 'ai';
 import { moderation } from './moderation';
 
 describe('moderation', () => {
-  it('should return score 1 for non-flagged content', async () => {
-    const mockCreate = vi.fn().mockResolvedValueOnce({
-      results: [
-        {
-          categories: { hate: false },
-          category_scores: { hate: 0.001 },
-          flagged: false,
-        },
-      ],
-    });
-
-    vi.mocked(requireClient).mockReturnValue({
-      moderations: { create: mockCreate },
+  it('should return score 1 for safe content', async () => {
+    vi.mocked(generateObject).mockResolvedValueOnce({
+      object: { choice: 'Safe', reasons: 'Content is harmless.' },
     } as never);
 
-    const result = await moderation({
+    const scorer = moderation();
+    const result = await scorer({
       output: 'Hello world',
     });
 
     expect(result.score).toBe(1);
-    expect(result.metadata?.flagged).toBe(false);
-    expect(mockCreate).toHaveBeenCalledWith({ input: 'Hello world' });
+    expect(result.metadata?.choice).toBe('Safe');
   });
 
-  it('should return score 0 for flagged content', async () => {
-    const mockCreate = vi.fn().mockResolvedValueOnce({
-      results: [
-        {
-          categories: { hate: true },
-          category_scores: { hate: 0.99 },
-          flagged: true,
-        },
-      ],
-    });
-
-    vi.mocked(requireClient).mockReturnValue({
-      moderations: { create: mockCreate },
+  it('should return score 0 for unsafe content', async () => {
+    vi.mocked(generateObject).mockResolvedValueOnce({
+      object: { choice: 'Unsafe', reasons: 'Content contains threats.' },
     } as never);
 
-    const result = await moderation({
+    const scorer = moderation();
+    const result = await scorer({
       output: 'harmful content',
     });
 
     expect(result.score).toBe(0);
-    expect(result.metadata?.flagged).toBe(true);
+    expect(result.metadata?.choice).toBe('Unsafe');
   });
 
-  it('should throw if client is not initialized', async () => {
-    vi.mocked(requireClient).mockImplementation(() => {
-      throw new Error(
-        'OpenAI client not initialized. Call initializeProvider() first.'
-      );
-    });
+  it('should throw if model is not initialized', async () => {
+    vi.mocked(generateObject).mockRejectedValueOnce(
+      new Error(
+        'Model not initialized. Configure a model in your viteval config.'
+      )
+    );
 
-    await expect(moderation({ output: 'test' })).rejects.toThrow(
-      'OpenAI client not initialized. Call initializeProvider() first.'
+    const scorer = moderation();
+    await expect(scorer({ output: 'test' })).rejects.toThrow(
+      'Model not initialized.'
     );
   });
 });

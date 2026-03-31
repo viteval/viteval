@@ -46,6 +46,7 @@
     "@viteval/cli": "workspace:*",
     "@viteval/core": "workspace:*",
     "@viteval/internal": "workspace:*",
+    "@viteval/providers": "workspace:*",
     "@viteval/ui": "workspace:*",
     "vitest": "^4.1.2"
   },

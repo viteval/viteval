@@ -16,7 +16,8 @@ describe('summary', () => {
       score: 1,
     });
 
-    const result = await summary({
+    const scorer = summary();
+    const result = await scorer({
       expected: 'An animal crosses another.',
       input: 'The quick brown fox jumps over the lazy dog.',
       output: 'A fox jumps over a dog.',

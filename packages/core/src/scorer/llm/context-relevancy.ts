@@ -26,7 +26,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
  * ```ts
  * import { contextRelevancy } from '@viteval/core';
  *
- * const result = await contextRelevancy({
+ * const scorer = contextRelevancy();
+ * const result = await scorer({
  *   input: 'What is photosynthesis?',
  *   output: 'Photosynthesis is the process by which plants convert sunlight into energy.',
  * });

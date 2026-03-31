@@ -5,30 +5,50 @@ import {
   isPlainObject,
   isString,
 } from '@viteval/internal';
+import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity, numericSimilarity } from './similarity';
 
 /**
- * Scores based on recursive deep comparison of JSON values.
+ * Options for the JsonDiff scorer.
+ */
+export interface JsonDiffOptions {
+  /**
+   * Minimum similarity threshold. Scores below this value are returned as 0.
+   *
+   * @default 0
+   */
+  threshold?: number;
+}
+
+/**
+ * Create a JSON diff scorer.
+ *
+ * @param options - Optional configuration.
+ * @returns A scorer that recursively compares JSON values.
  *
  * @example
  * ```ts
- * import { scorers } from '@viteval/core';
+ * import { scorers } from 'viteval';
  *
- * const result = await scorers.jsonDiff({
- *   input: 'q',
- *   output: { name: 'Alice' },
- *   expected: { name: 'Alice' },
- * });
- * // result.score === 1
+ * // Default
+ * scorers: [scorers.jsonDiff()]
+ *
+ * // With threshold
+ * scorers: [scorers.jsonDiff({ threshold: 0.9 })]
  * ```
  */
-export const jsonDiff = createScorer({
-  name: 'JsonDiff',
-  score: ({ output, expected }) => ({
-    score: deepCompare(tryParseJson(output), tryParseJson(expected)),
-  }),
-});
+export function jsonDiff(options?: JsonDiffOptions): Scorer {
+  const { threshold = 0 } = options ?? {};
+
+  return createScorer({
+    name: 'JsonDiff',
+    score: ({ output, expected }) => {
+      const score = deepCompare(tryParseJson(output), tryParseJson(expected));
+      return { score: score >= threshold ? score : 0 };
+    },
+  });
+}
 
 /**
  * Attempt to parse a value as JSON if it is a string, otherwise return as-is.

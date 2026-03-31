@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Dataset {
+  id          String   @id
+  name        String   @unique
+  description String?
+  version     Int      @default(1)
+  metadata    String   @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items    DatasetItem[]
+  evalRuns EvalRun[]
+
+  @@map("datasets")
+}
+
+model DatasetItem {
+  id        String @id
+  datasetId String @map("dataset_id")
+  input     String
+  expected  String
+  extra     String @default("{}")
+  ordinal   Int    @default(0)
+
+  dataset Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+  @@index([datasetId])
+  @@map("dataset_items")
+}
+
+model EvalRun {
+  id          String    @id
+  name        String
+  datasetId   String?   @map("dataset_id")
+  status      String    @default("running")
+  config      String    @default("{}")
+  summary     String?
+  tags        String    @default("[]")
+  metadata    String    @default("{}")
+  startedAt   DateTime  @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  dataset Dataset?     @relation(fields: [datasetId], references: [id])
+  results EvalRunResult[]
+
+  @@index([datasetId])
+  @@index([status])
+  @@map("eval_runs")
+}
+
+model EvalRunResult {
+  id          String  @id
+  evalRunId   String  @map("eval_run_id")
+  input       String
+  expected    String
+  output      String
+  scores      String
+  meanScore   Float   @map("mean_score")
+  medianScore Float   @map("median_score")
+  sumScore    Float   @map("sum_score")
+  passed      Boolean
+  duration    Int?
+  metadata    String  @default("{}")
+
+  evalRun EvalRun @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+
+  @@index([evalRunId])
+  @@map("eval_results")
+}

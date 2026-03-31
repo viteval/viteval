@@ -16,7 +16,8 @@ describe('contextPrecision', () => {
       score: 1,
     });
 
-    const result = await contextPrecision({
+    const scorer = contextPrecision();
+    const result = await scorer({
       expected: 'Paris',
       input: 'What is the capital of France?',
       output: 'France is a country in Europe. Its capital is Paris.',

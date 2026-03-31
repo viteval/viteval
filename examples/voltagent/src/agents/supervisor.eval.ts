@@ -5,7 +5,7 @@ import supervisorDataset from './supervisor.dataset';
 evaluate('Supervisor Agent', {
   data: supervisorDataset,
   description: 'Evaluates the supervisor agent routing decisions',
-  scorers: [scorers.answerCorrectness],
+  scorers: [scorers.answerCorrectness()],
   task: async ({ input }) => {
     const result = await supervisorAgent.generateText(input);
     return result.text;

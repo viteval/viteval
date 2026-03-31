@@ -16,7 +16,8 @@ describe('possible', () => {
       score: 1,
     });
 
-    const result = await possible({
+    const scorer = possible();
+    const result = await scorer({
       input: 'How do you sort an array?',
       output: 'Use Array.prototype.sort()',
     });

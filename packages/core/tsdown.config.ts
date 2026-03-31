@@ -4,6 +4,7 @@ const baseConfig = defineConfig({
   config: 'tsconfig.build.json',
   dts: { build: true },
   external: [
+    'vite',
     'vitest',
     'openai',
     '@viteval/internal',
@@ -26,6 +27,8 @@ export default defineConfig(
     { entry: 'src/config/index.ts', outDir: 'dist/config' },
     { entry: 'src/dataset/index.ts', outDir: 'dist/dataset' },
     { entry: 'src/reporters/index.ts', outDir: 'dist/reporters' },
+    { entry: 'src/runner/index.ts', outDir: 'dist/runner' },
+    { entry: 'src/plugin/index.ts', outDir: 'dist/plugin' },
   ].map(({ entry, outDir }) => ({
     ...baseConfig,
     entry: [entry],

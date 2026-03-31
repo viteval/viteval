@@ -1,14 +1,12 @@
+import { embed } from 'ai';
 import { clamp } from '@viteval/internal';
 import cosineSimilarity from 'compute-cosine-similarity';
-import { requireClient } from '#/provider/client';
-
-const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
+import { requireEmbeddingModel } from '#/model/client';
 
 /**
- * Get an embedding vector for the given text using OpenAI's embeddings API.
+ * Get an embedding vector for the given text using the configured embedding model.
  *
  * @param text - The text to embed.
- * @param model - The embedding model to use.
  * @returns The embedding vector as a number array.
  *
  * @example
@@ -16,18 +14,15 @@ const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
  * const vector = await getEmbedding('Hello world');
  * ```
  */
-export async function getEmbedding(
-  text: string,
-  model: string = DEFAULT_EMBEDDING_MODEL
-): Promise<number[]> {
-  const client = requireClient();
+export async function getEmbedding(text: string): Promise<number[]> {
+  const model = requireEmbeddingModel();
 
-  const response = await client.embeddings.create({
-    input: text,
+  const { embedding } = await embed({
     model,
+    value: text,
   });
 
-  return response.data[0].embedding;
+  return embedding;
 }
 
 /**

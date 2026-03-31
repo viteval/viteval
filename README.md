@@ -20,6 +20,10 @@ Next generation LLM evaluation framework powered by Vitest.
 <br>
 <br>
 
+> [!WARNING]
+> This branch is under active development for **v1**. Expect breaking changes.
+> For the latest stable release (v0), see the [`v0` branch](https://github.com/viteval/viteval/tree/v0).
+
 ## Features
 
 - ✅ Vitest-like API: easily define and run evals the same way you run tests.

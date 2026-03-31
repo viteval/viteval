@@ -15,7 +15,8 @@ describe('humor', () => {
       score: 1,
     });
 
-    const result = await humor({
+    const scorer = humor();
+    const result = await scorer({
       output: 'Why did the chicken cross the road? To get to the other side!',
     });
 

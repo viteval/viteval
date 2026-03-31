@@ -1,5 +1,8 @@
+import type { LanguageModel } from 'ai';
+import { generateObject } from 'ai';
 import Mustache from 'mustache';
-import { requireClient } from '#/provider/client';
+import { z } from 'zod';
+import { requireModel } from '#/model/client';
 
 /**
  * Configuration for an LLM-as-judge evaluation.
@@ -11,8 +14,8 @@ export interface JudgeConfig {
   choiceScores: Record<string, number>;
   /** Whether to use chain-of-thought reasoning */
   useCoT?: boolean;
-  /** Model to use for the evaluation */
-  model?: string;
+  /** Model override for this judge evaluation */
+  model?: LanguageModel;
 }
 
 /**
@@ -24,10 +27,8 @@ export interface JudgeResult {
   rationale?: string;
 }
 
-const DEFAULT_MODEL = 'gpt-4o-mini';
-
 /**
- * Run an LLM-as-judge evaluation using OpenAI function calling.
+ * Run an LLM-as-judge evaluation using structured output.
  *
  * @param config - The judge configuration (prompt template, choice scores, etc.)
  * @param variables - Template variables to render into the prompt.
@@ -48,79 +49,44 @@ export async function runJudge(
   config: JudgeConfig,
   variables: Record<string, unknown>
 ): Promise<JudgeResult> {
-  const client = requireClient();
+  const model = config.model ?? requireModel();
 
   const renderedPrompt = Mustache.render(config.prompt, variables);
   const choices = Object.keys(config.choiceScores);
   const choicesStr = choices.map((c) => `"${c}"`).join(', ');
 
   const systemSuffix = config.useCoT
-    ? `Answer by calling the \`select_choice\` function with your reasoning in a step-by-step manner, then select one of the following choices: ${choicesStr}.`
-    : `Answer by calling the \`select_choice\` function and selecting one of the following choices: ${choicesStr}.`;
+    ? `Answer with your reasoning in a step-by-step manner, then select one of the following choices: ${choicesStr}.`
+    : `Select one of the following choices: ${choicesStr}.`;
 
-  const tool = {
-    function: {
-      description: 'Select the best choice based on the evaluation.',
-      name: 'select_choice',
-      parameters: {
-        type: 'object',
-        properties: {
-          ...(config.useCoT
-            ? {
-                reasons: {
-                  type: 'string',
-                  description: 'Step-by-step reasoning for the choice.',
-                },
-              }
-            : {}),
-          choice: {
-            type: 'string',
-            enum: choices,
-            description: 'The selected choice.',
-          },
-        },
-        required: config.useCoT ? ['reasons', 'choice'] : ['choice'],
-      },
-    },
-    type: 'function' as const,
-  };
+  const schema = config.useCoT
+    ? z.object({
+        choice: z
+          .enum(choices as [string, ...string[]])
+          .describe('The selected choice.'),
+        reasons: z.string().describe('Step-by-step reasoning for the choice.'),
+      })
+    : z.object({
+        choice: z
+          .enum(choices as [string, ...string[]])
+          .describe('The selected choice.'),
+      });
 
-  const response = await client.chat.completions.create({
-    messages: [
-      { content: `${renderedPrompt}\n\n${systemSuffix}`, role: 'user' },
-    ],
-    model: config.model ?? DEFAULT_MODEL,
+  const { object } = await generateObject({
+    model,
+    prompt: `${renderedPrompt}\n\n${systemSuffix}`,
+    schema,
     temperature: 0,
-    tool_choice: { function: { name: 'select_choice' }, type: 'function' },
-    tools: [tool],
   });
 
-  const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (
-    !toolCall ||
-    !('function' in toolCall) ||
-    toolCall.function.name !== 'select_choice'
-  ) {
-    throw new Error('LLM judge did not return a valid tool call.');
-  }
-
-  let parsed: { choice: string; reasons?: string };
-  try {
-    parsed = JSON.parse(toolCall.function.arguments);
-  } catch {
-    throw new Error(
-      'LLM judge returned malformed JSON in tool call arguments.'
-    );
-  }
-
-  const score = config.choiceScores[parsed.choice];
+  const score = config.choiceScores[object.choice];
   if (score === undefined) {
-    throw new Error(`Unknown choice "${parsed.choice}" returned by LLM judge.`);
+    throw new Error(`Unknown choice "${object.choice}" returned by LLM judge.`);
   }
 
   return {
-    choice: parsed.choice,
-    rationale: parsed.reasons,
+    choice: object.choice,
+    rationale: 'reasons' in object ? (object.reasons as string) : undefined,
     score,
   };
 }

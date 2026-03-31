@@ -16,7 +16,8 @@ describe('contextEntityRecall', () => {
       score: 1,
     });
 
-    const result = await contextEntityRecall({
+    const scorer = contextEntityRecall();
+    const result = await scorer({
       expected: 'Bill Gates and Paul Allen',
       input: 'Who founded Microsoft?',
       output: 'Bill Gates and Paul Allen founded Microsoft in 1975.',

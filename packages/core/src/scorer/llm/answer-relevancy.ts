@@ -26,7 +26,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
  * ```ts
  * import { answerRelevancy } from '@viteval/core';
  *
- * const result = await answerRelevancy({
+ * const scorer = answerRelevancy();
+ * const result = await scorer({
  *   input: 'What is the capital of France?',
  *   output: 'Paris is the capital of France.',
  * });

@@ -16,7 +16,8 @@ describe('contextRelevancy', () => {
       score: 1,
     });
 
-    const result = await contextRelevancy({
+    const scorer = contextRelevancy();
+    const result = await scorer({
       input: 'What is photosynthesis?',
       output:
         'Photosynthesis is the process by which plants convert sunlight into energy.',

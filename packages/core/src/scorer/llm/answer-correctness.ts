@@ -30,7 +30,8 @@ const CHOICE_SCORES: Record<string, number> = { A: 1, B: 0.5, C: 0 };
  * ```ts
  * import { answerCorrectness } from '@viteval/core';
  *
- * const result = await answerCorrectness({
+ * const scorer = answerCorrectness();
+ * const result = await scorer({
  *   input: 'What is 2+2?',
  *   output: '4',
  *   expected: '4',
