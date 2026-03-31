@@ -1,3 +1,5 @@
+'use client';
+
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,7 +9,7 @@ interface ScoresRendererProps {
   scores: Score[];
 }
 
-function ScoresRenderer({ scores }: ScoresRendererProps) {
+export default function ScoresRenderer({ scores }: ScoresRendererProps) {
   if (scores.length === 0) {
     return <div>No scores</div>;
   }
@@ -63,5 +65,3 @@ function ScoresRenderer({ scores }: ScoresRendererProps) {
     </Tabs>
   );
 }
-
-export default ScoresRenderer;

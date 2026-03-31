@@ -1,3 +1,5 @@
+'use client';
+
 import { Check, Copy } from 'lucide-react';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -17,9 +19,8 @@ interface ValueRendererProps {
 function isJSON(value: unknown): boolean {
   if (typeof value !== 'string') {
     return true;
-  } // Non-strings will be JSON.stringified
+  }
 
-  // Check if it looks like JSON
   const trimmed = value.trim();
   if (
     (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
@@ -53,7 +54,11 @@ function formatValue(value: unknown): {
       try {
         const parsed = JSON.parse(value);
         const formatted = JSON.stringify(parsed, null, 2);
-        return { content: formatted, isJson: true, rawContent: formatted };
+        return {
+          content: formatted,
+          isJson: true,
+          rawContent: formatted,
+        };
       } catch {
         return { content: value, isJson: false, rawContent: value };
       }
@@ -67,7 +72,11 @@ function formatValue(value: unknown): {
   }
 
   const stringValue = String(value);
-  return { content: stringValue, isJson: false, rawContent: stringValue };
+  return {
+    content: stringValue,
+    isJson: false,
+    rawContent: stringValue,
+  };
 }
 
 export function ValueRenderer({
@@ -152,10 +161,8 @@ export function ValueRenderer({
     );
   }
 
-  // Check if content has markdown code blocks
   const hasCodeBlocks = content.includes('```');
 
-  // For simple strings/primitives without markdown, render in a styled container
   if (
     !hasCodeBlocks &&
     !content.includes('`') &&
@@ -173,7 +180,9 @@ export function ValueRenderer({
         >
           <pre
             className="whitespace-pre-wrap break-words m-0"
-            style={{ paddingRight: showCopyButton ? '2rem' : undefined }}
+            style={{
+              paddingRight: showCopyButton ? '2rem' : undefined,
+            }}
           >
             {content}
           </pre>
@@ -196,7 +205,6 @@ export function ValueRenderer({
     );
   }
 
-  // Render as markdown for content with markdown formatting
   return (
     <div
       className={`${wrapperClass} prose prose-sm dark:prose-invert max-w-none ${className}`}
@@ -206,8 +214,10 @@ export function ValueRenderer({
       <div className="relative">
         <ReactMarkdown
           components={{
-            code: ({ className, children, ...props }) => {
-              const match = /language-(\w+)/.exec(className || '');
+            code: ({ className: codeClassName, children, ...props }) => {
+              const match = /(?:^|\s)language-([a-z0-9#+-]+)/i.exec(
+                codeClassName ?? ''
+              );
               const language = match ? match[1] : '';
 
               if (language) {
@@ -240,7 +250,9 @@ export function ValueRenderer({
             p: ({ children }) => (
               <div
                 className="bg-zinc-900 dark:bg-zinc-900 text-zinc-100 p-3 rounded-md font-mono text-xs leading-relaxed whitespace-pre-wrap break-words"
-                style={{ paddingRight: showCopyButton ? '3rem' : undefined }}
+                style={{
+                  paddingRight: showCopyButton ? '3rem' : undefined,
+                }}
               >
                 {children}
               </div>

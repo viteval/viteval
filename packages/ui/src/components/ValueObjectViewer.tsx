@@ -1,3 +1,5 @@
+'use client';
+
 import { get } from 'lodash-es';
 import { useMemo, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -86,30 +88,9 @@ export function ValueObjectViewer({ obj }: { obj: unknown }) {
                   'kotlin',
                   'dart',
                   'elixir',
-                  'erlang',
                   'haskell',
                   'scala',
-                  'groovy',
                   'clojure',
-                  'lisp',
-                  'erlang',
-                  'haskell',
-                  'scala',
-                  'groovy',
-                  'clojure',
-                  'lisp',
-                  'erlang',
-                  'haskell',
-                  'scala',
-                  'groovy',
-                  'clojure',
-                  'lisp',
-                  'erlang',
-                  'haskell',
-                  'scala',
-                  'groovy',
-                  'clojure',
-                  'lisp',
                 ].map((language) => (
                   <SelectItem
                     key={language}
@@ -152,17 +133,14 @@ type FieldPath = string;
 function getStringFieldPaths(obj: unknown, parentPath = ''): FieldPath[] {
   const paths: FieldPath[] = [];
 
-  // Handle null or undefined
   if (obj === null || obj === undefined) {
     return paths;
   }
 
-  // If current value is a string, return the path
   if (typeof obj === 'string') {
     return parentPath ? [parentPath] : [];
   }
 
-  // Handle arrays
   if (Array.isArray(obj)) {
     obj.forEach((item, index) => {
       const currentPath = parentPath ? `${parentPath}.${index}` : `${index}`;
@@ -171,7 +149,6 @@ function getStringFieldPaths(obj: unknown, parentPath = ''): FieldPath[] {
     return paths;
   }
 
-  // Handle objects
   if (typeof obj === 'object') {
     Object.entries(obj).forEach(([key, value]) => {
       const currentPath = parentPath ? `${parentPath}.${key}` : key;
@@ -188,11 +165,13 @@ function getStringFieldPaths(obj: unknown, parentPath = ''): FieldPath[] {
 }
 
 function isJSON(value: unknown): boolean {
-  if (typeof value !== 'string') {
+  if (value !== null && typeof value === 'object') {
     return true;
-  } // Non-strings will be JSON.stringified
+  }
+  if (typeof value !== 'string') {
+    return false;
+  }
 
-  // Check if it looks like JSON
   const trimmed = value.trim();
   if (
     (trimmed.startsWith('{') && trimmed.endsWith('}')) ||

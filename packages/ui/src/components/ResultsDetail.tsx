@@ -1,19 +1,21 @@
+'use client';
+
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { getStatusBadge } from '../lib/badges';
-import { formatDuration } from '../lib/utils';
-import type { EvalResult, EvalResults, EvalSuite, Score } from '../types';
+import { getStatusBadge } from '@/lib/badges';
+import { formatDuration } from '@/lib/utils';
+import type { EvalResult, EvalResults, EvalSuite, Score } from '@/types';
 import ScoresRenderer from './ScoresRenderer';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle,
-} from './ui/card';
-import { Collapsible, CollapsibleContent } from './ui/collapsible';
+} from '@/components/ui/card';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import {
   Table,
   TableBody,
@@ -22,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
+} from '@/components/ui/table';
 import { ValueRenderer } from './ValueRenderer';
 
 interface ResultsDetailProps {

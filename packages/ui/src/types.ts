@@ -1,4 +1,4 @@
-/* eslint-disable no-explicit-any -- UI display types where any is intentional */
+/* oxlint-disable no-explicit-any -- UI display types where any is intentional */
 
 export interface Score {
   name: string;

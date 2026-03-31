@@ -1,13 +1,10 @@
-import type { Server } from 'node:http';
+import type { ServerType } from '@hono/node-server';
 import path from 'node:path';
-import express from 'express';
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
-// @ts-ignore - tsrServer is a valid type
-import tsrServer from './dist/server/server.js';
-
-// eslint-disable-next-line no-explicit-any -- tsrServer is untyped
-const tanstackServer = tsrServer as any;
 
 export interface CreateVitevalServerOptions {
   /**
@@ -39,58 +36,78 @@ export interface CreateVitevalServerOptions {
  * @returns The Viteval server
  */
 export function createVitevalServer(options?: CreateVitevalServerOptions) {
-  const app = express();
-  app.use(express.static(path.join(import.meta.dirname, 'dist', 'client')));
-  app.use(async (req, res) => {
-    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    const request = new Request(url, {
-      method: req.method,
-      headers: req.headers as HeadersInit,
-      body:
-        req.method !== 'GET' && req.method !== 'HEAD'
-          ? (req as unknown as ReadableStream)
-          : undefined,
-      // @ts-expect-error - Node.js specific option for request body handling
-      duplex: 'half',
-    });
-    const response = await tanstackServer.fetch(request);
-    res.status(response.status);
-    response.headers.forEach((value: string, key: string) => {
-      res.setHeader(key, value);
-    });
-    if (response.body) {
-      const reader = response.body.getReader();
-      const pump = async (): Promise<void> => {
-        const { done, value } = await reader.read();
-        if (done) {
-          res.end();
-          return;
-        }
-        res.write(value);
-        return pump();
-      };
-      await pump();
-    } else {
-      res.end();
-    }
-  });
-  let server: Server;
+  let server: ServerType | undefined;
+
   return {
     /**
      * Starts the Viteval server
      * @returns The port the server is listening on
      */
     async start(): Promise<number> {
-      // Set the root path in the environment variables
       const root = await findRoot(options?.root);
       process.env.VITEVAL_ROOT_PATH = root;
       process.env.VITEVAL_DEBUG_MODE = options?.debug ? 'true' : 'false';
 
       const port = await getPort({ port: options?.port ?? 3000 });
-      return new Promise((resolve) => {
-        server = app.listen(port, () => {
-          resolve(port);
+      const standaloneDir = path.join(
+        import.meta.dirname,
+        'dist',
+        '.next',
+        'standalone'
+      );
+
+      const app = new Hono();
+
+      app.use(
+        '/*',
+        serveStatic({
+          root: path.join(
+            import.meta.dirname,
+            'dist',
+            '.next',
+            'standalone',
+            'public'
+          ),
+        })
+      );
+
+      app.use(
+        '/_next/static/*',
+        serveStatic({
+          rewriteRequestPath: (p: string) => p.replace('/_next/static', ''),
+          root: path.join(import.meta.dirname, 'dist', '.next', 'static'),
+        })
+      );
+
+      // Import and use the Next.js standalone server handler
+      const nextHandler = await import(path.join(standaloneDir, 'server.js'));
+      app.all('*', async (c) => {
+        const url = new URL(c.req.url);
+        url.port = String(port);
+        const request = new Request(url.toString(), {
+          method: c.req.method,
+          headers: c.req.raw.headers,
+          body:
+            c.req.method !== 'GET' && c.req.method !== 'HEAD'
+              ? c.req.raw.body
+              : undefined,
+          // @ts-expect-error - Node.js specific option for request body handling
+          duplex: 'half',
         });
+        const response = await nextHandler.default(request);
+        return response;
+      });
+
+      return new Promise((resolve) => {
+        server = serve(
+          {
+            fetch: app.fetch,
+            port,
+          },
+          () => {
+            resolve(port);
+          }
+        );
       });
     },
     /**
@@ -106,22 +123,19 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      */
     async shutdown(): Promise<void> {
       return new Promise((resolve) => {
-        server.close(() => {
-          // Reset the environment variables
-          process.env.VITEVAL_ROOT_PATH = undefined;
-          process.env.VITEVAL_DEBUG_MODE = undefined;
+        if (server) {
+          server.close(() => {
+            process.env.VITEVAL_ROOT_PATH = undefined;
+            process.env.VITEVAL_DEBUG_MODE = undefined;
+            resolve();
+          });
+        } else {
           resolve();
-        });
+        }
       });
     },
   };
 }
-
-/*
-|------------------
-| Internals
-|------------------
-*/
 
 async function findRoot(root: string = process.cwd()) {
   const configFile = await findUp(

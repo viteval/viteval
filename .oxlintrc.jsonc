@@ -25,6 +25,7 @@
     "pnpm-*",
     "original/**",
     "**/*.gen.ts",
+    "**/components/ui/**",
   ],
   "categories": {
     "correctness": "error",

@@ -1,0 +1,50 @@
+import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
+import { Toaster } from 'sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
+import { SiteHeader } from '@/components/site-header';
+import './globals.css';
+
+export const metadata: Metadata = {
+  description: 'Local UI for viewing the results of your evals',
+  title: 'Viteval | Evaluation Results',
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const cookieStore = await cookies();
+  const sidebarState = cookieStore.get('sidebar_state')?.value;
+  const defaultOpen = sidebarState !== 'false';
+
+  return (
+    <html lang="en">
+      <body>
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <AppSidebar />
+            <SidebarInset>
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+            </SidebarInset>
+          </SidebarProvider>
+        </TooltipProvider>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            className: 'font-sans',
+            style: {
+              background: '#18181b',
+              border: '1px solid #27272a',
+              color: '#fafafa',
+            },
+          }}
+        />
+      </body>
+    </html>
+  );
+}

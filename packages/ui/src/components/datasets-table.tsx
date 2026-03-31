@@ -1,45 +1,25 @@
-import { Icon } from '@iconify/react';
-import { Await, Link, createFileRoute } from '@tanstack/react-router';
+'use client';
+
+import Link from 'next/link';
+import type { DatasetSummary } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getDatasets } from '@/fx/datasets';
-import type { DatasetSummary } from '@/types';
 
-export const Route = createFileRoute('/datasets/')({
-  component: DatasetsPage,
-  loader: async () => ({ datasets: getDatasets() }),
-});
-
-function DatasetsPage() {
-  const { datasets: initialDatasets } = Route.useLoaderData();
-  return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Icon icon="mdi:database" width={24} />
-          Datasets
-        </h1>
-        <p className="text-muted-foreground">
-          View and manage your evaluation datasets
-        </p>
-      </div>
-      <Await
-        promise={initialDatasets}
-        fallback={<div>Loading datasets...</div>}
-      >
-        {(datasets) => <DatasetsList datasets={datasets} />}
-      </Await>
-    </div>
-  );
+interface DatasetsTableProps {
+  datasets: DatasetSummary[];
 }
 
-function DatasetsList({ datasets }: { datasets: DatasetSummary[] }) {
+export function DatasetsTable({ datasets }: DatasetsTableProps) {
   if (datasets.length === 0) {
     return (
       <Card>
         <CardContent>
           <div className="text-center py-8">
-            <div className="text-6xl mb-4">📊</div>
+            <div className="text-6xl mb-4">
+              <span role="img" aria-label="chart">
+                📊
+              </span>
+            </div>
             <div className="text-xl font-semibold mb-2">No Datasets Found</div>
             <div className="text-sm text-muted-foreground">
               No datasets were found in the .viteval/datasets directory.
@@ -55,8 +35,7 @@ function DatasetsList({ datasets }: { datasets: DatasetSummary[] }) {
       {datasets.map((dataset) => (
         <Link
           key={dataset.id}
-          to="/datasets/$id"
-          params={{ id: dataset.id }}
+          href={`/datasets/${dataset.id}`}
           className="block"
         >
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
