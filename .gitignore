@@ -110,6 +110,10 @@ dist
 # viteval results
 **/.viteval/results
 
+# viteval local database
+**/.viteval/viteval.db
+**/.viteval/viteval.db-journal
+
 # vitepress build output
 **/.vitepress/dist
 
