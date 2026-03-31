@@ -9,5 +9,14 @@
     "@viteval/ui": "0.5.9",
     "viteval": "0.5.9"
   },
-  "changesets": []
+  "changesets": [
+    "configurable-scorers",
+    "decouple-task-output",
+    "migrate-ui-nextjs",
+    "provider-abstraction",
+    "provider-dataset-eval",
+    "replace-autoevals",
+    "sample-items",
+    "vitest-v4-runner"
+  ]
 }

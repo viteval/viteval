@@ -1,5 +1,31 @@
 # @viteval/cli
 
+## 1.0.0-rc.1
+
+### Patch Changes
+
+- 92023da: Modernize Vitest integration with v4 runner, reporter, and plugin APIs
+
+  - **BREAKING**: `JsonReporter` rewritten with Vitest v4 granular lifecycle hooks (`onTestCaseResult`, `onTestRunEnd`). Custom reporters extending the old `onFinished(files)` API must migrate.
+  - Add custom `VitevalRunner` extending Vitest 4's `TestRunner` with `extendTaskContext` for lazy model injection
+  - Add `vitevalPlugin` with `configureVitest` hook for typed config injection via `ProvidedContext`
+  - Move from suite-level meta smuggling to per-test `task.meta.evalResult` with proper `TaskMeta` module augmentation
+  - Add test annotations (`context.annotate`) for inline score reporting in default and GitHub Actions reporters
+  - Eliminate all `DangerouslyAllowAny` and `as any` casts from core package
+  - New package exports: `@viteval/core/runner`, `@viteval/core/plugin`
+
+- Updated dependencies [7cda487]
+- Updated dependencies [7f3ba21]
+- Updated dependencies [2426852]
+- Updated dependencies [81e6d77]
+- Updated dependencies [878f3d5]
+- Updated dependencies [f862d31]
+- Updated dependencies [de505ac]
+- Updated dependencies [92023da]
+  - @viteval/core@1.0.0-rc.1
+  - @viteval/ui@1.0.0-rc.1
+  - @viteval/internal@1.0.0-rc.1
+
 ## 1.0.0-rc.0
 
 ### Patch Changes
@@ -140,6 +166,7 @@
 - 864c595: ## Viteval UI (beta)
 
   This release includes major improvements to the Viteval UI, including:
+
   - Adding a new `datasets` page to view and manage your evaluation datasets
   - Adding UI states to show when an evaluation is running and updating it as it runs/finishes
   - Cleaning up the UI for Results List and Result Detail pages
@@ -157,6 +184,7 @@
 ### Patch Changes
 
 - 9db42c7: # What's changed?
+
   - Add a wrapper to prevent `resolveConfig` from throwing an error, and add logging for debugging.
   - Added a `createVitevalServer` for the `ui` that can be used in a more standard way/approach
 
