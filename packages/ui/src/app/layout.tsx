@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -11,16 +12,20 @@ export const metadata: Metadata = {
   title: 'Viteval | Evaluation Results',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const sidebarState = cookieStore.get('sidebar_state')?.value;
+  const defaultOpen = sidebarState !== 'false';
+
   return (
     <html lang="en">
       <body>
         <TooltipProvider>
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <SidebarInset>
               <SiteHeader />
