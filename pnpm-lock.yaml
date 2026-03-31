@@ -369,9 +369,6 @@ importers:
       '@prisma/adapter-better-sqlite3':
         specifier: ^7.6.0
         version: 7.6.0
-      '@prisma/adapter-pg':
-        specifier: ^7.6.0
-        version: 7.6.0
       '@prisma/client':
         specifier: ^7.6.0
         version: 7.6.0(prisma@7.6.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(better-sqlite3@12.8.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.2))(typescript@6.0.2)
@@ -388,6 +385,9 @@ importers:
       '@braintrust/api':
         specifier: ^0.5.0
         version: 0.5.0
+      '@prisma/adapter-pg':
+        specifier: ^7.6.0
+        version: 7.6.0
       '@tsconfig/node24':
         specifier: ^24.0.4
         version: 24.0.4
@@ -397,6 +397,9 @@ importers:
       '@types/node':
         specifier: ^25.5.0
         version: 25.5.0
+      pg:
+        specifier: ^8.16.2
+        version: 8.20.0
       prisma:
         specifier: ^7.6.0
         version: 7.6.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(better-sqlite3@12.8.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.2)
