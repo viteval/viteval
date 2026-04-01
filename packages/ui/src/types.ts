@@ -1,4 +1,4 @@
-/* eslint-disable no-explicit-any -- UI display types where any is intentional */
+/* oxlint-disable no-explicit-any -- UI display types where any is intentional */
 
 export interface Score {
   name: string;
@@ -22,6 +22,7 @@ export interface EvalResult {
 export interface EvalSuite {
   name: string;
   status: string;
+  filepath?: string;
   startTime: number;
   endTime: number;
   duration: number;
@@ -78,6 +79,7 @@ export interface ResultFile {
     duration: number;
     startTime: number;
     endTime: number;
+    suiteNames: string[];
   } | null;
 }
 
@@ -89,6 +91,25 @@ export interface DatasetSummary {
   itemCount: number;
   createdAt?: string;
   storage: string;
+}
+
+export interface EvalSchema {
+  id: string;
+  name: string;
+  path: string;
+  content: string;
+}
+
+export interface SuiteSummary {
+  name: string;
+  filepath?: string;
+  runCount: number;
+  latestStatus: string;
+  latestRunTimestamp: string;
+  latestDuration: number;
+  latestMeanScore: number;
+  latestPassedCount: number;
+  latestTotalCount: number;
 }
 
 export interface DatasetItem {

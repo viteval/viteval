@@ -1,13 +1,10 @@
-import type { Server } from 'node:http';
+import type { ChildProcess } from 'node:child_process';
+import { fork } from 'node:child_process';
 import path from 'node:path';
-import express from 'express';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
-// @ts-ignore - tsrServer is a valid type
-import tsrServer from './dist/server/server.js';
 
-// eslint-disable-next-line no-explicit-any -- tsrServer is untyped
-const tanstackServer = tsrServer as any;
+const DEFAULT_PORT = 6274;
 
 export interface CreateVitevalServerOptions {
   /**
@@ -17,7 +14,7 @@ export interface CreateVitevalServerOptions {
   root?: string;
   /**
    * A custom port to listen on
-   * @default 3000
+   * @default 6274
    */
   port?: number;
   /**
@@ -31,7 +28,7 @@ export interface CreateVitevalServerOptions {
  * Creates a Viteval server
  *
  * ```ts
- * const server = createVitevalServer({ port: 3000 });
+ * const server = createVitevalServer({ port: 6274 });
  * await server.start();
  * ```
  *
@@ -39,58 +36,67 @@ export interface CreateVitevalServerOptions {
  * @returns The Viteval server
  */
 export function createVitevalServer(options?: CreateVitevalServerOptions) {
-  const app = express();
-  app.use(express.static(path.join(import.meta.dirname, 'dist', 'client')));
-  app.use(async (req, res) => {
-    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    const request = new Request(url, {
-      method: req.method,
-      headers: req.headers as HeadersInit,
-      body:
-        req.method !== 'GET' && req.method !== 'HEAD'
-          ? (req as unknown as ReadableStream)
-          : undefined,
-      // @ts-expect-error - Node.js specific option for request body handling
-      duplex: 'half',
-    });
-    const response = await tanstackServer.fetch(request);
-    res.status(response.status);
-    response.headers.forEach((value: string, key: string) => {
-      res.setHeader(key, value);
-    });
-    if (response.body) {
-      const reader = response.body.getReader();
-      const pump = async (): Promise<void> => {
-        const { done, value } = await reader.read();
-        if (done) {
-          res.end();
-          return;
-        }
-        res.write(value);
-        return pump();
-      };
-      await pump();
-    } else {
-      res.end();
-    }
-  });
-  let server: Server;
+  let child: ChildProcess | undefined;
+
   return {
     /**
      * Starts the Viteval server
      * @returns The port the server is listening on
      */
     async start(): Promise<number> {
-      // Set the root path in the environment variables
       const root = await findRoot(options?.root);
-      process.env.VITEVAL_ROOT_PATH = root;
-      process.env.VITEVAL_DEBUG_MODE = options?.debug ? 'true' : 'false';
+      const port = await getPort({
+        port: [
+          options?.port ?? DEFAULT_PORT,
+          DEFAULT_PORT,
+          DEFAULT_PORT + 1,
+          DEFAULT_PORT + 2,
+        ],
+      });
 
-      const port = await getPort({ port: options?.port ?? 3000 });
-      return new Promise((resolve) => {
-        server = app.listen(port, () => {
-          resolve(port);
+      const serverScript = path.join(
+        import.meta.dirname,
+        'dist',
+        '.next',
+        'standalone',
+        'packages',
+        'ui',
+        'server.js'
+      );
+
+      return new Promise((resolve, reject) => {
+        child = fork(serverScript, {
+          env: {
+            ...process.env,
+            PORT: String(port),
+            HOSTNAME: 'localhost',
+            VITEVAL_ROOT_PATH: root,
+            VITEVAL_DEBUG_MODE: options?.debug ? 'true' : 'false',
+          },
+          stdio: 'pipe',
         });
+
+        child.on('error', reject);
+
+        child.stderr?.on('data', (data: Buffer) => {
+          const msg = data.toString();
+          if (options?.debug) {
+            process.stderr.write(msg);
+          }
+        });
+
+        child.stdout?.on('data', (data: Buffer) => {
+          const msg = data.toString();
+          if (options?.debug) {
+            process.stdout.write(msg);
+          }
+          if (msg.includes('Ready') || msg.includes('started server')) {
+            resolve(port);
+          }
+        });
+
+        // Fallback: resolve after a short delay if no "Ready" message
+        setTimeout(() => resolve(port), 2000);
       });
     },
     /**
@@ -106,22 +112,19 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      */
     async shutdown(): Promise<void> {
       return new Promise((resolve) => {
-        server.close(() => {
-          // Reset the environment variables
-          process.env.VITEVAL_ROOT_PATH = undefined;
-          process.env.VITEVAL_DEBUG_MODE = undefined;
+        if (child) {
+          child.on('exit', () => {
+            child = undefined;
+            resolve();
+          });
+          child.kill();
+        } else {
           resolve();
-        });
+        }
       });
     },
   };
 }
-
-/*
-|------------------
-| Internals
-|------------------
-*/
 
 async function findRoot(root: string = process.cwd()) {
   const configFile = await findUp(

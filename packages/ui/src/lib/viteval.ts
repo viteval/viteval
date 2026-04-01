@@ -1,10 +1,13 @@
 import * as fs from 'node:fs/promises';
+import { glob } from 'node:fs/promises';
 import * as path from 'node:path';
 import type {
   DatasetFile,
   DatasetSummary,
   EvalResults,
+  EvalSchema,
   ResultFile,
+  SuiteSummary,
 } from '../types';
 
 class VitevalFileReader {
@@ -14,10 +17,6 @@ class VitevalFileReader {
     this.rootPath = rootPath || process.env.VITEVAL_ROOT_PATH || process.cwd();
   }
 
-  /**
-   * List all result files
-   * @returns Array of result files
-   */
   public async listResults(): Promise<ResultFile[]> {
     const fileIds = await this.list(
       'results',
@@ -38,20 +37,45 @@ class VitevalFileReader {
     return results.filter((file): file is ResultFile => file !== null);
   }
 
-  /**
-   * Read a specific result file by ID (filename without .json extension)
-   * @param id - The result ID (timestamp)
-   * @returns The parsed result data or null if not found
-   */
   public async readResult(id: string): Promise<EvalResults | null> {
     const content = await this.read(`results/${id}.json`);
     return content ? JSON.parse(content) : null;
   }
 
-  /**
-   * List all datasets
-   * @returns Array of dataset summaries
-   */
+  public async listSuites(): Promise<SuiteSummary[]> {
+    const results = await this.listResults();
+    const suiteMap = new Map<string, SuiteSummary>();
+
+    for (const result of results) {
+      const full = await this.readResult(result.timestamp);
+      if (!full?.evalResults) continue;
+
+      for (const suite of full.evalResults) {
+        const existing = suiteMap.get(suite.name);
+        if (existing) {
+          existing.runCount++;
+          // results are sorted newest-first, so first seen is latest
+        } else {
+          suiteMap.set(suite.name, {
+            name: suite.name,
+            filepath: suite.filepath,
+            runCount: 1,
+            latestStatus: suite.status,
+            latestRunTimestamp: result.timestamp,
+            latestDuration: suite.duration,
+            latestMeanScore: suite.summary.meanScore,
+            latestPassedCount: suite.summary.passedCount,
+            latestTotalCount: suite.summary.totalCount,
+          });
+        }
+      }
+    }
+
+    return [...suiteMap.values()].toSorted((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+  }
+
   public async listDatasets(): Promise<DatasetSummary[]> {
     const fileIds = await this.list('datasets', (a, b) => a.localeCompare(b));
 
@@ -71,11 +95,6 @@ class VitevalFileReader {
     );
   }
 
-  /**
-   * Read a specific dataset by ID
-   * @param id - The dataset ID (directory name)
-   * @returns The parsed dataset data or null if not found
-   */
   public async readDataset(id: string): Promise<DatasetFile | null> {
     const content = await this.read(`datasets/${id}.json`);
     const d = content ? JSON.parse(content) : null;
@@ -92,6 +111,54 @@ class VitevalFileReader {
       ),
       storage: 'local',
     };
+  }
+
+  public async listSchemas(): Promise<EvalSchema[]> {
+    try {
+      const patterns = ['src/**/*.eval.ts', 'src/**/*.eval.js'];
+      const schemas: EvalSchema[] = [];
+
+      for (const pattern of patterns) {
+        const matches = glob(pattern, { cwd: this.rootPath });
+        for await (const match of matches) {
+          const filePath = path.join(this.rootPath, match);
+          const content = await fs.readFile(filePath, 'utf8');
+          const relativePath = path.relative(this.rootPath, filePath);
+          schemas.push({
+            id: relativePath,
+            name: path.basename(relativePath),
+            path: relativePath,
+            content,
+          });
+        }
+      }
+
+      return schemas.toSorted((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      return [];
+    }
+  }
+
+  public async readSchema(id: string): Promise<EvalSchema | null> {
+    try {
+      const filePath = path.join(this.rootPath, id);
+      const normalizedPath = path.normalize(filePath);
+      if (!normalizedPath.startsWith(this.rootPath)) {
+        return null;
+      }
+      if (!(await exists(normalizedPath))) {
+        return null;
+      }
+      const content = await fs.readFile(normalizedPath, 'utf8');
+      return {
+        id,
+        name: path.basename(id),
+        path: id,
+        content,
+      };
+    } catch {
+      return null;
+    }
   }
 
   private async list(
@@ -121,7 +188,6 @@ class VitevalFileReader {
       const fullPath = path.join(this.getVitevalDirectory(), filePath);
       const vitevalDir = this.getVitevalDirectory();
 
-      // Security: ensure the constructed path is still within the viteval directory
       const normalizedPath = path.normalize(fullPath);
       if (!normalizedPath.startsWith(vitevalDir)) {
         throw new Error('Access denied: invalid file path');
@@ -151,6 +217,8 @@ class VitevalFileReader {
       const stats = await fs.stat(filePath);
       const id = fileName.replace('.json', '');
 
+      const suiteNames = results.evalResults?.map((s) => s.name) ?? [];
+
       return {
         id,
         name: fileName,
@@ -168,6 +236,7 @@ class VitevalFileReader {
           startTime: results.startTime,
           status: results.status,
           success: results.success,
+          suiteNames,
         },
         timestamp: id,
       };
@@ -201,12 +270,6 @@ class VitevalFileReader {
 }
 
 export const vitevalReader = new VitevalFileReader();
-
-/*
-|------------------
-| Internals
-|------------------
-*/
 
 async function exists(path: string): Promise<boolean> {
   try {

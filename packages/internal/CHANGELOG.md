@@ -1,5 +1,7 @@
 # @viteval/internal
 
+## 1.0.0-rc.0
+
 ## 0.5.9
 
 ### Patch Changes

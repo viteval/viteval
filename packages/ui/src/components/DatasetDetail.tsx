@@ -1,10 +1,12 @@
+'use client';
+
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import type { DatasetFile, DatasetItem } from '../types';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Collapsible, CollapsibleContent } from './ui/collapsible';
+import type { DatasetFile, DatasetItem } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import {
   Table,
   TableBody,
@@ -13,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
+} from '@/components/ui/table';
 import { ValueRenderer } from './ValueRenderer';
 
 interface DatasetDetailProps {
