@@ -20,12 +20,14 @@ export interface FilterOption {
 }
 
 export interface FilterConfig {
-  search?: {
-    type: 'text';
-    placeholder?: string;
-  } | {
-    type: 'date-range';
-  };
+  search?:
+    | {
+        type: 'text';
+        placeholder?: string;
+      }
+    | {
+        type: 'date-range';
+      };
   statusOptions?: FilterOption[];
   statusLabel?: string;
   sortOptions?: FilterOption[];
@@ -46,12 +48,21 @@ export function ListFilter({ config }: ListFilterProps) {
   const status = searchParams.get('status') ?? 'all';
   const sort = searchParams.get('sort') ?? config.sortOptions?.[0]?.value ?? '';
 
-  const hasFilters = search || from || to || status !== 'all' || sort !== (config.sortOptions?.[0]?.value ?? '');
+  const hasFilters =
+    search ||
+    from ||
+    to ||
+    status !== 'all' ||
+    sort !== (config.sortOptions?.[0]?.value ?? '');
 
   const updateParams = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (!value || value === 'all' || value === config.sortOptions?.[0]?.value) {
+      if (
+        !value ||
+        value === 'all' ||
+        value === config.sortOptions?.[0]?.value
+      ) {
         params.delete(key);
       } else {
         params.set(key, value);
@@ -127,7 +138,12 @@ export function ListFilter({ config }: ListFilterProps) {
         </Select>
       )}
       {hasFilters && (
-        <Button variant="ghost" size="icon" onClick={resetFilters} title="Reset filters">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={resetFilters}
+          title="Reset filters"
+        >
           <RotateCcw className="h-4 w-4" />
         </Button>
       )}

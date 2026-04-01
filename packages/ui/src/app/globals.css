@@ -6,17 +6,27 @@
 
 body {
   @apply m-0;
-  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-family:
+    var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-family:
+    var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    monospace;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-geist-pixel-square), var(--font-geist-mono), monospace;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family:
+    var(--font-geist-pixel-square), var(--font-geist-mono), monospace;
 }
 
 :root {

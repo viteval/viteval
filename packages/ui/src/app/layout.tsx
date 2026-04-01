@@ -24,7 +24,10 @@ export default async function RootLayout({
   const defaultOpen = sidebarState !== 'false';
 
   return (
-    <html lang="en" className={`${GeistMono.variable} ${GeistPixelSquare.variable}`}>
+    <html
+      lang="en"
+      className={`${GeistMono.variable} ${GeistPixelSquare.variable}`}
+    >
       <body>
         <TooltipProvider>
           <SidebarProvider defaultOpen={defaultOpen}>

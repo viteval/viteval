@@ -68,10 +68,10 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
         child = fork(serverScript, {
           env: {
             ...process.env,
-            PORT: String(port),
             HOSTNAME: 'localhost',
-            VITEVAL_ROOT_PATH: root,
+            PORT: String(port),
             VITEVAL_DEBUG_MODE: options?.debug ? 'true' : 'false',
+            VITEVAL_ROOT_PATH: root,
           },
           stdio: 'pipe',
         });

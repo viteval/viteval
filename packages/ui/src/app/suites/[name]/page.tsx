@@ -5,12 +5,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { match } from 'ts-pattern';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDuration, formatTimestamp } from '@/lib/utils';
 import { vitevalReader } from '@/lib/viteval';
 
@@ -24,31 +19,33 @@ export default async function SuiteDetailPage({
 
   // Find the suite and all its runs
   const results = await vitevalReader.listResults();
-  const runs: Array<{
+  const runs: {
     timestamp: string;
     status: string;
     duration: number;
     meanScore: number;
     passedCount: number;
     totalCount: number;
-  }> = [];
+  }[] = [];
 
   let filepath: string | undefined;
   let latestSource: string | null = null;
 
   for (const result of results) {
     const full = await vitevalReader.readResult(result.timestamp);
-    if (!full?.evalResults) continue;
+    if (!full?.evalResults) {
+      continue;
+    }
 
     for (const suite of full.evalResults) {
       if (suite.name === decodedName) {
-        if (!filepath) filepath = suite.filepath;
+        if (!filepath) ({ filepath } = suite);
         runs.push({
-          timestamp: result.timestamp,
-          status: suite.status,
           duration: suite.duration,
           meanScore: suite.summary.meanScore,
           passedCount: suite.summary.passedCount,
+          status: suite.status,
+          timestamp: result.timestamp,
           totalCount: suite.summary.totalCount,
         });
       }
@@ -62,7 +59,9 @@ export default async function SuiteDetailPage({
   // Try to read the source file
   if (filepath) {
     const schema = await vitevalReader.readSchema(filepath);
-    if (schema) latestSource = schema.content;
+    if (schema) {
+      latestSource = schema.content;
+    }
   }
 
   return (
@@ -96,13 +95,16 @@ export default async function SuiteDetailPage({
                 language="typescript"
                 style={oneDark}
                 customStyle={{
-                  margin: 0,
-                  padding: '1rem',
                   background: 'transparent',
                   fontSize: '0.8rem',
+                  margin: 0,
+                  padding: '1rem',
                 }}
                 showLineNumbers
-                lineNumberStyle={{ color: 'var(--muted-foreground)', opacity: 0.5 }}
+                lineNumberStyle={{
+                  color: 'var(--muted-foreground)',
+                  opacity: 0.5,
+                }}
               >
                 {latestSource}
               </SyntaxHighlighter>
@@ -152,7 +154,9 @@ export default async function SuiteDetailPage({
                       Running
                     </Badge>
                   ))
-                  .otherwise((s) => <Badge variant="secondary">{s}</Badge>)}
+                  .otherwise((s) => (
+                    <Badge variant="secondary">{s}</Badge>
+                  ))}
               </div>
             </a>
           ))}

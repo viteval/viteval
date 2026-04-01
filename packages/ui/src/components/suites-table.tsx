@@ -12,16 +12,15 @@ import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
 const columns: ColumnDef<SuiteSummary>[] = [
   {
     accessorKey: 'name',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
     cell: ({ row }) => (
       <span className="text-sm font-medium">{row.original.name}</span>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
     ),
   },
   {
     accessorKey: 'filepath',
-    header: 'File',
     cell: ({ row }) =>
       row.original.filepath ? (
         <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
@@ -29,12 +28,10 @@ const columns: ColumnDef<SuiteSummary>[] = [
         </code>
       ) : null,
     enableSorting: false,
+    header: 'File',
   },
   {
     accessorKey: 'latestStatus',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Latest Status" />
-    ),
     cell: ({ row }) =>
       match(row.original.latestStatus)
         .with('passed', () => <Badge variant="default">Passed</Badge>)
@@ -48,58 +45,53 @@ const columns: ColumnDef<SuiteSummary>[] = [
           </Badge>
         ))
         .otherwise((s) => <Badge variant="secondary">{s}</Badge>),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Latest Status" />
+    ),
   },
   {
     accessorKey: 'runCount',
+    cell: ({ row }) => <span className="text-sm">{row.original.runCount}</span>,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Runs" />
-    ),
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.runCount}</span>
     ),
   },
   {
     accessorKey: 'latestRunTimestamp',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Latest Run" />
-    ),
     cell: ({ row }) => (
       <span className="text-xs text-muted-foreground">
         {formatTimestamp(row.original.latestRunTimestamp)}
       </span>
     ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Latest Run" />
+    ),
   },
   {
     accessorKey: 'latestDuration',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Duration" />
-    ),
     cell: ({ row }) => (
       <span className="text-sm">
         {formatDuration(row.original.latestDuration)}
       </span>
     ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Duration" />
+    ),
   },
   {
     accessorKey: 'latestMeanScore',
+    cell: ({ row }) => (
+      <span className="text-sm">{row.original.latestMeanScore.toFixed(3)}</span>
+    ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Mean Score" />
     ),
-    cell: ({ row }) => (
-      <span className="text-sm">
-        {row.original.latestMeanScore.toFixed(3)}
-      </span>
-    ),
   },
   {
-    id: 'passRate',
     accessorFn: (row) =>
       row.latestTotalCount > 0
         ? row.latestPassedCount / row.latestTotalCount
         : 0,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Pass Rate" />
-    ),
     cell: ({ row }) => {
       const { latestPassedCount, latestTotalCount } = row.original;
       return (
@@ -113,6 +105,10 @@ const columns: ColumnDef<SuiteSummary>[] = [
         </span>
       );
     },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Pass Rate" />
+    ),
+    id: 'passRate',
   },
 ];
 
@@ -127,7 +123,9 @@ export function SuitesTable({ suites }: SuitesTableProps) {
     <DataTable
       columns={columns}
       data={suites}
-      onRowClick={(row) => router.push(`/suites/${encodeURIComponent(row.name)}`)}
+      onRowClick={(row) =>
+        router.push(`/suites/${encodeURIComponent(row.name)}`)
+      }
     />
   );
 }

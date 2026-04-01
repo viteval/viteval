@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import { ArrowRight, BarChart3, Clock, Database, TrendingUp } from 'lucide-react';
+import {
+  ArrowRight,
+  BarChart3,
+  Clock,
+  Database,
+  TrendingUp,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RunsChart } from '@/components/runs-chart';
 import { formatDuration, formatTimestamp } from '@/lib/utils';
 import { vitevalReader } from '@/lib/viteval';
@@ -24,7 +25,9 @@ export default async function DashboardPage() {
       ? `${((latest.numPassedEvals / latest.numTotalEvals) * 100).toFixed(1)}%`
       : 'N/A';
   const latestDuration =
-    latest?.duration != null ? formatDuration(latest.duration) : 'N/A';
+    latest?.duration !== null && latest?.duration !== undefined
+      ? formatDuration(latest.duration)
+      : 'N/A';
 
   const recentResults = results.slice(0, 5);
   const recentDatasets = datasets.slice(0, 5);
@@ -125,7 +128,11 @@ export default async function DashboardPage() {
                         <span className="text-xs text-muted-foreground">
                           {formatDuration(r.summary.duration)}
                         </span>
-                        <Badge variant={r.summary.success ? 'default' : 'destructive'}>
+                        <Badge
+                          variant={
+                            r.summary.success ? 'default' : 'destructive'
+                          }
+                        >
                           {r.summary.numPassedEvals}/{r.summary.numTotalEvals}
                         </Badge>
                       </>

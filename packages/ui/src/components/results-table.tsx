@@ -11,14 +11,11 @@ import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
 
 const columns: ColumnDef<ResultFile>[] = [
   {
-    id: 'suites',
     accessorFn: (row) => row.summary?.suiteNames?.join(', ') ?? '',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Suites" />
-    ),
     cell: ({ row }) => {
       const names = row.original.summary?.suiteNames ?? [];
-      if (names.length === 0) return <span className="text-muted-foreground">-</span>;
+      if (names.length === 0)
+        return <span className="text-muted-foreground">-</span>;
       return (
         <div className="flex flex-wrap gap-1">
           {names.map((name) => (
@@ -30,12 +27,13 @@ const columns: ColumnDef<ResultFile>[] = [
       );
     },
     filterFn: 'includesString',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Suites" />
+    ),
+    id: 'suites',
   },
   {
     accessorKey: 'timestamp',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Timestamp" />
-    ),
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
         <code className="text-xs text-muted-foreground">
@@ -46,18 +44,17 @@ const columns: ColumnDef<ResultFile>[] = [
         </span>
       </div>
     ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Timestamp" />
+    ),
   },
   {
-    id: 'status',
     accessorFn: (row) => {
       if (row.summary?.status === 'running') return 'running';
       if (row.summary?.success) return 'passed';
       if (row.summary && !row.summary.success) return 'failed';
       return 'unknown';
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
     cell: ({ row }) =>
       match(row.original.summary)
         .with({ status: 'running' }, () => (
@@ -68,63 +65,71 @@ const columns: ColumnDef<ResultFile>[] = [
             Running
           </Badge>
         ))
-        .with({ success: true }, () => (
-          <Badge variant="default">Passed</Badge>
-        ))
+        .with({ success: true }, () => <Badge variant="default">Passed</Badge>)
         .with({ success: false }, () => (
           <Badge variant="destructive">Failed</Badge>
         ))
         .otherwise(() => null),
     filterFn: (row, id, value) => value.includes(row.getValue(id)),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    id: 'status',
   },
   {
-    id: 'duration',
     accessorFn: (row) => row.summary?.duration ?? 0,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Duration" />
-    ),
     cell: ({ row }) => {
       const summary = row.original.summary;
       if (!summary) return null;
       if (summary.status === 'running' && !summary.duration) {
-        return <span className="text-sm text-muted-foreground">In progress...</span>;
+        return (
+          <span className="text-sm text-muted-foreground">In progress...</span>
+        );
       }
-      return <span className="text-sm">{formatDuration(summary.duration || 0)}</span>;
+      return (
+        <span className="text-sm">{formatDuration(summary.duration || 0)}</span>
+      );
     },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Duration" />
+    ),
+    id: 'duration',
   },
   {
-    id: 'passed',
     accessorFn: (row) => row.summary?.numPassedEvals ?? 0,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Passed" />
-    ),
     cell: ({ row }) => (
       <span className="text-sm text-green-600">
         {row.original.summary?.numPassedEvals ?? '-'}
       </span>
     ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Passed" />
+    ),
+    id: 'passed',
   },
   {
-    id: 'failed',
     accessorFn: (row) => row.summary?.numFailedEvals ?? 0,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Failed" />
-    ),
     cell: ({ row }) => (
       <span className="text-sm text-red-600">
         {row.original.summary?.numFailedEvals ?? '-'}
       </span>
     ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Failed" />
+    ),
+    id: 'failed',
   },
   {
-    id: 'total',
     accessorFn: (row) => row.summary?.numTotalEvals ?? 0,
+    cell: ({ row }) => (
+      <span className="text-sm">
+        {row.original.summary?.numTotalEvals ?? '-'}
+      </span>
+    ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Total" />
     ),
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.summary?.numTotalEvals ?? '-'}</span>
-    ),
+    id: 'total',
   },
 ];
 

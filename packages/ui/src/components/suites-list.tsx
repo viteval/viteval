@@ -9,12 +9,12 @@ import { SuitesTable } from '@/components/suites-table';
 
 const filterConfig: FilterConfig = {
   search: { type: 'text', placeholder: 'Search by name or file...' },
+  statusLabel: 'Status',
   statusOptions: [
     { label: 'Passed', value: 'passed' },
     { label: 'Failed', value: 'failed' },
     { label: 'Running', value: 'running' },
   ],
-  statusLabel: 'Status',
 };
 
 interface SuitesListProps {

@@ -9,12 +9,12 @@ import { ResultsTable } from '@/components/results-table';
 
 const filterConfig: FilterConfig = {
   search: { type: 'date-range' },
+  statusLabel: 'Status',
   statusOptions: [
     { label: 'Passed', value: 'passed' },
     { label: 'Failed', value: 'failed' },
     { label: 'Running', value: 'running' },
   ],
-  statusLabel: 'Status',
 };
 
 interface ResultsListProps {
@@ -46,10 +46,18 @@ export function ResultsList({ results }: ResultsListProps) {
 
     if (status !== 'all') {
       items = items.filter((r) => {
-        if (!r.summary) return false;
-        if (status === 'running') return r.summary.status === 'running';
-        if (status === 'passed') return r.summary.success;
-        if (status === 'failed') return !r.summary.success;
+        if (!r.summary) {
+          return false;
+        }
+        if (status === 'running') {
+          return r.summary.status === 'running';
+        }
+        if (status === 'passed') {
+          return r.summary.success;
+        }
+        if (status === 'failed') {
+          return !r.summary.success;
+        }
         return true;
       });
     }

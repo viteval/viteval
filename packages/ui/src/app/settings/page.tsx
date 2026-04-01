@@ -14,9 +14,7 @@ export default function SettingsPage() {
           <Settings className="h-6 w-6" />
           Settings
         </h1>
-        <p className="text-muted-foreground">
-          Configure your Viteval instance
-        </p>
+        <p className="text-muted-foreground">Configure your Viteval instance</p>
       </div>
       <Card>
         <CardHeader className="items-center text-center py-16">

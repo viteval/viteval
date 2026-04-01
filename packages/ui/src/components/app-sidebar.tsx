@@ -1,6 +1,12 @@
 'use client';
 
-import { BarChart3, Database, FlaskConical, Home, Settings } from 'lucide-react';
+import {
+  BarChart3,
+  Database,
+  FlaskConical,
+  Home,
+  Settings,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -28,7 +34,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="cursor-default hover:bg-transparent active:bg-transparent">
+            <SidebarMenuButton
+              size="lg"
+              className="cursor-default hover:bg-transparent active:bg-transparent"
+            >
               <img src="/logo192.png" alt="Viteval" className="size-8" />
               <div className="flex items-center gap-2">
                 <span className="font-bold text-lg">Viteval</span>

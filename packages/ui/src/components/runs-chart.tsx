@@ -3,10 +3,10 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import type { ResultFile } from '@/types';
 import {
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from '@/components/ui/chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -15,13 +15,13 @@ interface RunsChartProps {
 }
 
 const chartConfig = {
-  passed: {
-    label: 'Passed',
-    color: 'var(--color-chart-2)',
-  },
   failed: {
     label: 'Failed',
     color: 'var(--color-chart-5)',
+  },
+  passed: {
+    label: 'Passed',
+    color: 'var(--color-chart-2)',
   },
 } satisfies ChartConfig;
 
@@ -33,9 +33,9 @@ export function RunsChart({ results }: RunsChartProps) {
     .map((r) => {
       const ts = new Date(Number(r.timestamp));
       return {
+        failed: r.summary!.numFailedEvals,
         label: `${ts.getMonth() + 1}/${ts.getDate()} ${ts.getHours().toString().padStart(2, '0')}:${ts.getMinutes().toString().padStart(2, '0')}`,
         passed: r.summary!.numPassedEvals,
-        failed: r.summary!.numFailedEvals,
       };
     });
 

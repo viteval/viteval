@@ -48,24 +48,26 @@ class VitevalFileReader {
 
     for (const result of results) {
       const full = await this.readResult(result.timestamp);
-      if (!full?.evalResults) continue;
+      if (!full?.evalResults) {
+        continue;
+      }
 
       for (const suite of full.evalResults) {
         const existing = suiteMap.get(suite.name);
         if (existing) {
           existing.runCount++;
-          // results are sorted newest-first, so first seen is latest
+          // Results are sorted newest-first, so first seen is latest
         } else {
           suiteMap.set(suite.name, {
-            name: suite.name,
             filepath: suite.filepath,
-            runCount: 1,
-            latestStatus: suite.status,
-            latestRunTimestamp: result.timestamp,
             latestDuration: suite.duration,
             latestMeanScore: suite.summary.meanScore,
             latestPassedCount: suite.summary.passedCount,
+            latestRunTimestamp: result.timestamp,
+            latestStatus: suite.status,
             latestTotalCount: suite.summary.totalCount,
+            name: suite.name,
+            runCount: 1,
           });
         }
       }
@@ -125,10 +127,10 @@ class VitevalFileReader {
           const content = await fs.readFile(filePath, 'utf8');
           const relativePath = path.relative(this.rootPath, filePath);
           schemas.push({
+            content,
             id: relativePath,
             name: path.basename(relativePath),
             path: relativePath,
-            content,
           });
         }
       }
@@ -151,10 +153,10 @@ class VitevalFileReader {
       }
       const content = await fs.readFile(normalizedPath, 'utf8');
       return {
+        content,
         id,
         name: path.basename(id),
         path: id,
-        content,
       };
     } catch {
       return null;

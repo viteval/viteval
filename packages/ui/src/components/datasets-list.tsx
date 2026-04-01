@@ -8,7 +8,7 @@ import { ListFilter } from '@/components/list-filter';
 import { DatasetsTable } from '@/components/datasets-table';
 
 const filterConfig: FilterConfig = {
-  search: { type: 'text', placeholder: 'Search by name...' },
+  search: { placeholder: 'Search by name...', type: 'text' },
 };
 
 interface DatasetsListProps {
@@ -20,7 +20,9 @@ export function DatasetsList({ datasets }: DatasetsListProps) {
   const search = searchParams.get('q') ?? '';
 
   const filtered = useMemo(() => {
-    if (!search) return datasets;
+    if (!search) {
+      return datasets;
+    }
     const q = search.toLowerCase();
     return datasets.filter(
       (d) =>
