@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { DatabaseIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/page-header';
-import { FilePath } from '@/components/display';
+import { FilePath, ProviderBadge } from '@/components/display';
 import DatasetDetail from '@/components/DatasetDetail';
 import { Button } from '@/components/ui/button';
 import { createViteval } from '@/sdk';
@@ -36,9 +36,7 @@ export default async function DatasetDetailPage({
             <Badge variant="secondary" className="text-xs">
               {dataset.data.length} items
             </Badge>
-            <Badge variant="outline" className="text-xs">
-              {dataset.source}
-            </Badge>
+            <ProviderBadge provider={dataset.source} />
           </span>
         }
         actions={

@@ -1,22 +1,12 @@
 'use client';
 
-import { FileIcon, JavaScriptIcon, TypeScriptIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
+import { FileTypeIcon } from './file-icon';
 
 interface FilePathProps {
   path: string;
   className?: string;
   showIcon?: boolean;
-}
-
-function getFileBadge(path: string) {
-  if (/\.tsx?$/.test(path)) {
-    return <TypeScriptIcon className="h-4 w-4 shrink-0" />;
-  }
-  if (/\.jsx?$/.test(path)) {
-    return <JavaScriptIcon className="h-4 w-4 shrink-0" />;
-  }
-  return <FileIcon className="h-4 w-4 shrink-0" />;
 }
 
 export function FilePath({
@@ -31,7 +21,7 @@ export function FilePath({
         className
       )}
     >
-      {showIcon && getFileBadge(path)}
+      {showIcon && <FileTypeIcon path={path} />}
       <span className="truncate">{path}</span>
     </code>
   );

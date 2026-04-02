@@ -6,6 +6,7 @@ import type { DatasetSummary } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { ProviderBadge } from '@/components/display';
 
 const columns: ColumnDef<DatasetSummary>[] = [
   {
@@ -39,9 +40,7 @@ const columns: ColumnDef<DatasetSummary>[] = [
   {
     accessorKey: 'source',
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-xs">
-        {row.original.source}
-      </Badge>
+      <ProviderBadge provider={row.original.source} />
     ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Source" />
