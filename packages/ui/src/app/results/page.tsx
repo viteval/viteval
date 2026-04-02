@@ -13,7 +13,7 @@ export default async function ResultsPage() {
   });
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
         icon={<BarChart3 className="h-6 w-6" />}
         title="Results"

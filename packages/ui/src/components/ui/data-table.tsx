@@ -65,8 +65,8 @@ function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-md border">
+    <div className="space-y-4 min-w-0">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -34,7 +34,7 @@ export default async function RootLayout({
             <AppSidebar />
             <SidebarInset>
               <SiteHeader />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 overflow-hidden">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>

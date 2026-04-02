@@ -41,7 +41,7 @@ export default async function DashboardPage() {
       : 'N/A';
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
         icon={<LayoutDashboard className="h-6 w-6" />}
         title="Dashboard"

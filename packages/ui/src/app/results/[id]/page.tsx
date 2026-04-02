@@ -60,7 +60,7 @@ export default function ResultDetailPage() {
 
   if (!loading && notFound) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 space-y-6 overflow-hidden">
         <PageHeader
           icon={<BarChart3 className="h-6 w-6" />}
           title="Result Not Found"
@@ -91,7 +91,7 @@ export default function ResultDetailPage() {
 
   if (!loading && error) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 space-y-6 overflow-hidden">
         <PageHeader
           icon={<BarChart3 className="h-6 w-6" />}
           title="Error"
@@ -112,7 +112,7 @@ export default function ResultDetailPage() {
   const subtitle = suiteNames || undefined;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
         icon={<BarChart3 className="h-6 w-6" />}
         title={runName}
