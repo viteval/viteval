@@ -1,12 +1,7 @@
 "use client"
 
 import { type Table } from "@tanstack/react-table"
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react"
+import { Icon } from "@iconify/react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -58,7 +53,7 @@ function DataTablePagination<TData>({
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronsLeft />
+            <Icon icon="lucide:chevrons-left" />
           </Button>
           <Button
             variant="outline"
@@ -66,7 +61,7 @@ function DataTablePagination<TData>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft />
+            <Icon icon="lucide:chevron-left" />
           </Button>
           <Button
             variant="outline"
@@ -74,7 +69,7 @@ function DataTablePagination<TData>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight />
+            <Icon icon="lucide:chevron-right" />
           </Button>
           <Button
             variant="outline"
@@ -82,7 +77,7 @@ function DataTablePagination<TData>({
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronsRight />
+            <Icon icon="lucide:chevrons-right" />
           </Button>
         </div>
       </div>

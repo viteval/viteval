@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Download, Pencil, RotateCcw, Settings, Upload, X } from 'lucide-react';
+import { DownloadIcon, PencilIcon, RefreshIcon, ConfigIcon, UploadIcon, XIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -240,7 +240,7 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<Settings className="h-6 w-6" />}
+        icon={<ConfigIcon className="h-6 w-6" />}
         title="Settings"
         description="Configure your Viteval UI preferences"
         actions={
@@ -252,7 +252,7 @@ export default function SettingsPage() {
                   size="sm"
                   onClick={() => setEditing(false)}
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <XIcon className="h-3.5 w-3.5" />
                   Done
                 </Button>
                 <Button
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                     setEditing(false);
                   }}
                 >
-                  <RotateCcw className="h-3.5 w-3.5" />
+                  <RefreshIcon className="h-3.5 w-3.5" />
                   Reset
                 </Button>
               </>
@@ -273,7 +273,7 @@ export default function SettingsPage() {
                 size="sm"
                 onClick={() => setEditing(true)}
               >
-                <Pencil className="h-3.5 w-3.5" />
+                <PencilIcon className="h-3.5 w-3.5" />
                 Edit
               </Button>
             )}
@@ -322,7 +322,7 @@ export default function SettingsPage() {
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload className="h-3.5 w-3.5" />
+                  <UploadIcon className="h-3.5 w-3.5" />
                   Choose File
                 </Button>
                 <input
@@ -382,7 +382,7 @@ export default function SettingsPage() {
           ) : (
             <>
               <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="h-3.5 w-3.5" />
+                <DownloadIcon className="h-3.5 w-3.5" />
                 Export
               </Button>
               <Button
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                 size="sm"
                 onClick={() => setImportOpen(true)}
               >
-                <Upload className="h-3.5 w-3.5" />
+                <UploadIcon className="h-3.5 w-3.5" />
                 Import
               </Button>
             </>

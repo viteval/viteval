@@ -1,7 +1,7 @@
 "use client"
 
 import { type Column } from "@tanstack/react-table"
-import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react"
+import { Icon } from "@iconify/react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -33,21 +33,21 @@ function DataTableColumnHeader<TData, TValue>({
         <Button variant="ghost" size="sm" className={cn("-ml-3 h-8", className)}>
           <span>{title}</span>
           {column.getIsSorted() === "desc" ? (
-            <ArrowDown className="h-4 w-4" />
+            <Icon icon="lucide:arrow-down" className="h-4 w-4" />
           ) : column.getIsSorted() === "asc" ? (
-            <ArrowUp className="h-4 w-4" />
+            <Icon icon="lucide:arrow-up" className="h-4 w-4" />
           ) : (
-            <ChevronsUpDown className="h-4 w-4" />
+            <Icon icon="lucide:chevrons-up-down" className="h-4 w-4" />
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-          <ArrowUp className="h-3.5 w-3.5" />
+          <Icon icon="lucide:arrow-up" className="h-3.5 w-3.5" />
           Asc
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-          <ArrowDown className="h-3.5 w-3.5" />
+          <Icon icon="lucide:arrow-down" className="h-3.5 w-3.5" />
           Desc
         </DropdownMenuItem>
       </DropdownMenuContent>

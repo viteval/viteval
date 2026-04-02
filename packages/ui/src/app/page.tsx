@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import {
-  ArrowRight,
-  BarChart3,
-  Clock,
-  Database,
-  LayoutDashboard,
-  TrendingUp,
-} from 'lucide-react';
+  ArrowRightIcon,
+  BarChartIcon,
+  ClockIcon,
+  DatabaseIcon,
+  LayoutDashboardIcon,
+  TrendingUpIcon,
+} from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<LayoutDashboard className="h-6 w-6" />}
+        icon={<LayoutDashboardIcon className="h-6 w-6" />}
         title="Dashboard"
         description="Overview of your evaluation results and datasets"
       />
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
             <Stat
               label="Results"
               value={totalResults}
-              icon={<BarChart3 className="h-4 w-4" />}
+              icon={<BarChartIcon className="h-4 w-4" />}
               size="lg"
             />
           </CardContent>
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
             <Stat
               label="Datasets"
               value={totalDatasets}
-              icon={<Database className="h-4 w-4" />}
+              icon={<DatabaseIcon className="h-4 w-4" />}
               size="lg"
             />
           </CardContent>
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
             <Stat
               label="Pass Rate"
               value={latestPassRate}
-              icon={<TrendingUp className="h-4 w-4" />}
+              icon={<TrendingUpIcon className="h-4 w-4" />}
               size="lg"
             />
           </CardContent>
@@ -85,7 +85,7 @@ export default async function DashboardPage() {
                   ? <Duration ms={latest.duration} />
                   : 'N/A'
               }
-              icon={<Clock className="h-4 w-4" />}
+              icon={<ClockIcon className="h-4 w-4" />}
               size="lg"
             />
           </CardContent>
@@ -98,12 +98,12 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
+              <BarChartIcon className="h-4 w-4" />
               Latest Results
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/results" className="gap-1">
-                View all <ArrowRight className="h-3 w-3" />
+                View all <ArrowRightIcon className="h-3 w-3" />
               </Link>
             </Button>
           </CardHeader>
@@ -157,12 +157,12 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
+              <DatabaseIcon className="h-4 w-4" />
               Latest Datasets
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/datasets" className="gap-1">
-                View all <ArrowRight className="h-3 w-3" />
+                View all <ArrowRightIcon className="h-3 w-3" />
               </Link>
             </Button>
           </CardHeader>

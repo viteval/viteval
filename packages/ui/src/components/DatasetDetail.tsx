@@ -1,7 +1,7 @@
 'use client';
 
 import { type ColumnDef, type Row } from '@tanstack/react-table';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDownIcon, ChevronRightIcon } from '@/components/icons';
 import { Fragment, useCallback } from 'react';
 import type { DatasetFile, DatasetItem } from '@/types';
 import { Badge } from '@/components/ui/badge';
@@ -17,9 +17,9 @@ const columns: ColumnDef<DatasetItem>[] = [
         row.original.expected !== undefined;
       if (!hasDetails) {return null;}
       return row.getIsExpanded() ? (
-        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
       ) : (
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <ChevronRightIcon className="h-4 w-4 text-muted-foreground" />
       );
     },
     enableSorting: false,

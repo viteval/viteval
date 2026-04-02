@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { BarChart3 } from 'lucide-react';
+import { BarChartIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { ResultsList } from '@/components/results-list';
 import { createViteval } from '@/sdk';
@@ -15,7 +15,7 @@ export default async function ResultsPage() {
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<BarChart3 className="h-6 w-6" />}
+        icon={<BarChartIcon className="h-6 w-6" />}
         title="Results"
         description={`View and analyze your evaluation results (${total} total)`}
       />

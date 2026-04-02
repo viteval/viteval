@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import {
-  CheckCircle,
-  Clock,
-  FlaskConical,
-  Hash,
-  Play,
-  Target,
-  TrendingUp,
-} from 'lucide-react';
+  CircleCheckIcon,
+  ClockIcon,
+  FlaskIcon,
+  HashIcon,
+  PlayIcon,
+  TargetIcon,
+  TrendingUpIcon,
+} from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/page-header';
@@ -50,22 +50,22 @@ export default async function EvalDetailPage({
 
   const statItems = [
     {
-      icon: <CheckCircle className="h-3.5 w-3.5" />,
+      icon: <CircleCheckIcon className="h-3.5 w-3.5" />,
       label: 'Status',
       value: getStatusBadge(suite.latestStatus),
     },
     {
-      icon: <Hash className="h-3.5 w-3.5" />,
+      icon: <HashIcon className="h-3.5 w-3.5" />,
       label: 'Runs',
       value: suite.runCount,
     },
     {
-      icon: <Target className="h-3.5 w-3.5" />,
+      icon: <TargetIcon className="h-3.5 w-3.5" />,
       label: 'Mean Score',
       value: <ScoreBadge score={suite.latestMeanScore} />,
     },
     {
-      icon: <TrendingUp className="h-3.5 w-3.5" />,
+      icon: <TrendingUpIcon className="h-3.5 w-3.5" />,
       label: 'Pass Rate',
       value: (
         <PassRate
@@ -75,7 +75,7 @@ export default async function EvalDetailPage({
       ),
     },
     {
-      icon: <Clock className="h-3.5 w-3.5" />,
+      icon: <ClockIcon className="h-3.5 w-3.5" />,
       label: 'Duration',
       value: <Duration ms={suite.latestDuration} />,
     },
@@ -84,14 +84,14 @@ export default async function EvalDetailPage({
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<FlaskConical className="h-6 w-6" />}
+        icon={<FlaskIcon className="h-6 w-6" />}
         title={suite.name}
         description={
           suite.filepath && <FilePath path={suite.filepath} />
         }
         actions={
           <Button variant="outline" disabled title="Run eval (coming soon)">
-            <Play className="h-4 w-4" />
+            <PlayIcon className="h-4 w-4" />
             Run
           </Button>
         }

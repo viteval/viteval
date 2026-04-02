@@ -1,11 +1,7 @@
 "use client"
 
 import * as React from "react"
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "lucide-react"
+import { Icon } from "@iconify/react"
 import {
   DayPicker,
   getDefaultClassNames,
@@ -145,13 +141,14 @@ function Calendar({
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
-              <ChevronLeftIcon className={cn("size-4", className)} {...props} />
+              <Icon icon="lucide:chevron-left" className={cn("size-4", className)} {...props} />
             )
           }
 
           if (orientation === "right") {
             return (
-              <ChevronRightIcon
+              <Icon
+                icon="lucide:chevron-right"
                 className={cn("size-4", className)}
                 {...props}
               />
@@ -159,7 +156,7 @@ function Calendar({
           }
 
           return (
-            <ChevronDownIcon className={cn("size-4", className)} {...props} />
+            <Icon icon="lucide:chevron-down" className={cn("size-4", className)} {...props} />
           )
         },
         DayButton: CalendarDayButton,

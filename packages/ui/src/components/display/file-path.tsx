@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText } from 'lucide-react';
+import { FileIcon, JavaScriptIcon, TypeScriptIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 
 interface FilePathProps {
@@ -9,30 +9,14 @@ interface FilePathProps {
   showIcon?: boolean;
 }
 
-function TsBadge() {
-  return (
-    <span className="inline-flex items-center justify-center h-4 w-5 shrink-0 rounded-sm bg-blue-600 text-white text-[9px] font-bold leading-none">
-      TS
-    </span>
-  );
-}
-
-function JsBadge() {
-  return (
-    <span className="inline-flex items-center justify-center h-4 w-5 shrink-0 rounded-sm bg-yellow-500 text-black text-[9px] font-bold leading-none">
-      JS
-    </span>
-  );
-}
-
 function getFileBadge(path: string) {
   if (/\.tsx?$/.test(path)) {
-    return <TsBadge />;
+    return <TypeScriptIcon className="h-4 w-4 shrink-0" />;
   }
   if (/\.jsx?$/.test(path)) {
-    return <JsBadge />;
+    return <JavaScriptIcon className="h-4 w-4 shrink-0" />;
   }
-  return <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />;
+  return <FileIcon className="h-4 w-4 shrink-0" />;
 }
 
 export function FilePath({

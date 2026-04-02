@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { RotateCcw, Search } from 'lucide-react';
+import { RefreshIcon, SearchIcon } from '@/components/icons';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -84,7 +84,7 @@ export function ListFilter({ config }: ListFilterProps) {
     <div className="flex flex-col sm:flex-row gap-3">
       {config.search?.type === 'text' && (
         <div className="relative w-full sm:min-w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={config.search.placeholder ?? 'Search...'}
             value={search}
@@ -144,7 +144,7 @@ export function ListFilter({ config }: ListFilterProps) {
           onClick={resetFilters}
           title="Reset filters"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RefreshIcon className="h-4 w-4" />
         </Button>
       )}
     </div>

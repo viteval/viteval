@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Database } from 'lucide-react';
+import { DatabaseIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { DatasetsList } from '@/components/datasets-list';
 import { createViteval } from '@/sdk';
@@ -12,7 +12,7 @@ export default async function DatasetsPage() {
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<Database className="h-6 w-6" />}
+        icon={<DatabaseIcon className="h-6 w-6" />}
         title="Datasets"
         description="View and manage your evaluation datasets"
       />

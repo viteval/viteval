@@ -2,15 +2,15 @@
 
 import { type ColumnDef, type Row } from '@tanstack/react-table';
 import {
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  Hash,
-  Target,
-  TrendingUp,
-  XCircle,
-} from 'lucide-react';
+  CircleCheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  HashIcon,
+  TargetIcon,
+  TrendingUpIcon,
+  CircleXIcon,
+} from '@/components/icons';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { getStatusBadge } from '@/lib/badges';
@@ -30,9 +30,9 @@ const evalColumns: ColumnDef<EvalResult>[] = [
     cell: ({ row }) => {
       if (!row.getCanExpand()) {return null;}
       return row.getIsExpanded() ? (
-        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
       ) : (
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <ChevronRightIcon className="h-4 w-4 text-muted-foreground" />
       );
     },
     enableSorting: false,
@@ -174,7 +174,7 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
       <StatRow
         items={[
           {
-            icon: <CheckCircle className="h-3.5 w-3.5" />,
+            icon: <CircleCheckIcon className="h-3.5 w-3.5" />,
             label: 'Passed',
             value: (
               <span className="text-green-600">
@@ -183,7 +183,7 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
             ),
           },
           {
-            icon: <XCircle className="h-3.5 w-3.5" />,
+            icon: <CircleXIcon className="h-3.5 w-3.5" />,
             label: 'Failed',
             value: (
               <span className="text-red-600">
@@ -192,17 +192,17 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
             ),
           },
           {
-            icon: <Hash className="h-3.5 w-3.5" />,
+            icon: <HashIcon className="h-3.5 w-3.5" />,
             label: 'Total',
             value: suite.summary.totalCount,
           },
           {
-            icon: <Target className="h-3.5 w-3.5" />,
+            icon: <TargetIcon className="h-3.5 w-3.5" />,
             label: 'Mean Score',
             value: <ScoreBadge score={suite.summary.meanScore} />,
           },
           {
-            icon: <TrendingUp className="h-3.5 w-3.5" />,
+            icon: <TrendingUpIcon className="h-3.5 w-3.5" />,
             label: 'Pass Rate',
             value: (
               <PassRate
@@ -212,7 +212,7 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
             ),
           },
           {
-            icon: <Clock className="h-3.5 w-3.5" />,
+            icon: <ClockIcon className="h-3.5 w-3.5" />,
             label: 'Duration',
             value: <Duration ms={suite.duration} />,
           },

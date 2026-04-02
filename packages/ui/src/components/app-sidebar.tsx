@@ -1,12 +1,5 @@
 'use client';
 
-import {
-  BarChart3,
-  Database,
-  FlaskConical,
-  Home,
-  Settings,
-} from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -21,11 +14,18 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { NavMain } from '@/components/nav-main';
+import {
+  BarChartIcon,
+  ConfigIcon,
+  DatabaseIcon,
+  FlaskIcon,
+  HomeIcon,
+} from '@/components/icons';
 
 const navItems = [
-  { href: '/suites', icon: FlaskConical, title: 'Evals' },
-  { href: '/results', icon: BarChart3, title: 'Results' },
-  { href: '/datasets', icon: Database, title: 'Datasets' },
+  { href: '/suites', icon: FlaskIcon, title: 'Evals' },
+  { href: '/results', icon: BarChartIcon, title: 'Results' },
+  { href: '/datasets', icon: DatabaseIcon, title: 'Datasets' },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -52,7 +52,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/">
-                <Home />
+                <HomeIcon />
                 <span>Dashboard</span>
               </Link>
             </SidebarMenuButton>
@@ -67,7 +67,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/settings">
-                <Settings />
+                <ConfigIcon />
                 <span>Settings</span>
               </Link>
             </SidebarMenuButton>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { BarChart3 } from 'lucide-react';
+import { BarChartIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import ResultsDetail from '@/components/ResultsDetail';
 import { Button } from '@/components/ui/button';
@@ -63,7 +63,7 @@ export default function ResultDetailPage() {
     return (
       <div className="container mx-auto p-6 space-y-6 overflow-hidden">
         <PageHeader
-          icon={<BarChart3 className="h-6 w-6" />}
+          icon={<BarChartIcon className="h-6 w-6" />}
           title="Result Not Found"
           description={`The evaluation result with ID "${id}" could not be found.`}
           actions={
@@ -94,7 +94,7 @@ export default function ResultDetailPage() {
     return (
       <div className="container mx-auto p-6 space-y-6 overflow-hidden">
         <PageHeader
-          icon={<BarChart3 className="h-6 w-6" />}
+          icon={<BarChartIcon className="h-6 w-6" />}
           title="Error"
           description={error}
           actions={
@@ -115,7 +115,7 @@ export default function ResultDetailPage() {
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<BarChart3 className="h-6 w-6" />}
+        icon={<BarChartIcon className="h-6 w-6" />}
         title={runName}
         description={
           results && (

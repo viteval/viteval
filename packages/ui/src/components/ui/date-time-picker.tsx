@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { Icon } from "@iconify/react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -63,7 +63,7 @@ function DateTimePicker({
             className
           )}
         >
-          <CalendarIcon className="h-4 w-4" />
+          <Icon icon="lucide:calendar" className="h-4 w-4" />
           {value ? format(value, "MMM d, yyyy  HH:mm") : placeholder}
         </Button>
       </PopoverTrigger>

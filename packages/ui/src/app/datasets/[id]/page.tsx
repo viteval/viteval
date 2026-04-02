@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Database } from 'lucide-react';
+import { DatabaseIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/page-header';
 import DatasetDetail from '@/components/DatasetDetail';
@@ -24,7 +24,7 @@ export default async function DatasetDetailPage({
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<Database className="h-6 w-6" />}
+        icon={<DatabaseIcon className="h-6 w-6" />}
         title={dataset.name}
         description={
           <span className="flex flex-wrap items-center gap-2">

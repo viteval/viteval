@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock } from 'lucide-react';
+import { ClockIcon } from '@/components/icons';
 import { cn, formatDuration } from '@/lib/utils';
 
 interface DurationProps {
@@ -17,7 +17,7 @@ export function Duration({ ms, showIcon = false, className }: DurationProps) {
         className
       )}
     >
-      {showIcon && <Clock className="h-3 w-3 shrink-0" />}
+      {showIcon && <ClockIcon className="h-3 w-3 shrink-0" />}
       {formatDuration(ms)}
     </span>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Copy } from 'lucide-react';
+import { CheckIcon, CopyIcon } from '@/components/icons';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -41,9 +41,9 @@ export function CopyButton({
       )}
     >
       {copied ? (
-        <Check className="h-3 w-3 text-green-500" />
+        <CheckIcon className="h-3 w-3 text-green-500" />
       ) : (
-        <Copy className="h-3 w-3 text-zinc-300" />
+        <CopyIcon className="h-3 w-3 text-zinc-300" />
       )}
     </Button>
   );

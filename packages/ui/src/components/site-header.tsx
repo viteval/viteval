@@ -1,7 +1,7 @@
 'use client';
 
 import { Fragment } from 'react';
-import { BookOpen, Github } from 'lucide-react';
+import { BookIcon, GithubIcon } from '@/components/icons';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -84,7 +84,7 @@ export function SiteHeader() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <BookOpen className="size-4" />
+                  <BookIcon className="size-4" />
                 </a>
               </Button>
             </TooltipTrigger>
@@ -98,7 +98,7 @@ export function SiteHeader() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Github className="size-4" />
+                  <GithubIcon className="size-4" />
                 </a>
               </Button>
             </TooltipTrigger>
