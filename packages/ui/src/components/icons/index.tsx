@@ -36,18 +36,18 @@ export const WorkflowIcon = createIcon('catppuccin:workflow');
 
 /*
 |------------------
-| Heroicons — semantic (monochrome, inherits currentColor)
+| Lucide — semantic (monochrome, inherits currentColor)
 |------------------
 */
 
-export const EvalsIcon = createIcon('heroicons:beaker');
-export const ResultsIcon = createIcon('heroicons:chart-bar');
-export const DatabaseIcon = createIcon('heroicons:circle-stack');
-export const DashboardIcon = createIcon('heroicons:squares-2x2');
-export const ConfigIcon = createIcon('heroicons:cog-6-tooth');
-export const BookIcon = createIcon('heroicons:book-open');
-export const GithubIcon = createIcon('catppuccin:github');
-export const SecurityIcon = createIcon('heroicons:shield-check');
+export const EvalsIcon = createIcon('lucide:flask-conical');
+export const ResultsIcon = createIcon('lucide:bar-chart-3');
+export const DatabaseIcon = createIcon('lucide:database');
+export const DashboardIcon = createIcon('lucide:layout-dashboard');
+export const ConfigIcon = createIcon('lucide:settings');
+export const BookIcon = createIcon('lucide:book-open');
+export const GithubIcon = createIcon('lucide:github');
+export const SecurityIcon = createIcon('lucide:shield-check');
 
 /*
 |------------------
