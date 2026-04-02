@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import {
   CircleCheckIcon,
   ClockIcon,
-  FlaskIcon,
+  EvalsIcon,
   HashIcon,
   PlayIcon,
   TargetIcon,
@@ -84,7 +84,7 @@ export default async function EvalDetailPage({
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<FlaskIcon className="h-6 w-6" />}
+        icon={<EvalsIcon className="h-6 w-6" />}
         title={suite.name}
         description={
           suite.filepath && <FilePath path={suite.filepath} />

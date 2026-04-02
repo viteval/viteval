@@ -41,6 +41,17 @@ export const PlayIcon = createIcon('catppuccin:play');
 export const HashIcon = createIcon('catppuccin:hash');
 export const BenchmarkIcon = createIcon('catppuccin:benchmark');
 
+export const EvalsIcon = createIcon('catppuccin:vitest');
+export const ResultsIcon = createIcon('catppuccin:benchmark');
+export const ViteIcon = createIcon('catppuccin:vite');
+export const TextIcon = createIcon('catppuccin:text');
+export const TodoIcon = createIcon('catppuccin:todo');
+export const SecurityIcon = createIcon('catppuccin:security');
+export const WorkflowIcon = createIcon('catppuccin:workflow');
+export const LogIcon = createIcon('catppuccin:log');
+export const KeyIcon = createIcon('catppuccin:key');
+export const ImageIcon = createIcon('catppuccin:image');
+
 /*
 |------------------
 | Lucide (via iconify) — UI chrome
@@ -58,6 +69,4 @@ export const TrendingUpIcon = createIcon('lucide:trending-up');
 export const CircleCheckIcon = createIcon('lucide:circle-check');
 export const CircleXIcon = createIcon('lucide:circle-x');
 export const HomeIcon = createIcon('lucide:home');
-export const BarChartIcon = createIcon('lucide:bar-chart-3');
-export const FlaskIcon = createIcon('lucide:flask-conical');
 export const LayoutDashboardIcon = createIcon('lucide:layout-dashboard');

@@ -15,16 +15,16 @@ import {
 } from '@/components/ui/sidebar';
 import { NavMain } from '@/components/nav-main';
 import {
-  BarChartIcon,
   ConfigIcon,
   DatabaseIcon,
-  FlaskIcon,
+  EvalsIcon,
   HomeIcon,
+  ResultsIcon,
 } from '@/components/icons';
 
 const navItems = [
-  { href: '/suites', icon: FlaskIcon, title: 'Evals' },
-  { href: '/results', icon: BarChartIcon, title: 'Results' },
+  { href: '/suites', icon: EvalsIcon, title: 'Evals' },
+  { href: '/results', icon: ResultsIcon, title: 'Results' },
   { href: '/datasets', icon: DatabaseIcon, title: 'Datasets' },
 ];
 

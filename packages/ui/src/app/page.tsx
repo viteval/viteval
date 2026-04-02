@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import {
   ArrowRightIcon,
-  BarChartIcon,
   ClockIcon,
+  DashboardIcon,
   DatabaseIcon,
-  LayoutDashboardIcon,
+  ResultsIcon,
   TrendingUpIcon,
 } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <PageHeader
-        icon={<LayoutDashboardIcon className="h-6 w-6" />}
+        icon={<DashboardIcon className="h-6 w-6" />}
         title="Dashboard"
         description="Overview of your evaluation results and datasets"
       />
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
             <Stat
               label="Results"
               value={totalResults}
-              icon={<BarChartIcon className="h-4 w-4" />}
+              icon={<ResultsIcon className="h-4 w-4" />}
               size="lg"
             />
           </CardContent>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <BarChartIcon className="h-4 w-4" />
+              <ResultsIcon className="h-4 w-4" />
               Latest Results
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
