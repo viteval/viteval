@@ -30,7 +30,7 @@ const columns: ColumnDef<DatasetSummary>[] = [
   {
     accessorKey: 'path',
     cell: ({ row }) => (
-      <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
+      <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted block truncate">
         {row.original.path}
       </code>
     ),

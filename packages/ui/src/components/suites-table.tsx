@@ -22,7 +22,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
     accessorKey: 'filepath',
     cell: ({ row }) =>
       row.original.filepath ? (
-        <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
+        <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted block truncate">
           {row.original.filepath}
         </code>
       ) : null,
