@@ -54,7 +54,7 @@ export function defineConfig(config: VitevalConfig) {
   }
 
   // Store the provider initialization promise for deferred awaiting.
-  // defineConfig is synchronous (Vitest requires it), so we can't await here.
+  // DefineConfig is synchronous (Vitest requires it), so we can't await here.
   // Provider client functions will await this promise before returning.
   if (provider) {
     const initPromise = initializeProvider(provider);

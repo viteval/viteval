@@ -1,10 +1,10 @@
-import type { ServerType } from '@hono/node-server';
+import type { ChildProcess } from 'node:child_process';
+import { fork } from 'node:child_process';
 import path from 'node:path';
-import { Hono } from 'hono';
-import { serve } from '@hono/node-server';
-import { serveStatic } from '@hono/node-server/serve-static';
 import { findUp } from 'find-up';
 import getPort from 'get-port';
+
+const DEFAULT_PORT = 6274;
 
 export interface CreateVitevalServerOptions {
   /**
@@ -14,7 +14,7 @@ export interface CreateVitevalServerOptions {
   root?: string;
   /**
    * A custom port to listen on
-   * @default 3000
+   * @default 6274
    */
   port?: number;
   /**
@@ -28,7 +28,7 @@ export interface CreateVitevalServerOptions {
  * Creates a Viteval server
  *
  * ```ts
- * const server = createVitevalServer({ port: 3000 });
+ * const server = createVitevalServer({ port: 6274 });
  * await server.start();
  * ```
  *
@@ -36,7 +36,7 @@ export interface CreateVitevalServerOptions {
  * @returns The Viteval server
  */
 export function createVitevalServer(options?: CreateVitevalServerOptions) {
-  let server: ServerType | undefined;
+  let child: ChildProcess | undefined;
 
   return {
     /**
@@ -45,69 +45,58 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      */
     async start(): Promise<number> {
       const root = await findRoot(options?.root);
-      process.env.VITEVAL_ROOT_PATH = root;
-      process.env.VITEVAL_DEBUG_MODE = options?.debug ? 'true' : 'false';
+      const port = await getPort({
+        port: [
+          options?.port ?? DEFAULT_PORT,
+          DEFAULT_PORT,
+          DEFAULT_PORT + 1,
+          DEFAULT_PORT + 2,
+        ],
+      });
 
-      const port = await getPort({ port: options?.port ?? 3000 });
-      const standaloneDir = path.join(
+      const serverScript = path.join(
         import.meta.dirname,
         'dist',
         '.next',
-        'standalone'
+        'standalone',
+        'packages',
+        'ui',
+        'server.js'
       );
 
-      const app = new Hono();
-
-      app.use(
-        '/*',
-        serveStatic({
-          root: path.join(
-            import.meta.dirname,
-            'dist',
-            '.next',
-            'standalone',
-            'public'
-          ),
-        })
-      );
-
-      app.use(
-        '/_next/static/*',
-        serveStatic({
-          rewriteRequestPath: (p: string) => p.replace('/_next/static', ''),
-          root: path.join(import.meta.dirname, 'dist', '.next', 'static'),
-        })
-      );
-
-      // Import and use the Next.js standalone server handler
-      const nextHandler = await import(path.join(standaloneDir, 'server.js'));
-      app.all('*', async (c) => {
-        const url = new URL(c.req.url);
-        url.port = String(port);
-        const request = new Request(url.toString(), {
-          method: c.req.method,
-          headers: c.req.raw.headers,
-          body:
-            c.req.method !== 'GET' && c.req.method !== 'HEAD'
-              ? c.req.raw.body
-              : undefined,
-          // @ts-expect-error - Node.js specific option for request body handling
-          duplex: 'half',
-        });
-        const response = await nextHandler.default(request);
-        return response;
-      });
-
-      return new Promise((resolve) => {
-        server = serve(
-          {
-            fetch: app.fetch,
-            port,
+      return new Promise((resolve, reject) => {
+        child = fork(serverScript, {
+          env: {
+            ...process.env,
+            HOSTNAME: 'localhost',
+            PORT: String(port),
+            VITEVAL_DEBUG_MODE: options?.debug ? 'true' : 'false',
+            VITEVAL_ROOT_PATH: root,
           },
-          () => {
+          stdio: 'pipe',
+        });
+
+        child.on('error', reject);
+
+        child.stderr?.on('data', (data: Buffer) => {
+          const msg = data.toString();
+          if (options?.debug) {
+            process.stderr.write(msg);
+          }
+        });
+
+        const fallbackTimer = setTimeout(() => resolve(port), 2000);
+
+        child.stdout?.on('data', (data: Buffer) => {
+          const msg = data.toString();
+          if (options?.debug) {
+            process.stdout.write(msg);
+          }
+          if (msg.includes('Ready') || msg.includes('started server')) {
+            clearTimeout(fallbackTimer);
             resolve(port);
           }
-        );
+        });
       });
     },
     /**
@@ -123,12 +112,12 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      */
     async shutdown(): Promise<void> {
       return new Promise((resolve) => {
-        if (server) {
-          server.close(() => {
-            process.env.VITEVAL_ROOT_PATH = undefined;
-            process.env.VITEVAL_DEBUG_MODE = undefined;
+        if (child) {
+          child.once('exit', () => {
+            child = undefined;
             resolve();
           });
+          child.kill();
         } else {
           resolve();
         }

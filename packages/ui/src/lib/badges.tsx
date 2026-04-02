@@ -1,18 +1,24 @@
+import { match } from 'ts-pattern';
 import { Badge } from '../components/ui/badge';
 
 export function getStatusBadge(status: string) {
-  const variant =
-    status === 'passed'
-      ? 'default'
-      : status === 'failed'
-        ? 'destructive'
-        : 'secondary';
-  return <Badge variant={variant}>{status}</Badge>;
+  return match(status)
+    .with('passed', () => <Badge variant="success">Passed</Badge>)
+    .with('failed', () => <Badge variant="destructive">Failed</Badge>)
+    .with('running', () => (
+      <Badge
+        variant="outline"
+        className="text-yellow-600 border-yellow-600 animate-pulse"
+      >
+        Running
+      </Badge>
+    ))
+    .otherwise((s) => <Badge variant="secondary">{s}</Badge>);
 }
 
 export function getSuccessBadge(success: boolean) {
   return (
-    <Badge variant={success ? 'default' : 'destructive'}>
+    <Badge variant={success ? 'success' : 'destructive'}>
       {success ? 'Passed' : 'Failed'}
     </Badge>
   );

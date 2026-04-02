@@ -90,9 +90,9 @@ export function createBraintrustDatasetOps(
       withResult(async () => {
         const client = await getClient();
         const fetchLimit = params.limit
-          ? params.offset
+          ? (params.offset
             ? params.offset + params.limit
-            : params.limit
+            : params.limit)
           : undefined;
         const response = await client.datasets.fetch(params.datasetId, {
           limit: fetchLimit,
@@ -115,9 +115,9 @@ export function createBraintrustDatasetOps(
       withResult(async () => {
         const client = await getClient();
         const fetchLimit = params?.limit
-          ? params?.offset
+          ? (params?.offset
             ? params.offset + params.limit
-            : params.limit
+            : params.limit)
           : undefined;
         const page = await client.datasets.list({
           limit: fetchLimit,

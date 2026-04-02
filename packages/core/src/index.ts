@@ -1,6 +1,7 @@
 export { evaluate } from './evaluate';
 export { initializeModel } from './model';
 export { createProvider, initializeProvider } from './provider';
+export { createRun } from './run';
 export { createScorer, scorers, wrapScorer } from './scorer';
 export type {
   Data,
@@ -16,6 +17,14 @@ export type {
   TaskArgs,
 } from './types';
 export type { ModelConfig } from './model';
+export type {
+  CreateRunParams,
+  Run,
+  RunConfig,
+  RunState,
+  RunStatus,
+  RunSummary,
+} from './run';
 export type {
   Provider,
   ProviderConfig,

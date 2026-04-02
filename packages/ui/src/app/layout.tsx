@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { GeistMono } from 'geist/font/mono';
+import { GeistPixelSquare } from 'geist/font/pixel';
 import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -22,25 +24,28 @@ export default async function RootLayout({
   const defaultOpen = sidebarState !== 'false';
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${GeistMono.variable} ${GeistPixelSquare.variable}`}
+    >
       <body>
         <TooltipProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <SidebarInset>
               <SiteHeader />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 overflow-hidden">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>
         <Toaster
           position="bottom-right"
           toastOptions={{
-            className: 'font-sans',
+            className: 'font-mono',
             style: {
-              background: '#18181b',
-              border: '1px solid #27272a',
-              color: '#fafafa',
+              background: '#0a0a0c',
+              border: '1px solid #1a1a2e',
+              color: '#c0c0d0',
             },
           }}
         />
