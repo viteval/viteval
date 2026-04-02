@@ -19,38 +19,35 @@ function createIcon(icon: string, defaultClass?: string) {
 
 /*
 |------------------
-| Catppuccin — branded / semantic
+| Catppuccin — file types (multi-color, used where color matters)
 |------------------
 */
 
 export const TypeScriptIcon = createIcon('catppuccin:typescript');
 export const JavaScriptIcon = createIcon('catppuccin:javascript');
 export const FileIcon = createIcon('catppuccin:file');
-export const DatabaseIcon = createIcon('catppuccin:database');
-export const DashboardIcon = createIcon('catppuccin:dashboard');
-export const ConfigIcon = createIcon('catppuccin:config');
-export const GithubIcon = createIcon('catppuccin:github');
-export const BookIcon = createIcon('catppuccin:book');
-export const SearchIcon = createIcon('catppuccin:search');
-export const CopyIcon = createIcon('catppuccin:copy');
-export const DownloadIcon = createIcon('catppuccin:download');
-export const UploadIcon = createIcon('catppuccin:upload');
-export const RefreshIcon = createIcon('catppuccin:refresh');
-export const PencilIcon = createIcon('catppuccin:pencil');
-export const PlayIcon = createIcon('catppuccin:play');
-export const HashIcon = createIcon('catppuccin:hash');
-export const BenchmarkIcon = createIcon('catppuccin:benchmark');
-
-export const EvalsIcon = createIcon('catppuccin:vitest');
-export const ResultsIcon = createIcon('catppuccin:benchmark');
-export const ViteIcon = createIcon('catppuccin:vite');
 export const TextIcon = createIcon('catppuccin:text');
-export const TodoIcon = createIcon('catppuccin:todo');
-export const SecurityIcon = createIcon('catppuccin:security');
-export const WorkflowIcon = createIcon('catppuccin:workflow');
-export const LogIcon = createIcon('catppuccin:log');
-export const KeyIcon = createIcon('catppuccin:key');
 export const ImageIcon = createIcon('catppuccin:image');
+export const KeyIcon = createIcon('catppuccin:key');
+export const LogIcon = createIcon('catppuccin:log');
+export const TodoIcon = createIcon('catppuccin:todo');
+export const ViteIcon = createIcon('catppuccin:vite');
+export const WorkflowIcon = createIcon('catppuccin:workflow');
+
+/*
+|------------------
+| Heroicons — semantic (monochrome, inherits currentColor)
+|------------------
+*/
+
+export const EvalsIcon = createIcon('heroicons:beaker');
+export const ResultsIcon = createIcon('heroicons:chart-bar');
+export const DatabaseIcon = createIcon('heroicons:circle-stack');
+export const DashboardIcon = createIcon('heroicons:squares-2x2');
+export const ConfigIcon = createIcon('heroicons:cog-6-tooth');
+export const BookIcon = createIcon('heroicons:book-open');
+export const GithubIcon = createIcon('catppuccin:github');
+export const SecurityIcon = createIcon('heroicons:shield-check');
 
 /*
 |------------------
@@ -58,6 +55,14 @@ export const ImageIcon = createIcon('catppuccin:image');
 |------------------
 */
 
+export const SearchIcon = createIcon('lucide:search');
+export const CopyIcon = createIcon('lucide:copy');
+export const DownloadIcon = createIcon('lucide:download');
+export const UploadIcon = createIcon('lucide:upload');
+export const RefreshIcon = createIcon('lucide:rotate-ccw');
+export const PencilIcon = createIcon('lucide:pencil');
+export const PlayIcon = createIcon('lucide:play');
+export const HashIcon = createIcon('lucide:hash');
 export const ChevronDownIcon = createIcon('lucide:chevron-down');
 export const ChevronRightIcon = createIcon('lucide:chevron-right');
 export const CheckIcon = createIcon('lucide:check');
@@ -69,4 +74,3 @@ export const TrendingUpIcon = createIcon('lucide:trending-up');
 export const CircleCheckIcon = createIcon('lucide:circle-check');
 export const CircleXIcon = createIcon('lucide:circle-x');
 export const HomeIcon = createIcon('lucide:home');
-export const LayoutDashboardIcon = createIcon('lucide:layout-dashboard');
