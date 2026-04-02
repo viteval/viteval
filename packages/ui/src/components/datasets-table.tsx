@@ -6,7 +6,6 @@ import type { DatasetSummary } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
-import { FilePath } from '@/components/display';
 
 const columns: ColumnDef<DatasetSummary>[] = [
   {
@@ -29,14 +28,6 @@ const columns: ColumnDef<DatasetSummary>[] = [
     header: 'Description',
   },
   {
-    accessorKey: 'path',
-    cell: ({ row }) => (
-      <FilePath path={row.original.path} />
-    ),
-    enableSorting: false,
-    header: 'Path',
-  },
-  {
     accessorKey: 'itemCount',
     cell: ({ row }) => (
       <Badge variant="secondary">{row.original.itemCount} items</Badge>
@@ -46,14 +37,14 @@ const columns: ColumnDef<DatasetSummary>[] = [
     ),
   },
   {
-    accessorKey: 'storage',
+    accessorKey: 'source',
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">
-        {row.original.storage}
-      </span>
+      <Badge variant="outline" className="text-xs">
+        {row.original.source}
+      </Badge>
     ),
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Storage" />
+      <DataTableColumnHeader column={column} title="Source" />
     ),
   },
 ];

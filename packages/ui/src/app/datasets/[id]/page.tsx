@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { DatabaseIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/page-header';
+import { FilePath } from '@/components/display';
 import DatasetDetail from '@/components/DatasetDetail';
 import { Button } from '@/components/ui/button';
 import { createViteval } from '@/sdk';
@@ -31,14 +32,12 @@ export default async function DatasetDetailPage({
             {dataset.description && (
               <span>{dataset.description}</span>
             )}
-            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">
-              {dataset.path}
-            </code>
+            {dataset.path && <FilePath path={dataset.path} />}
             <Badge variant="secondary" className="text-xs">
               {dataset.data.length} items
             </Badge>
             <Badge variant="outline" className="text-xs">
-              {dataset.storage}
+              {dataset.source}
             </Badge>
           </span>
         }

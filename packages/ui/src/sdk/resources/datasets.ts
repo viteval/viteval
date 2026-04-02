@@ -27,7 +27,7 @@ async function parseDatasetSummary(
       itemCount: data.data ? data.data.length : 0,
       name: data.name || id,
       path: fsHelper.relativePath(filePath),
-      storage: data.storage || 'local',
+      source: data.storage || 'local',
     };
   } catch {
     return null;
@@ -55,7 +55,7 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
         path: fsHelper.relativePath(
           fsHelper.filePath('datasets', params.id)
         ),
-        storage: (raw.storage as string) || 'local',
+        source: (raw.storage as string) || 'local',
       } as DatasetFile;
 
       return { data };

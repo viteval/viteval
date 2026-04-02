@@ -80,11 +80,11 @@ export interface ResultFile {
 export interface DatasetSummary {
   id: string;
   name: string;
-  path: string;
+  path?: string;
   description?: string;
   itemCount: number;
   createdAt?: string;
-  storage: string;
+  source: string;
 }
 
 export interface EvalSchema {
@@ -118,9 +118,9 @@ export interface DatasetItem {
 export interface DatasetFile {
   id: string;
   name: string;
-  path: string;
+  path?: string;
   description?: string;
   createdAt?: string;
-  storage: string;
+  source: string;
   data: DatasetItem[];
 }
