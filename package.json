@@ -12,7 +12,7 @@
     "format:fix": "oxfmt --write .",
     "check": "pnpm lint && pnpm format",
     "dev": "nx run-many -t dev --parallel --projects=packages/*",
-    "dev:ui": "pnpm --filter @viteval/ui dev",
+    "dev:ui": "./scripts/dev-ui.sh",
     "dev:website": "nx dev website",
     "fix": "pnpm lint:fix && pnpm format:fix",
     "gen": "nx generate",

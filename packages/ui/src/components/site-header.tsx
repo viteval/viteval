@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import { BookOpen, Github } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -37,7 +38,8 @@ function useBreadcrumbs() {
   for (let i = 0; i < segments.length; i++) {
     currentPath += `/${segments[i]}`;
     const isLast = i === segments.length - 1;
-    const label = segments[i].charAt(0).toUpperCase() + segments[i].slice(1);
+    const decoded = decodeURIComponent(segments[i]);
+    const label = decoded.charAt(0).toUpperCase() + decoded.slice(1);
     crumbs.push({
       href: isLast ? undefined : currentPath,
       label,
@@ -57,7 +59,7 @@ export function SiteHeader() {
       <Breadcrumb>
         <BreadcrumbList>
           {crumbs.map((crumb, i) => (
-            <span key={crumb.href ?? `crumb-${i}`} className="contents">
+            <Fragment key={crumb.href ?? `crumb-${i}`}>
               {i > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {crumb.href ? (
@@ -68,7 +70,7 @@ export function SiteHeader() {
                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                 )}
               </BreadcrumbItem>
-            </span>
+            </Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>

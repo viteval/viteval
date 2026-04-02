@@ -3,9 +3,14 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
 import ResultsDetail from '@/components/ResultsDetail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
+import { formatDuration, formatTimestamp, slugify } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 import type { EvalResults } from '@/types';
 
 export default function ResultDetailPage() {
@@ -43,29 +48,29 @@ export default function ResultDetailPage() {
 
   useEffect(() => {
     void fetchResult();
+  }, [fetchResult]);
+
+  useEffect(() => {
+    if (results?.status !== 'running') {return;}
     const interval = setInterval(() => {
       void fetchResult();
     }, 20_000);
     return () => clearInterval(interval);
-  }, [fetchResult]);
+  }, [results?.status, fetchResult]);
 
   if (!loading && notFound) {
     return (
       <div className="container mx-auto p-6 space-y-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Result Not Found
-            </h1>
-            <p className="text-muted-foreground">
-              The evaluation result with ID &quot;{id}&quot; could not be found.
-            </p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/results">&larr; Back to Results</Link>
-          </Button>
-        </div>
-
+        <PageHeader
+          icon={<BarChart3 className="h-6 w-6" />}
+          title="Result Not Found"
+          description={`The evaluation result with ID "${id}" could not be found.`}
+          actions={
+            <Button variant="outline" asChild>
+              <Link href="/results">&larr; Back to Results</Link>
+            </Button>
+          }
+        />
         <Card>
           <CardContent>
             <div className="text-center py-8">
@@ -87,38 +92,71 @@ export default function ResultDetailPage() {
   if (!loading && error) {
     return (
       <div className="container mx-auto p-6 space-y-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Error</h1>
-            <p className="text-muted-foreground">{error}</p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/results">&larr; Back to Results</Link>
-          </Button>
-        </div>
+        <PageHeader
+          icon={<BarChart3 className="h-6 w-6" />}
+          title="Error"
+          description={error}
+          actions={
+            <Button variant="outline" asChild>
+              <Link href="/results">&larr; Back to Results</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
 
+  const runName = results?.runName || id;
+  const suiteNames =
+    results?.evalResults.map((s) => s.name).join(', ') ?? '';
+  const subtitle = suiteNames || undefined;
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">Results:</h1>
-            <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">
-              {id}
-            </code>
-          </div>
-          <p className="text-muted-foreground">
-            Detailed evaluation results and metrics
-          </p>
-        </div>
-        <Button variant="outline" asChild>
-          <Link href="/results">&larr; Back to Results</Link>
-        </Button>
-      </div>
-      {results && <ResultsDetail results={results} error={error} />}
+      <PageHeader
+        icon={<BarChart3 className="h-6 w-6" />}
+        title={runName}
+        description={
+          results && (
+            <span className="flex flex-wrap items-center gap-2">
+              {subtitle && (
+                <span className="text-sm text-muted-foreground">
+                  {subtitle}
+                </span>
+              )}
+              {results.startTime ? (
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                  {formatTimestamp(results.startTime)}
+                </code>
+              ) : null}
+              {results.status === 'running'
+                ? getStatusBadge('running')
+                : getSuccessBadge(results.success)}
+              <Badge variant="secondary" className="text-xs">
+                {results.numTotalEvals} evals
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {formatDuration(results.duration)}
+              </Badge>
+            </span>
+          )
+        }
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link href="/results">&larr; Back to Results</Link>
+            </Button>
+            {results && results.evalResults.length === 1 && (
+              <Button variant="outline" asChild>
+                <Link href={`/suites/${slugify(results.evalResults[0].name)}`}>
+                  View Eval
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
+      {results && <ResultsDetail results={results} />}
       {loading && (
         <div className="flex items-center justify-center py-8">
           <div className="text-muted-foreground">Loading results...</div>

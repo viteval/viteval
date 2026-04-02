@@ -2,10 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
-import { match } from 'ts-pattern';
-import { formatDuration, formatTimestamp } from '@/lib/utils';
+import { getStatusBadge } from '@/lib/badges';
+import { formatDuration, formatPassRate, formatTimestamp } from '@/lib/utils';
 import type { SuiteSummary } from '@/types';
-import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 
@@ -32,21 +31,9 @@ const columns: ColumnDef<SuiteSummary>[] = [
   },
   {
     accessorKey: 'latestStatus',
-    cell: ({ row }) =>
-      match(row.original.latestStatus)
-        .with('passed', () => <Badge variant="default">Passed</Badge>)
-        .with('failed', () => <Badge variant="destructive">Failed</Badge>)
-        .with('running', () => (
-          <Badge
-            variant="outline"
-            className="text-yellow-600 border-yellow-600 animate-pulse"
-          >
-            Running
-          </Badge>
-        ))
-        .otherwise((s) => <Badge variant="secondary">{s}</Badge>),
+    cell: ({ row }) => getStatusBadge(row.original.latestStatus),
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Latest Status" />
+      <DataTableColumnHeader column={column} title="Status" />
     ),
   },
   {
@@ -99,7 +86,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
           {latestPassedCount}/{latestTotalCount}
           {latestTotalCount > 0 && (
             <span className="text-muted-foreground ml-1">
-              ({((latestPassedCount / latestTotalCount) * 100).toFixed(0)}%)
+              ({formatPassRate(latestPassedCount, latestTotalCount)})
             </span>
           )}
         </span>
@@ -124,7 +111,7 @@ export function SuitesTable({ suites }: SuitesTableProps) {
       columns={columns}
       data={suites}
       onRowClick={(row) =>
-        router.push(`/suites/${encodeURIComponent(row.name)}`)
+        router.push(`/suites/${row.slug}`)
       }
     />
   );

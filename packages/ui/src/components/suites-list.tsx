@@ -8,7 +8,7 @@ import { ListFilter } from '@/components/list-filter';
 import { SuitesTable } from '@/components/suites-table';
 
 const filterConfig: FilterConfig = {
-  search: { type: 'text', placeholder: 'Search by name or file...' },
+  search: { placeholder: 'Search by name or file...', type: 'text' },
   statusLabel: 'Status',
   statusOptions: [
     { label: 'Passed', value: 'passed' },

@@ -16,12 +16,12 @@ interface RunsChartProps {
 
 const chartConfig = {
   failed: {
-    label: 'Failed',
     color: 'var(--color-chart-5)',
+    label: 'Failed',
   },
   passed: {
-    label: 'Passed',
     color: 'var(--color-chart-2)',
+    label: 'Passed',
   },
 } satisfies ChartConfig;
 
@@ -30,14 +30,11 @@ export function RunsChart({ results }: RunsChartProps) {
     .filter((r) => r.summary)
     .toReversed()
     .slice(-20)
-    .map((r) => {
-      const ts = new Date(Number(r.timestamp));
-      return {
-        failed: r.summary!.numFailedEvals,
-        label: `${ts.getMonth() + 1}/${ts.getDate()} ${ts.getHours().toString().padStart(2, '0')}:${ts.getMinutes().toString().padStart(2, '0')}`,
-        passed: r.summary!.numPassedEvals,
-      };
-    });
+    .map((r) => ({
+      failed: r.summary!.numFailedEvals,
+      label: r.name,
+      passed: r.summary!.numPassedEvals,
+    }));
 
   if (data.length === 0) {
     return null;

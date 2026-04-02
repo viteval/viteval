@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { JsonReporter, type VitevalReporter } from '@viteval/core/reporters';
+import { createRun } from '@viteval/core';
 import { withResult } from '@viteval/internal';
 import { createVitevalServer } from '@viteval/ui';
 import consola from 'consola';
@@ -79,7 +80,10 @@ export const runCommand: CommandModule<unknown, EvalOptions> = {
       ? configResolutionResult.result.vitestConfig
       : undefined;
 
-    const reporters = getReporters(argv, vitestConfig);
+    const run = createRun();
+    const reporters = getReporters(argv, vitestConfig, run);
+
+    consola.info(`Run: ${run.name}`);
 
     const vitest = await createVitest('test', {
       config: configFilePath,
@@ -126,27 +130,33 @@ interface EvalOptions {
   ui?: boolean;
 }
 
-function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
+function getReporters(
+  argv: EvalOptions,
+  config: ResolvedConfig | undefined,
+  run: { id: string; name: string }
+) {
   const argReporters = (
     argv.ui ? ['default', 'file'] : (argv.reporters ?? [])
   ) as VitevalReporter[];
+
   if (argReporters.length > 0) {
     return buildReporters(
       argReporters.map((reporter) => ({
         options: match(reporter)
           .with('json', () => ({
             outputFile: argv.outputPath
-              ? formatOutputFile(argv.outputPath)
+              ? formatOutputFile(argv.outputPath, run.name)
               : undefined,
           }))
           .with('file', () => ({
             outputFile: argv.outputPath
-              ? formatOutputFile(argv.outputPath)
-              : formatOutputFile('.viteval/results/<timestamp>.json'),
+              ? formatOutputFile(argv.outputPath, run.name)
+              : formatOutputFile('.viteval/results/<run>.json', run.name),
           }))
           .otherwise(() => ({})),
         reporter,
-      }))
+      })),
+      run
     );
   }
 
@@ -163,23 +173,28 @@ function getReporters(argv: EvalOptions, config?: ResolvedConfig) {
       formattedReporters.map((reporter) => ({
         options: {},
         reporter,
-      }))
+      })),
+      run
     );
   }
 
-  return buildReporters([
-    {
-      options: {},
-      reporter: 'default',
-    },
-  ]);
+  return buildReporters(
+    [
+      {
+        options: {},
+        reporter: 'default',
+      },
+    ],
+    run
+  );
 }
 
 function buildReporters(
   input: {
     reporter: VitevalReporter;
     options: Record<string, string | undefined>;
-  }[]
+  }[],
+  run: { id: string; name: string }
 ) {
   const reporters: (Reporter | string)[] = [];
 
@@ -191,8 +206,9 @@ function buildReporters(
           outputFile:
             reporter === 'file'
               ? (options.outputFile ??
-                formatOutputFile('.viteval/results/<timestamp>.json'))
+                formatOutputFile('.viteval/results/<run>.json', run.name))
               : options.outputFile,
+          run,
         })
       );
     } else {
@@ -203,6 +219,6 @@ function buildReporters(
   return reporters;
 }
 
-function formatOutputFile(outputFile: string) {
-  return outputFile.replace('<timestamp>', Date.now().toString());
+function formatOutputFile(outputFile: string, runName: string) {
+  return outputFile.replace('<run>', runName);
 }

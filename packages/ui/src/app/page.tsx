@@ -4,83 +4,94 @@ import {
   BarChart3,
   Clock,
   Database,
+  LayoutDashboard,
   TrendingUp,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/page-header';
 import { RunsChart } from '@/components/runs-chart';
-import { formatDuration, formatTimestamp } from '@/lib/utils';
-import { vitevalReader } from '@/lib/viteval';
+import { Stat } from '@/components/stat';
+import { formatDuration, formatPassRate, formatTimestamp } from '@/lib/utils';
+import { createViteval } from '@/sdk';
+
+const viteval = createViteval();
 
 export default async function DashboardPage() {
-  const [results, datasets] = await Promise.all([
-    vitevalReader.listResults(),
-    vitevalReader.listDatasets(),
+  const [resultsResponse, chartResponse, datasetsResponse] = await Promise.all([
+    viteval.results.list({ limit: 5, page: 1 }),
+    viteval.results.list({ limit: 20, page: 1 }),
+    viteval.datasets.list({ limit: 5, page: 1 }),
   ]);
 
-  const latest = results[0]?.summary ?? null;
-  const latestPassRate =
-    latest && latest.numTotalEvals > 0
-      ? `${((latest.numPassedEvals / latest.numTotalEvals) * 100).toFixed(1)}%`
-      : 'N/A';
+  const recentResults = resultsResponse.data;
+  const chartResults = chartResponse.data;
+  const recentDatasets = datasetsResponse.data;
+  const totalResults = resultsResponse.total;
+  const totalDatasets = datasetsResponse.total;
+
+  const latest = recentResults[0]?.summary ?? null;
+  const latestPassRate = latest
+    ? formatPassRate(latest.numPassedEvals, latest.numTotalEvals)
+    : 'N/A';
   const latestDuration =
     latest?.duration !== null && latest?.duration !== undefined
       ? formatDuration(latest.duration)
       : 'N/A';
 
-  const recentResults = results.slice(0, 5);
-  const recentDatasets = datasets.slice(0, 5);
-
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-2">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your evaluation results and datasets
-        </p>
-      </div>
+      <PageHeader
+        icon={<LayoutDashboard className="h-6 w-6" />}
+        title="Dashboard"
+        description="Overview of your evaluation results and datasets"
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Results</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{results.length}</div>
+            <Stat
+              label="Results"
+              value={totalResults}
+              icon={<BarChart3 className="h-4 w-4" />}
+              size="lg"
+            />
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Datasets</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{datasets.length}</div>
+            <Stat
+              label="Datasets"
+              value={totalDatasets}
+              icon={<Database className="h-4 w-4" />}
+              size="lg"
+            />
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pass Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{latestPassRate}</div>
+            <Stat
+              label="Pass Rate"
+              value={latestPassRate}
+              icon={<TrendingUp className="h-4 w-4" />}
+              size="lg"
+            />
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Duration</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{latestDuration}</div>
+            <Stat
+              label="Duration"
+              value={latestDuration}
+              icon={<Clock className="h-4 w-4" />}
+              size="lg"
+            />
           </CardContent>
         </Card>
       </div>
 
-      <RunsChart results={results} />
+      <RunsChart results={chartResults} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
@@ -104,16 +115,18 @@ export default async function DashboardPage() {
               recentResults.map((r) => (
                 <Link
                   key={r.id}
-                  href={`/results/${r.timestamp}`}
+                  href={`/results/${r.id}`}
                   className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted transition-colors"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-xs font-mono text-muted-foreground truncate">
-                      {r.timestamp}
+                    <span className="text-sm font-medium truncate">
+                      {r.name}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatTimestamp(r.timestamp)}
-                    </span>
+                    {r.summary?.startTime ? (
+                      <span className="text-xs text-muted-foreground">
+                        {formatTimestamp(r.summary.startTime)}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     {r.summary?.status === 'running' ? (
@@ -123,20 +136,20 @@ export default async function DashboardPage() {
                       >
                         Running
                       </Badge>
-                    ) : r.summary ? (
+                    ) : (r.summary ? (
                       <>
                         <span className="text-xs text-muted-foreground">
                           {formatDuration(r.summary.duration)}
                         </span>
                         <Badge
                           variant={
-                            r.summary.success ? 'default' : 'destructive'
+                            r.summary.success ? 'success' : 'destructive'
                           }
                         >
                           {r.summary.numPassedEvals}/{r.summary.numTotalEvals}
                         </Badge>
                       </>
-                    ) : null}
+                    ) : null)}
                   </div>
                 </Link>
               ))

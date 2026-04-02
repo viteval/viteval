@@ -19,9 +19,11 @@ export interface EvalResult {
   metadata?: Record<string, any>;
 }
 
+export type EvalStatus = 'passed' | 'failed' | 'running';
+
 export interface EvalSuite {
   name: string;
-  status: string;
+  status: EvalStatus;
   filepath?: string;
   startTime: number;
   endTime: number;
@@ -37,6 +39,8 @@ export interface EvalSuite {
 }
 
 export interface EvalResults {
+  runId?: string;
+  runName?: string;
   status: 'running' | 'finished';
   success: boolean;
   numTotalEvalSuites: number;
@@ -51,21 +55,11 @@ export interface EvalResults {
   evalResults: EvalSuite[];
 }
 
-export interface SingleEvalResult {
-  name: string;
-  sum: number;
-  median: number;
-  mean: number;
-  threshold: number;
-  aggregation: string;
-  scores: Score[];
-}
-
 export interface ResultFile {
   id: string;
+  runId: string;
   name: string;
   path: string;
-  timestamp: string;
   size: number;
   summary: {
     status?: 'running' | 'finished';
@@ -102,9 +96,10 @@ export interface EvalSchema {
 
 export interface SuiteSummary {
   name: string;
+  slug: string;
   filepath?: string;
   runCount: number;
-  latestStatus: string;
+  latestStatus: EvalStatus;
   latestRunTimestamp: string;
   latestDuration: number;
   latestMeanScore: number;

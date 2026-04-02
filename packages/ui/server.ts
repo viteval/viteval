@@ -85,18 +85,18 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
           }
         });
 
+        const fallbackTimer = setTimeout(() => resolve(port), 2000);
+
         child.stdout?.on('data', (data: Buffer) => {
           const msg = data.toString();
           if (options?.debug) {
             process.stdout.write(msg);
           }
           if (msg.includes('Ready') || msg.includes('started server')) {
+            clearTimeout(fallbackTimer);
             resolve(port);
           }
         });
-
-        // Fallback: resolve after a short delay if no "Ready" message
-        setTimeout(() => resolve(port), 2000);
       });
     },
     /**
@@ -113,7 +113,7 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
     async shutdown(): Promise<void> {
       return new Promise((resolve) => {
         if (child) {
-          child.on('exit', () => {
+          child.once('exit', () => {
             child = undefined;
             resolve();
           });

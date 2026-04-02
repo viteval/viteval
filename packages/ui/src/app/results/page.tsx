@@ -1,24 +1,26 @@
 import { Suspense } from 'react';
 import { BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
 import { ResultsList } from '@/components/results-list';
-import { vitevalReader } from '@/lib/viteval';
+import { createViteval } from '@/sdk';
+
+const viteval = createViteval();
 
 export default async function ResultsPage() {
-  const results = await vitevalReader.listResults();
+  const { data: results, total } = await viteval.results.list({
+    limit: 20,
+    page: 1,
+  });
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <BarChart3 className="h-6 w-6" />
-          Results
-        </h1>
-        <p className="text-muted-foreground">
-          View and analyze your evaluation results
-        </p>
-      </div>
+      <PageHeader
+        icon={<BarChart3 className="h-6 w-6" />}
+        title="Results"
+        description={`View and analyze your evaluation results (${total} total)`}
+      />
       <Suspense>
-        <ResultsList results={results} />
+        <ResultsList results={results} total={total} />
       </Suspense>
     </div>
   );

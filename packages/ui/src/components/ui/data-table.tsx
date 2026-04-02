@@ -3,9 +3,12 @@
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type ExpandedState,
+  type Row,
   type SortingState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -27,15 +30,20 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onRowClick?: (row: TData) => void
+  getRowCanExpand?: (row: Row<TData>) => boolean
+  renderExpandedRow?: (row: Row<TData>) => React.ReactNode
 }
 
 function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  getRowCanExpand,
+  renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [expanded, setExpanded] = React.useState<ExpandedState>({})
 
   const table = useReactTable({
     data,
@@ -44,11 +52,15 @@ function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getRowCanExpand,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onExpandedChange: setExpanded,
     state: {
       sorting,
       columnFilters,
+      expanded,
     },
   })
 
@@ -75,20 +87,38 @@ function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className={onRowClick ? "cursor-pointer" : ""}
-                  onClick={() => onRowClick?.(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <React.Fragment key={row.id}>
+                  <TableRow
+                    className={
+                      onRowClick || row.getCanExpand()
+                        ? "cursor-pointer"
+                        : ""
+                    }
+                    onClick={() => {
+                      if (row.getCanExpand()) {
+                        row.toggleExpanded()
+                      } else {
+                        onRowClick?.(row.original)
+                      }
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  {row.getIsExpanded() && renderExpandedRow && (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="p-0">
+                        {renderExpandedRow(row)}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))
             ) : (
               <TableRow>

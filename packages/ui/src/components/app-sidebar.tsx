@@ -23,7 +23,7 @@ import {
 import { NavMain } from '@/components/nav-main';
 
 const navItems = [
-  { href: '/suites', icon: FlaskConical, title: 'Suites' },
+  { href: '/suites', icon: FlaskConical, title: 'Evals' },
   { href: '/results', icon: BarChart3, title: 'Results' },
   { href: '/datasets', icon: Database, title: 'Datasets' },
 ];

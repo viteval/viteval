@@ -3,6 +3,7 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SYNTAX_HIGHLIGHTER_CODE_STYLE, SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE, SYNTAX_HIGHLIGHTER_STYLE } from '@/lib/utils';
 import type { Score } from '../types';
 
 interface ScoresRendererProps {
@@ -16,25 +17,21 @@ export default function ScoresRenderer({ scores }: ScoresRendererProps) {
 
   if (scores.length === 1) {
     return (
-      <div>
-        <SyntaxHighlighter
-          language={'json'}
-          style={oneDark}
-          customStyle={{
-            borderRadius: '0.375rem',
-            fontSize: '0.75rem',
-            lineHeight: '1rem',
-            margin: 0,
-          }}
-        >
-          {JSON.stringify(scores[0], null, 2)}
-        </SyntaxHighlighter>
-      </div>
+      <SyntaxHighlighter
+        language="json"
+        style={oneDark}
+        customStyle={SYNTAX_HIGHLIGHTER_STYLE}
+        codeTagProps={SYNTAX_HIGHLIGHTER_CODE_STYLE}
+        showLineNumbers
+        lineNumberStyle={SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE}
+      >
+        {JSON.stringify(scores[0], null, 2)}
+      </SyntaxHighlighter>
     );
   }
 
   return (
-    <Tabs defaultValue={scores[0].name} className="container -mx-8 px-8">
+    <Tabs defaultValue={scores[0].name}>
       <TabsList>
         {scores.map((score) => (
           <TabsTrigger
@@ -49,14 +46,12 @@ export default function ScoresRenderer({ scores }: ScoresRendererProps) {
       {scores.map((score) => (
         <TabsContent key={score.name} value={score.name}>
           <SyntaxHighlighter
-            language={'json'}
+            language="json"
             style={oneDark}
-            customStyle={{
-              borderRadius: '0.375rem',
-              fontSize: '0.75rem',
-              lineHeight: '1rem',
-              margin: 0,
-            }}
+            customStyle={SYNTAX_HIGHLIGHTER_STYLE}
+            codeTagProps={SYNTAX_HIGHLIGHTER_CODE_STYLE}
+            showLineNumbers
+            lineNumberStyle={SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE}
           >
             {JSON.stringify(score, null, 2)}
           </SyntaxHighlighter>

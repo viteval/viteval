@@ -1,6 +1,12 @@
-import { vitevalReader } from '@/lib/viteval';
+import { createViteval } from '@/sdk';
 
-export async function GET() {
-  const datasets = await vitevalReader.listDatasets();
-  return Response.json(datasets);
+const viteval = createViteval();
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = Number(searchParams.get('page') ?? 1);
+  const limit = Number(searchParams.get('limit') ?? 20);
+
+  const result = await viteval.datasets.list({ limit, page });
+  return Response.json(result);
 }

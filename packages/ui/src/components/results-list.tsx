@@ -19,6 +19,7 @@ const filterConfig: FilterConfig = {
 
 interface ResultsListProps {
   results: ResultFile[];
+  total?: number;
 }
 
 export function ResultsList({ results }: ResultsListProps) {
@@ -33,14 +34,14 @@ export function ResultsList({ results }: ResultsListProps) {
     if (from) {
       const fromMs = new Date(from).getTime();
       if (!Number.isNaN(fromMs)) {
-        items = items.filter((r) => Number(r.timestamp) >= fromMs);
+        items = items.filter((r) => (r.summary?.startTime ?? 0) >= fromMs);
       }
     }
 
     if (to) {
       const toMs = new Date(to).getTime();
       if (!Number.isNaN(toMs)) {
-        items = items.filter((r) => Number(r.timestamp) <= toMs);
+        items = items.filter((r) => (r.summary?.startTime ?? 0) <= toMs);
       }
     }
 
