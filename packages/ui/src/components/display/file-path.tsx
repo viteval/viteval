@@ -1,6 +1,6 @@
 'use client';
 
-import { FileCode2, FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FilePathProps {
@@ -9,12 +9,28 @@ interface FilePathProps {
   showIcon?: boolean;
 }
 
+function TsIcon() {
+  return (
+    <span className="inline-flex items-center justify-center h-4 w-5 shrink-0 rounded-sm bg-blue-600 text-white text-[9px] font-bold leading-none">
+      TS
+    </span>
+  );
+}
+
+function JsIcon() {
+  return (
+    <span className="inline-flex items-center justify-center h-4 w-5 shrink-0 rounded-sm bg-yellow-500 text-black text-[9px] font-bold leading-none">
+      JS
+    </span>
+  );
+}
+
 function getFileIcon(path: string) {
   if (/\.tsx?$/.test(path)) {
-    return <FileCode2 className="h-3.5 w-3.5 shrink-0 text-blue-400" />;
+    return <TsIcon />;
   }
   if (/\.jsx?$/.test(path)) {
-    return <FileCode2 className="h-3.5 w-3.5 shrink-0 text-yellow-400" />;
+    return <JsIcon />;
   }
   return <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />;
 }
