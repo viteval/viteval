@@ -3,21 +3,19 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
-import { formatDuration, formatTimestamp } from '@/lib/utils';
 import type { ResultFile } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { Duration, Timestamp } from '@/components/display';
 
 const allColumns: ColumnDef<ResultFile>[] = [
   {
     accessorKey: 'name',
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium">{row.original.name}</span>
+        <span className="text-sm font-medium truncate">{row.original.name}</span>
         {row.original.summary?.startTime ? (
-          <span className="text-xs text-muted-foreground">
-            {formatTimestamp(row.original.summary.startTime)}
-          </span>
+          <Timestamp value={row.original.summary.startTime} />
         ) : null}
       </div>
     ),
@@ -54,9 +52,7 @@ const allColumns: ColumnDef<ResultFile>[] = [
           <span className="text-sm text-muted-foreground">In progress...</span>
         );
       }
-      return (
-        <span className="text-sm">{formatDuration(summary.duration || 0)}</span>
-      );
+      return <Duration ms={summary.duration || 0} />;
     },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Duration" />

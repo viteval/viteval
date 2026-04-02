@@ -14,8 +14,9 @@ import {
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { getStatusBadge } from '@/lib/badges';
-import { formatDuration, formatPassRate, slugify } from '@/lib/utils';
+import { slugify } from '@/lib/utils';
 import type { EvalResult, EvalResults, EvalSuite, Score } from '@/types';
+import { Duration, PassRate, ScoreBadge } from '@/components/display';
 import ScoresRenderer from './ScoresRenderer';
 import { StatRow } from './stat-row';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +64,7 @@ const evalColumns: ColumnDef<EvalResult>[] = [
   {
     accessorKey: 'mean',
     cell: ({ row }) => (
-      <span className="text-sm">{row.original.mean.toFixed(3)}</span>
+      <ScoreBadge score={row.original.mean} threshold={row.original.threshold} />
     ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Mean" />
@@ -198,20 +199,22 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
           {
             icon: <Target className="h-3.5 w-3.5" />,
             label: 'Mean Score',
-            value: suite.summary.meanScore.toFixed(3),
+            value: <ScoreBadge score={suite.summary.meanScore} />,
           },
           {
             icon: <TrendingUp className="h-3.5 w-3.5" />,
             label: 'Pass Rate',
-            value: formatPassRate(
-              suite.summary.passedCount,
-              suite.summary.totalCount
+            value: (
+              <PassRate
+                passed={suite.summary.passedCount}
+                total={suite.summary.totalCount}
+              />
             ),
           },
           {
             icon: <Clock className="h-3.5 w-3.5" />,
             label: 'Duration',
-            value: formatDuration(suite.duration),
+            value: <Duration ms={suite.duration} />,
           },
         ]}
       />

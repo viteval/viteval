@@ -3,10 +3,10 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { getStatusBadge } from '@/lib/badges';
-import { formatDuration, formatPassRate, formatTimestamp } from '@/lib/utils';
 import type { SuiteSummary } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { Duration, FilePath, PassRate, ScoreBadge, Timestamp } from '@/components/display';
 
 const columns: ColumnDef<SuiteSummary>[] = [
   {
@@ -22,9 +22,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
     accessorKey: 'filepath',
     cell: ({ row }) =>
       row.original.filepath ? (
-        <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted block truncate">
-          {row.original.filepath}
-        </code>
+        <FilePath path={row.original.filepath} />
       ) : null,
     enableSorting: false,
     header: 'File',
@@ -46,9 +44,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
   {
     accessorKey: 'latestRunTimestamp',
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground">
-        {formatTimestamp(row.original.latestRunTimestamp)}
-      </span>
+      <Timestamp value={row.original.latestRunTimestamp} />
     ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Latest Run" />
@@ -57,9 +53,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
   {
     accessorKey: 'latestDuration',
     cell: ({ row }) => (
-      <span className="text-sm">
-        {formatDuration(row.original.latestDuration)}
-      </span>
+      <Duration ms={row.original.latestDuration} />
     ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Duration" />
@@ -68,7 +62,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
   {
     accessorKey: 'latestMeanScore',
     cell: ({ row }) => (
-      <span className="text-sm">{row.original.latestMeanScore.toFixed(3)}</span>
+      <ScoreBadge score={row.original.latestMeanScore} />
     ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Mean Score" />
@@ -79,19 +73,13 @@ const columns: ColumnDef<SuiteSummary>[] = [
       row.latestTotalCount > 0
         ? row.latestPassedCount / row.latestTotalCount
         : 0,
-    cell: ({ row }) => {
-      const { latestPassedCount, latestTotalCount } = row.original;
-      return (
-        <span className="text-sm">
-          {latestPassedCount}/{latestTotalCount}
-          {latestTotalCount > 0 && (
-            <span className="text-muted-foreground ml-1">
-              ({formatPassRate(latestPassedCount, latestTotalCount)})
-            </span>
-          )}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <PassRate
+        passed={row.original.latestPassedCount}
+        total={row.original.latestTotalCount}
+        showFraction
+      />
+    ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Pass Rate" />
     ),

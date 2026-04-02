@@ -9,9 +9,10 @@ import ResultsDetail from '@/components/ResultsDetail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
-import { formatDuration, formatTimestamp, slugify } from '@/lib/utils';
+import { slugify } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { EvalResults } from '@/types';
+import { Duration, Timestamp } from '@/components/display';
 
 export default function ResultDetailPage() {
   const params = useParams<{ id: string }>();
@@ -125,9 +126,7 @@ export default function ResultDetailPage() {
                 </span>
               )}
               {results.startTime ? (
-                <code className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                  {formatTimestamp(results.startTime)}
-                </code>
+                <Timestamp value={results.startTime} />
               ) : null}
               {results.status === 'running'
                 ? getStatusBadge('running')
@@ -135,9 +134,7 @@ export default function ResultDetailPage() {
               <Badge variant="secondary" className="text-xs">
                 {results.numTotalEvals} evals
               </Badge>
-              <Badge variant="outline" className="text-xs">
-                {formatDuration(results.duration)}
-              </Badge>
+              <Duration ms={results.duration} />
             </span>
           )
         }

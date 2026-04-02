@@ -6,6 +6,7 @@ import type { DatasetSummary } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { FilePath } from '@/components/display';
 
 const columns: ColumnDef<DatasetSummary>[] = [
   {
@@ -30,9 +31,7 @@ const columns: ColumnDef<DatasetSummary>[] = [
   {
     accessorKey: 'path',
     cell: ({ row }) => (
-      <code className="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted block truncate">
-        {row.original.path}
-      </code>
+      <FilePath path={row.original.path} />
     ),
     enableSorting: false,
     header: 'Path',

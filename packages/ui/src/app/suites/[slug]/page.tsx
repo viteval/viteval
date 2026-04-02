@@ -16,8 +16,8 @@ import { ResultsTable } from '@/components/results-table';
 import { SourceViewer } from '@/components/source-viewer';
 import { StatRow } from '@/components/stat-row';
 import { getStatusBadge } from '@/lib/badges';
-import { formatDuration, formatPassRate } from '@/lib/utils';
 import { createViteval } from '@/sdk';
+import { Duration, FilePath, PassRate, ScoreBadge } from '@/components/display';
 
 const viteval = createViteval();
 
@@ -62,17 +62,22 @@ export default async function EvalDetailPage({
     {
       icon: <Target className="h-3.5 w-3.5" />,
       label: 'Mean Score',
-      value: suite.latestMeanScore.toFixed(3),
+      value: <ScoreBadge score={suite.latestMeanScore} />,
     },
     {
       icon: <TrendingUp className="h-3.5 w-3.5" />,
       label: 'Pass Rate',
-      value: formatPassRate(suite.latestPassedCount, suite.latestTotalCount),
+      value: (
+        <PassRate
+          passed={suite.latestPassedCount}
+          total={suite.latestTotalCount}
+        />
+      ),
     },
     {
       icon: <Clock className="h-3.5 w-3.5" />,
       label: 'Duration',
-      value: formatDuration(suite.latestDuration),
+      value: <Duration ms={suite.latestDuration} />,
     },
   ];
 
@@ -82,11 +87,7 @@ export default async function EvalDetailPage({
         icon={<FlaskConical className="h-6 w-6" />}
         title={suite.name}
         description={
-          suite.filepath && (
-            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">
-              {suite.filepath}
-            </code>
-          )
+          suite.filepath && <FilePath path={suite.filepath} />
         }
         actions={
           <Button variant="outline" disabled title="Run eval (coming soon)">

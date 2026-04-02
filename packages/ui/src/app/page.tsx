@@ -13,8 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/page-header';
 import { RunsChart } from '@/components/runs-chart';
 import { Stat } from '@/components/stat';
-import { formatDuration, formatPassRate, formatTimestamp } from '@/lib/utils';
+import { formatPassRate } from '@/lib/utils';
 import { createViteval } from '@/sdk';
+import { Duration, Timestamp } from '@/components/display';
 
 const viteval = createViteval();
 
@@ -35,10 +36,6 @@ export default async function DashboardPage() {
   const latestPassRate = latest
     ? formatPassRate(latest.numPassedEvals, latest.numTotalEvals)
     : 'N/A';
-  const latestDuration =
-    latest?.duration !== null && latest?.duration !== undefined
-      ? formatDuration(latest.duration)
-      : 'N/A';
 
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
@@ -83,7 +80,11 @@ export default async function DashboardPage() {
           <CardContent>
             <Stat
               label="Duration"
-              value={latestDuration}
+              value={
+                latest?.duration !== null && latest?.duration !== undefined
+                  ? <Duration ms={latest.duration} />
+                  : 'N/A'
+              }
               icon={<Clock className="h-4 w-4" />}
               size="lg"
             />
@@ -123,9 +124,7 @@ export default async function DashboardPage() {
                       {r.name}
                     </span>
                     {r.summary?.startTime ? (
-                      <span className="text-xs text-muted-foreground">
-                        {formatTimestamp(r.summary.startTime)}
-                      </span>
+                      <Timestamp value={r.summary.startTime} />
                     ) : null}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -138,9 +137,7 @@ export default async function DashboardPage() {
                       </Badge>
                     ) : (r.summary ? (
                       <>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDuration(r.summary.duration)}
-                        </span>
+                        <Duration ms={r.summary.duration} />
                         <Badge
                           variant={
                             r.summary.success ? 'success' : 'destructive'
