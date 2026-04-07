@@ -9,12 +9,21 @@ import type {
   TestRunEndReason,
   Vitest,
 } from 'vitest/node';
+import { createRun } from '#/run/create-run';
 import type { EvalResult } from '#/types';
 
 /**
  * JSON output format for LLM evaluation results
  */
 export interface JsonEvalResults {
+  /**
+   * Unique identifier for this evaluation run.
+   */
+  runId: string;
+  /**
+   * Human-readable name for this evaluation run.
+   */
+  runName: string;
   /**
    * Status of the evaluation run
    */
@@ -133,6 +142,8 @@ export interface JsonEvalSuite {
  */
 interface JsonReporterOptions {
   outputFile?: string;
+  /** Run identity. When omitted a new run is created automatically. */
+  run?: { id: string; name: string };
 }
 
 /**
@@ -174,6 +185,7 @@ export default class JsonReporter implements Reporter {
   private suiteAccumulators: Map<string, SuiteAccumulator>;
 
   constructor(options: JsonReporterOptions = {}) {
+    const run = options.run ?? createRun();
     this.outputFile = options.outputFile || null;
     this.suiteAccumulators = new Map();
     this.results = {
@@ -184,6 +196,8 @@ export default class JsonReporter implements Reporter {
       numPassedEvals: 0,
       numTotalEvalSuites: 0,
       numTotalEvals: 0,
+      runId: run.id,
+      runName: run.name,
       startTime: Date.now(),
       status: 'running',
       success: true,

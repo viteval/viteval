@@ -79,9 +79,9 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       withResult(async () => {
         const where = params.id
           ? { id: params.id }
-          : params.name
+          : (params.name
             ? { name: params.name }
-            : undefined;
+            : undefined);
 
         if (!where) {
           return null;

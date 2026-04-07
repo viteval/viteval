@@ -19,9 +19,12 @@ export interface EvalResult {
   metadata?: Record<string, any>;
 }
 
+export type EvalStatus = 'passed' | 'failed' | 'running';
+
 export interface EvalSuite {
   name: string;
-  status: string;
+  status: EvalStatus;
+  filepath?: string;
   startTime: number;
   endTime: number;
   duration: number;
@@ -36,6 +39,8 @@ export interface EvalSuite {
 }
 
 export interface EvalResults {
+  runId?: string;
+  runName?: string;
   status: 'running' | 'finished';
   success: boolean;
   numTotalEvalSuites: number;
@@ -50,21 +55,11 @@ export interface EvalResults {
   evalResults: EvalSuite[];
 }
 
-export interface SingleEvalResult {
-  name: string;
-  sum: number;
-  median: number;
-  mean: number;
-  threshold: number;
-  aggregation: string;
-  scores: Score[];
-}
-
 export interface ResultFile {
   id: string;
+  runId: string;
   name: string;
   path: string;
-  timestamp: string;
   size: number;
   summary: {
     status?: 'running' | 'finished';
@@ -78,17 +73,38 @@ export interface ResultFile {
     duration: number;
     startTime: number;
     endTime: number;
+    suiteNames: string[];
   } | null;
 }
 
 export interface DatasetSummary {
   id: string;
   name: string;
-  path: string;
+  path?: string;
   description?: string;
   itemCount: number;
   createdAt?: string;
-  storage: string;
+  source: string;
+}
+
+export interface EvalSchema {
+  id: string;
+  name: string;
+  path: string;
+  content: string;
+}
+
+export interface SuiteSummary {
+  name: string;
+  slug: string;
+  filepath?: string;
+  runCount: number;
+  latestStatus: EvalStatus;
+  latestRunTimestamp: string;
+  latestDuration: number;
+  latestMeanScore: number;
+  latestPassedCount: number;
+  latestTotalCount: number;
 }
 
 export interface DatasetItem {
@@ -102,9 +118,9 @@ export interface DatasetItem {
 export interface DatasetFile {
   id: string;
   name: string;
-  path: string;
+  path?: string;
   description?: string;
   createdAt?: string;
-  storage: string;
+  source: string;
   data: DatasetItem[];
 }

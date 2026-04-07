@@ -10,7 +10,9 @@ import type { DatasetProvider, EvalProvider, Provider } from './types';
  * @returns A promise that resolves once provider initialization has finished.
  */
 export async function ensureProviderReady(): Promise<void> {
-  if (globalThis.__viteval_providerInitialized) return;
+  if (globalThis.__viteval_providerInitialized) {
+    return;
+  }
   if (globalThis.__viteval_providerInitPromise) {
     await globalThis.__viteval_providerInitPromise;
   }

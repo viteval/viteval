@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 overflow-hidden">
       <div className="text-center py-16">
         <div className="text-6xl mb-4">404</div>
         <div className="text-2xl font-semibold mb-4">Page Not Found</div>

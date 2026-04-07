@@ -1,67 +1,65 @@
 'use client';
 
-import Link from 'next/link';
+import { type ColumnDef } from '@tanstack/react-table';
+import { useRouter } from 'next/navigation';
 import type { DatasetSummary } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTable } from '@/components/ui/data-table';
+import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { ProviderBadge } from '@/components/display';
+
+const columns: ColumnDef<DatasetSummary>[] = [
+  {
+    accessorKey: 'name',
+    cell: ({ row }) => (
+      <span className="text-sm font-medium">{row.original.name}</span>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
+  },
+  {
+    accessorKey: 'description',
+    cell: ({ row }) => (
+      <span className="text-sm text-muted-foreground line-clamp-1">
+        {row.original.description || '-'}
+      </span>
+    ),
+    enableSorting: false,
+    header: 'Description',
+  },
+  {
+    accessorKey: 'itemCount',
+    cell: ({ row }) => (
+      <Badge variant="secondary">{row.original.itemCount} items</Badge>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Items" />
+    ),
+  },
+  {
+    accessorKey: 'source',
+    cell: ({ row }) => (
+      <ProviderBadge provider={row.original.source} />
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Source" />
+    ),
+  },
+];
 
 interface DatasetsTableProps {
   datasets: DatasetSummary[];
 }
 
 export function DatasetsTable({ datasets }: DatasetsTableProps) {
-  if (datasets.length === 0) {
-    return (
-      <Card>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">
-              <span role="img" aria-label="chart">
-                📊
-              </span>
-            </div>
-            <div className="text-xl font-semibold mb-2">No Datasets Found</div>
-            <div className="text-sm text-muted-foreground">
-              No datasets were found in the .viteval/datasets directory.
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const router = useRouter();
 
   return (
-    <div className="space-y-4">
-      {datasets.map((dataset) => (
-        <Link
-          key={dataset.id}
-          href={`/datasets/${dataset.id}`}
-          className="block"
-        >
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="truncate text-lg">{dataset.name}</span>
-                <Badge variant="secondary" className="ml-2 shrink-0">
-                  {dataset.itemCount} items
-                </Badge>
-              </CardTitle>
-              <div>
-                <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">
-                  {dataset.path}
-                </code>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {dataset.description && (
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                  {dataset.description}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
-    </div>
+    <DataTable
+      columns={columns}
+      data={datasets}
+      onRowClick={(row) => router.push(`/datasets/${row.id}`)}
+    />
   );
 }
