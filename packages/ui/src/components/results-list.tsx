@@ -19,7 +19,6 @@ const filterConfig: FilterConfig = {
 
 interface ResultsListProps {
   results: ResultFile[];
-  total?: number;
 }
 
 export function ResultsList({ results }: ResultsListProps) {

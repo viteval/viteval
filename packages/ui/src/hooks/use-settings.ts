@@ -32,6 +32,12 @@ const DEFAULT_SETTINGS: VitevalSettings = {
   timestampFormat: 'absolute',
 };
 
+const TIMESTAMP_FORMATS: readonly VitevalSettings['timestampFormat'][] = [
+  'relative',
+  'absolute',
+  'iso',
+] as const;
+
 export type SettingsKey = keyof VitevalSettings;
 
 /**
@@ -79,15 +85,44 @@ export function useSettings() {
           return { error: 'Settings must be a JSON object', ok: false };
         }
 
-        const next: Record<string, unknown> = { ...DEFAULT_SETTINGS };
-        for (const [key, defaultVal] of Object.entries(DEFAULT_SETTINGS)) {
-          const incoming = (parsed as Record<string, unknown>)[key];
-          if (incoming !== undefined && typeof incoming === typeof defaultVal) {
-            next[key] = incoming;
+        const incoming = parsed as Record<string, unknown>;
+        const next: VitevalSettings = { ...DEFAULT_SETTINGS };
+
+        for (const key of Object.keys(DEFAULT_SETTINGS) as SettingsKey[]) {
+          const value = incoming[key];
+          if (value === undefined) {
+            continue;
           }
+          if (
+            key === 'timestampFormat' &&
+            typeof value === 'string' &&
+            (TIMESTAMP_FORMATS as readonly string[]).includes(value)
+          ) {
+            next.timestampFormat = value as VitevalSettings['timestampFormat'];
+            continue;
+          }
+          if (
+            (key === 'autoRefreshInterval' ||
+              key === 'chartMaxDataPoints' ||
+              key === 'pageSize') &&
+            typeof value === 'number' &&
+            Number.isFinite(value) &&
+            value >= 0
+          ) {
+            next[key] = value;
+            continue;
+          }
+          if (
+            (key === 'expandJsonByDefault' || key === 'showLineNumbers') &&
+            typeof value === 'boolean'
+          ) {
+            next[key] = value;
+            continue;
+          }
+          // Unknown or invalid value — silently drop.
         }
 
-        setSettings(next as unknown as VitevalSettings);
+        setSettings(next);
         return { ok: true };
       } catch {
         return { error: 'Invalid JSON', ok: false };

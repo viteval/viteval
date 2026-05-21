@@ -1,5 +1,4 @@
-import * as fs from 'node:fs/promises';
-import type { DatasetFile, DatasetSummary } from '@/types';
+import type { DatasetFile, DatasetItem, DatasetSummary } from '@/types';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
 import type {
@@ -10,28 +9,31 @@ import type {
   VitevalResponse,
 } from '../types';
 
+interface RawDataset {
+  name?: string;
+  description?: string;
+  createdAt?: string;
+  storage?: string;
+  data?: DatasetItem[];
+}
+
 async function parseDatasetSummary(
-  filePath: string,
-  fileName: string,
+  id: string,
   fsHelper: FsHelper
 ): Promise<DatasetSummary | null> {
-  try {
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    const data = JSON.parse(fileContent);
-    const id = fileName.replace('.json', '');
-
-    return {
-      createdAt: data.createdAt,
-      description: data.description,
-      id,
-      itemCount: data.data ? data.data.length : 0,
-      name: data.name || id,
-      path: fsHelper.relativePath(filePath),
-      source: data.storage || 'local',
-    };
-  } catch {
+  const raw = await fsHelper.readJson<RawDataset>(`datasets/${id}.json`);
+  if (!raw) {
     return null;
   }
+  return {
+    createdAt: raw.createdAt,
+    description: raw.description,
+    id,
+    itemCount: raw.data ? raw.data.length : 0,
+    name: raw.name || id,
+    path: fsHelper.relativePath(fsHelper.filePath('datasets', id)),
+    source: raw.storage || 'local',
+  };
 }
 
 export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
@@ -65,20 +67,20 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
       const ids = await fsHelper.listJsonIds('datasets');
 
       const parsed = await Promise.all(
-        ids.map((id) =>
-          parseDatasetSummary(
-            fsHelper.filePath('datasets', id),
-            `${id}.json`,
-            fsHelper
-          )
-        )
+        ids.map((id) => parseDatasetSummary(id, fsHelper))
       );
 
-      const items = parsed
-        .filter((d): d is DatasetSummary => d !== null)
-        .toSorted((a, b) => a.name.localeCompare(b.name));
+      const filtered = parsed.filter((d): d is DatasetSummary => d !== null);
+      const items =
+        params?.sort === 'recent'
+          ? filtered.toSorted((a, b) => {
+              const aTs = a.createdAt ? Date.parse(a.createdAt) : 0;
+              const bTs = b.createdAt ? Date.parse(b.createdAt) : 0;
+              return bTs - aTs;
+            })
+          : filtered.toSorted((a, b) => a.name.localeCompare(b.name));
 
-      return paginate(items, params?.page, params?.limit);
+      return paginate(items, { limit: params?.limit, page: params?.page });
     },
   };
 }

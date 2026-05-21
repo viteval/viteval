@@ -3,6 +3,7 @@
 import { get } from 'lodash-es';
 import { useMemo, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { match } from 'ts-pattern';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import {
   Select,
@@ -32,9 +33,13 @@ interface ObjectRendererProps {
 
 function resolveObject(value: unknown): object {
   if (typeof value === 'string' && isJSON(value)) {
-    return JSON.parse(value) as object;
+    const parsed = JSON.parse(value) as unknown;
+    return typeof parsed === 'object' && parsed !== null ? parsed : {};
   }
-  return value as object;
+  if (typeof value === 'object' && value !== null) {
+    return value;
+  }
+  return {};
 }
 
 function getStringFieldPaths(obj: unknown, parentPath = ''): string[] {
@@ -160,35 +165,24 @@ function FieldValueRenderer({
   kind: ReturnType<typeof detectValueKind>;
 }) {
   const str = String(value);
-  switch (kind) {
-    case 'text': {
-      return <TextRenderer value={str} />;
-    }
-    case 'markdown': {
-      return <MarkdownRenderer value={str} />;
-    }
-    case 'code': {
-      return <CodeRenderer value={str} />;
-    }
-    case 'primitive': {
-      return <PrimitiveRenderer value={value} />;
-    }
-    case 'object': {
-      // Nested objects just show as JSON
-      return (
-        <SyntaxHighlighter
-          language="json"
-          style={oneDark}
-          customStyle={SYNTAX_HIGHLIGHTER_STYLE}
-          codeTagProps={SYNTAX_HIGHLIGHTER_CODE_STYLE}
-          showLineNumbers
-          lineNumberStyle={SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE}
-        >
-          {JSON.stringify(value, null, 2)}
-        </SyntaxHighlighter>
-      );
-    }
-  }
+  return match(kind)
+    .with('text', () => <TextRenderer value={str} />)
+    .with('markdown', () => <MarkdownRenderer value={str} />)
+    .with('code', () => <CodeRenderer value={str} />)
+    .with('primitive', () => <PrimitiveRenderer value={value} />)
+    .with('object', () => (
+      <SyntaxHighlighter
+        language="json"
+        style={oneDark}
+        customStyle={SYNTAX_HIGHLIGHTER_STYLE}
+        codeTagProps={SYNTAX_HIGHLIGHTER_CODE_STYLE}
+        showLineNumbers
+        lineNumberStyle={SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE}
+      >
+        {JSON.stringify(value, null, 2)}
+      </SyntaxHighlighter>
+    ))
+    .exhaustive();
 }
 
 export function ObjectRenderer({ value, label }: ObjectRendererProps) {

@@ -56,7 +56,10 @@ export interface GetSuiteParams {
   slug: string;
 }
 
-export interface ListDatasetsParams extends ListParams {}
+export interface ListDatasetsParams extends ListParams {
+  /** Sort order for the listing. Defaults to `'name'`. */
+  sort?: 'name' | 'recent';
+}
 
 export interface GetDatasetParams {
   id: string;

@@ -22,8 +22,8 @@ const viteval = createViteval();
 export default async function DashboardPage() {
   const [resultsResponse, chartResponse, datasetsResponse] = await Promise.all([
     viteval.results.list({ limit: 5, page: 1 }),
-    viteval.results.list({ limit: 20, page: 1 }),
-    viteval.datasets.list({ limit: 5, page: 1 }),
+    viteval.results.list({ limit: 200, page: 1 }),
+    viteval.datasets.list({ limit: 5, page: 1, sort: 'recent' }),
   ]);
 
   const recentResults = resultsResponse.data;
@@ -130,14 +130,7 @@ export default async function DashboardPage() {
                     ) : null}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
-                    {r.summary?.status === 'running' ? (
-                      <Badge
-                        variant="outline"
-                        className="text-yellow-500 border-yellow-500 animate-pulse"
-                      >
-                        Running
-                      </Badge>
-                    ) : r.summary ? (
+                    {r.summary?.status === 'finished' ? (
                       <>
                         <Duration ms={r.summary.duration} />
                         <Badge
@@ -148,6 +141,13 @@ export default async function DashboardPage() {
                           {r.summary.numPassedEvals}/{r.summary.numTotalEvals}
                         </Badge>
                       </>
+                    ) : r.summary ? (
+                      <Badge
+                        variant="outline"
+                        className="text-yellow-500 border-yellow-500 animate-pulse"
+                      >
+                        {r.summary.status === 'running' ? 'Running' : 'Pending'}
+                      </Badge>
                     ) : null}
                   </div>
                 </Link>

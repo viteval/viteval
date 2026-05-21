@@ -35,15 +35,16 @@ export function CopyButton({
       variant="ghost"
       size="sm"
       onClick={handleCopy}
+      aria-label={copied ? `${label} copied` : `Copy ${label.toLowerCase()}`}
       className={cn(
-        'absolute top-2 right-2 h-6 w-6 p-0 bg-zinc-800 hover:bg-zinc-700 transition-opacity opacity-0 group-hover:opacity-100',
+        'absolute top-2 right-2 h-6 w-6 p-0 bg-zinc-800 hover:bg-zinc-700 transition-opacity opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
         className
       )}
     >
       {copied ? (
-        <CheckIcon className="h-3 w-3 text-green-500" />
+        <CheckIcon className="h-3 w-3 text-green-500" aria-hidden="true" />
       ) : (
-        <CopyIcon className="h-3 w-3 text-zinc-300" />
+        <CopyIcon className="h-3 w-3 text-zinc-300" aria-hidden="true" />
       )}
     </Button>
   );

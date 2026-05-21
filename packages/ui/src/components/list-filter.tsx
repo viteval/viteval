@@ -55,14 +55,14 @@ export function ListFilter({ config }: ListFilterProps) {
     status !== 'all' ||
     sort !== (config.sortOptions?.[0]?.value ?? '');
 
+  const defaultSort = config.sortOptions?.[0]?.value;
+
   const updateParams = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (
-        !value ||
-        value === 'all' ||
-        value === config.sortOptions?.[0]?.value
-      ) {
+      const isStatusDefault = key === 'status' && value === 'all';
+      const isSortDefault = key === 'sort' && value === defaultSort;
+      if (!value || isStatusDefault || isSortDefault) {
         params.delete(key);
       } else {
         params.set(key, value);
@@ -70,7 +70,7 @@ export function ListFilter({ config }: ListFilterProps) {
       const qs = params.toString();
       router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false });
     },
-    [router, pathname, searchParams, config.sortOptions]
+    [router, pathname, searchParams, defaultSort]
   );
 
   const resetFilters = useCallback(() => {

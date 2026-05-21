@@ -46,9 +46,20 @@ function DateTimePicker({
   }
 
   function handleTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const [hours, minutes] = e.target.value.split(":").map(Number)
+    const [rawHours, rawMinutes] = e.target.value.split(":").map(Number)
+    if (
+      !Number.isFinite(rawHours) ||
+      !Number.isFinite(rawMinutes) ||
+      rawHours < 0 ||
+      rawHours > 23 ||
+      rawMinutes < 0 ||
+      rawMinutes > 59
+    ) {
+      // Empty/partial input — leave the value untouched.
+      return
+    }
     const updated = value ? new Date(value) : new Date()
-    updated.setHours(hours, minutes, 0, 0)
+    updated.setHours(rawHours, rawMinutes, 0, 0)
     onChange?.(updated)
   }
 

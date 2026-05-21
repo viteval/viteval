@@ -1,13 +1,19 @@
-import { Suspense } from 'react';
 import { EvalsIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { SuitesList } from '@/components/suites-list';
-import { createViteval } from '@/sdk';
+import { createViteval, parsePaginateParams } from '@/sdk';
 
 const viteval = createViteval();
 
-export default async function SuitesPage() {
-  const { data: suites } = await viteval.suites.list({ limit: 50 });
+export default async function SuitesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const { data: suites } = await viteval.suites.list(
+    parsePaginateParams(params)
+  );
 
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
@@ -16,9 +22,7 @@ export default async function SuitesPage() {
         title="Evals"
         description="All evaluations across runs"
       />
-      <Suspense>
-        <SuitesList suites={suites} />
-      </Suspense>
+      <SuitesList suites={suites} />
     </div>
   );
 }

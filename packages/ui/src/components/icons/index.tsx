@@ -5,7 +5,12 @@ import { cn } from '@/lib/utils';
 
 type Props = Omit<IconProps, 'icon'> & { className?: string };
 
-function createIcon(icon: string, defaultClass?: string) {
+interface CreateIconParams {
+  icon: string;
+  defaultClass?: string;
+}
+
+function createIcon({ icon, defaultClass }: CreateIconParams) {
   return function IconComponent({ className, ...props }: Props) {
     return (
       <Icon
@@ -17,62 +22,44 @@ function createIcon(icon: string, defaultClass?: string) {
   };
 }
 
-/*
-|------------------
-| Catppuccin — file types (multi-color, used where color matters)
-|------------------
-*/
+export const TypeScriptIcon = createIcon({ icon: 'catppuccin:typescript' });
+export const JavaScriptIcon = createIcon({ icon: 'catppuccin:javascript' });
+export const FileIcon = createIcon({ icon: 'catppuccin:file' });
+export const TextIcon = createIcon({ icon: 'catppuccin:text' });
+export const ImageIcon = createIcon({ icon: 'catppuccin:image' });
+export const KeyIcon = createIcon({ icon: 'catppuccin:key' });
+export const LogIcon = createIcon({ icon: 'catppuccin:log' });
+export const TodoIcon = createIcon({ icon: 'catppuccin:todo' });
+export const ViteIcon = createIcon({ icon: 'catppuccin:vite' });
+export const WorkflowIcon = createIcon({ icon: 'catppuccin:workflow' });
 
-export const TypeScriptIcon = createIcon('catppuccin:typescript');
-export const JavaScriptIcon = createIcon('catppuccin:javascript');
-export const FileIcon = createIcon('catppuccin:file');
-export const TextIcon = createIcon('catppuccin:text');
-export const ImageIcon = createIcon('catppuccin:image');
-export const KeyIcon = createIcon('catppuccin:key');
-export const LogIcon = createIcon('catppuccin:log');
-export const TodoIcon = createIcon('catppuccin:todo');
-export const ViteIcon = createIcon('catppuccin:vite');
-export const WorkflowIcon = createIcon('catppuccin:workflow');
+export const EvalsIcon = createIcon({ icon: 'lucide:flask-conical' });
+export const ResultsIcon = createIcon({ icon: 'lucide:bar-chart-3' });
+export const DatabaseIcon = createIcon({ icon: 'lucide:database' });
+export const DashboardIcon = createIcon({ icon: 'lucide:layout-dashboard' });
+export const ConfigIcon = createIcon({ icon: 'lucide:settings' });
+export const BookIcon = createIcon({ icon: 'lucide:book-open' });
+export const GithubIcon = createIcon({ icon: 'lucide:github' });
+export const SecurityIcon = createIcon({ icon: 'lucide:shield-check' });
 
-/*
-|------------------
-| Lucide — semantic (monochrome, inherits currentColor)
-|------------------
-*/
-
-export const EvalsIcon = createIcon('lucide:flask-conical');
-export const ResultsIcon = createIcon('lucide:bar-chart-3');
-export const DatabaseIcon = createIcon('lucide:database');
-export const DashboardIcon = createIcon('lucide:layout-dashboard');
-export const ConfigIcon = createIcon('lucide:settings');
-export const BookIcon = createIcon('lucide:book-open');
-export const GithubIcon = createIcon('lucide:github');
-export const SecurityIcon = createIcon('lucide:shield-check');
-
-/*
-|------------------
-| Lucide (via iconify) — UI chrome
-|------------------
-*/
-
-export const SearchIcon = createIcon('lucide:search');
-export const CopyIcon = createIcon('lucide:copy');
-export const DownloadIcon = createIcon('lucide:download');
-export const UploadIcon = createIcon('lucide:upload');
-export const RefreshIcon = createIcon('lucide:rotate-ccw');
-export const PencilIcon = createIcon('lucide:pencil');
-export const PlayIcon = createIcon('lucide:play');
-export const HashIcon = createIcon('lucide:hash');
-export const ChevronDownIcon = createIcon('lucide:chevron-down');
-export const ChevronRightIcon = createIcon('lucide:chevron-right');
-export const CheckIcon = createIcon('lucide:check');
-export const XIcon = createIcon('lucide:x');
-export const ClockIcon = createIcon('lucide:clock');
-export const ArrowRightIcon = createIcon('lucide:arrow-right');
-export const TargetIcon = createIcon('lucide:target');
-export const TrendingUpIcon = createIcon('lucide:trending-up');
-export const CircleCheckIcon = createIcon('lucide:circle-check');
-export const CircleXIcon = createIcon('lucide:circle-x');
-export const HomeIcon = createIcon('lucide:home');
-export const PlusIcon = createIcon('lucide:plus');
-export const TagIcon = createIcon('lucide:tag');
+export const SearchIcon = createIcon({ icon: 'lucide:search' });
+export const CopyIcon = createIcon({ icon: 'lucide:copy' });
+export const DownloadIcon = createIcon({ icon: 'lucide:download' });
+export const UploadIcon = createIcon({ icon: 'lucide:upload' });
+export const RefreshIcon = createIcon({ icon: 'lucide:rotate-ccw' });
+export const PencilIcon = createIcon({ icon: 'lucide:pencil' });
+export const PlayIcon = createIcon({ icon: 'lucide:play' });
+export const HashIcon = createIcon({ icon: 'lucide:hash' });
+export const ChevronDownIcon = createIcon({ icon: 'lucide:chevron-down' });
+export const ChevronRightIcon = createIcon({ icon: 'lucide:chevron-right' });
+export const CheckIcon = createIcon({ icon: 'lucide:check' });
+export const XIcon = createIcon({ icon: 'lucide:x' });
+export const ClockIcon = createIcon({ icon: 'lucide:clock' });
+export const ArrowRightIcon = createIcon({ icon: 'lucide:arrow-right' });
+export const TargetIcon = createIcon({ icon: 'lucide:target' });
+export const TrendingUpIcon = createIcon({ icon: 'lucide:trending-up' });
+export const CircleCheckIcon = createIcon({ icon: 'lucide:circle-check' });
+export const CircleXIcon = createIcon({ icon: 'lucide:circle-x' });
+export const HomeIcon = createIcon({ icon: 'lucide:home' });
+export const PlusIcon = createIcon({ icon: 'lucide:plus' });
+export const TagIcon = createIcon({ icon: 'lucide:tag' });

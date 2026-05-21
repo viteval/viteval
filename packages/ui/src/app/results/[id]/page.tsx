@@ -10,10 +10,13 @@ import { TagList } from '@/components/tag';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
+import { useSettings } from '@/hooks/use-settings';
 import { slugify } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { EvalResults } from '@/types';
 import { Duration, Timestamp } from '@/components/display';
+
+const DEFAULT_POLL_MS = 20_000;
 
 export default function ResultDetailPage() {
   const params = useParams<{ id: string }>();
@@ -22,6 +25,7 @@ export default function ResultDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const { settings } = useSettings();
 
   const fetchResult = useCallback(async () => {
     try {
@@ -53,14 +57,18 @@ export default function ResultDetailPage() {
   }, [fetchResult]);
 
   useEffect(() => {
-    if (results?.status !== 'running') {
+    if (results?.status === 'finished' || !results) {
       return;
     }
+    const intervalMs =
+      settings.autoRefreshInterval > 0
+        ? settings.autoRefreshInterval * 1000
+        : DEFAULT_POLL_MS;
     const interval = setInterval(() => {
       void fetchResult();
-    }, 20_000);
+    }, intervalMs);
     return () => clearInterval(interval);
-  }, [results?.status, fetchResult]);
+  }, [results, fetchResult, settings.autoRefreshInterval]);
 
   if (!loading && notFound) {
     return (
@@ -130,9 +138,9 @@ export default function ResultDetailPage() {
               {results.startTime ? (
                 <Timestamp value={results.startTime} />
               ) : null}
-              {results.status === 'running'
-                ? getStatusBadge('running')
-                : getSuccessBadge(results.success)}
+              {results.status === 'finished'
+                ? getSuccessBadge(results.success)
+                : getStatusBadge('running')}
               <Badge variant="secondary" className="text-xs">
                 {results.numTotalEvals} evals
               </Badge>

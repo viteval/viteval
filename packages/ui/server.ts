@@ -76,7 +76,39 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
           stdio: 'pipe',
         });
 
-        child.on('error', reject);
+        let settled = false;
+        const fallbackTimer = setTimeout(() => {
+          if (settled) {
+            return;
+          }
+          settled = true;
+          resolve(port);
+        }, 2000);
+
+        const finish = (value: number | Error) => {
+          if (settled) {
+            return;
+          }
+          settled = true;
+          clearTimeout(fallbackTimer);
+          if (value instanceof Error) {
+            reject(value);
+          } else {
+            resolve(value);
+          }
+        };
+
+        child.on('error', finish);
+        child.on('exit', (code, signal) => {
+          if (settled) {
+            return;
+          }
+          finish(
+            new Error(
+              `viteval UI server exited before ready (code=${code ?? 'null'}, signal=${signal ?? 'null'})`
+            )
+          );
+        });
 
         child.stderr?.on('data', (data: Buffer) => {
           const msg = data.toString();
@@ -85,16 +117,13 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
           }
         });
 
-        const fallbackTimer = setTimeout(() => resolve(port), 2000);
-
         child.stdout?.on('data', (data: Buffer) => {
           const msg = data.toString();
           if (options?.debug) {
             process.stdout.write(msg);
           }
           if (msg.includes('Ready') || msg.includes('started server')) {
-            clearTimeout(fallbackTimer);
-            resolve(port);
+            finish(port);
           }
         });
       });

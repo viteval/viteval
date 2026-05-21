@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import {
   CircleCheckIcon,
@@ -16,17 +15,20 @@ import { ResultsTable } from '@/components/results-table';
 import { SourceViewer } from '@/components/source-viewer';
 import { StatRow } from '@/components/stat-row';
 import { getStatusBadge } from '@/lib/badges';
-import { createViteval } from '@/sdk';
+import { createViteval, parsePaginateParams } from '@/sdk';
 import { Duration, FilePath, PassRate, ScoreBadge } from '@/components/display';
 
 const viteval = createViteval();
 
 export default async function EvalDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
+  const sp = await searchParams;
 
   const { data: suite } = await viteval.suites.get({ slug });
   if (!suite) {
@@ -34,7 +36,7 @@ export default async function EvalDetailPage({
   }
 
   const { data: suiteResults } = await viteval.results.list({
-    limit: 50,
+    ...parsePaginateParams(sp),
     suite: suite.name,
   });
 
@@ -103,9 +105,7 @@ export default async function EvalDetailPage({
         <TabsContent value="overview" className="mt-3 space-y-6">
           <StatRow items={statItems} />
           <h3 className="text-sm font-medium">Runs</h3>
-          <Suspense>
-            <ResultsTable results={suiteResults} hiddenColumnIds={['suites']} />
-          </Suspense>
+          <ResultsTable results={suiteResults} />
         </TabsContent>
         {latestSource && (
           <TabsContent value="source" className="mt-3">

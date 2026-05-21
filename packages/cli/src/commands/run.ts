@@ -220,5 +220,7 @@ function buildReporters(
 }
 
 function formatOutputFile(outputFile: string, runName: string) {
-  return outputFile.replace('<run>', runName);
+  return outputFile
+    .replace('<run>', runName)
+    .replace('<timestamp>', String(Date.now()));
 }

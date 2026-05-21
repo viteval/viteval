@@ -41,13 +41,13 @@ export function createSchemasResource(fsHelper: FsHelper): SchemasResource {
     async get(
       params: GetSchemaParams
     ): Promise<VitevalResponse<EvalSchema | null>> {
+      const resolved = path.resolve(fsHelper.root, params.id);
+      const rel = path.relative(fsHelper.root, resolved);
+      if (rel.startsWith('..') || path.isAbsolute(rel)) {
+        return { data: null };
+      }
       try {
-        const filePath = path.join(fsHelper.root, params.id);
-        const normalizedPath = path.normalize(filePath);
-        if (!normalizedPath.startsWith(fsHelper.root)) {
-          return { data: null };
-        }
-        const content = await fs.readFile(normalizedPath, 'utf8');
+        const content = await fs.readFile(resolved, 'utf8');
         return {
           data: {
             content,
@@ -63,7 +63,7 @@ export function createSchemasResource(fsHelper: FsHelper): SchemasResource {
 
     async list(): Promise<VitevalListResponse<EvalSchema>> {
       const items = await loadAll();
-      return paginate(items, 1, items.length || 100);
+      return paginate(items, { limit: items.length || 100, page: 1 });
     },
   };
 }

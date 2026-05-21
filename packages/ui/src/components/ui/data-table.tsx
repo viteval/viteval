@@ -93,21 +93,32 @@ function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row) => {
+                const interactive = Boolean(onRowClick) || row.getCanExpand()
+                const activate = () => {
+                  if (row.getCanExpand()) {
+                    row.toggleExpanded()
+                  } else {
+                    onRowClick?.(row.original)
+                  }
+                }
+                return (
                 <React.Fragment key={row.id}>
                   <TableRow
-                    className={
-                      onRowClick || row.getCanExpand()
-                        ? "cursor-pointer"
-                        : ""
+                    className={interactive ? "cursor-pointer" : ""}
+                    tabIndex={interactive ? 0 : undefined}
+                    role={interactive ? "button" : undefined}
+                    onClick={interactive ? activate : undefined}
+                    onKeyDown={
+                      interactive
+                        ? (e: React.KeyboardEvent<HTMLTableRowElement>) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault()
+                              activate()
+                            }
+                          }
+                        : undefined
                     }
-                    onClick={() => {
-                      if (row.getCanExpand()) {
-                        row.toggleExpanded()
-                      } else {
-                        onRowClick?.(row.original)
-                      }
-                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -126,7 +137,8 @@ function DataTable<TData, TValue>({
                     </TableRow>
                   )}
                 </React.Fragment>
-              ))
+                )
+              })
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">

@@ -9,6 +9,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSettings } from '@/hooks/use-settings';
 
 interface RunsChartProps {
   results: ResultFile[];
@@ -26,10 +27,12 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function RunsChart({ results }: RunsChartProps) {
+  const { settings } = useSettings();
+  const max = Math.max(1, settings.chartMaxDataPoints);
   const data = results
     .filter((r) => r.summary)
     .toReversed()
-    .slice(-20)
+    .slice(-max)
     .map((r) => ({
       failed: r.summary!.numFailedEvals,
       label: r.name,

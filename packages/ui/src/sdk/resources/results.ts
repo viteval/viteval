@@ -1,4 +1,3 @@
-import * as fs from 'node:fs/promises';
 import type { EvalResults, ResultFile } from '@/types';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
@@ -11,49 +10,50 @@ import type {
 } from '../types';
 
 async function parseResultFile(
-  filePath: string,
-  fileName: string
+  id: string,
+  fsHelper: FsHelper
 ): Promise<ResultFile | null> {
+  const raw = await fsHelper.readRawFile(`results/${id}.json`);
+  if (!raw) {
+    return null;
+  }
+  let results: EvalResults;
   try {
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    const results: EvalResults = JSON.parse(fileContent);
-    const id = fileName.replace('.json', '');
-
-    const suiteNames = results.evalResults?.map((s) => s.name) ?? [];
-
-    return {
-      id,
-      name: results.runName || id,
-      path: filePath,
-      runId: results.runId || id,
-      size: Buffer.byteLength(fileContent, 'utf8'),
-      summary: {
-        duration: results.duration,
-        endTime: results.endTime,
-        numFailedEvalSuites: results.numFailedEvalSuites,
-        numFailedEvals: results.numFailedEvals,
-        numPassedEvalSuites: results.numPassedEvalSuites,
-        numPassedEvals: results.numPassedEvals,
-        numTotalEvalSuites: results.numTotalEvalSuites,
-        numTotalEvals: results.numTotalEvals,
-        startTime: results.startTime,
-        status: results.status,
-        success: results.success,
-        suiteNames,
-      },
-    };
+    results = JSON.parse(raw) as EvalResults;
   } catch {
     return null;
   }
+
+  const suiteNames = results.evalResults?.map((s) => s.name) ?? [];
+
+  return {
+    id,
+    name: results.runName || id,
+    path: fsHelper.relativePath(fsHelper.filePath('results', id)),
+    runId: results.runId || id,
+    size: Buffer.byteLength(raw, 'utf8'),
+    summary: {
+      duration: results.duration,
+      endTime: results.endTime,
+      numFailedEvalSuites: results.numFailedEvalSuites,
+      numFailedEvals: results.numFailedEvals,
+      numPassedEvalSuites: results.numPassedEvalSuites,
+      numPassedEvals: results.numPassedEvals,
+      numTotalEvalSuites: results.numTotalEvalSuites,
+      numTotalEvals: results.numTotalEvals,
+      startTime: results.startTime,
+      status: results.status,
+      success: results.success,
+      suiteNames,
+    },
+  };
 }
 
 export function createResultsResource(fsHelper: FsHelper): ResultsResource {
   async function loadAll(): Promise<ResultFile[]> {
     const ids = await fsHelper.listJsonIds('results');
     const parsed = await Promise.all(
-      ids.map((id) =>
-        parseResultFile(fsHelper.filePath('results', id), `${id}.json`)
-      )
+      ids.map((id) => parseResultFile(id, fsHelper))
     );
     return parsed
       .filter((f): f is ResultFile => f !== null)
@@ -87,7 +87,7 @@ export function createResultsResource(fsHelper: FsHelper): ResultsResource {
         );
       }
 
-      return paginate(items, params?.page, params?.limit);
+      return paginate(items, { limit: params?.limit, page: params?.page });
     },
   };
 }

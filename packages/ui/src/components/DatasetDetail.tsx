@@ -13,7 +13,10 @@ const columns: ColumnDef<DatasetItem>[] = [
   {
     cell: ({ row }) => {
       const hasDetails =
-        row.original.input !== undefined || row.original.expected !== undefined;
+        row.original.input !== undefined ||
+        row.original.expected !== undefined ||
+        (row.original.metadata !== undefined &&
+          Object.keys(row.original.metadata).length > 0);
       if (!hasDetails) {
         return null;
       }
@@ -134,7 +137,10 @@ export default function DatasetDetail({ dataset }: DatasetDetailProps) {
       columns={columns}
       data={dataset.data}
       getRowCanExpand={(row) =>
-        row.original.input !== undefined || row.original.expected !== undefined
+        row.original.input !== undefined ||
+        row.original.expected !== undefined ||
+        (row.original.metadata !== undefined &&
+          Object.keys(row.original.metadata).length > 0)
       }
       renderExpandedRow={renderExpandedRow}
     />

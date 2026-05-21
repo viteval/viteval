@@ -45,6 +45,7 @@ export function MarkdownRenderer({ value, label }: MarkdownRendererProps) {
                         style={oneDark}
                         customStyle={SYNTAX_HIGHLIGHTER_STYLE}
                         codeTagProps={SYNTAX_HIGHLIGHTER_CODE_STYLE}
+                        PreTag="div"
                         showLineNumbers
                         lineNumberStyle={SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE}
                       >
@@ -59,7 +60,6 @@ export function MarkdownRenderer({ value, label }: MarkdownRendererProps) {
                     </code>
                   );
                 },
-                pre: ({ children }) => <>{children}</>,
               }}
             >
               {value}

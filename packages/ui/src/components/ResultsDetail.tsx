@@ -229,7 +229,9 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
         getRowCanExpand={(row) =>
           row.original.input !== undefined ||
           row.original.expected !== undefined ||
-          row.original.output !== undefined
+          row.original.output !== undefined ||
+          (row.original.metadata !== undefined &&
+            Object.keys(row.original.metadata).length > 0)
         }
         renderExpandedRow={renderExpandedRow}
       />

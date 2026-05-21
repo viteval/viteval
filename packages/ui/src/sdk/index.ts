@@ -1,4 +1,6 @@
 export { createViteval } from './client';
+export { paginate, parsePaginateParams } from './paginate';
+export type { PaginateParams } from './paginate';
 export type {
   AddTaggingParams,
   CreateTagParams,
