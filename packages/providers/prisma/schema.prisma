@@ -42,12 +42,11 @@ model EvalRun {
   status      String    @default("running")
   config      String    @default("{}")
   summary     String?
-  tags        String    @default("[]")
   metadata    String    @default("{}")
   startedAt   DateTime  @default(now()) @map("started_at")
   completedAt DateTime? @map("completed_at")
 
-  dataset Dataset?     @relation(fields: [datasetId], references: [id])
+  dataset Dataset?        @relation(fields: [datasetId], references: [id])
   results EvalRunResult[]
 
   @@index([datasetId])
@@ -73,4 +72,31 @@ model EvalRunResult {
 
   @@index([evalRunId])
   @@map("eval_results")
+}
+
+model Tag {
+  id          String   @id
+  name        String   @unique
+  color       String?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  taggings Tagging[]
+
+  @@map("tags")
+}
+
+model Tagging {
+  id         String   @id
+  tagId      String   @map("tag_id")
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@index([tagId])
+  @@map("taggings")
 }

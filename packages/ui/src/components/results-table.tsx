@@ -1,98 +1,174 @@
 'use client';
 
-import Link from 'next/link';
-import { getSuccessBadge } from '@/lib/badges';
-import { formatDuration, formatFileSize, formatTimestamp } from '@/lib/utils';
-import type { ResultFile } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { type ColumnDef } from '@tanstack/react-table';
+import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
+import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
+import type { ResultFile, Tag } from '@/types';
+import { DataTable } from '@/components/ui/data-table';
+import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { Duration, Timestamp } from '@/components/display';
+import { TagChip, useTags } from '@/components/tag';
+
+interface ResultRow extends ResultFile {
+  tags: Tag[];
+}
+
+const allColumns: ColumnDef<ResultRow>[] = [
+  {
+    accessorKey: 'name',
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium truncate">
+          {row.original.name}
+        </span>
+        {row.original.summary?.startTime ? (
+          <Timestamp value={row.original.summary.startTime} />
+        ) : null}
+      </div>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Run" />
+    ),
+  },
+  {
+    accessorFn: (row) => {
+      if (row.summary?.status === 'running') {
+        return 'running';
+      }
+      if (row.summary?.success) {
+        return 'passed';
+      }
+      if (row.summary && !row.summary.success) {
+        return 'failed';
+      }
+      return 'unknown';
+    },
+    cell: ({ row }) => {
+      const { summary } = row.original;
+      if (!summary) {
+        return null;
+      }
+      if (summary.status === 'running') {
+        return getStatusBadge('running');
+      }
+      return getSuccessBadge(summary.success);
+    },
+    filterFn: (row, id, value) => value.includes(row.getValue(id)),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    id: 'status',
+  },
+  {
+    accessorFn: (row) => row.summary?.duration ?? 0,
+    cell: ({ row }) => {
+      const { summary } = row.original;
+      if (!summary) {
+        return null;
+      }
+      if (summary.status === 'running' && !summary.duration) {
+        return (
+          <span className="text-sm text-muted-foreground">In progress...</span>
+        );
+      }
+      return <Duration ms={summary.duration || 0} />;
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Duration" />
+    ),
+    id: 'duration',
+  },
+  {
+    accessorFn: (row) => row.summary?.numPassedEvals ?? 0,
+    cell: ({ row }) => (
+      <span className="text-sm text-green-600">
+        {row.original.summary?.numPassedEvals ?? '-'}
+      </span>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Passed" />
+    ),
+    id: 'passed',
+  },
+  {
+    accessorFn: (row) => row.summary?.numFailedEvals ?? 0,
+    cell: ({ row }) => (
+      <span className="text-sm text-red-600">
+        {row.original.summary?.numFailedEvals ?? '-'}
+      </span>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Failed" />
+    ),
+    id: 'failed',
+  },
+  {
+    accessorFn: (row) => row.summary?.numTotalEvals ?? 0,
+    cell: ({ row }) => (
+      <span className="text-sm">
+        {row.original.summary?.numTotalEvals ?? '-'}
+      </span>
+    ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Total" />
+    ),
+    id: 'total',
+  },
+  {
+    accessorFn: (row) => row.tags.map((t) => t.name).join(','),
+    cell: ({ row }) =>
+      row.original.tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          {row.original.tags.map((tag) => (
+            <TagChip key={tag.id} tag={tag} />
+          ))}
+        </div>
+      ) : (
+        <span className="text-xs text-muted-foreground">—</span>
+      ),
+    enableSorting: false,
+    header: 'Tags',
+    id: 'tags',
+  },
+];
 
 interface ResultsTableProps {
   results: ResultFile[];
+  hiddenColumnIds?: string[];
 }
 
-export function ResultsTable({ results }: ResultsTableProps) {
-  if (results.length === 0) {
-    return (
-      <div className="text-muted-foreground text-center py-8">
-        No result files found
-      </div>
-    );
-  }
+export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
+  const router = useRouter();
+  const ids = useMemo(() => results.map((r) => r.runId ?? r.id), [results]);
+  const { tagsByEntity } = useTags('eval_run', ids);
+
+  const rows = useMemo<ResultRow[]>(
+    () =>
+      results.map((r) => ({
+        ...r,
+        tags: tagsByEntity[r.runId ?? r.id] ?? [],
+      })),
+    [results, tagsByEntity]
+  );
+
+  const columns = hiddenColumnIds
+    ? allColumns.filter((c) => {
+        const id =
+          'id' in c
+            ? c.id
+            : 'accessorKey' in c
+              ? String(c.accessorKey)
+              : undefined;
+        return !id || !hiddenColumnIds.includes(id);
+      })
+    : allColumns;
 
   return (
-    <div className="space-y-4">
-      {results.map((file) => (
-        <Link
-          href={`/results/${file.timestamp}`}
-          key={file.path}
-          className="block"
-        >
-          <Card className="hover:shadow-md transition-shadow hover:bg-muted">
-            <CardContent className="px-4 py-0">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <code className="text-sm text-muted-foreground px-2 py-1 rounded-md bg-muted">
-                      {file.timestamp}
-                    </code>
-                    <span className="font-medium text-sm text-muted-foreground">
-                      {formatTimestamp(file.timestamp)}
-                    </span>
-                  </div>
-                  {file.summary ? (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Duration</div>
-                        <div className="font-medium">
-                          {file.summary.status === 'running' &&
-                          !file.summary.duration
-                            ? 'In progress...'
-                            : formatDuration(file.summary.duration || 0)}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Total Evals</div>
-                        <div className="font-medium">
-                          {file.summary.numTotalEvals}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Passed</div>
-                        <div className="font-medium text-green-600">
-                          {file.summary.numPassedEvals}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Failed</div>
-                        <div className="font-medium text-red-600">
-                          {file.summary.numFailedEvals}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      Unable to load summary &bull; {formatFileSize(file.size)}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-2 items-center">
-                  {file.summary?.status === 'running' && (
-                    <Badge
-                      variant="outline"
-                      className="text-yellow-600 border-yellow-600 animate-pulse"
-                    >
-                      Running
-                    </Badge>
-                  )}
-                  {file.summary && getSuccessBadge(file.summary.success)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
-    </div>
+    <DataTable
+      columns={columns}
+      data={rows}
+      onRowClick={(row) => router.push(`/results/${row.id}`)}
+    />
   );
 }
