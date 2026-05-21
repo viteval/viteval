@@ -21,7 +21,7 @@ const ok: Result<void> = { ok: true, result: undefined, status: 'ok' };
  * ```
  */
 export function createProvider(params: CreateProviderParams): Provider {
-  const { name, datasets, evals, initialize, close } = params;
+  const { name, datasets, evals, tags, initialize, close } = params;
 
   return {
     close: close ?? (() => Promise.resolve(ok)),
@@ -29,5 +29,6 @@ export function createProvider(params: CreateProviderParams): Provider {
     evals,
     initialize: initialize ?? (() => Promise.resolve(ok)),
     name,
+    tags,
   };
 }

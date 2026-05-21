@@ -124,3 +124,25 @@ export interface DatasetFile {
   source: string;
   data: DatasetItem[];
 }
+
+export type TagEntityType =
+  | 'eval_run'
+  | 'eval_result'
+  | 'dataset'
+  | 'dataset_item';
+
+export interface Tag {
+  id: string;
+  name: string;
+  color?: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface Tagging {
+  id: string;
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+  createdAt: string;
+}

@@ -5,6 +5,9 @@ import type {
   EvalSchema,
   ResultFile,
   SuiteSummary,
+  Tag,
+  TagEntityType,
+  Tagging,
 } from '@/types';
 
 /*
@@ -63,6 +66,45 @@ export interface GetSchemaParams {
   id: string;
 }
 
+export interface CreateTagParams {
+  name: string;
+  color?: string;
+  description?: string;
+}
+
+export interface UpdateTagParams {
+  id: string;
+  name?: string;
+  color?: string;
+  description?: string;
+}
+
+export interface DeleteTagParams {
+  id: string;
+}
+
+export interface AddTaggingParams {
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+export interface RemoveTaggingParams {
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+export interface ListTaggingsParams {
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+export interface ListEntitiesForTagParams {
+  tagId: string;
+  entityType?: TagEntityType;
+}
+
 /*
 |------------------
 | Resource Interfaces
@@ -91,6 +133,23 @@ export interface SchemasResource {
   get(params: GetSchemaParams): Promise<VitevalResponse<EvalSchema | null>>;
 }
 
+export interface TagsResource {
+  list(): Promise<VitevalListResponse<Tag>>;
+  create(params: CreateTagParams): Promise<VitevalResponse<Tag>>;
+  update(params: UpdateTagParams): Promise<VitevalResponse<Tag>>;
+  delete(params: DeleteTagParams): Promise<VitevalResponse<null>>;
+  addTagging(params: AddTaggingParams): Promise<VitevalResponse<Tagging>>;
+  removeTagging(params: RemoveTaggingParams): Promise<VitevalResponse<null>>;
+  listTaggings(params: ListTaggingsParams): Promise<VitevalListResponse<Tag>>;
+  listTaggingsForEntities(
+    entityType: TagEntityType,
+    entityIds: string[]
+  ): Promise<VitevalResponse<Record<string, Tag[]>>>;
+  listEntitiesForTag(
+    params: ListEntitiesForTagParams
+  ): Promise<VitevalListResponse<Tagging>>;
+}
+
 /*
 |------------------
 | Client Interface
@@ -102,6 +161,7 @@ export interface Viteval {
   suites: SuitesResource;
   datasets: DatasetsResource;
   schemas: SchemasResource;
+  tags: TagsResource;
 }
 
 export interface CreateVitevalParams {

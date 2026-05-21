@@ -107,14 +107,13 @@ describe('createRun', () => {
 
     it('should persist to provider when configured', async () => {
       const provider = createMockProvider();
-      const run = createRun({ evalProvider: provider, tags: ['ci'] });
+      const run = createRun({ evalProvider: provider });
       await run.start(DEFAULT_CONFIG);
 
       expect(provider.create).toHaveBeenCalledWith(
         expect.objectContaining({
           config: DEFAULT_CONFIG,
           name: run.name,
-          tags: ['ci'],
         })
       );
     });

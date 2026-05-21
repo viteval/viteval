@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/page-header';
 import { FilePath, ProviderBadge } from '@/components/display';
 import DatasetDetail from '@/components/DatasetDetail';
+import { TagList } from '@/components/tag';
 import { Button } from '@/components/ui/button';
 import { createViteval } from '@/sdk';
 
@@ -43,6 +44,7 @@ export default async function DatasetDetailPage({
           </Button>
         }
       />
+      <TagList entityType="dataset" entityId={dataset.id} />
       <h3 className="text-sm font-medium">Items</h3>
       <DatasetDetail dataset={dataset} />
     </div>

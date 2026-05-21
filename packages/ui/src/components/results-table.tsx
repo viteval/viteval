@@ -2,13 +2,19 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
-import type { ResultFile } from '@/types';
+import type { ResultFile, Tag } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import { Duration, Timestamp } from '@/components/display';
+import { TagChip, useTags } from '@/components/tag';
 
-const allColumns: ColumnDef<ResultFile>[] = [
+interface ResultRow extends ResultFile {
+  tags: Tag[];
+}
+
+const allColumns: ColumnDef<ResultRow>[] = [
   {
     accessorKey: 'name',
     cell: ({ row }) => (
@@ -109,6 +115,22 @@ const allColumns: ColumnDef<ResultFile>[] = [
     ),
     id: 'total',
   },
+  {
+    accessorFn: (row) => row.tags.map((t) => t.name).join(','),
+    cell: ({ row }) =>
+      row.original.tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          {row.original.tags.map((tag) => (
+            <TagChip key={tag.id} tag={tag} />
+          ))}
+        </div>
+      ) : (
+        <span className="text-xs text-muted-foreground">—</span>
+      ),
+    enableSorting: false,
+    header: 'Tags',
+    id: 'tags',
+  },
 ];
 
 interface ResultsTableProps {
@@ -118,6 +140,17 @@ interface ResultsTableProps {
 
 export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
   const router = useRouter();
+  const ids = useMemo(() => results.map((r) => r.runId ?? r.id), [results]);
+  const { tagsByEntity } = useTags('eval_run', ids);
+
+  const rows = useMemo<ResultRow[]>(
+    () =>
+      results.map((r) => ({
+        ...r,
+        tags: tagsByEntity[r.runId ?? r.id] ?? [],
+      })),
+    [results, tagsByEntity]
+  );
 
   const columns = hiddenColumnIds
     ? allColumns.filter((c) => {
@@ -134,7 +167,7 @@ export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
   return (
     <DataTable
       columns={columns}
-      data={results}
+      data={rows}
       onRowClick={(row) => router.push(`/results/${row.id}`)}
     />
   );

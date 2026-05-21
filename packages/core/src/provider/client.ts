@@ -1,4 +1,9 @@
-import type { DatasetProvider, EvalProvider, Provider } from './types';
+import type {
+  DatasetProvider,
+  EvalProvider,
+  Provider,
+  TagProvider,
+} from './types';
 
 /**
  * Ensure provider initialization has completed.
@@ -78,6 +83,34 @@ export async function requireEvalProvider(): Promise<EvalProvider> {
   if (!provider) {
     throw new Error(
       'No eval provider configured. Add a provider with eval support to your viteval config.'
+    );
+  }
+  return provider;
+}
+
+/**
+ * Get the tag provider.
+ *
+ * @returns The tag provider, or null if not configured.
+ */
+export function getTagProvider(): TagProvider | null {
+  return globalThis.__viteval_tagProvider ?? null;
+}
+
+/**
+ * Get the tag provider, throwing if not configured.
+ *
+ * Awaits provider initialization before returning.
+ *
+ * @returns The tag provider.
+ * @throws If no provider with tag support is configured.
+ */
+export async function requireTagProvider(): Promise<TagProvider> {
+  await ensureProviderReady();
+  const provider = getTagProvider();
+  if (!provider) {
+    throw new Error(
+      'No tag provider configured. Add a provider with tag support to your viteval config.'
     );
   }
   return provider;

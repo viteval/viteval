@@ -103,7 +103,6 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
             id: createId(),
             metadata: JSON.stringify(params.metadata ?? {}),
             name: params.name,
-            tags: JSON.stringify(params.tags ?? []),
           },
         });
 
@@ -143,15 +142,6 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
           where: {
             datasetId: params?.datasetId,
             status: params?.status,
-            ...(params?.tags?.length
-              ? {
-                  // Filter runs that contain any of the specified tags.
-                  // Tags are stored as JSON arrays, so we use string contains.
-                  OR: params.tags.map((tag) => ({
-                    tags: { contains: JSON.stringify(tag) },
-                  })),
-                }
-              : {}),
           },
         });
 
@@ -173,7 +163,6 @@ function mapEvalRun(row: {
   status: string;
   config: string;
   summary: string | null;
-  tags: string;
   metadata: string;
   startedAt: Date;
   completedAt: Date | null;
@@ -188,7 +177,6 @@ function mapEvalRun(row: {
     startedAt: row.startedAt,
     status: parseEvalRunStatus(row.status),
     summary: row.summary ? JSON.parse(row.summary) : undefined,
-    tags: JSON.parse(row.tags) as string[],
   };
 }
 

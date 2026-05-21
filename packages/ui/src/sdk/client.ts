@@ -3,6 +3,7 @@ import { createDatasetsResource } from './resources/datasets';
 import { createResultsResource } from './resources/results';
 import { createSchemasResource } from './resources/schemas';
 import { createSuitesResource } from './resources/suites';
+import { createTagsResource } from './resources/tags';
 import type { CreateVitevalParams, Viteval } from './types';
 
 /**
@@ -28,5 +29,6 @@ export function createViteval(params?: CreateVitevalParams): Viteval {
     results: createResultsResource(fsHelper),
     schemas: createSchemasResource(fsHelper),
     suites: createSuitesResource(fsHelper),
+    tags: createTagsResource(fsHelper),
   };
 }

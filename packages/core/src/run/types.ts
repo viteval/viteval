@@ -52,8 +52,6 @@ export interface CreateRunParams {
   evalProvider?: EvalProvider;
   /** Dataset ID to associate with this run. */
   datasetId?: string;
-  /** Tags for filtering runs. */
-  tags?: string[];
   /** Arbitrary metadata attached to the run. */
   metadata?: Record<string, unknown>;
 }

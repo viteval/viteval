@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ResultsIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import ResultsDetail from '@/components/ResultsDetail';
+import { TagList } from '@/components/tag';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
@@ -154,6 +155,9 @@ export default function ResultDetailPage() {
           </>
         }
       />
+      {results && (
+        <TagList entityType="eval_run" entityId={results.runId ?? id} />
+      )}
       {results && <ResultsDetail results={results} />}
       {loading && (
         <div className="flex items-center justify-center py-8">

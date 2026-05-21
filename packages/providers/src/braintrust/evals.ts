@@ -99,7 +99,6 @@ export function createBraintrustEvalOps(
           metadata: {
             ...params.metadata,
             _viteval_config: params.config,
-            _viteval_tags: params.tags,
           },
           name: params.name,
           project_id: getProjectId(),
@@ -128,8 +127,7 @@ export function createBraintrustEvalOps(
     list: (params) =>
       withResult(async () => {
         const client = await getClient();
-        const hasLocalFilters =
-          params?.datasetId || params?.status || params?.tags?.length;
+        const hasLocalFilters = params?.datasetId || params?.status;
         const serverLimit = hasLocalFilters
           ? undefined
           : params?.limit
@@ -153,13 +151,6 @@ export function createBraintrustEvalOps(
             const meta = e.metadata ?? {};
             const status = (meta._viteval_status as string) ?? 'running';
             if (status !== params.status) {
-              continue;
-            }
-          }
-          if (params?.tags?.length) {
-            const meta = e.metadata ?? {};
-            const tags = (meta._viteval_tags as string[]) ?? [];
-            if (!params.tags.some((t) => tags.includes(t))) {
               continue;
             }
           }
@@ -239,9 +230,6 @@ function mapExperiment(
     status,
     summary: (completeParams?.summary ??
       metadata._viteval_summary) as StoredEvalRun['summary'],
-    tags: (createParams?.tags ??
-      (metadata._viteval_tags as string[]) ??
-      []) as string[],
   };
 }
 

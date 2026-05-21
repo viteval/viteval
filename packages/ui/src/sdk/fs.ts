@@ -45,6 +45,16 @@ export function createFs(root: string) {
     }
   }
 
+  async function writeJson(filePath: string, value: unknown): Promise<void> {
+    const fullPath = path.join(vitevalDir(), filePath);
+    const normalizedPath = path.normalize(fullPath);
+    if (!normalizedPath.startsWith(vitevalDir())) {
+      throw new Error(`Refusing to write outside .viteval: ${filePath}`);
+    }
+    await fs.mkdir(path.dirname(normalizedPath), { recursive: true });
+    await fs.writeFile(normalizedPath, `${JSON.stringify(value, null, 2)}\n`);
+  }
+
   function filePath(dirPath: string, id: string): string {
     return path.join(vitevalDir(), dirPath, `${id}.json`);
   }
@@ -61,6 +71,7 @@ export function createFs(root: string) {
     relativePath,
     root,
     vitevalDir,
+    writeJson,
   };
 }
 

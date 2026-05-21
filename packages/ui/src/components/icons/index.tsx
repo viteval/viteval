@@ -74,3 +74,5 @@ export const TrendingUpIcon = createIcon('lucide:trending-up');
 export const CircleCheckIcon = createIcon('lucide:circle-check');
 export const CircleXIcon = createIcon('lucide:circle-x');
 export const HomeIcon = createIcon('lucide:home');
+export const PlusIcon = createIcon('lucide:plus');
+export const TagIcon = createIcon('lucide:tag');

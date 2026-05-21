@@ -6,6 +6,7 @@ import type { PrismaClient } from '@prisma/client';
 import { createPrismaClient, resolveSqlitePath } from './db';
 import { createDatasetOps } from './datasets';
 import { createEvalOps } from './evals';
+import { createTagOps } from './tags';
 import type { VitevalProviderOptions } from './types';
 
 /**
@@ -47,6 +48,7 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
   let prisma: PrismaClient | undefined;
   let datasets: ReturnType<typeof createDatasetOps> | undefined;
   let evals: ReturnType<typeof createEvalOps> | undefined;
+  let tags: ReturnType<typeof createTagOps> | undefined;
 
   function getPrisma(): PrismaClient {
     if (!prisma) {
@@ -65,6 +67,7 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
           prisma = undefined;
           datasets = undefined;
           evals = undefined;
+          tags = undefined;
         }
       }),
 
@@ -99,6 +102,13 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
       }),
 
     name: 'viteval',
+
+    get tags() {
+      if (!tags) {
+        tags = createTagOps(getPrisma());
+      }
+      return tags;
+    },
   };
 }
 
@@ -159,7 +169,6 @@ async function ensureSchema(
         "status" TEXT NOT NULL DEFAULT 'running',
         "config" TEXT NOT NULL DEFAULT '{}',
         "summary" TEXT,
-        "tags" TEXT NOT NULL DEFAULT '[]',
         "metadata" TEXT NOT NULL DEFAULT '{}',
         "started_at" ${timestamp},
         "completed_at" ${timestampNullable},
@@ -191,6 +200,37 @@ async function ensureSchema(
     `),
     prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS "eval_results_eval_run_id_idx" ON "eval_results"("eval_run_id")
+    `),
+    prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "tags" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL,
+        "color" TEXT,
+        "description" TEXT,
+        "created_at" ${timestamp}
+      )
+    `),
+    prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "tags_name_key" ON "tags"("name")
+    `),
+    prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "taggings" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "tag_id" TEXT NOT NULL,
+        "entity_type" TEXT NOT NULL,
+        "entity_id" TEXT NOT NULL,
+        "created_at" ${timestamp},
+        CONSTRAINT "taggings_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    `),
+    prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "taggings_tag_entity_key" ON "taggings"("tag_id", "entity_type", "entity_id")
+    `),
+    prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "taggings_entity_idx" ON "taggings"("entity_type", "entity_id")
+    `),
+    prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "taggings_tag_id_idx" ON "taggings"("tag_id")
     `),
   ]);
 }

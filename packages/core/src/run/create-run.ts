@@ -80,7 +80,6 @@ export function createRun(params?: CreateRunParams): Run {
         datasetId: params?.datasetId,
         metadata: params?.metadata,
         name,
-        tags: params?.tags,
       });
 
       if (result.ok) {
