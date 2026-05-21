@@ -39,9 +39,7 @@ const columns: ColumnDef<DatasetSummary>[] = [
   },
   {
     accessorKey: 'source',
-    cell: ({ row }) => (
-      <ProviderBadge provider={row.original.source} />
-    ),
+    cell: ({ row }) => <ProviderBadge provider={row.original.source} />,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Source" />
     ),

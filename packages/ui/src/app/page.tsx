@@ -81,9 +81,11 @@ export default async function DashboardPage() {
             <Stat
               label="Duration"
               value={
-                latest?.duration !== null && latest?.duration !== undefined
-                  ? <Duration ms={latest.duration} />
-                  : 'N/A'
+                latest?.duration !== null && latest?.duration !== undefined ? (
+                  <Duration ms={latest.duration} />
+                ) : (
+                  'N/A'
+                )
               }
               icon={<ClockIcon className="h-4 w-4" />}
               size="lg"
@@ -135,7 +137,7 @@ export default async function DashboardPage() {
                       >
                         Running
                       </Badge>
-                    ) : (r.summary ? (
+                    ) : r.summary ? (
                       <>
                         <Duration ms={r.summary.duration} />
                         <Badge
@@ -146,7 +148,7 @@ export default async function DashboardPage() {
                           {r.summary.numPassedEvals}/{r.summary.numTotalEvals}
                         </Badge>
                       </>
-                    ) : null)}
+                    ) : null}
                   </div>
                 </Link>
               ))

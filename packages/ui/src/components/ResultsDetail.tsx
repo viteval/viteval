@@ -28,7 +28,9 @@ import { ValuePreview, ValueRenderer } from '@/components/value';
 const evalColumns: ColumnDef<EvalResult>[] = [
   {
     cell: ({ row }) => {
-      if (!row.getCanExpand()) {return null;}
+      if (!row.getCanExpand()) {
+        return null;
+      }
       return row.getIsExpanded() ? (
         <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
       ) : (
@@ -64,7 +66,10 @@ const evalColumns: ColumnDef<EvalResult>[] = [
   {
     accessorKey: 'mean',
     cell: ({ row }) => (
-      <ScoreBadge score={row.original.mean} threshold={row.original.threshold} />
+      <ScoreBadge
+        score={row.original.mean}
+        threshold={row.original.threshold}
+      />
     ),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Mean" />
@@ -137,13 +142,12 @@ function ExpandedEvalRow({ row }: { row: Row<EvalResult> }) {
           <ValueRenderer value={evalResult.output} label="Output" />
         </div>
       )}
-      {evalResult.metadata &&
-        Object.keys(evalResult.metadata).length > 0 && (
-          <div>
-            <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
-            <ValueRenderer value={evalResult.metadata} label="Metadata" />
-          </div>
-        )}
+      {evalResult.metadata && Object.keys(evalResult.metadata).length > 0 && (
+        <div>
+          <h4 className="font-semibold text-sm mb-2">Metadata:</h4>
+          <ValueRenderer value={evalResult.metadata} label="Metadata" />
+        </div>
+      )}
       {evalResult.scores.length > 0 && (
         <div>
           <h4 className="font-semibold text-sm mb-2">Scores:</h4>

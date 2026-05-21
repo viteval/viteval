@@ -141,9 +141,9 @@ export function createRun(params?: CreateRunParams): Run {
     }
   }
 
-  async function complete(
-    opts?: { status?: 'completed' | 'failed' }
-  ): Promise<RunState> {
+  async function complete(opts?: {
+    status?: 'completed' | 'failed';
+  }): Promise<RunState> {
     const finalStatus = opts?.status ?? 'completed';
     status = finalStatus;
     summary = computeSummary(results, config);
@@ -183,10 +183,7 @@ export function createRun(params?: CreateRunParams): Run {
 |------------------
 */
 
-function computeSummary(
-  results: EvalResult[],
-  config?: RunConfig
-): RunSummary {
+function computeSummary(results: EvalResult[], config?: RunConfig): RunSummary {
   if (results.length === 0) {
     return {
       failedCount: 0,

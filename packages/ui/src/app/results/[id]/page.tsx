@@ -52,7 +52,9 @@ export default function ResultDetailPage() {
   }, [fetchResult]);
 
   useEffect(() => {
-    if (results?.status !== 'running') {return;}
+    if (results?.status !== 'running') {
+      return;
+    }
     const interval = setInterval(() => {
       void fetchResult();
     }, 20_000);
@@ -108,8 +110,7 @@ export default function ResultDetailPage() {
   }
 
   const runName = results?.runName || id;
-  const suiteNames =
-    results?.evalResults.map((s) => s.name).join(', ') ?? '';
+  const suiteNames = results?.evalResults.map((s) => s.name).join(', ') ?? '';
   const subtitle = suiteNames || undefined;
 
   return (

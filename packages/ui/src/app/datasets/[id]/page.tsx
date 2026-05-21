@@ -29,9 +29,7 @@ export default async function DatasetDetailPage({
         title={dataset.name}
         description={
           <span className="flex flex-wrap items-center gap-2">
-            {dataset.description && (
-              <span>{dataset.description}</span>
-            )}
+            {dataset.description && <span>{dataset.description}</span>}
             {dataset.path && <FilePath path={dataset.path} />}
             <Badge variant="secondary" className="text-xs">
               {dataset.data.length} items

@@ -13,10 +13,7 @@ interface ValueRendererProps {
   label?: string;
 }
 
-export function ValueRenderer({
-  value,
-  label = 'Value',
-}: ValueRendererProps) {
+export function ValueRenderer({ value, label = 'Value' }: ValueRendererProps) {
   const kind = detectValueKind(value);
 
   switch (kind) {

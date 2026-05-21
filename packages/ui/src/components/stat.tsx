@@ -9,7 +9,13 @@ interface StatProps {
   className?: string;
 }
 
-export function Stat({ label, value, icon, size = 'sm', className }: StatProps) {
+export function Stat({
+  label,
+  value,
+  icon,
+  size = 'sm',
+  className,
+}: StatProps) {
   return (
     <div className={className}>
       <div className="flex items-center justify-between mb-1">
@@ -21,13 +27,9 @@ export function Stat({ label, value, icon, size = 'sm', className }: StatProps) 
         >
           {label}
         </span>
-        {icon && (
-          <span className="text-muted-foreground">{icon}</span>
-        )}
+        {icon && <span className="text-muted-foreground">{icon}</span>}
       </div>
-      <div
-        className={cn('font-bold', size === 'lg' ? 'text-2xl' : 'text-xl')}
-      >
+      <div className={cn('font-bold', size === 'lg' ? 'text-2xl' : 'text-xl')}>
         {value}
       </div>
     </div>

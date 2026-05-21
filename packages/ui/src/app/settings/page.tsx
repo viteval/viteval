@@ -1,7 +1,14 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { DownloadIcon, PencilIcon, RefreshIcon, ConfigIcon, UploadIcon, XIcon } from '@/components/icons';
+import {
+  DownloadIcon,
+  PencilIcon,
+  RefreshIcon,
+  ConfigIcon,
+  UploadIcon,
+  XIcon,
+} from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
   Card,

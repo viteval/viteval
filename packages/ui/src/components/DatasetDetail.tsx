@@ -2,7 +2,7 @@
 
 import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { ChevronDownIcon, ChevronRightIcon } from '@/components/icons';
-import { Fragment, useCallback } from 'react';
+import { useCallback } from 'react';
 import type { DatasetFile, DatasetItem } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
@@ -13,9 +13,10 @@ const columns: ColumnDef<DatasetItem>[] = [
   {
     cell: ({ row }) => {
       const hasDetails =
-        row.original.input !== undefined ||
-        row.original.expected !== undefined;
-      if (!hasDetails) {return null;}
+        row.original.input !== undefined || row.original.expected !== undefined;
+      if (!hasDetails) {
+        return null;
+      }
       return row.getIsExpanded() ? (
         <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
       ) : (
@@ -64,10 +65,9 @@ const columns: ColumnDef<DatasetItem>[] = [
     id: 'expected',
   },
   {
-    accessorFn: (row) =>
-      row.metadata ? Object.keys(row.metadata).length : 0,
+    accessorFn: (row) => (row.metadata ? Object.keys(row.metadata).length : 0),
     cell: ({ row }) => {
-      const {metadata} = row.original;
+      const { metadata } = row.original;
       if (!metadata || Object.keys(metadata).length === 0) {
         return <span className="text-muted-foreground text-xs">—</span>;
       }
@@ -134,8 +134,7 @@ export default function DatasetDetail({ dataset }: DatasetDetailProps) {
       columns={columns}
       data={dataset.data}
       getRowCanExpand={(row) =>
-        row.original.input !== undefined ||
-        row.original.expected !== undefined
+        row.original.input !== undefined || row.original.expected !== undefined
       }
       renderExpandedRow={renderExpandedRow}
     />

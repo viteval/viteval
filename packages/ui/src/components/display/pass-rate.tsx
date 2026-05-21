@@ -22,9 +22,7 @@ export function PassRate({
       {showFraction && (
         <>
           {passed}/{total}{' '}
-          {total > 0 && (
-            <span className="text-muted-foreground">({rate})</span>
-          )}
+          {total > 0 && <span className="text-muted-foreground">({rate})</span>}
         </>
       )}
       {!showFraction && rate}

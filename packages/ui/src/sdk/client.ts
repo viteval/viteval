@@ -20,8 +20,7 @@ import type { CreateVitevalParams, Viteval } from './types';
  * ```
  */
 export function createViteval(params?: CreateVitevalParams): Viteval {
-  const root =
-    params?.root || process.env.VITEVAL_ROOT_PATH || process.cwd();
+  const root = params?.root || process.env.VITEVAL_ROOT_PATH || process.cwd();
   const fsHelper = createFs(root);
 
   return {

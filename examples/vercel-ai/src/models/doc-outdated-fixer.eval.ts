@@ -6,7 +6,8 @@ evaluate('Doc Outdated Fixer', {
   description:
     'Evaluates the ability to detect and fix outdated documentation based on code changes',
   scorers: [scorers.answerCorrectness()],
-  task: async () => JSON.stringify({
+  task: async () =>
+    JSON.stringify({
       changes: ['Updated references'],
       confidence: 90,
       content: 'Updated documentation content',

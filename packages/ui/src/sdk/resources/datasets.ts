@@ -52,9 +52,7 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
         description: raw.description as string | undefined,
         id: params.id,
         name: (raw.name as string) || params.id,
-        path: fsHelper.relativePath(
-          fsHelper.filePath('datasets', params.id)
-        ),
+        path: fsHelper.relativePath(fsHelper.filePath('datasets', params.id)),
         source: (raw.storage as string) || 'local',
       } as DatasetFile;
 

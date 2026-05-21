@@ -3,7 +3,11 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SYNTAX_HIGHLIGHTER_CODE_STYLE, SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE, SYNTAX_HIGHLIGHTER_STYLE } from '@/lib/utils';
+import {
+  SYNTAX_HIGHLIGHTER_CODE_STYLE,
+  SYNTAX_HIGHLIGHTER_LINE_NUMBER_STYLE,
+  SYNTAX_HIGHLIGHTER_STYLE,
+} from '@/lib/utils';
 import type { Score } from '../types';
 
 interface ScoresRendererProps {

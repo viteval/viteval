@@ -6,7 +6,13 @@ import { getStatusBadge } from '@/lib/badges';
 import type { SuiteSummary } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
-import { Duration, FilePath, PassRate, ScoreBadge, Timestamp } from '@/components/display';
+import {
+  Duration,
+  FilePath,
+  PassRate,
+  ScoreBadge,
+  Timestamp,
+} from '@/components/display';
 
 const columns: ColumnDef<SuiteSummary>[] = [
   {
@@ -21,9 +27,7 @@ const columns: ColumnDef<SuiteSummary>[] = [
   {
     accessorKey: 'filepath',
     cell: ({ row }) =>
-      row.original.filepath ? (
-        <FilePath path={row.original.filepath} />
-      ) : null,
+      row.original.filepath ? <FilePath path={row.original.filepath} /> : null,
     enableSorting: false,
     header: 'File',
   },
@@ -43,27 +47,21 @@ const columns: ColumnDef<SuiteSummary>[] = [
   },
   {
     accessorKey: 'latestRunTimestamp',
-    cell: ({ row }) => (
-      <Timestamp value={row.original.latestRunTimestamp} />
-    ),
+    cell: ({ row }) => <Timestamp value={row.original.latestRunTimestamp} />,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Latest Run" />
     ),
   },
   {
     accessorKey: 'latestDuration',
-    cell: ({ row }) => (
-      <Duration ms={row.original.latestDuration} />
-    ),
+    cell: ({ row }) => <Duration ms={row.original.latestDuration} />,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Duration" />
     ),
   },
   {
     accessorKey: 'latestMeanScore',
-    cell: ({ row }) => (
-      <ScoreBadge score={row.original.latestMeanScore} />
-    ),
+    cell: ({ row }) => <ScoreBadge score={row.original.latestMeanScore} />,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Mean Score" />
     ),
@@ -98,9 +96,7 @@ export function SuitesTable({ suites }: SuitesTableProps) {
     <DataTable
       columns={columns}
       data={suites}
-      onRowClick={(row) =>
-        router.push(`/suites/${row.slug}`)
-      }
+      onRowClick={(row) => router.push(`/suites/${row.slug}`)}
     />
   );
 }

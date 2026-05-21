@@ -9,11 +9,7 @@ interface FilePathProps {
   showIcon?: boolean;
 }
 
-export function FilePath({
-  path,
-  className,
-  showIcon = true,
-}: FilePathProps) {
+export function FilePath({ path, className, showIcon = true }: FilePathProps) {
   return (
     <code
       className={cn(

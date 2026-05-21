@@ -92,9 +92,9 @@ const NAME_MAP: Record<string, FileType> = {
   'docker-compose': 'docker',
   '.gitignore': 'git',
   '.gitattributes': 'git',
-  'readme': 'readme',
-  'license': 'license',
-  'changelog': 'changelog',
+  readme: 'readme',
+  license: 'license',
+  changelog: 'changelog',
 };
 
 /**
@@ -125,9 +125,7 @@ export function detectFileType(path: string): FileType {
   }
 
   // Check extension
-  const ext = filename.includes('.')
-    ? `.${filename.split('.').pop()}`
-    : '';
+  const ext = filename.includes('.') ? `.${filename.split('.').pop()}` : '';
   if (ext && EXT_MAP[ext]) {
     return EXT_MAP[ext];
   }

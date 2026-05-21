@@ -86,9 +86,7 @@ export default async function EvalDetailPage({
       <PageHeader
         icon={<EvalsIcon className="h-6 w-6" />}
         title={suite.name}
-        description={
-          suite.filepath && <FilePath path={suite.filepath} />
-        }
+        description={suite.filepath && <FilePath path={suite.filepath} />}
         actions={
           <Button variant="outline" disabled title="Run eval (coming soon)">
             <PlayIcon className="h-4 w-4" />
@@ -106,10 +104,7 @@ export default async function EvalDetailPage({
           <StatRow items={statItems} />
           <h3 className="text-sm font-medium">Runs</h3>
           <Suspense>
-            <ResultsTable
-              results={suiteResults}
-              hiddenColumnIds={['suites']}
-            />
+            <ResultsTable results={suiteResults} hiddenColumnIds={['suites']} />
           </Suspense>
         </TabsContent>
         {latestSource && (

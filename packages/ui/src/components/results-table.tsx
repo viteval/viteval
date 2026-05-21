@@ -13,7 +13,9 @@ const allColumns: ColumnDef<ResultFile>[] = [
     accessorKey: 'name',
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium truncate">{row.original.name}</span>
+        <span className="text-sm font-medium truncate">
+          {row.original.name}
+        </span>
         {row.original.summary?.startTime ? (
           <Timestamp value={row.original.summary.startTime} />
         ) : null}
@@ -25,15 +27,25 @@ const allColumns: ColumnDef<ResultFile>[] = [
   },
   {
     accessorFn: (row) => {
-      if (row.summary?.status === 'running') {return 'running';}
-      if (row.summary?.success) {return 'passed';}
-      if (row.summary && !row.summary.success) {return 'failed';}
+      if (row.summary?.status === 'running') {
+        return 'running';
+      }
+      if (row.summary?.success) {
+        return 'passed';
+      }
+      if (row.summary && !row.summary.success) {
+        return 'failed';
+      }
       return 'unknown';
     },
     cell: ({ row }) => {
-      const {summary} = row.original;
-      if (!summary) {return null;}
-      if (summary.status === 'running') {return getStatusBadge('running');}
+      const { summary } = row.original;
+      if (!summary) {
+        return null;
+      }
+      if (summary.status === 'running') {
+        return getStatusBadge('running');
+      }
       return getSuccessBadge(summary.success);
     },
     filterFn: (row, id, value) => value.includes(row.getValue(id)),
@@ -45,8 +57,10 @@ const allColumns: ColumnDef<ResultFile>[] = [
   {
     accessorFn: (row) => row.summary?.duration ?? 0,
     cell: ({ row }) => {
-      const {summary} = row.original;
-      if (!summary) {return null;}
+      const { summary } = row.original;
+      if (!summary) {
+        return null;
+      }
       if (summary.status === 'running' && !summary.duration) {
         return (
           <span className="text-sm text-muted-foreground">In progress...</span>
@@ -102,15 +116,17 @@ interface ResultsTableProps {
   hiddenColumnIds?: string[];
 }
 
-export function ResultsTable({
-  results,
-  hiddenColumnIds,
-}: ResultsTableProps) {
+export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
   const router = useRouter();
 
   const columns = hiddenColumnIds
     ? allColumns.filter((c) => {
-        const id = 'id' in c ? c.id : ('accessorKey' in c ? String(c.accessorKey) : undefined);
+        const id =
+          'id' in c
+            ? c.id
+            : 'accessorKey' in c
+              ? String(c.accessorKey)
+              : undefined;
         return !id || !hiddenColumnIds.includes(id);
       })
     : allColumns;

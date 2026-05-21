@@ -4,9 +4,7 @@ import type { EvalResult } from '#/types';
 import { createRun } from './create-run';
 import type { RunConfig } from './types';
 
-function createMockEvalResult(
-  overrides: Partial<EvalResult> = {}
-): EvalResult {
+function createMockEvalResult(overrides: Partial<EvalResult> = {}): EvalResult {
   return {
     aggregation: 'mean',
     expected: 'expected',
@@ -24,8 +22,12 @@ function createMockEvalResult(
 
 function createMockProvider(): EvalProvider {
   return {
-    addResult: vi.fn().mockResolvedValue({ ok: true, result: {}, status: 'ok' }),
-    addResults: vi.fn().mockResolvedValue({ ok: true, result: [], status: 'ok' }),
+    addResult: vi
+      .fn()
+      .mockResolvedValue({ ok: true, result: {}, status: 'ok' }),
+    addResults: vi
+      .fn()
+      .mockResolvedValue({ ok: true, result: [], status: 'ok' }),
     complete: vi.fn().mockResolvedValue({
       ok: true,
       result: { id: 'stored-run-id' },
@@ -36,7 +38,9 @@ function createMockProvider(): EvalProvider {
       result: { id: 'stored-run-id', name: 'test-run' },
       status: 'ok',
     }),
-    get: vi.fn().mockResolvedValue({ ok: true, result: undefined, status: 'ok' }),
+    get: vi
+      .fn()
+      .mockResolvedValue({ ok: true, result: undefined, status: 'ok' }),
     list: vi.fn().mockResolvedValue({ ok: true, result: [], status: 'ok' }),
   };
 }

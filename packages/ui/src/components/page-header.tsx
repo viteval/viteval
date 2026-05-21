@@ -7,7 +7,12 @@ interface PageHeaderProps {
   actions?: ReactNode;
 }
 
-export function PageHeader({ icon, title, description, actions }: PageHeaderProps) {
+export function PageHeader({
+  icon,
+  title,
+  description,
+  actions,
+}: PageHeaderProps) {
   return (
     <div className="flex items-start justify-between">
       <div>
@@ -19,7 +24,9 @@ export function PageHeader({ icon, title, description, actions }: PageHeaderProp
           <p className="text-muted-foreground mt-1">{description}</p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+      {actions && (
+        <div className="flex items-center gap-2 shrink-0">{actions}</div>
+      )}
     </div>
   );
 }

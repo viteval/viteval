@@ -179,4 +179,3 @@ function formatTestName(dataItem: DataItem): string {
 
   return `input: ${JSON.stringify(dataItem.input)}`;
 }
-

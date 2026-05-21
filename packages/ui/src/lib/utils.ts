@@ -23,9 +23,7 @@ export function formatFileSize(bytes: number): string {
 
 export function formatTimestamp(timestamp: string | number): string {
   const timeNum =
-    typeof timestamp === 'number'
-      ? timestamp
-      : Number.parseInt(timestamp, 10);
+    typeof timestamp === 'number' ? timestamp : Number.parseInt(timestamp, 10);
   if (Number.isNaN(timeNum)) {
     return String(timestamp);
   }
@@ -35,9 +33,7 @@ export function formatTimestamp(timestamp: string | number): string {
 
 export function formatChartTimestamp(timestamp: string | number): string {
   const timeNum =
-    typeof timestamp === 'number'
-      ? timestamp
-      : Number.parseInt(timestamp, 10);
+    typeof timestamp === 'number' ? timestamp : Number.parseInt(timestamp, 10);
   if (Number.isNaN(timeNum)) {
     return String(timestamp);
   }

@@ -65,11 +65,10 @@ interface ProviderBadgeProps {
  * ```
  */
 export function ProviderBadge({ provider, className }: ProviderBadgeProps) {
-  const config =
-    PROVIDERS[provider.toLowerCase()] ?? {
-      ...DEFAULT_PROVIDER,
-      label: provider,
-    };
+  const config = PROVIDERS[provider.toLowerCase()] ?? {
+    ...DEFAULT_PROVIDER,
+    label: provider,
+  };
 
   return (
     <Badge

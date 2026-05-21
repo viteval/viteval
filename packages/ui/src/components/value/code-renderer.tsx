@@ -14,8 +14,7 @@ interface CodeRendererProps {
   label?: string;
 }
 
-const FENCED_BLOCK =
-  /```([a-zA-Z0-9#+-]*)\n([\s\S]*?)```/;
+const FENCED_BLOCK = /```([a-zA-Z0-9#+-]*)\n([\s\S]*?)```/;
 
 /**
  * Extract the language and body from a fenced code block.
