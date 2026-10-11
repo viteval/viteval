@@ -16,6 +16,9 @@
     "test": {
       "dependsOn": ["^build"]
     },
+    "viteval#test": {
+      "dependsOn": ["build"]
+    },
     "types": {
       "dependsOn": ["^build", "^types"]
     },
