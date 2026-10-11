@@ -1,0 +1,57 @@
+packages/core/src/reporters/json.test.ts
+  s_8ff2308a7efbdf::t_a0a3987479376b 81,96-128,134
+  s_8ff2308a7efbdf::t_54e2e49e11567e 129-133
+packages/core/src/provider/json-tags.ts
+  s_8ff2308a7efbdf::t_a0a3987479376b 95-100
+packages/core/src/reporters/json.ts
+  s_8ff2308a7efbdf::t_a0a3987479376b 169,277-279,409,414
+  s_8ff2308a7efbdf::t_e2fb5ac09c90e4 363
+packages/core/src/provider/json-evals.ts
+  s_8ff2308a7efbdf::t_54e2e49e11567e 188-189,214-217,225-226,230-235
+  s_8ff2308a7efbdf::t_d05cbd8e63bc63 102
+  s_8ff2308a7efbdf::t_a9d5c20e150d06 168-170
+.changeset/hook-outcomes.md
+  s_7b159bb2779e15::t_3c21a8e0237d82 1-8
+packages/core/src/evaluate/evaluate.ts
+  s_8ff2308a7efbdf::t_a9d5c20e150d06 98
+  s_8ff2308a7efbdf::t_54e2e49e11567e 87-95,102,112-139,141-146,148-151,153-173,175-288,290-291,294-300,302-311,313-314,322-325,327-340,342-385,390-411,414-416
+  s_8ff2308a7efbdf::t_c39f0d607ce6a0 1,13,86,96-97,99-101,103-109,111,315,318-321,326
+  s_8ff2308a7efbdf::t_53fd7ae168110e 293
+  s_8ff2308a7efbdf::t_27c5eb3db961ea 19
+packages/core/src/evaluate/artifact.ts
+  s_8ff2308a7efbdf::t_c39f0d607ce6a0 14
+packages/viteval/evaluation.test.ts
+  s_8ff2308a7efbdf::t_0f0939c61af9b1 353-355,359-361,368-375,538-540,553-556
+  s_8ff2308a7efbdf::t_54e2e49e11567e 245-285,287-310,312-321,323,344,347-351,379-380,384-390,392-397,405-410,419-423,425-437,569-571,574-575,580-587
+  s_8ff2308a7efbdf::t_353a2f4001974c 358,362-367,376-377
+  s_8ff2308a7efbdf::t_73bc5b985f1cf7 337-343,346,352
+  s_8ff2308a7efbdf::t_9c29dc2cfc6bd1 552,557
+  s_8ff2308a7efbdf::t_ce77fa9f3a0b43 244,286,311,322,324-336,345,356-357,378,381-383,391,398-404,411-418,424,438-439,566-568,572-573,576-579,588
+  s_8ff2308a7efbdf::t_98d583a19d8d37 589
+packages/core/src/provider/json.test.ts
+  s_8ff2308a7efbdf::t_a0a3987479376b 466-493
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a4d195264495265334b06fd2e808d11b15939a09",
+  "prompts": {},
+  "sessions": {
+    "s_7b159bb2779e15": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7968b96ffe8PQ214ApP8YBPe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_8ff2308a7efbdf": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed6e724bdffeMdeQFlK153Zmbm",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
