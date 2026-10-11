@@ -78,7 +78,7 @@ describe('JsonReporter', () => {
     expect(results.numPassedEvals).toBe(1);
   });
 
-  it('excludes failures from native Vitest modules', async () => {
+  it('excludes native tests from counts but respects the failed run outcome', async () => {
     const reporter = createReporter();
     const evalModule = createMockModule([
       { evalResult: createEvalResult(), state: 'passed' },
@@ -93,7 +93,45 @@ describe('JsonReporter', () => {
 
     const results = await readResults();
     expect(results.numTotalEvalSuites).toBe(1);
-    expect(results.success).toBe(true);
+    expect(results.success).toBe(false);
+  });
+
+  it('keeps same-file collection errors separate across projects', async () => {
+    const reporter = createReporter();
+    const first = createMockModule([], [{ message: 'First setup failed' }]);
+    const second = createMockModule([], [{ message: 'Second setup failed' }]);
+    Object.assign(first, { project: { name: 'first' } });
+    Object.assign(second, { project: { name: 'second' } });
+
+    await reporter.onTestRunEnd([first, second], [], 'failed');
+
+    const results = await readResults();
+    expect(results.numFailedEvalSuites).toBe(2);
+    expect(results.evalResults).toMatchObject([
+      { projectName: 'first', message: 'First setup failed' },
+      { projectName: 'second', message: 'Second setup failed' },
+    ]);
+  });
+
+  it('does not attach a project collection failure to another project suite', async () => {
+    const reporter = createReporter();
+    const first = createMockModule([
+      { evalResult: createEvalResult(), state: 'passed' },
+    ]);
+    const second = createMockModule([], [{ message: 'Second setup failed' }]);
+    Object.assign(first, { project: { name: 'first' } });
+    Object.assign(second, { project: { name: 'second' } });
+
+    await reporter.onTestRunEnd([first, second], [], 'failed');
+
+    expect((await readResults()).evalResults).toMatchObject([
+      { projectName: 'first', status: 'passed' },
+      {
+        projectName: 'second',
+        status: 'failed',
+        message: 'Second setup failed',
+      },
+    ]);
   });
 
   it('retains module setup failures without artifacts', async () => {

@@ -463,6 +463,34 @@ describe('createJsonProvider', () => {
     });
   });
 
+  it('should preserve tag fields when optional updates are undefined', async () => {
+    const tags = createJsonProvider({ root }).tags!;
+    const created = await tags.create({
+      name: 'release',
+      color: '#ffffff',
+      description: 'Release candidate',
+    });
+    if (!created.ok) throw created.error;
+    expect(
+      await tags.update({
+        id: created.value.id,
+        name: undefined,
+        color: undefined,
+        description: undefined,
+      })
+    ).toEqual(created);
+    expect(
+      await tags.update({ id: created.value.id, description: '' })
+    ).toMatchObject({
+      ok: true,
+      value: { name: 'release', color: '#ffffff', description: '' },
+    });
+    expect(await createJsonProvider({ root }).tags!.list()).toMatchObject({
+      ok: true,
+      value: [{ name: 'release', color: '#ffffff', description: '' }],
+    });
+  });
+
   it('should persist tags, deduplicate taggings, and clean up deleted tags', async () => {
     const tags = createJsonProvider({ root }).tags!;
     const created = await tags.create({ name: 'release' });

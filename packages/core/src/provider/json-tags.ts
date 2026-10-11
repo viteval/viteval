@@ -92,7 +92,12 @@ export function createJsonTags(store: JsonStore): TagProvider {
             )
           )
             throw new Error(`Tag already exists: ${params.name}`);
-          const next = TAG_SCHEMA.parse({ ...tag, ...params });
+          const next = TAG_SCHEMA.parse({
+            ...tag,
+            name: params.name ?? tag.name,
+            color: params.color ?? tag.color,
+            description: params.description ?? tag.description,
+          });
           await store.write('tags.json', {
             schemaVersion: 1,
             tags: current.map((candidate) =>

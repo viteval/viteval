@@ -11,6 +11,7 @@ export interface EvalResultArtifact extends TestArtifactBase {
 declare module 'vitest' {
   interface TaskMeta {
     viteval?: true;
+    vitevalEvaluationId?: string;
   }
 
   interface TestArtifactRegistry {

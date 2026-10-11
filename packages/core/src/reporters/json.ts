@@ -166,7 +166,7 @@ export default class JsonReporter implements Reporter {
       numTotalEvals: sum(suites, (suite) => suite.totalTests),
       status: 'finished',
       success:
-        reason !== 'interrupted' &&
+        reason === 'passed' &&
         unhandledErrors.length === 0 &&
         evalResults.every((suite) => suite.status === 'passed'),
     };
@@ -274,7 +274,9 @@ function collectSuiteProjections(
       : [];
     if (moduleErrors.length > 0) {
       let suite = Array.from(suites.values()).find(
-        (candidate) => candidate.moduleId === testModule.moduleId
+        (candidate) =>
+          candidate.moduleId === testModule.moduleId &&
+          candidate.projectName === (testModule.project?.name || undefined)
       );
       if (!suite) {
         suite = createModuleProjection(testModule);
@@ -358,7 +360,7 @@ function toJsonEvalSuite(suite: SuiteProjection, root: string): JsonEvalSuite {
     status: suite.hasFailed ? 'failed' : 'passed',
     summary: {
       ...calculateSuiteSummary(
-        suite.evalResults,
+        suite.evalResults.filter((result) => result.state !== 'skipped'),
         suite.totalTests,
         suite.passedTests
       ),
@@ -404,12 +406,12 @@ function sum(
 
 function getSuiteKey(testCase: TestCase): string {
   return testCase.parent.type === 'suite'
-    ? `${testCase.module.moduleId}::${testCase.parent.id}`
+    ? `${getModuleKey(testCase.module)}::${testCase.parent.id}`
     : getModuleKey(testCase.module);
 }
 
 function getModuleKey(testModule: TestModule): string {
-  return testModule.moduleId;
+  return JSON.stringify([testModule.project?.name ?? '', testModule.moduleId]);
 }
 
 function isEvalModule(testModule: TestModule, testCases: readonly TestCase[]) {

@@ -99,6 +99,7 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
                 : result.mean) >= result.threshold,
         metadata: {
           ...result.metadata,
+          state: result.state,
           name: result.name,
           suite: suite.name,
           threshold: result.threshold,
@@ -164,7 +165,9 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
       medianScore: 0,
       sumScore: 0,
       passedCount,
-      failedCount: results.length - passedCount,
+      failedCount: results.filter(
+        (result) => !result.passed && result.metadata.state !== 'skipped'
+      ).length,
       totalCount: results.length,
       passed: false,
     };
@@ -182,7 +185,8 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
       numTotalEvals: summary.totalCount,
       numPassedEvals: summary.passedCount,
       numFailedEvals: summary.failedCount,
-      numSkippedEvals: 0,
+      numSkippedEvals:
+        summary.totalCount - summary.passedCount - summary.failedCount,
       startTime,
       endTime,
       duration: endTime === undefined ? undefined : endTime - startTime,
@@ -207,7 +211,10 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
           message:
             typeof run.metadata.error === 'string'
               ? run.metadata.error
-              : undefined,
+              : results
+                  .map((result) => result.metadata.executionError)
+                  .filter((error): error is string => typeof error === 'string')
+                  .join('\n') || undefined,
           summary: {
             meanScore: summary.meanScore,
             medianScore: summary.medianScore,
@@ -215,11 +222,17 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
             passedCount: summary.passedCount,
             totalCount: summary.totalCount,
             failedCount: summary.failedCount,
-            skippedCount: 0,
+            skippedCount:
+              summary.totalCount - summary.passedCount - summary.failedCount,
           },
           evalResults: results.map((result) => ({
             id: result.id,
-            state: result.passed ? 'passed' : 'failed',
+            state:
+              result.metadata.state === 'skipped'
+                ? 'skipped'
+                : result.passed
+                  ? 'passed'
+                  : 'failed',
             error:
               typeof result.metadata.executionError === 'string'
                 ? result.metadata.executionError

@@ -241,6 +241,202 @@ if (!initialized.ok) throw initialized.error;`;
     });
   });
 
+  it.each([
+    [
+      'beforeEach',
+      `beforeEach(() => { throw new Error('beforeEach exploded'); });`,
+      0,
+      2,
+      0,
+    ],
+    [
+      'beforeAll',
+      `beforeAll(() => { throw new Error('beforeAll exploded'); });`,
+      0,
+      0,
+      2,
+    ],
+    [
+      'afterEach',
+      `afterEach(() => { throw new Error('afterEach exploded'); });`,
+      0,
+      2,
+      0,
+    ],
+    [
+      'afterAll',
+      `afterAll(() => { throw new Error('afterAll exploded'); });`,
+      2,
+      0,
+      0,
+    ],
+    [
+      'cleanup',
+      `beforeAll(() => () => { throw new Error('cleanup exploded'); });`,
+      2,
+      0,
+      0,
+    ],
+  ])(
+    'should finalize provider failures and diagnostics from %s',
+    async (hook, hooks, passedCount, failedCount, skippedCount) => {
+      const { result, stored, providerReport } = await runWithProvider(
+        `evaluate('hook failure', { data: [{ input: 'one', expected: 'a' }, { input: 'two', expected: 'a' }], task: () => 'a', scorers: [score(1)] });`,
+        `import { beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
+${hooks}`
+      );
+      expect(result.exitCode, result.logs).toBe(1);
+      expect(result.report).toMatchObject({
+        success: false,
+        numPassedEvals: passedCount,
+        numFailedEvals: failedCount,
+        numSkippedEvals: skippedCount,
+        numTotalEvals: 2,
+      });
+      expect(stored).toMatchObject({
+        status: 'failed',
+        summary: { passed: false, passedCount, failedCount, totalCount: 2 },
+      });
+      expect(stored.results).toHaveLength(2);
+      for (const item of stored.results ?? []) {
+        expect(item.metadata.executionError).toContain(`${hook} exploded`);
+        if (hook === 'beforeEach' || hook === 'beforeAll') {
+          expect(item.output).toBeNull();
+          expect(item.scores).toEqual([]);
+          expect(item.passed).toBe(false);
+        } else {
+          expect(item.output).toBe('a');
+          expect(item.meanScore).toBe(1);
+        }
+      }
+      expect(providerReport).toMatchObject({
+        success: false,
+        numPassedEvals: result.report.numPassedEvals,
+        numFailedEvals: result.report.numFailedEvals,
+        numSkippedEvals: result.report.numSkippedEvals,
+        numTotalEvals: result.report.numTotalEvals,
+      });
+      expect(providerReport.evalResults[0].message).toContain(
+        `${hook} exploded`
+      );
+    }
+  );
+
+  it('should persist only successful final retry outcomes without stale errors', async () => {
+    const { result, stored } = await runWithProvider(`let attempts = 0;
+evaluate('provider retry', { data: [{ input: 'q', expected: 'a' }], task: () => { if (attempts++ === 0) throw new Error('retry me'); return 'a'; }, scorers: [score(1)], testOptions: { retry: 1 } });`);
+    expect(result.exitCode, result.logs).toBe(0);
+    expect(stored).toMatchObject({
+      status: 'completed',
+      summary: { passed: true, totalCount: 1, passedCount: 1, failedCount: 0 },
+      results: [{ passed: true, output: 'a', meanScore: 1 }],
+    });
+    expect(stored.results?.[0].metadata.executionError).toBeUndefined();
+  });
+
+  it('should preserve native all-skipped behavior without creating a provider run', async () => {
+    const providerRoot = path.join(ROOT, 'provider-static-skip');
+    const result = await run(
+      `evaluate('provider skipped', { data: [{ input: 'q', expected: 'a' }], task: () => { throw new Error('must not run'); }, scorers: [score(1)], testOptions: { skip: true } });`,
+      `import { initializeProvider, createJsonProvider } from 'viteval/provider';
+const initialized = await initializeProvider(createJsonProvider({ root: ${JSON.stringify(providerRoot)} }));
+if (!initialized.ok) throw initialized.error;`
+    );
+    expect(result.exitCode, result.logs).toBe(0);
+    expect(result.report).toMatchObject({
+      numSkippedEvals: 1,
+      numFailedEvals: 0,
+      numPassedEvals: 0,
+      numTotalEvals: 1,
+    });
+    expect(result.report.evalResults[0].evalResults).toEqual([]);
+    expect(
+      await createJsonProvider({ root: providerRoot }).evals!.list()
+    ).toMatchObject({ ok: true, value: [] });
+  });
+
+  it('should persist threshold failures with their scored output and diagnostics', async () => {
+    const { result, stored, providerReport } = await runWithProvider(
+      `evaluate('provider threshold', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [score(0.25)], threshold: 0.8 });`
+    );
+    expect(result.exitCode, result.logs).toBe(1);
+    expect(stored).toMatchObject({
+      status: 'failed',
+      summary: { passed: false, passedCount: 0, failedCount: 1, totalCount: 1 },
+      results: [{ passed: false, output: 'a', meanScore: 0.25 }],
+    });
+    expect(stored.results?.[0].metadata.executionError).toContain(
+      'below threshold'
+    );
+    expect(providerReport.evalResults[0].evalResults[0]).toMatchObject({
+      state: 'failed',
+      mean: 0.25,
+      error: expect.stringContaining('below threshold'),
+    });
+  });
+
+  it('should keep provider counts and scored means consistent with dynamic skips', async () => {
+    const { result, stored, providerReport } =
+      await runWithProvider(`import { beforeEach } from 'vitest';
+beforeEach(({ task, skip }) => { if (task.name === 'skip') skip('not applicable'); });
+evaluate('mixed skip', { data: [{ name: 'skip', input: 'q', expected: 'a' }, { name: 'run', input: 'q', expected: 'a' }], task: () => 'a', scorers: [score(1)] });`);
+    expect(result.exitCode, result.logs).toBe(0);
+    expect(stored.summary).toMatchObject({
+      passed: true,
+      passedCount: 1,
+      failedCount: 0,
+      totalCount: 2,
+      meanScore: 1,
+    });
+    expect(result.report.evalResults[0].summary.meanScore).toBe(1);
+    expect(providerReport).toMatchObject({
+      numPassedEvals: 1,
+      numFailedEvals: 0,
+      numSkippedEvals: 1,
+      numTotalEvals: 2,
+    });
+  });
+
+  it('should report the failed native run when a regular test fails alongside a passing evaluation', async () => {
+    const result = await run(`import { test } from 'vitest';
+test('regular failure', () => { throw new Error('regular test exploded'); });
+evaluate('passing eval', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [score(1)] });`);
+    expect(result.exitCode, result.logs).toBe(1);
+    expect(result.report).toMatchObject({
+      success: false,
+      numPassedEvals: 1,
+      numFailedEvals: 0,
+      numTotalEvals: 1,
+    });
+  });
+
+  it('should keep same-file module failures separate across native projects', async () => {
+    const configuration = `import { defineConfig } from 'vitest/config';
+import { JsonReporter } from 'viteval/reporters';
+export default defineConfig({ test: { reporters: [new JsonReporter({ outputFile: '.viteval/results/contract.json' })], projects: [
+{ test: { name: 'first', include: ['contract.eval.ts'] } }, { test: { name: 'second', include: ['contract.eval.ts'] } }
+] } });`;
+    const result = await run(
+      `throw new Error('collection exploded');`,
+      '',
+      configuration
+    );
+    expect(result.exitCode, result.logs).toBe(1);
+    expect(result.report).toMatchObject({
+      success: false,
+      numFailedEvalSuites: 2,
+      numTotalEvalSuites: 2,
+    });
+    expect(
+      result.report.evalResults.map((suite) => suite.projectName).toSorted()
+    ).toEqual(['first', 'second']);
+    expect(
+      result.report.evalResults.every((suite) =>
+        suite.message?.includes('collection exploded')
+      )
+    ).toBe(true);
+  });
+
   it('should preserve case outputs during concurrent execution', async () => {
     const result = await run(`evaluate('concurrent', {
 data: [{ input: 1, expected: 1 }, { input: 2, expected: 2 }, { input: 3, expected: 3 }],
@@ -339,6 +535,9 @@ async function run(body: string, setup = '', configuration = CONFIG) {
 const score = (value) => createScorer({ name: 'score-' + value, score: () => ({ score: value }) });
 ${body}`
   );
+  await rm(path.join(ROOT, '.viteval', 'results', 'contract.json'), {
+    force: true,
+  });
   const args = ['run', '--root', ROOT];
   const result = spawnSync(
     BINARY ?? process.execPath,
@@ -350,7 +549,12 @@ ${body}`
       await readFile(
         path.join(ROOT, '.viteval', 'results', 'contract.json'),
         'utf8'
-      )
+      ).catch((error: unknown) => {
+        throw new Error(
+          `Native evaluation did not write a report (exit ${result.status}):\n${result.stdout}${result.stderr}`,
+          { cause: error }
+        );
+      })
     )
   );
   return {
@@ -358,4 +562,28 @@ ${body}`
     logs: `${result.stdout}${result.stderr}\n${JSON.stringify(report)}`,
     report,
   };
+}
+
+async function runWithProvider(body: string, hooks = '') {
+  const providerRoot = path.join(ROOT, `provider-hooks-${++invocation}`);
+  const result = await run(
+    body,
+    `import { initializeProvider, createJsonProvider } from 'viteval/provider';
+const initialized = await initializeProvider(createJsonProvider({ root: ${JSON.stringify(providerRoot)} }));
+if (!initialized.ok) throw initialized.error;
+${hooks}`
+  );
+  const runs = await createJsonProvider({ root: providerRoot }).evals!.list();
+  if (!runs.ok) throw runs.error;
+  expect(runs.value).toHaveLength(1);
+  const stored = runs.value[0];
+  const providerReport = EVAL_RESULTS_SCHEMA.parse(
+    JSON.parse(
+      await readFile(
+        path.join(providerRoot, '.viteval', 'results', `${stored.id}.json`),
+        'utf8'
+      )
+    )
+  );
+  return { result, stored, providerReport };
 }
