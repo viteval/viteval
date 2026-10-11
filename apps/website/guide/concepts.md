@@ -15,9 +15,7 @@ An evaluation is the fundamental unit in Viteval. It defines:
 import { evaluate, scorers } from 'viteval';
 
 evaluate('My Evaluation', {
-  data: async () => [
-    /* test cases */
-  ],
+  data: async () => [/* test cases */],
   task: async (input) => {
     /* your LLM call */
   },
