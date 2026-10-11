@@ -67,7 +67,7 @@ reviews:
       instructions: |
         ## TypeScript Patterns
         Check contributing/standards.md for conventions:
-        - Use ts-pattern for conditional logic with 2+ branches instead of switch statements
+        - Use massaman/match for conditional logic with 2+ branches instead of switch statements
         - Prefer exhaustive pattern matching for type safety
         - No 'any' type - use 'unknown' and narrow appropriately
         - Object params when 2+ parameters (define *Params interface)
