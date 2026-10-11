@@ -7,7 +7,10 @@
   "license": "MIT",
   "repository": "viteval/viteval",
   "files": [
-    "dist/.next/standalone",
+    "dist/client",
+    "dist/server",
+    "production-server.mjs",
+    "production-server.mjs.map",
     "server.d.mts",
     "server.mjs",
     "server.mjs.map"
@@ -26,10 +29,10 @@
     "test": "vitest run",
     "build": "pnpm build:ui && pnpm build:server",
     "build:server": "tsdown",
-    "build:ui": "next build && node prepare-ui.mjs",
-    "dev": "next dev --port 6274",
-    "start": "node dist/.next/standalone/packages/ui/server.js",
-    "types": "next typegen && pnpm tsc --noEmit"
+    "build:ui": "vite build",
+    "dev": "vite --port 6274",
+    "start": "node production-server.mjs",
+    "types": "pnpm tsc --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.4",
@@ -38,6 +41,8 @@
     "@radix-ui/react-select": "^2.3.8",
     "@radix-ui/react-slot": "^1.4.0",
     "@radix-ui/react-tabs": "^1.1.22",
+    "@tanstack/react-router": "^1.170.42",
+    "@tanstack/react-start": "^1.168.61",
     "@tanstack/react-table": "^9.2.8",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@uidotdev/usehooks": "^2.4.1",
@@ -46,12 +51,10 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
-    "geist": "^1.7.2",
     "get-port": "^7.2.0",
     "hono": "^4.13.13",
     "lodash-es": "^4.18.1",
     "massaman": "^0.5.2",
-    "next": "16.4.0",
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
     "react-day-picker": "^10.0.2",
@@ -66,16 +69,19 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "geist": "^1.7.2",
     "jsdom": "^30.1.2",
     "tsdown": "^0.23.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
   },
   "engines": {
     "node": ">=26.0.0"

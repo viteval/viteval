@@ -1,5 +1,4 @@
-'use client';
-
+import { Link } from '@tanstack/react-router';
 import { type ColumnDef, type Row } from '@tanstack/react-table';
 import {
   CircleCheckIcon,
@@ -11,7 +10,6 @@ import {
   TrendingUpIcon,
   CircleXIcon,
 } from '@/components/icons';
-import Link from 'next/link';
 import { useCallback } from 'react';
 import { getStatusBadge } from '@/lib/badges';
 import { isEvalPassed } from '@/lib/eval-status';
@@ -183,7 +181,12 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
         <div className="flex items-center gap-2">
           {getStatusBadge(suite.status)}
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/suites/${slugify(suiteName(suite))}`}>View Eval</Link>
+            <Link
+              to="/suites/$slug"
+              params={{ slug: slugify(suiteName(suite)) }}
+            >
+              View Eval
+            </Link>
           </Button>
         </div>
       </div>

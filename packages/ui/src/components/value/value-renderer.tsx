@@ -1,5 +1,3 @@
-'use client';
-
 import { match } from 'massaman/match';
 import { detectValueKind } from './detect';
 import { CodeRenderer } from './code-renderer';

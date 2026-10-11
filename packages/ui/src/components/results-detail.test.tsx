@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within, act } from '@testing-library/react';
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { EvalResults } from '@/types';
 import ResultsDetail from './ResultsDetail';
@@ -7,7 +14,7 @@ import ResultsDetail from './ResultsDetail';
 afterEach(cleanup);
 
 describe('ResultsDetail', () => {
-  it('should show skipped counts without misclassifying unexecuted cases as failures', () => {
+  it('should show skipped counts without misclassifying unexecuted cases as failures', async () => {
     const results: EvalResults = {
       runId: 'skipped',
       runName: 'skipped',
@@ -41,7 +48,7 @@ describe('ResultsDetail', () => {
         },
       ],
     };
-    render(<ResultsDetail results={results} />);
+    await renderResults(results);
     expect(
       within(screen.getByRole('group', { name: 'Skipped' })).getByText('2')
     ).toBeTruthy();
@@ -49,7 +56,7 @@ describe('ResultsDetail', () => {
       within(screen.getByRole('group', { name: 'Failed' })).getByText('0')
     ).toBeTruthy();
   });
-  it('should render project variants and final outcomes instead of gating on mean', () => {
+  it('should render project variants and final outcomes instead of gating on mean', async () => {
     const base = {
       name: 'accuracy',
       filepath: 'accuracy.eval.ts',
@@ -115,7 +122,7 @@ describe('ResultsDetail', () => {
         { ...base, projectName: 'second' },
       ],
     };
-    render(<ResultsDetail results={results} />);
+    await renderResults(results);
     expect(
       screen.getByRole('heading', { name: 'accuracy [first]' })
     ).toBeTruthy();
@@ -123,9 +130,35 @@ describe('ResultsDetail', () => {
       screen.getByRole('heading', { name: 'accuracy [second]' })
     ).toBeTruthy();
     expect(screen.getByRole('alert').textContent).toContain('Cleanup failed');
+    expect(
+      screen
+        .getAllByRole('link', { name: 'View Eval' })[0]
+        ?.getAttribute('href')
+    ).toBe('/suites/accuracy-first');
     for (const row of screen.getAllByRole('row', { name: /sum-case/ }))
       expect(within(row).getByText('Passed')).toBeTruthy();
     for (const row of screen.getAllByRole('row', { name: /failed-case/ }))
       expect(within(row).getByText('Failed')).toBeTruthy();
   });
 });
+
+async function renderResults(results: EvalResults) {
+  const rootRoute = createRootRoute();
+  const detailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/results/$id',
+    component: () => <ResultsDetail results={results} />,
+  });
+  const suiteRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/suites/$slug',
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([detailRoute, suiteRoute]),
+    history: createMemoryHistory({ initialEntries: ['/results/run'] }),
+  });
+  await act(async () => {
+    await router.load();
+    render(<RouterProvider router={router} />);
+  });
+}

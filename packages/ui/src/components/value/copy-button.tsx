@@ -1,5 +1,3 @@
-'use client';
-
 import { CheckIcon, CopyIcon } from '@/components/icons';
 import { useState } from 'react';
 import { toast } from 'sonner';

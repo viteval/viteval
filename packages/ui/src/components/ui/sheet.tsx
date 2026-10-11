@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Icon } from "@iconify/react"
 import { Dialog as SheetPrimitive } from "radix-ui"

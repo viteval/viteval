@@ -7,7 +7,7 @@ case "${1:-}" in
   -h|--help|help)
     echo "Usage: pnpm dev:ui [path]"
     echo ""
-    echo "Start the viteval UI dev server pointed at a project root."
+    echo "Start the TanStack Start/Vite UI dev server on port 6274."
     echo ""
     echo "Arguments:"
     echo "  path    Path to a project with a .viteval directory (default: cwd)"

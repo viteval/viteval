@@ -4,8 +4,8 @@ Technologies and dependencies used in the Viteval codebase.
 
 ## Requirements
 
-- Node.js >= 22.18.0
-- pnpm >= 10.0.0
+- Node.js >= 26.0.0
+- pnpm >= 12.0.0
 
 ## Core Technologies
 
@@ -61,13 +61,20 @@ Technologies and dependencies used in the Viteval codebase.
 
 ### @viteval/ui
 
-| Dependency              | Purpose                     |
-| ----------------------- | --------------------------- |
-| `react`                 | UI framework (v19)          |
-| `next`                  | Application framework       |
-| `@tanstack/react-table` | Data tables                 |
-| `tailwindcss`           | Styling (v4)                |
-| `hono`                  | Packaged server entry point |
+| Dependency               | Purpose                                 |
+| ------------------------ | --------------------------------------- |
+| `react`                  | UI framework (v19)                      |
+| `@tanstack/react-start`  | Server rendering and server routes      |
+| `@tanstack/react-router` | Typed file routes and navigation        |
+| `@tanstack/react-table`  | Data tables                             |
+| `vite`                   | Development server and client/SSR build |
+| `tailwindcss`            | Styling (v4)                            |
+| `hono`                   | Packaged Node request/static bridge     |
+| `@hono/node-server`      | Node HTTP adapter                       |
+
+The UI build ships `dist/client`, `dist/server`, and the public `server.mjs` /
+`server.d.mts` launcher. Turbo caches these outputs. Generated route types must
+be available before UI typechecking, including when restoring a cached build.
 
 ## Oxc Configuration
 

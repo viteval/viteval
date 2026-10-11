@@ -1,5 +1,3 @@
-'use client';
-
 import { cn, formatTimestamp } from '@/lib/utils';
 
 interface TimestampProps {

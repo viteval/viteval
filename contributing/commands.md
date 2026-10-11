@@ -40,6 +40,11 @@ Turbo uses its interactive terminal UI by default. Use `pnpm dev:website` for th
 docs site or `pnpm dev:ui examples/basic` for the dashboard pointed at an example.
 Select a task in the TUI to inspect its logs and interact with its process.
 
+The dashboard uses TanStack Start's Vite development server at
+`http://localhost:6274`. `dev:ui` resolves the project path and passes it through
+`VITEVAL_ROOT_PATH`. Production builds emit `packages/ui/dist/client` and
+`packages/ui/dist/server/server.js`, alongside the public server launcher.
+
 ### Testing
 
 ```bash
@@ -71,6 +76,19 @@ tag creation/removal across reloads. It cleans up its project, server, and tab.
 Tag removal uses DOM click activation because Orca's ref activation does not
 dispatch that icon-only control reliably. Browser checks require Orca and run
 locally; they are separate from the GitHub-hosted CI jobs.
+
+### Packed dashboard verification
+
+```bash
+pnpm validate:consumer
+```
+
+The isolated install launches the shipped Node server and checks SSR content for
+dashboard, list, detail, and settings URLs; Vite JavaScript/CSS assets must return
+their correct MIME types and nonempty bodies. Missing pages, resources, and
+assets must return 404 rather than a successful HTML fallback. API result reads
+must reflect the consumer's persisted run. The CLI integration suite also checks
+empty-project SSR, asset delivery, API errors, and SIGTERM shutdown.
 
 ### Compiled CLI
 

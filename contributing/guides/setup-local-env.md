@@ -4,8 +4,8 @@ Get the Viteval development environment running.
 
 ## Prerequisites
 
-- Node.js >= 22.0.0
-- pnpm >= 10.0.0
+- Node.js >= 26.0.0
+- pnpm >= 12.0.0
 - Git (any recent version)
 
 ## Steps
@@ -56,19 +56,30 @@ OPENAI_API_KEY=sk-...
 VITEVAL_DEBUG_MODE=true
 ```
 
+### 8. Start the dashboard
+
+```bash
+pnpm dev:ui examples/basic
+```
+
+Open `http://localhost:6274`. TanStack Start runs on Vite and reads the selected
+project's `.viteval` directory. Build and run the example first to populate
+results. Use `pnpm validate:consumer` to check the packaged production server and
+`pnpm validate:browser` for hydration, navigation, and tagging in Orca.
+
 ## Troubleshooting
 
 ### pnpm version mismatch
 
 ```bash
 corepack enable
-corepack prepare pnpm@10.14.0 --activate
+corepack prepare pnpm@12.11.2 --activate
 ```
 
 ### Node version mismatch
 
 ```bash
-nvm use 22
+nvm use 26
 ```
 
 ### Build failures

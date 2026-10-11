@@ -1,5 +1,3 @@
-'use client';
-
 import { XIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

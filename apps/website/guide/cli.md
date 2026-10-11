@@ -91,6 +91,10 @@ viteval ui --port 6274 --open
 The UI reads datasets and evaluation results from the selected project's `.viteval`
 directory. Configure the JSON reporter to save results there.
 
+The packaged TanStack Start dashboard serves server-rendered pages and bundled
+JavaScript/CSS without requiring a development server. Dashboard, results,
+datasets, suites, and settings URLs support direct navigation and reloads.
+
 ### Debugging
 
 ```bash

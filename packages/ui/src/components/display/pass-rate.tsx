@@ -1,5 +1,3 @@
-'use client';
-
 import { cn, formatPassRate } from '@/lib/utils';
 
 interface PassRateProps {

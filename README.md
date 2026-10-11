@@ -29,6 +29,7 @@ Next generation LLM evaluation framework powered by Vitest.
 - Native Vitest configuration, execution, watch mode, retries, and CI exit codes.
 - Typed tasks, reusable datasets, built-in scorers, and custom scoring functions.
 - JSON storage by default, with atomic writes and a local results dashboard.
+- TanStack Start dashboard with server-rendered pages and bundled Vite assets.
 - Optional SQLite, Braintrust, Langfuse, and hosted VoltOps providers for datasets and evaluation results, plus S3/GCS dataset storage. Backend SDKs and database drivers are opt-in.
 - Maltty project commands and an optional compiled command shell.
 
@@ -81,5 +82,7 @@ pnpm --filter @viteval/cli test:binary
 ```
 
 The consumer check installs packed packages outside the workspace and verifies
-initialization, evaluations, JSON datasets, SQLite, and the installed dashboard.
+initialization, evaluations, JSON datasets, SQLite, server-rendered dashboard
+deep links, JavaScript/CSS delivery, and API/404 behavior. Run
+`pnpm dev:ui examples/basic` to develop the dashboard with Vite on port 6274.
 See [v1 completion](./contributing/v1.md) for the release contract and evidence.

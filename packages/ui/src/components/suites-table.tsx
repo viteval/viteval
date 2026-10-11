@@ -1,7 +1,5 @@
-'use client';
-
+import { useNavigate } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
-import { useRouter } from 'next/navigation';
 import { getStatusBadge } from '@/lib/badges';
 import type { SuiteSummary } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
@@ -91,13 +89,15 @@ interface SuitesTableProps {
 }
 
 export function SuitesTable({ suites }: SuitesTableProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return (
     <DataTable
       columns={columns}
       data={suites}
-      onRowClick={(row) => router.push(`/suites/${row.slug}`)}
+      onRowClick={(row) =>
+        void navigate({ to: '/suites/$slug', params: { slug: row.slug } })
+      }
     />
   );
 }

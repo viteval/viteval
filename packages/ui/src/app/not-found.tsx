@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
@@ -11,7 +11,7 @@ export default function NotFound() {
           The page you&apos;re looking for doesn&apos;t exist.
         </div>
         <Button asChild>
-          <Link href="/">Go Home</Link>
+          <Link to="/">Go Home</Link>
         </Button>
       </div>
     </div>

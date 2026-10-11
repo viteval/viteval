@@ -1,6 +1,4 @@
-'use client';
-
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import {
   Sidebar,
@@ -26,7 +24,7 @@ const navItems = [
   { href: '/suites', icon: EvalsIcon, title: 'Evals' },
   { href: '/results', icon: ResultsIcon, title: 'Results' },
   { href: '/datasets', icon: DatabaseIcon, title: 'Datasets' },
-];
+] as const;
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -51,7 +49,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu className="px-2 pt-2">
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/">
+              <Link to="/">
                 <HomeIcon />
                 <span>Dashboard</span>
               </Link>
@@ -59,14 +57,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarSeparator />
-        <NavMain items={navItems} />
+        <NavMain items={[...navItems]} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarSeparator />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/settings">
+              <Link to="/settings">
                 <ConfigIcon />
                 <span>Settings</span>
               </Link>

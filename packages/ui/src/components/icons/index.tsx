@@ -1,5 +1,3 @@
-'use client';
-
 import { Icon, type IconProps } from '@iconify/react';
 import { cn } from '@/lib/utils';
 

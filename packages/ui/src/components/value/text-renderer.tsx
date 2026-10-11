@@ -1,5 +1,3 @@
-'use client';
-
 import { CopyButton } from './copy-button';
 
 interface TextRendererProps {

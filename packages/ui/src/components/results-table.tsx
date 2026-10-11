@@ -1,7 +1,5 @@
-'use client';
-
+import { useNavigate } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
-import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
 import type { ResultFile, Tag } from '@/types';
@@ -140,7 +138,7 @@ interface ResultsTableProps {
 }
 
 export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const ids = useMemo(() => results.map((r) => r.runId ?? r.id), [results]);
   const { tagsByEntity } = useTags('eval_run', ids);
 
@@ -170,7 +168,7 @@ export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
       columns={columns}
       data={rows}
       onRowClick={(row) =>
-        router.push(`/results/${encodeURIComponent(row.id)}`)
+        void navigate({ to: '/results/$id', params: { id: row.id } })
       }
     />
   );

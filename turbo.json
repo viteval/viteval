@@ -5,7 +5,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,
@@ -40,6 +40,11 @@
       "dependsOn": ["^build"],
       "outputs": [
         "dist/**",
+        "src/routeTree.gen.ts",
+        "production-server.mjs",
+        "production-server.mjs.map",
+        "production-server.d.mts",
+        "production-server.d.mts.map",
         "server.mjs",
         "server.mjs.map",
         "server.d.mts",

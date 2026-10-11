@@ -251,19 +251,86 @@ try {
     const page = await fetch(`${url}/results`);
     assert.equal(page.status, 200, logs);
     const html = await page.text();
-    const assets = [
-      ...html.matchAll(/(?:src|href)="([^"]*\/_next\/static\/[^"]+)"/g),
-    ].map((match) => match[1]);
-    assert.ok(
-      assets.length > 0,
-      'Dashboard HTML must reference compiled assets'
+    assert.match(page.headers.get('content-type'), /text\/html/);
+    assert.match(
+      ssrText(html),
+      /View and analyze your evaluation results \(1 total\)/
     );
-    for (const asset of [...new Set(assets)].slice(0, 4))
+    const assets = [
+      ...new Set(
+        [
+          ...html.matchAll(
+            /["']([^"'<>]*\/assets\/[^"'<>]+\.(?:js|css)(?:\?[^"'<>]*)?)["']/g
+          ),
+        ].map((match) => match[1].replaceAll('&amp;', '&'))
+      ),
+    ];
+    for (const extension of ['js', 'css'])
+      assert.ok(
+        assets.some((asset) =>
+          new URL(asset, url).pathname.endsWith(`.${extension}`)
+        ),
+        `Dashboard HTML must reference compiled Vite ${extension} assets`
+      );
+    for (const asset of assets) {
+      const assetResponse = await fetch(new URL(asset, url));
       assert.equal(
-        (await fetch(new URL(asset, url))).status,
+        assetResponse.status,
         200,
         `Missing dashboard asset: ${asset}`
       );
+      assert.match(
+        assetResponse.headers.get('content-type'),
+        new URL(asset, url).pathname.endsWith('.css')
+          ? /text\/css/
+          : /(?:text|application)\/javascript/,
+        `Dashboard asset must not fall back to HTML: ${asset}`
+      );
+      assert.ok((await assetResponse.text()).trim().length > 0, asset);
+    }
+    const datasetsResponse = await fetch(`${url}/api/datasets`);
+    assert.equal(datasetsResponse.status, 200);
+    const datasets = await datasetsResponse.json();
+    const smoke = datasets.data.find((item) => item.name === 'smoke');
+    assert.ok(smoke, 'Dashboard must read the consumer-generated dataset');
+    const suitesResponse = await fetch(`${url}/api/suites`);
+    assert.equal(suitesResponse.status, 200);
+    const suites = await suitesResponse.json();
+    const uppercase = suites.data.find((item) => item.name === 'Uppercase');
+    assert.ok(uppercase, 'Dashboard must read the consumer evaluation suite');
+    for (const [pathname, content] of [
+      ['/', /Latest Results/],
+      ['/datasets', /smoke/],
+      ['/suites', /Uppercase/],
+      [`/results/${encodeURIComponent(listing.data[0].id)}`, /Uppercase/],
+      [`/datasets/${encodeURIComponent(smoke.id)}`, /Items/],
+      [`/suites/${encodeURIComponent(uppercase.slug)}`, /Uppercase/],
+      ['/settings', /Preferences/],
+    ]) {
+      const rendered = await fetch(`${url}${pathname}`);
+      assert.equal(rendered.status, 200, `${pathname}: ${logs}`);
+      assert.match(rendered.headers.get('content-type'), /text\/html/);
+      assert.match(
+        ssrText(await rendered.text()),
+        content,
+        `Missing SSR content: ${pathname}`
+      );
+    }
+    for (const pathname of [
+      '/missing-dashboard-page',
+      '/results/missing',
+      '/datasets/missing',
+      '/suites/missing',
+    ]) {
+      const missing = await fetch(`${url}${pathname}`);
+      assert.equal(missing.status, 404, pathname);
+      assert.match(ssrText(await missing.text()), /not found/i, pathname);
+    }
+    const missingResult = await fetch(`${url}/api/results/missing`);
+    assert.equal(missingResult.status, 404);
+    assert.deepEqual(await missingResult.json(), { error: 'Not found' });
+    const missingAsset = await fetch(`${url}/assets/missing-release-check.js`);
+    assert.equal(missingAsset.status, 404);
     ui.kill('SIGTERM');
     assert.equal(await exited, 0);
   } finally {
@@ -272,9 +339,15 @@ try {
     await exited;
   }
   process.stdout.write(
-    'Packed consumer passed: init, evals, JSON datasets, named/inline eval-file discovery, optional provider imports/missing-SDK diagnostics, opt-in SQLite, and UI assets.\n'
+    'Packed consumer passed: init, evals, JSON datasets, named/inline eval-file discovery, optional provider imports/missing-SDK diagnostics, opt-in SQLite, UI SSR/deep links, Vite JS/CSS assets, and API/404 behavior.\n'
   );
 } finally {
   ui?.kill('SIGTERM');
   await rm(temporary, { recursive: true, force: true });
+}
+
+function ssrText(html) {
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '');
 }

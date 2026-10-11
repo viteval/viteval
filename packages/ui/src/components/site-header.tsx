@@ -1,9 +1,6 @@
-'use client';
-
+import { Link, useLocation } from '@tanstack/react-router';
 import { Fragment } from 'react';
 import { BookIcon, GithubIcon } from '@/components/icons';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -23,16 +20,24 @@ import {
 } from '@/components/ui/breadcrumb';
 
 function useBreadcrumbs() {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
   const segments = pathname.split('/').filter(Boolean);
 
   if (segments.length === 0) {
     return [{ href: undefined, label: 'Dashboard' }];
   }
 
-  const crumbs: { label: string; href: string | undefined }[] = [
-    { href: '/', label: 'Dashboard' },
-  ];
+  const parentPaths = [
+    '/',
+    '/datasets',
+    '/results',
+    '/suites',
+    '/settings',
+  ] as const;
+  const crumbs: {
+    label: string;
+    href: (typeof parentPaths)[number] | undefined;
+  }[] = [{ href: '/', label: 'Dashboard' }];
 
   let currentPath = '';
   for (let i = 0; i < segments.length; i++) {
@@ -46,7 +51,9 @@ function useBreadcrumbs() {
     }
     const label = decoded.charAt(0).toUpperCase() + decoded.slice(1);
     crumbs.push({
-      href: isLast ? undefined : currentPath,
+      href: isLast
+        ? undefined
+        : parentPaths.find((path) => path === currentPath),
       label,
     });
   }
@@ -69,7 +76,7 @@ export function SiteHeader() {
               <BreadcrumbItem>
                 {crumb.href ? (
                   <BreadcrumbLink asChild>
-                    <Link href={crumb.href}>{crumb.label}</Link>
+                    <Link to={crumb.href}>{crumb.label}</Link>
                   </BreadcrumbLink>
                 ) : (
                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>

@@ -1,7 +1,4 @@
-'use client';
-
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation } from '@tanstack/react-router';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -12,12 +9,12 @@ import {
 
 interface NavItem {
   title: string;
-  href: string;
+  href: '/' | '/datasets' | '/results' | '/suites' | '/settings';
   icon: React.ComponentType<{ className?: string }>;
 }
 
 export function NavMain({ items }: { items: NavItem[] }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   return (
     <SidebarGroup>
@@ -27,9 +24,11 @@ export function NavMain({ items }: { items: NavItem[] }) {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href)}
+                isActive={
+                  pathname === item.href || pathname.startsWith(`${item.href}/`)
+                }
               >
-                <Link href={item.href}>
+                <Link to={item.href}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>

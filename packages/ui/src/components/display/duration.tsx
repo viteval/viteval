@@ -1,5 +1,3 @@
-'use client';
-
 import { ClockIcon } from '@/components/icons';
 import { cn, formatDuration } from '@/lib/utils';
 

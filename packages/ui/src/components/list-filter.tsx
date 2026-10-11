@@ -1,8 +1,6 @@
-'use client';
-
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import { RefreshIcon, SearchIcon } from '@/components/icons';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Input } from '@/components/ui/input';
@@ -38,9 +36,9 @@ interface ListFilterProps {
 }
 
 export function ListFilter({ config }: ListFilterProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const { pathname, searchStr } = useLocation();
+  const searchParams = new URLSearchParams(searchStr);
 
   const search = searchParams.get('q') ?? '';
   const from = searchParams.get('from') ?? '';
@@ -59,7 +57,7 @@ export function ListFilter({ config }: ListFilterProps) {
 
   const updateParams = useCallback(
     (key: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchStr);
       const isStatusDefault = key === 'status' && value === 'all';
       const isSortDefault = key === 'sort' && value === defaultSort;
       if (!value || isStatusDefault || isSortDefault) {
@@ -68,14 +66,18 @@ export function ListFilter({ config }: ListFilterProps) {
         params.set(key, value);
       }
       const qs = params.toString();
-      router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false });
+      void navigate({
+        href: `${pathname}${qs ? `?${qs}` : ''}`,
+        replace: true,
+        resetScroll: false,
+      });
     },
-    [router, pathname, searchParams, defaultSort]
+    [navigate, pathname, searchStr, defaultSort]
   );
 
   const resetFilters = useCallback(() => {
-    router.replace(pathname, { scroll: false });
-  }, [router, pathname]);
+    void navigate({ href: pathname, replace: true, resetScroll: false });
+  }, [navigate, pathname]);
 
   const fromDate = from ? new Date(from) : undefined;
   const toDate = to ? new Date(to) : undefined;

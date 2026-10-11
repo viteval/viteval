@@ -1,5 +1,3 @@
-'use client';
-
 import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { ChevronDownIcon, ChevronRightIcon } from '@/components/icons';
 import { useCallback } from 'react';

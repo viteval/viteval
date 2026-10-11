@@ -1,5 +1,3 @@
-'use client';
-
 interface PrimitiveRendererProps {
   value: unknown;
 }

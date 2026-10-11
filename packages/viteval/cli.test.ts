@@ -693,6 +693,49 @@ describe('ui', () => {
         clearTimeout(readyTimer);
         const response = await fetch(`${url}/api/results`);
         expect(response.status, logs).toBe(200);
+        expect(await response.json()).toMatchObject({ data: [], total: 0 });
+        const page = await fetch(`${url}/results`);
+        expect(page.status, logs).toBe(200);
+        expect(page.headers.get('content-type')).toMatch(/text\/html/);
+        const html = await page.text();
+        const renderedText = html
+          .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<[^>]+>/g, '');
+        expect(renderedText).toContain('No results.');
+        expect(renderedText).toContain(
+          'View and analyze your evaluation results (0 total)'
+        );
+        const assets = [
+          ...new Set(
+            [
+              ...html.matchAll(
+                /["']([^"'<>]*\/assets\/[^"'<>]+\.(?:js|css)(?:\?[^"'<>]*)?)["']/g
+              ),
+            ].map((match) => match[1].replaceAll('&amp;', '&'))
+          ),
+        ];
+        for (const extension of ['js', 'css']) {
+          const asset = assets.find((candidate) =>
+            new URL(candidate, url).pathname.endsWith(`.${extension}`)
+          );
+          if (!asset) {
+            throw new Error(`Missing compiled Vite ${extension} asset`);
+          }
+          const assetResponse = await fetch(new URL(asset, url));
+          expect(assetResponse.status, asset).toBe(200);
+          expect(assetResponse.headers.get('content-type')).toMatch(
+            extension === 'css'
+              ? /text\/css/
+              : /(?:text|application)\/javascript/
+          );
+          expect((await assetResponse.text()).trim().length).toBeGreaterThan(0);
+        }
+        const missing = await fetch(`${url}/missing-dashboard-page`);
+        expect(missing.status).toBe(404);
+        expect(await missing.text()).toMatch(/not found/i);
+        const missingResult = await fetch(`${url}/api/results/missing`);
+        expect(missingResult.status).toBe(404);
+        expect(await missingResult.json()).toEqual({ error: 'Not found' });
         child.kill('SIGTERM');
         expect(await exited, logs).toBe(0);
         await expect(fetch(`${url}/api/results`)).rejects.toThrow();

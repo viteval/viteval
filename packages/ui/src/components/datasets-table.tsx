@@ -1,7 +1,5 @@
-'use client';
-
+import { useNavigate } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
-import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import type { DatasetSummary, Tag } from '@/types';
 import { Badge } from '@/components/ui/badge';
@@ -74,7 +72,7 @@ interface DatasetsTableProps {
 }
 
 export function DatasetsTable({ datasets }: DatasetsTableProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const ids = useMemo(() => datasets.map((d) => d.id), [datasets]);
   const { tagsByEntity } = useTags('dataset', ids);
 
@@ -92,7 +90,7 @@ export function DatasetsTable({ datasets }: DatasetsTableProps) {
       columns={columns}
       data={rows}
       onRowClick={(row) =>
-        router.push(`/datasets/${encodeURIComponent(row.id)}`)
+        void navigate({ to: '/datasets/$id', params: { id: row.id } })
       }
     />
   );

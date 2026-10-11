@@ -1,7 +1,5 @@
-'use client';
-
+import { useLocation } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import type { DatasetSummary } from '@/types';
 import type { FilterConfig } from '@/components/list-filter';
 import { ListFilter } from '@/components/list-filter';
@@ -16,7 +14,8 @@ interface DatasetsListProps {
 }
 
 export function DatasetsList({ datasets }: DatasetsListProps) {
-  const searchParams = useSearchParams();
+  const searchStr = useLocation({ select: (location) => location.searchStr });
+  const searchParams = new URLSearchParams(searchStr);
   const search = searchParams.get('q') ?? '';
 
   const filtered = useMemo(() => {

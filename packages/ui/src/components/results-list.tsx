@@ -1,7 +1,5 @@
-'use client';
-
+import { useLocation } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import type { ResultFile } from '@/types';
 import type { FilterConfig } from '@/components/list-filter';
 import { ListFilter } from '@/components/list-filter';
@@ -22,7 +20,8 @@ interface ResultsListProps {
 }
 
 export function ResultsList({ results }: ResultsListProps) {
-  const searchParams = useSearchParams();
+  const searchStr = useLocation({ select: (location) => location.searchStr });
+  const searchParams = new URLSearchParams(searchStr);
   const from = searchParams.get('from') ?? '';
   const to = searchParams.get('to') ?? '';
   const status = searchParams.get('status') ?? 'all';

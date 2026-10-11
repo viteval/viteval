@@ -51,6 +51,17 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# TanStack generated routes and UI server bundles
+/packages/ui/src/routeTree.gen.ts
+/packages/ui/production-server.mjs
+/packages/ui/production-server.mjs.map
+/packages/ui/production-server.d.mts
+/packages/ui/production-server.d.mts.map
+/packages/ui/server.mjs
+/packages/ui/server.mjs.map
+/packages/ui/server.d.mts
+/packages/ui/server.d.mts.map
+
 # Optional npm cache directory
 .npm
 
@@ -113,6 +124,7 @@ dist
 # Local evaluation and agent artifacts
 /.viteval/
 /packages/*/.viteval/
+/packages/viteval/.test-*/
 **/.vitest/
 .serena/
 /examples/basic/.viteval/datasets/number-parsing.json

@@ -7,6 +7,6 @@
     "incremental": false,
     "noEmit": false
   },
-  "include": ["server.ts"],
+  "include": ["server.ts", "production-server.ts"],
   "exclude": ["node_modules", "dist"]
 }

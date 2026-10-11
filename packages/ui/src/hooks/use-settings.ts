@@ -1,9 +1,7 @@
-'use client';
-
-import { useCallback, useMemo } from 'react';
-import { useLocalStorage } from '@uidotdev/usehooks';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 const SETTINGS_KEY = 'viteval:settings';
+const SETTINGS_EVENT = 'viteval:settings-changed';
 
 /**
  * All user-configurable settings for the Viteval UI.
@@ -47,9 +45,26 @@ export type SettingsKey = keyof VitevalSettings;
  * @returns Settings state and mutation helpers
  */
 export function useSettings() {
-  const [settings, setSettings] = useLocalStorage<VitevalSettings>(
-    SETTINGS_KEY,
-    DEFAULT_SETTINGS
+  const storedSettings = useSyncExternalStore(
+    subscribeToSettings,
+    getStoredSettings,
+    () => null
+  );
+
+  const settings = useMemo(
+    () => parseStoredSettings(storedSettings),
+    [storedSettings]
+  );
+  const setSettings = useCallback(
+    (
+      update: VitevalSettings | ((previous: VitevalSettings) => VitevalSettings)
+    ) => {
+      const previous = parseStoredSettings(getStoredSettings());
+      const next = typeof update === 'function' ? update(previous) : update;
+      window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event(SETTINGS_EVENT));
+    },
+    []
   );
 
   const merged = useMemo<VitevalSettings>(
@@ -139,4 +154,41 @@ export function useSettings() {
     settings: merged,
     updateSetting,
   } as const;
+}
+
+function getStoredSettings() {
+  return window.localStorage.getItem(SETTINGS_KEY);
+}
+
+function parseStoredSettings(value: string | null): VitevalSettings {
+  if (!value) {
+    return DEFAULT_SETTINGS;
+  }
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      return DEFAULT_SETTINGS;
+    }
+    return { ...DEFAULT_SETTINGS, ...parsed };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
+function subscribeToSettings(onChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === SETTINGS_KEY || event.key === null) {
+      onChange();
+    }
+  };
+  window.addEventListener('storage', onStorage);
+  window.addEventListener(SETTINGS_EVENT, onChange);
+  return () => {
+    window.removeEventListener('storage', onStorage);
+    window.removeEventListener(SETTINGS_EVENT, onChange);
+  };
 }

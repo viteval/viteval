@@ -73,3 +73,14 @@ config. Omitting `outputFile` writes the completed evaluation JSON to stdout.
 `viteval data` now scans dataset and eval modules. Default exports, named exports,
 and inline `defineDataset()` calls are supported; generation skips evaluation
 tasks and scorers. See [CLI datasets](./cli#datasets).
+
+## Dashboard
+
+The UI now uses TanStack Start and TanStack Router with Vite builds instead of
+Next.js. Continue using `viteval ui`; result/dataset files and existing dashboard
+URLs do not need conversion. The published package includes both browser assets
+and the server bundle. The `createVitevalServer()` launcher API is preserved.
+
+For repository development, use `pnpm dev:ui examples/basic` on port 6274.
+Production output lives under `packages/ui/dist/client` and
+`packages/ui/dist/server`; Next.js standalone output is no longer used.

@@ -70,7 +70,20 @@ project-specific dependencies.
 
 ### @viteval/ui
 
-Web interface for viewing results. React-based dashboard for exploring evaluation results, datasets, and metrics.
+TanStack Start + React dashboard for exploring evaluation results, datasets, and
+metrics. TanStack Router file routes preserve dashboard, results, datasets,
+suites, settings, and `/api/*` URLs. Route loaders render project data on the
+server; React handles filtering, case expansion, and tagging after hydration.
+
+Vite builds browser assets into `dist/client` and the Start request handler into
+`dist/server/server.js`. The public `server.mjs` launcher and `server.d.mts`
+declarations retain `createVitevalServer()` and its start, restart, shutdown, and
+exit-waiting API. The launcher starts a Node child process whose Hono bridge
+serves browser assets and forwards dynamic requests to Start. The selected
+project root is passed to that process through `VITEVAL_ROOT_PATH`.
+
+`pnpm dev:ui examples/basic` runs the Vite development server on port 6274.
+Production checks exercise the packaged launcher, not the development server.
 
 ### @viteval/internal
 

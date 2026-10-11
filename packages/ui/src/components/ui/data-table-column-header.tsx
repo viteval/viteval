@@ -1,5 +1,3 @@
-"use client"
-
 import { type Column, type RowData } from "@tanstack/react-table"
 import { Icon } from "@iconify/react"
 

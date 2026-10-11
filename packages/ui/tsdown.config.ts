@@ -3,7 +3,7 @@ import { defineConfig } from 'tsdown';
 export default defineConfig({
   clean: false,
   dts: { generator: 'tsgo' },
-  entry: ['server.ts'],
+  entry: ['server.ts', 'production-server.ts'],
   format: ['esm'],
   minify: true,
   outDir: '.',

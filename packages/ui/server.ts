@@ -59,19 +59,16 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
 
       const serverScript = path.join(
         import.meta.dirname,
-        'dist',
-        '.next',
-        'standalone',
-        'packages',
-        'ui',
-        'server.js'
+        'production-server.mjs'
       );
 
       return new Promise((resolve, reject) => {
         child = fork(serverScript, {
+          cwd: root,
           env: {
             ...process.env,
             HOSTNAME: 'localhost',
+            NODE_ENV: 'production',
             PORT: String(port),
             VITEVAL_DEBUG_MODE: options?.debug ? 'true' : 'false',
             VITEVAL_ROOT_PATH: root,
@@ -120,6 +117,16 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
         };
 
         child.on('error', finish);
+        child.on('message', (message) => {
+          if (
+            typeof message === 'object' &&
+            message !== null &&
+            'type' in message &&
+            message.type === 'ready'
+          ) {
+            finish(port);
+          }
+        });
         child.on('exit', (code, signal) => {
           child = undefined;
           if (settled) {

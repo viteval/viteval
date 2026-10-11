@@ -92,7 +92,7 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   browser(['wait', '--text', 'Invalid result file: broken.json']);
   let snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Failed/);
-  click({ snapshot, role: 'button', name: /Failed.*4 2 8/ });
+  click({ snapshot, role: ['button', 'link'], name: /Failed.*4 2 8/ });
   browser(['wait', '--text', 'Browser smoke: task failed']);
   snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Uppercase \[alpha\]/);
@@ -103,7 +103,7 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Expected:/);
   assert.ok(
-    snapshot.snapshot.match(/Browser smoke: task failed/g).length >= 2,
+    (snapshot.snapshot.match(/Browser smoke: task failed/g) ?? []).length >= 2,
     'Expanded case must expose its execution error'
   );
   click({ snapshot, role: 'button', name: /^hello / });
@@ -113,7 +113,15 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   browser(['goto', '--url', `${url}/datasets`]);
   browser(['wait', '--text', dataset.value.name]);
   snapshot = browser(['snapshot']);
-  click({ snapshot, role: 'button', name: /^questions\/first,release / });
+  click({
+    snapshot,
+    role: ['button', 'link'],
+    name: /^questions\/first,release /,
+  });
+  browser(['wait', '--text', 'Items']);
+  snapshot = browser(['snapshot']);
+  assert.match(snapshot.origin, /questions%2Ffirst%2Crelease/);
+  browser(['reload']);
   browser(['wait', '--text', 'Items']);
   snapshot = browser(['snapshot']);
   assert.match(snapshot.origin, /questions%2Ffirst%2Crelease/);
@@ -240,8 +248,9 @@ function browser(args) {
 }
 
 function findRef({ snapshot, role, name }) {
+  const roles = Array.isArray(role) ? role : [role];
   const match = Object.entries(snapshot.refs).find(
-    ([, ref]) => ref.role === role && name.test(ref.name)
+    ([, ref]) => roles.includes(ref.role) && name.test(ref.name)
   );
   assert.ok(match, `Missing ${role} ${name}: ${snapshot.snapshot}`);
   return match[0];

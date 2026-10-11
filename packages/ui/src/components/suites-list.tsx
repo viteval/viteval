@@ -1,7 +1,5 @@
-'use client';
-
+import { useLocation } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import type { SuiteSummary } from '@/types';
 import type { FilterConfig } from '@/components/list-filter';
 import { ListFilter } from '@/components/list-filter';
@@ -22,7 +20,8 @@ interface SuitesListProps {
 }
 
 export function SuitesList({ suites }: SuitesListProps) {
-  const searchParams = useSearchParams();
+  const searchStr = useLocation({ select: (location) => location.searchStr });
+  const searchParams = new URLSearchParams(searchStr);
   const search = searchParams.get('q') ?? '';
   const status = searchParams.get('status') ?? 'all';
 
