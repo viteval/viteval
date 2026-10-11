@@ -7,6 +7,10 @@ import { createVitest, type Reporter } from 'vitest/node';
 import type { TestArtifactBase } from 'vitest';
 import { createDatasetWorker } from '#/commands/data/worker';
 import {
+  createDatasetBootstrap,
+  instrumentDatasetModule,
+} from '#/commands/data/bootstrap';
+import {
   DATA_ARGS,
   DATA_OPTIONS,
   DATA_POSITIONALS,
@@ -51,17 +55,38 @@ export const dataCommand = command({
         progress?.advance(1, outcome.name);
       },
     };
+    let matchedFiles = new Set<string>();
+    const checkpoint = `__viteval_dataset_${randomUUID().replaceAll('-', '')}`;
     try {
-      const vitest = await createVitest({
-        config: argv.config,
-        root: path.resolve(process.cwd(), argv.root ?? '.'),
-        run: true,
-        watch: false,
-        testNamePattern: '^viteval dataset: ',
-        reporters: [reporter],
-      });
+      const vitest = await createVitest(
+        {
+          config: argv.config,
+          root: path.resolve(process.cwd(), argv.root ?? '.'),
+          run: true,
+          watch: false,
+          testNamePattern: '^viteval dataset: ',
+          reporters: [reporter],
+        },
+        {
+          plugins: [
+            {
+              name: 'viteval-dataset-discovery',
+              enforce: 'post',
+              transform(code, id) {
+                const file = id.split('?')[0];
+                if (!file || !matchedFiles.has(file)) return;
+                return {
+                  code: instrumentDatasetModule({ code, file, checkpoint }),
+                  map: null,
+                };
+              },
+            },
+          ],
+        }
+      );
 
       let workerPath: string | undefined;
+      let bootstrapPath: string | undefined;
       try {
         const project = argv.project
           ? vitest.getProjectByName(argv.project)
@@ -82,6 +107,9 @@ export const dataCommand = command({
           process.exitCode = 1;
           return;
         }
+        matchedFiles = new Set(
+          datasets.map((file) => path.resolve(rootPath, file))
+        );
 
         workerPath = path.join(
           rootPath,
@@ -89,17 +117,31 @@ export const dataCommand = command({
           `.data-${randomUUID()}.test.mjs`
         );
         await mkdir(path.dirname(workerPath), { recursive: true });
+        bootstrapPath = workerPath.replace('.test.mjs', '.setup.mjs');
+        await writeFile(bootstrapPath, createDatasetBootstrap(), {
+          flag: 'wx',
+        });
+        project.config = {
+          ...project.config,
+          isolate: true,
+          setupFiles: [bootstrapPath, ...project.config.setupFiles],
+          sequence: { ...project.config.sequence, setupFiles: 'list' },
+          tags: [...project.config.tags, { name: 'viteval-dataset' }],
+        };
         await writeFile(
           workerPath,
           createDatasetWorker({
             files: datasets.map((file) => path.resolve(rootPath, file)),
             root: rootPath,
             overwrite: argv.overwrite,
+            bootstrap: bootstrapPath,
           }),
           { flag: 'wx' }
         );
         const run = await vitest.runTestSpecifications([
-          project.createSpecification(workerPath),
+          project.createSpecification(workerPath, {
+            testTagsFilter: ['viteval-dataset'],
+          }),
         ]);
         progress?.stop('Dataset generation finished');
         const runErrors = [
@@ -158,6 +200,7 @@ export const dataCommand = command({
           await vitest.close();
         } finally {
           if (workerPath) await rm(workerPath, { force: true });
+          if (bootstrapPath) await rm(bootstrapPath, { force: true });
         }
       }
     } catch (error) {

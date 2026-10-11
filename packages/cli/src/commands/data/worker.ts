@@ -2,24 +2,27 @@ import { pathToFileURL } from 'node:url';
 
 /**
  * Build a native Vitest module that generates datasets inside their project worker.
- * @param params - Dataset files, storage root, and overwrite policy.
+ * @param params - Dataset files, storage root, overwrite policy, and discovery setup path.
  * @returns JavaScript source for the temporary test module.
- * @example createDatasetWorker({ files: ['questions.dataset.ts'], root: process.cwd(), overwrite: false });
+ * @example createDatasetWorker({ files: ['questions.dataset.ts'], root: process.cwd(), overwrite: false, bootstrap: '/app/.viteval/data.setup.mjs' });
  */
 export function createDatasetWorker({
   files,
   root,
   overwrite,
+  bootstrap,
 }: {
   files: readonly string[];
   root: string;
   overwrite: boolean;
+  bootstrap: string;
 }): string {
   const datasets = files.map((file) => ({
     name: file,
     file: pathToFileURL(file).href,
   }));
   return `import { test, recordArtifact } from 'vitest';
+import { takeCandidates, moduleCandidates, restoreDiscovery } from ${JSON.stringify(pathToFileURL(bootstrap).href)};
 import { createJsonProvider, getDatasetProvider, initializeProvider } from 'viteval/provider';
 
 if (!getDatasetProvider()) {
@@ -30,53 +33,42 @@ if (!getDatasetProvider()) {
 const discovered = new Map();
 const conflicts = new Set();
 const failures = [];
-const previousDiscovery = globalThis.__viteval_datasetDiscovery;
-let candidates = [];
-globalThis.__viteval_datasetDiscovery = {
-  register(value) {
-    if (isDataset(value)) candidates = [...candidates, value];
-  },
-};
+takeCandidates();
 
 try {
   for (const item of ${JSON.stringify(datasets)}) {
-    candidates = [];
+    takeCandidates();
     try {
       const module = await import(item.file);
-      for (const value of Object.values(module)) {
-        if (isDataset(value)) candidates = [...candidates, value];
-      }
+      const candidates = [...takeCandidates(), ...moduleCandidates(item.name), ...Object.values(module)].filter(isDataset);
       if (!candidates.length && /\\.dataset\\.[^.]+$/.test(item.name)) {
         throw new Error('Dataset modules must define or export a defineDataset() result');
       }
-      for (const dataset of candidates) {
-        const existing = discovered.get(dataset.name);
-        if (existing && existing !== dataset) conflicts.add(dataset.name);
-        else discovered.set(dataset.name, dataset);
-      }
+      for (const dataset of candidates) discover(dataset);
     } catch (error) {
+      takeCandidates();
       failures.push({ name: item.name, error });
     }
   }
 } finally {
-  globalThis.__viteval_datasetDiscovery = previousDiscovery;
+  restoreDiscovery();
 }
 
 for (const { name, error } of failures) {
-  test('viteval dataset: ' + name, { meta: { vitevalDataset: true } }, async ({ task }) => {
+  test('viteval dataset: ' + name, { tags: ['viteval-dataset'], meta: { vitevalDataset: true } }, async ({ task }) => {
     await recordArtifact(task, { type: 'viteval:dataset', name, kind: 'failed', error: error instanceof Error ? error.message : String(error) });
     throw error;
   });
 }
 
 if (!discovered.size && !failures.length) {
-  test('viteval dataset: discovery', { meta: { vitevalDataset: true } }, () => {
+  test('viteval dataset: discovery', { tags: ['viteval-dataset'], meta: { vitevalDataset: true } }, () => {
     throw new Error('No datasets defined in the matched modules');
   });
 }
 
 for (const [name, dataset] of discovered) {
-  test('viteval dataset: ' + name, { concurrent: true, meta: { vitevalDataset: true } }, async ({ task }) => {
+  test('viteval dataset: ' + name, { tags: ['viteval-dataset'], concurrent: true, meta: { vitevalDataset: true } }, async ({ task }) => {
   try {
     if (conflicts.has(name)) {
       throw new Error('Distinct datasets share the same name: ' + name);
@@ -97,6 +89,12 @@ for (const [name, dataset] of discovered) {
     throw error;
   }
   });
+}
+
+function discover(dataset) {
+  const existing = discovered.get(dataset.name);
+  if (existing && existing !== dataset) conflicts.add(dataset.name);
+  else discovered.set(dataset.name, dataset);
 }
 
 function isDataset(value) {

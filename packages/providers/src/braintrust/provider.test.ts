@@ -1,4 +1,5 @@
 import { createServer, type Server } from 'node:http';
+import type Braintrust from '@braintrust/api';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { braintrust } from './provider';
 
@@ -6,10 +7,14 @@ let server: Server;
 let baseUrl: string;
 let requests: { method: string; path: string; body: unknown }[];
 let experiment: Record<string, unknown>;
+let dataset: (Braintrust.Dataset & { url_slug: string }) | undefined;
+let datasetUpdateStatus: 200 | 400 | 403;
 
 beforeEach(async () => {
   requests = [];
   experiment = {};
+  dataset = undefined;
+  datasetUpdateStatus = 200;
   server = createServer(async (request, response) => {
     let text = '';
     for await (const chunk of request) text += String(chunk);
@@ -24,12 +29,63 @@ beforeEach(async () => {
     let result: unknown;
     if (url.pathname === '/v1/project')
       result = { objects: [{ id: 'project', name: 'test-project' }] };
-    else if (url.pathname === '/v1/dataset' && request.method === 'POST')
-      result = {
-        ...record(body),
-        id: 'dataset',
-        created: new Date().toISOString(),
-      };
+    else if (url.pathname === '/v1/dataset' && request.method === 'POST') {
+      const fields = record(body);
+      if (
+        typeof fields.name !== 'string' ||
+        !fields.name.trim() ||
+        typeof fields.project_id !== 'string' ||
+        Object.keys(fields).some(
+          (key) => !['name', 'project_id', 'description'].includes(key)
+        )
+      ) {
+        response.statusCode = 400;
+        result = {
+          message: 'Invalid @braintrust/api 0.5 dataset create parameters',
+        };
+      } else {
+        dataset = {
+          name: fields.name,
+          project_id: fields.project_id,
+          description:
+            typeof fields.description === 'string' ? fields.description : null,
+          id: 'dataset',
+          url_slug: 'questions',
+          created: new Date().toISOString(),
+          deleted_at: null,
+          metadata: {},
+        };
+        result = dataset;
+      }
+    } else if (
+      url.pathname === '/v1/dataset/dataset' &&
+      request.method === 'PATCH'
+    ) {
+      const fields = record(body);
+      if (datasetUpdateStatus !== 200) {
+        response.statusCode = datasetUpdateStatus;
+        result = { message: 'Dataset metadata update rejected' };
+      } else if (
+        !dataset ||
+        !isMetadataRecord(fields.metadata) ||
+        Object.keys(fields).some(
+          (key) => !['name', 'description', 'metadata'].includes(key)
+        )
+      ) {
+        response.statusCode = 400;
+        result = { message: 'Invalid dataset patch parameters' };
+      } else {
+        dataset = {
+          ...dataset,
+          metadata: { ...dataset.metadata, ...fields.metadata },
+        };
+        result = dataset;
+      }
+    } else if (
+      url.pathname === '/v1/dataset/dataset' &&
+      request.method === 'GET'
+    )
+      result = dataset;
     else if (url.pathname === '/v1/dataset/dataset/fetch')
       result = record(body).cursor
         ? { events: [{ id: 'second', input: 'second', expected: 'SECOND' }] }
@@ -100,6 +156,89 @@ afterEach(async () => {
 });
 
 describe('Braintrust HTTP contract', () => {
+  it('should preserve dataset creation metadata through the SDK HTTP boundary', async () => {
+    const provider = braintrust({
+      project: 'test-project',
+      apiKey: 'test-only-key',
+      baseUrl,
+    });
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    const metadata = { source: 'release', nested: { revision: 1 } };
+    expect(
+      await provider.datasets!.create({ name: 'questions', metadata })
+    ).toMatchObject({ ok: true, value: { metadata } });
+    expect(
+      requests.find(
+        (request) => request.method === 'POST' && request.path === '/v1/dataset'
+      )?.body
+    ).toEqual({ name: 'questions', project_id: 'project' });
+    expect(
+      requests.find(
+        (request) =>
+          request.method === 'PATCH' && request.path === '/v1/dataset/dataset'
+      )?.body
+    ).toEqual({ metadata });
+    const reader = braintrust({
+      project: 'test-project',
+      apiKey: 'test-only-key',
+      baseUrl,
+    });
+    const readerInitialized = await reader.initialize();
+    if (!readerInitialized.ok) throw readerInitialized.error;
+    expect(await reader.datasets!.get({ id: 'dataset' })).toMatchObject({
+      ok: true,
+      value: { metadata },
+    });
+    expect(
+      requests.some(
+        (request) =>
+          request.method === 'GET' && request.path === '/v1/dataset/dataset'
+      )
+    ).toBe(true);
+  });
+
+  it.each([400, 403] as const)(
+    'should return a failed Result when metadata PATCH is rejected with HTTP %s',
+    async (status) => {
+      const provider = braintrust({
+        project: 'test-project',
+        apiKey: 'test-only-key',
+        baseUrl,
+      });
+      const initialized = await provider.initialize();
+      if (!initialized.ok) throw initialized.error;
+      datasetUpdateStatus = status;
+      expect(
+        await provider.datasets!.create({
+          name: 'questions',
+          metadata: { source: 'release' },
+          items: [{ input: 'q', expected: 'a' }],
+        })
+      ).toMatchObject({ ok: false, error: { status } });
+      expect(dataset?.metadata).toEqual({});
+      expect(
+        requests.some(
+          (request) => request.path === '/v1/dataset/dataset/insert'
+        )
+      ).toBe(false);
+    }
+  );
+
+  it('should omit the companion PATCH when creation metadata is absent', async () => {
+    const provider = braintrust({
+      project: 'test-project',
+      apiKey: 'test-only-key',
+      baseUrl,
+    });
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    expect(
+      await provider.datasets!.create({ name: 'questions' })
+    ).toMatchObject({ ok: true, value: { metadata: {} } });
+    expect(requests.some((request) => request.method === 'PATCH')).toBe(false);
+  });
+
   it('should paginate datasets and replace items with a single insertion request', async () => {
     const provider = braintrust({
       project: 'test-project',
@@ -198,4 +337,8 @@ function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? Object.fromEntries(Object.entries(value))
     : {};
+}
+
+function isMetadataRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }

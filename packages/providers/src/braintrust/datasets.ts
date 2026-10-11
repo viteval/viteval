@@ -48,11 +48,18 @@ export function createBraintrustDatasetOps(
     create: (params) =>
       attemptAsync(async () => {
         const client = await getClient();
-        const dataset = await client.datasets.create({
+        const created = await client.datasets.create({
           description: params.description,
           name: params.name,
           project_id: getProjectId(),
         });
+        // @braintrust/api 0.5 supports dataset metadata through PATCH, not its create parameters.
+        const dataset =
+          params.metadata === undefined
+            ? created
+            : await client.datasets.update(created.id, {
+                metadata: params.metadata,
+              });
 
         if (params.items?.length) {
           await client.datasets.insert(dataset.id, {

@@ -420,6 +420,130 @@ evaluate('questions', { data: dataset, task: () => { throw new Error('task ran')
     expect(saved.data).toEqual([{ input: 'setup', expected: 'answer' }]);
   });
 
+  it.each(['forks', 'threads'])(
+    'should discover setup-imported inline datasets once in %s workers',
+    async (pool) => {
+      const root = path.join(DATA_TEST_DIR, `setup-inline-${pool}`);
+      const marker = path.join(root, 'generator-calls.txt');
+      const workerConfig = {
+        pool,
+        isolate: false,
+        sequence: { setupFiles: 'parallel' },
+        setupFiles: ['./first.setup.ts', './second.setup.ts'],
+      };
+      const testConfig =
+        pool === 'threads'
+          ? { projects: [{ test: { ...workerConfig, name: 'datasets' } }] }
+          : workerConfig;
+      await fs.mkdir(root, { recursive: true });
+      await fs.writeFile(
+        path.join(root, 'vitest.config.ts'),
+        `export default { test: ${JSON.stringify(testConfig)} };`
+      );
+      await fs.writeFile(
+        path.join(root, 'first.setup.ts'),
+        `import './questions.eval';
+import { afterAll } from 'vitest';
+import { defineDataset } from 'viteval/dataset';
+defineDataset({ name: 'unmatched-setup', data: async () => { throw new Error('unmatched setup dataset generated'); } });
+afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });`
+      );
+      await fs.writeFile(
+        path.join(root, 'second.setup.ts'),
+        "import './questions.eval';"
+      );
+      await fs.writeFile(
+        path.join(root, 'questions.eval.ts'),
+        `import { appendFile } from 'node:fs/promises';
+import { evaluate } from 'viteval';
+import { defineDataset } from 'viteval/dataset';
+import { describe, test } from 'vitest';
+let calls = 0;
+const dataset = defineDataset({ name: 'setup-inline', data: async () => {
+  await appendFile(${JSON.stringify(marker)}, 'generated\\n');
+  if (++calls !== 1) throw new Error('dataset generator ran more than once');
+  return [{ input: 'inline', expected: 'answer' }];
+} });
+evaluate('setup imported evaluation', { data: dataset, task: () => { throw new Error('eval task ran'); }, scorers: [() => { throw new Error('eval scorer ran'); }] });
+evaluate('setup imported generator', { data: async () => { throw new Error('eval collection generator ran'); }, task: () => 'answer', scorers: [] });
+test('viteval dataset: ordinary test', () => { throw new Error('ordinary test ran'); });
+describe('ordinary suite', () => {
+  test('ordinary nested test', () => { throw new Error('ordinary nested test ran'); });
+});`
+      );
+      const result = runCli({
+        args: [
+          'data',
+          'questions.eval.ts',
+          '--root',
+          root,
+          '--overwrite',
+          ...(pool === 'threads' ? ['--project', 'datasets'] : []),
+        ],
+      });
+      expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+      expect(`${result.stdout}${result.stderr}`).toContain(
+        'Generated 1 datasets'
+      );
+      expect(await fs.readFile(marker, 'utf8')).toBe('generated\n');
+      const saved = JSON.parse(
+        await fs.readFile(
+          path.join(root, '.viteval', 'datasets', 'setup-inline.json'),
+          'utf8'
+        )
+      );
+      expect(saved.data).toEqual([{ input: 'inline', expected: 'answer' }]);
+      expect(
+        (await fs.readdir(path.join(root, '.viteval'))).filter((name) =>
+          name.startsWith('.data-')
+        )
+      ).toEqual([]);
+    }
+  );
+
+  it('should discard setup-time candidates from a failed matched import', async () => {
+    const root = path.join(DATA_TEST_DIR, 'setup-failed-import');
+    await fs.mkdir(root, { recursive: true });
+    await fs.writeFile(
+      path.join(root, 'vitest.config.ts'),
+      "export default { test: { setupFiles: ['./caught.setup.ts'] } };"
+    );
+    await fs.writeFile(
+      path.join(root, 'caught.setup.ts'),
+      "import './valid.eval';\ntry { await import('./broken.eval'); } catch {}"
+    );
+    await fs.writeFile(
+      path.join(root, 'valid.eval.ts'),
+      `import { defineDataset } from 'viteval/dataset';
+const dataset = defineDataset({ name: 'valid-setup-import', data: async () => [{ input: 'valid', expected: 'answer' }] });`
+    );
+    await fs.writeFile(
+      path.join(root, 'broken.eval.ts'),
+      `import { defineDataset } from 'viteval/dataset';
+const dataset = defineDataset({ name: 'failed-setup-import', data: async () => [{ input: 'q', expected: 'a' }] });
+throw new Error('setup eval import exploded');`
+    );
+    const result = runCli({
+      args: ['data', '*.eval.ts', '--root', root, '-V'],
+    });
+    expect(result.status).toBe(1);
+    expect(`${result.stdout}${result.stderr}`).toContain(
+      'setup eval import exploded'
+    );
+    await expect(
+      fs.access(
+        path.join(root, '.viteval', 'datasets', 'failed-setup-import.json')
+      )
+    ).rejects.toThrow();
+    const saved = JSON.parse(
+      await fs.readFile(
+        path.join(root, '.viteval', 'datasets', 'valid-setup-import.json'),
+        'utf8'
+      )
+    );
+    expect(saved.data).toEqual([{ input: 'valid', expected: 'answer' }]);
+  });
+
   it('should reject distinct datasets with the same name before writing either', async () => {
     for (const name of ['duplicate-first', 'duplicate-second']) {
       await fs.writeFile(
