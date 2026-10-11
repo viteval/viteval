@@ -4,6 +4,7 @@ import type { ResultFile } from '@/types';
 import type { FilterConfig } from '@/components/list-filter';
 import { ListFilter } from '@/components/list-filter';
 import { ResultsTable } from '@/components/results-table';
+import type { RemoteTableState } from '@/components/ui/data-table';
 
 const filterConfig: FilterConfig = {
   search: { type: 'date-range' },
@@ -17,9 +18,10 @@ const filterConfig: FilterConfig = {
 
 interface ResultsListProps {
   results: ResultFile[];
+  remote?: RemoteTableState;
 }
 
-export function ResultsList({ results }: ResultsListProps) {
+export function ResultsList({ results, remote }: ResultsListProps) {
   const searchStr = useLocation({ select: (location) => location.searchStr });
   const searchParams = new URLSearchParams(searchStr);
   const from = searchParams.get('from') ?? '';
@@ -67,7 +69,7 @@ export function ResultsList({ results }: ResultsListProps) {
   return (
     <div className="space-y-4">
       <ListFilter config={filterConfig} />
-      <ResultsTable results={filtered} />
+      <ResultsTable results={remote ? results : filtered} remote={remote} />
     </div>
   );
 }

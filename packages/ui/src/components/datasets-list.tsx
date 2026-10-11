@@ -4,6 +4,7 @@ import type { DatasetSummary } from '@/types';
 import type { FilterConfig } from '@/components/list-filter';
 import { ListFilter } from '@/components/list-filter';
 import { DatasetsTable } from '@/components/datasets-table';
+import type { RemoteTableState } from '@/components/ui/data-table';
 
 const filterConfig: FilterConfig = {
   search: { placeholder: 'Search by name...', type: 'text' },
@@ -11,9 +12,10 @@ const filterConfig: FilterConfig = {
 
 interface DatasetsListProps {
   datasets: DatasetSummary[];
+  remote?: RemoteTableState;
 }
 
-export function DatasetsList({ datasets }: DatasetsListProps) {
+export function DatasetsList({ datasets, remote }: DatasetsListProps) {
   const searchStr = useLocation({ select: (location) => location.searchStr });
   const searchParams = new URLSearchParams(searchStr);
   const search = searchParams.get('q') ?? '';
@@ -33,7 +35,7 @@ export function DatasetsList({ datasets }: DatasetsListProps) {
   return (
     <div className="space-y-4">
       <ListFilter config={filterConfig} />
-      <DatasetsTable datasets={filtered} />
+      <DatasetsTable datasets={remote ? datasets : filtered} remote={remote} />
     </div>
   );
 }

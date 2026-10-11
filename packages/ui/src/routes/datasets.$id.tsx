@@ -11,6 +11,7 @@ import { getDataset } from '@/server/page-functions';
 export const Route = createFileRoute('/datasets/$id')({
   loader: async ({ params }) => {
     const response = await getDataset({ data: params });
+    if ('error' in response) throw new Error(response.error);
     if (!response.data) {
       throw notFound();
     }
@@ -20,6 +21,14 @@ export const Route = createFileRoute('/datasets/$id')({
     meta: [{ title: `${loaderData?.name ?? 'Dataset'} | Viteval` }],
   }),
   component: DatasetDetailPage,
+  errorComponent: ({ error }) => (
+    <div className="container mx-auto p-6 space-y-6 overflow-hidden">
+      <PageHeader
+        title="Error"
+        description={error instanceof Error ? error.message : String(error)}
+      />
+    </div>
+  ),
 });
 
 function DatasetDetailPage() {

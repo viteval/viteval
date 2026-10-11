@@ -5,6 +5,8 @@ import {
   type Row,
   type RowData,
   type SortingState,
+  type PaginationState,
+  type Updater,
   flexRender,
   useTable,
 } from "@tanstack/react-table"
@@ -21,12 +23,21 @@ import {
 import { DataTablePagination } from "@/components/ui/data-table-pagination"
 import { dataTableFeatures, type DataTableFeatures } from "@/components/ui/data-table-features"
 
+export interface RemoteTableState {
+  total: number
+  pagination: PaginationState
+  sorting: SortingState
+  onPaginationChange: (updater: Updater<PaginationState>) => void
+  onSortingChange: (updater: Updater<SortingState>) => void
+}
+
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData, unknown>[]
   data: TData[]
   onRowClick?: (row: TData) => void
   getRowCanExpand?: (row: Row<DataTableFeatures, TData>) => boolean
   renderExpandedRow?: (row: Row<DataTableFeatures, TData>) => React.ReactNode
+  remote?: RemoteTableState
 }
 
 function DataTable<TData extends RowData>({
@@ -35,6 +46,7 @@ function DataTable<TData extends RowData>({
   onRowClick,
   getRowCanExpand,
   renderExpandedRow,
+  remote,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -45,11 +57,16 @@ function DataTable<TData extends RowData>({
     columns,
     features: dataTableFeatures,
     getRowCanExpand,
-    onSortingChange: setSorting,
+    manualPagination: Boolean(remote),
+    manualSorting: Boolean(remote),
+    rowCount: remote?.total,
+    ...(remote ? { onPaginationChange: remote.onPaginationChange } : {}),
+    onSortingChange: remote?.onSortingChange ?? setSorting,
     onColumnFiltersChange: setColumnFilters,
     onExpandedChange: setExpanded,
     state: {
-      sorting,
+      sorting: remote?.sorting ?? sorting,
+      ...(remote ? { pagination: remote.pagination } : {}),
       columnFilters,
       expanded,
     },

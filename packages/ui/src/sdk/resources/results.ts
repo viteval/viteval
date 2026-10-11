@@ -1,6 +1,8 @@
 import type { EvalResults, ResultFile } from '@/types';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
 import { suiteName } from '@/lib/suite-name';
+import { suiteId } from '@/lib/suite-id';
+import { sortItems } from '../sort';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
 import type {
@@ -47,6 +49,7 @@ async function parseResultFile(
       status: results.status,
       success: results.success,
       suiteNames,
+      suiteIds: results.evalResults.map(suiteId),
     },
   };
 }
@@ -93,7 +96,12 @@ export function createResultsResource(fsHelper: FsHelper): ResultsResource {
       let items = loaded.items;
 
       if (params?.status) {
-        items = items.filter((r) => r.summary?.status === params.status);
+        items = items.filter((r) =>
+          params.status === 'passed' || params.status === 'failed'
+            ? r.summary?.status !== 'running' &&
+              r.summary?.success === (params.status === 'passed')
+            : r.summary?.status === params.status
+        );
       }
 
       if (params?.suite) {
@@ -101,6 +109,49 @@ export function createResultsResource(fsHelper: FsHelper): ResultsResource {
           r.summary?.suiteNames?.includes(params.suite!)
         );
       }
+
+      if (params?.suiteId)
+        items = items.filter((r) =>
+          r.summary?.suiteIds.includes(params.suiteId!)
+        );
+      if (params?.q) {
+        const query = params.q.toLowerCase();
+        items = items.filter((r) => r.name.toLowerCase().includes(query));
+      }
+      for (const [bound, value] of [
+        ['from', params?.from],
+        ['to', params?.to],
+      ] as const) {
+        if (!value) continue;
+        const timestamp = Date.parse(value);
+        if (!Number.isFinite(timestamp)) continue;
+        items = items.filter((r) =>
+          bound === 'from'
+            ? (r.summary?.startTime ?? 0) >= timestamp
+            : (r.summary?.startTime ?? 0) <= timestamp
+        );
+      }
+      items = sortItems({
+        items,
+        sort: params?.sort,
+        order: params?.order,
+        defaultSort: 'startTime',
+        defaultOrder: 'desc',
+        fields: {
+          name: (r) => r.name,
+          startTime: (r) => r.summary?.startTime ?? 0,
+          status: (r) =>
+            r.summary?.status === 'running'
+              ? 'running'
+              : r.summary?.success
+                ? 'passed'
+                : 'failed',
+          duration: (r) => r.summary?.duration ?? 0,
+          passed: (r) => r.summary?.numPassedEvals ?? 0,
+          failed: (r) => r.summary?.numFailedEvals ?? 0,
+          total: (r) => r.summary?.numTotalEvals ?? 0,
+        },
+      });
 
       return {
         ...paginate(items, { limit: params?.limit, page: params?.page }),

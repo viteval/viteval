@@ -1,6 +1,7 @@
 import { createViteval, parsePaginateParams } from '@/sdk';
+import { resultsSearchSchema } from './search';
 
-const RESULT_STATUSES = ['running', 'finished'] as const;
+const RESULT_STATUSES = ['running', 'finished', 'passed', 'failed'] as const;
 type ResultStatus = (typeof RESULT_STATUSES)[number];
 
 function parseStatus(value: string | null): ResultStatus | undefined {
@@ -19,9 +20,13 @@ export async function GET(request: Request) {
 
   const viteval = createViteval();
   const result = await viteval.results.list({
-    ...parsePaginateParams(searchParams),
+    ...resultsSearchSchema.parse({
+      ...Object.fromEntries(searchParams),
+      ...parsePaginateParams(searchParams),
+    }),
     status,
     suite,
+    suiteId: searchParams.get('suiteId') ?? undefined,
   });
   return Response.json(result);
 }

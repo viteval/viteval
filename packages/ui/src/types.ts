@@ -38,6 +38,7 @@ export interface ResultFile {
     startTime: number;
     endTime: number;
     suiteNames: string[];
+    suiteIds: string[];
   } | null;
 }
 

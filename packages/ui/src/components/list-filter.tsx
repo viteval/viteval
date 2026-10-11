@@ -58,6 +58,7 @@ export function ListFilter({ config }: ListFilterProps) {
   const updateParams = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchStr);
+      params.delete('page');
       const isStatusDefault = key === 'status' && value === 'all';
       const isSortDefault = key === 'sort' && value === defaultSort;
       if (!value || isStatusDefault || isSortDefault) {

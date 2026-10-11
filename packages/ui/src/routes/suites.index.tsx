@@ -2,19 +2,22 @@ import { createFileRoute } from '@tanstack/react-router';
 import { EvalsIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { SuitesList } from '@/components/suites-list';
-import { paginationSearchSchema } from '@/server/search';
+import { suitesSearchSchema } from '@/server/search';
+import { useRemoteTable } from '@/hooks/use-remote-table';
 import { getSuites } from '@/server/page-functions';
 
 export const Route = createFileRoute('/suites/')({
-  validateSearch: paginationSearchSchema,
-  loaderDeps: ({ search }) => ({ page: search.page, limit: search.limit }),
+  validateSearch: suitesSearchSchema,
+  loaderDeps: ({ search }) => search,
   loader: ({ deps }) => getSuites({ data: deps }),
   head: () => ({ meta: [{ title: 'Evals | Viteval' }] }),
   component: SuitesPage,
 });
 
 function SuitesPage() {
-  const { data: suites } = Route.useLoaderData();
+  const response = Route.useLoaderData();
+  const { data: suites } = response;
+  const remote = useRemoteTable(response);
 
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
@@ -23,7 +26,7 @@ function SuitesPage() {
         title="Evals"
         description="All evaluations across runs"
       />
-      <SuitesList suites={suites} />
+      <SuitesList suites={suites} remote={remote} />
     </div>
   );
 }

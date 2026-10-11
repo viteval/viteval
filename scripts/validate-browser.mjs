@@ -90,6 +90,7 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   await writeFile(path.join(root, '.viteval/results/broken.json'), '{broken');
   browser(['goto', '--url', `${url}/results`]);
   browser(['wait', '--text', 'Invalid result file: broken.json']);
+  waitTableInteractive();
   let snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Failed/);
   click({ snapshot, role: ['button', 'link'], name: /Failed.*4 2 8/ });
@@ -112,20 +113,32 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
 
   browser(['goto', '--url', `${url}/datasets`]);
   browser(['wait', '--text', dataset.value.name]);
+  waitTableInteractive();
   snapshot = browser(['snapshot']);
   click({
     snapshot,
     role: ['button', 'link'],
     name: /^questions\/first,release /,
   });
-  browser(['wait', '--text', 'Items']);
+  waitDatasetDetail(dataset.value.id);
   snapshot = browser(['snapshot']);
-  assert.match(snapshot.origin, /questions%2Ffirst%2Crelease/);
+  assert.equal(
+    new URL(snapshot.origin).pathname,
+    `/datasets/${encodeURIComponent(dataset.value.id)}`
+  );
   browser(['reload']);
-  browser(['wait', '--text', 'Items']);
+  waitDatasetDetail(dataset.value.id);
   snapshot = browser(['snapshot']);
-  assert.match(snapshot.origin, /questions%2Ffirst%2Crelease/);
-  click({ snapshot, role: 'button', name: /^questions\/first,release:0 / });
+  assert.equal(
+    new URL(snapshot.origin).pathname,
+    `/datasets/${encodeURIComponent(dataset.value.id)}`
+  );
+  browser([
+    'focus',
+    '--element',
+    `@${findRef({ snapshot, role: 'button', name: /^questions\/first,release:0 / })}`,
+  ]);
+  browser(['keypress', '--key', 'Enter']);
   browser(['wait', '--text', 'Expected:']);
   browser(['wait', '--text', 'reference']);
   snapshot = browser(['snapshot']);
@@ -177,7 +190,7 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
     await setTimeout(50);
   }
   browser(['reload']);
-  browser(['wait', '--text', 'Items']);
+  waitDatasetDetail(dataset.value.id);
   const removed = await provider.tags.listTaggings({
     entityType: 'dataset',
     entityId: dataset.value.id,
@@ -187,18 +200,24 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   browser(['reload']);
   browser(['wait', '--text', 'Failed to load tags']);
   assert.match(browser(['snapshot']).snapshot, /Failed to load tags/);
+  await verifyRemoteDatasets({ provider, url });
   process.stdout.write(
-    'Browser passed: empty projects, project-qualified suites, passing/failing/skipped cases, diagnostics, malformed-file warnings, dataset metadata, encoded IDs, and tagging across reloads.\n'
+    'Browser passed: empty projects, project-qualified suites, passing/failing/skipped cases, diagnostics, malformed-file warnings, dataset metadata, encoded IDs, tagging across reloads, and 25-record remote pagination, row sizing, sorting, filtering, and browser back/reload.\n'
   );
 } catch (error) {
   if (page) {
     try {
+      const snapshot = browser(['snapshot']);
+      const network = browser(['network', '--limit', '10']);
       process.stderr.write(
         JSON.stringify(
           {
-            refs: browser(['snapshot']).refs,
+            origin: snapshot.origin,
+            refs: snapshot.refs,
             console: browser(['console', '--limit', '10']),
-            network: browser(['network', '--limit', '10']),
+            network: network.requests
+              ?.slice(-10)
+              .map(({ url, method, status }) => ({ url, method, status })),
           },
           null,
           2
@@ -244,7 +263,8 @@ function orca(args) {
 }
 
 function browser(args) {
-  return orca([...args, '--page', page]);
+  const timeout = args[0] === 'wait' ? ['--timeout', '10000'] : [];
+  return orca([...args, ...timeout, '--page', page]);
 }
 
 function findRef({ snapshot, role, name }) {
@@ -258,6 +278,202 @@ function findRef({ snapshot, role, name }) {
 
 function click(params) {
   browser(['click', '--element', `@${findRef(params)}`]);
+}
+
+function waitDatasetDetail(id) {
+  browser(['wait', '--url', `/datasets/${encodeURIComponent(id)}`]);
+  browser(['wait', '--text', `${id}:0`]);
+  waitTableInteractive();
+}
+
+function waitTableInteractive() {
+  browser([
+    'wait',
+    '--fn',
+    `document.querySelector('[data-slot="select-value"]')?.textContent.trim().length > 0`,
+  ]);
+  // Background tabs do not reliably deliver the exit-animation events Radix waits for.
+  browser([
+    'eval',
+    '--expression',
+    `(() => {
+    if (document.querySelector('style[data-viteval-browser-motion]')) return;
+    const style = document.createElement('style');
+    style.setAttribute('data-viteval-browser-motion', '');
+    style.textContent = '[data-slot="select-content"], [data-slot="dropdown-menu-content"], [data-slot="popover-content"] { animation: none !important; transition: none !important; }';
+    document.head.append(style);
+  })()`,
+  ]);
+}
+
+async function verifyRemoteDatasets({ provider, url }) {
+  for (let index = 0; index < 25; index++) {
+    const created = await provider.datasets.create({
+      name: `Browser page ${String(index).padStart(2, '0')}`,
+      items: [{ input: `question-${index}`, expected: `answer-${index}` }],
+    });
+    assert.equal(
+      created.ok,
+      true,
+      created.ok ? undefined : created.error.message
+    );
+  }
+  browser([
+    'goto',
+    '--url',
+    `${url}/datasets?custom=%22keep%22&custom=%5B1%2C2%5D`,
+  ]);
+  browser(['wait', '--text', 'Browser page 00']);
+  waitTableInteractive();
+  let snapshot = browser(['snapshot']);
+  assert.match(snapshot.snapshot, /26 row\(s\)/);
+  assert.doesNotMatch(snapshot.snapshot, /Browser page 24/);
+
+  activateControl({ selector: '[aria-label="Next page"]' });
+  browser([
+    'wait',
+    '--fn',
+    `new URLSearchParams(location.search).get('page') === '2'`,
+  ]);
+  browser(['wait', '--text', 'Browser page 20']);
+  snapshot = browser(['snapshot']);
+  assert.match(snapshot.snapshot, /Browser page 24/);
+  assert.doesNotMatch(snapshot.snapshot, /Browser page 00/);
+  assert.deepEqual(new URL(snapshot.origin).searchParams.getAll('custom'), [
+    '"keep"',
+    '[1,2]',
+  ]);
+  browser(['reload']);
+  browser(['wait', '--text', 'Browser page 20']);
+  waitTableInteractive();
+  assert.equal(
+    new URL(browser(['snapshot']).origin).searchParams.get('page'),
+    '2'
+  );
+  browser(['back']);
+  browser(['wait', '--text', 'Browser page 00']);
+  waitTableInteractive();
+  assert.equal(
+    new URL(browser(['snapshot']).origin).searchParams.get('page'),
+    '1'
+  );
+
+  activateControl({ selector: '[aria-label="Next page"]' });
+  browser(['wait', '--text', 'Browser page 20']);
+  changePageSize('50');
+  browser([
+    'wait',
+    '--fn',
+    `new URLSearchParams(location.search).get('limit') === '50' && new URLSearchParams(location.search).get('page') === '1'`,
+  ]);
+  browser(['wait', '--text', 'Browser page 00']);
+  snapshot = await waitForSnapshotText('Browser page 00');
+  assert.match(snapshot.snapshot, /Browser page 24/);
+  assert.match(
+    snapshot.snapshot,
+    /StaticText "1"\s+- StaticText " \/ "\s+- StaticText "1"/
+  );
+
+  activateControl({
+    selector: 'th button',
+    text: 'Name',
+    event: 'pointerdown',
+  });
+  browser(['wait', '--text', 'Desc']);
+  activateControl({ selector: '[role="menuitem"]', text: 'Desc' });
+  browser([
+    'wait',
+    '--fn',
+    `new URLSearchParams(location.search).get('sort') === 'name' && new URLSearchParams(location.search).get('order') === 'desc'`,
+  ]);
+  browser([
+    'wait',
+    '--fn',
+    `document.querySelector('tbody tr[role="button"]')?.textContent.includes('questions/first,release')`,
+  ]);
+
+  browser([
+    'goto',
+    '--url',
+    `${url}/datasets?page=2&limit=20&custom=%22keep%22&custom=%5B1%2C2%5D`,
+  ]);
+  browser(['wait', '--text', 'Browser page 20']);
+  waitTableInteractive();
+  snapshot = browser(['snapshot']);
+  const input = findRef({ snapshot, role: 'textbox', name: /Search by name/ });
+  browser(['fill', '--element', `@${input}`, '--value', 'Browser page 00']);
+  browser(['wait', '--text', '1 row(s)']);
+  snapshot = browser(['snapshot']);
+  assert.match(snapshot.snapshot, /Browser page 00/);
+  assert.doesNotMatch(snapshot.snapshot, /Browser page 20/);
+  assert.equal(new URL(snapshot.origin).searchParams.get('page'), '1');
+  assert.deepEqual(new URL(snapshot.origin).searchParams.getAll('custom'), [
+    '"keep"',
+    '[1,2]',
+  ]);
+
+  const nextInput = findRef({
+    snapshot,
+    role: 'textbox',
+    name: /Search by name/,
+  });
+  browser(['fill', '--element', `@${nextInput}`, '--value', 'Browser page 24']);
+  browser(['wait', '--text', 'Browser page 24']);
+  snapshot = browser(['snapshot']);
+  assert.match(snapshot.snapshot, /1 row\(s\)/);
+  assert.equal(
+    new URL(snapshot.origin).searchParams.get('q'),
+    'Browser page 24'
+  );
+  activateControl({ selector: '[title="Reset filters"]' });
+  browser(['wait', '--text', '26 row(s)']);
+  browser(['wait', '--text', 'Browser page 00']);
+}
+
+function changePageSize(size) {
+  activateControl({ selector: '[role="combobox"]', event: 'pointerdown' });
+  browser(['wait', '--selector', '[role="option"]']);
+  activateControl({
+    selector: '[role="option"]',
+    text: size,
+    event: 'keydown',
+  });
+  browser(['keypress', '--key', 'Escape']);
+  browser([
+    'wait',
+    '--fn',
+    `document.querySelector('[role="listbox"]') === null`,
+  ]);
+}
+
+async function waitForSnapshotText(text) {
+  const deadline = Date.now() + 10_000;
+  while (true) {
+    const snapshot = browser(['snapshot']);
+    if (snapshot.snapshot.includes(text)) return snapshot;
+    assert.ok(
+      Date.now() < deadline,
+      `Snapshot did not expose ${text}: ${snapshot.snapshot}`
+    );
+    await setTimeout(50);
+  }
+}
+
+function activateControl({ selector, text, event = 'click' }) {
+  // Orca ref activation misses native icon-only controls; dispatch their DOM events.
+  browser([
+    'eval',
+    '--expression',
+    `(() => {
+    const controls = [...document.querySelectorAll(${JSON.stringify(selector)})].filter(element => ${text === undefined ? 'true' : `element.textContent.trim() === ${JSON.stringify(text)}`});
+    if (controls.length !== 1 || !(controls[0] instanceof HTMLElement) || controls[0].matches(':disabled')) throw new Error('Expected one enabled control: ' + ${JSON.stringify(selector)});
+    const control = controls[0];
+    control.focus();
+    if (${JSON.stringify(event)} === 'pointerdown') control.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, pointerType: 'mouse' }));
+    else if (${JSON.stringify(event)} === 'keydown') control.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }));
+    else control.click();
+  })()`,
+  ]);
 }
 
 function runCli({ args, expectedStatus = 0 }) {

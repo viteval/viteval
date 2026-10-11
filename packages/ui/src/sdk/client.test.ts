@@ -5,6 +5,8 @@ import { createJsonProvider } from '@viteval/core/provider';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isEvalPassed } from '@/lib/eval-status';
 import { createViteval } from './client';
+import { reportFixture, writeListingFixtures } from './test-fixtures';
+import { suiteId } from '@/lib/suite-id';
 
 let root: string;
 beforeEach(async () => {
@@ -15,6 +17,154 @@ afterEach(async () => {
 });
 
 describe('dashboard storage', () => {
+  it('should filter and sort all records before paginating every listing', async () => {
+    await writeListingFixtures(root);
+    const sdk = createViteval({ root });
+    expect(await sdk.results.list({ page: 2 })).toMatchObject({
+      total: 25,
+      page: 2,
+      limit: 20,
+      hasMore: false,
+      data: [
+        { id: 'run-4' },
+        { id: 'run-3' },
+        { id: 'run-2' },
+        { id: 'run-1' },
+        { id: 'run-0' },
+      ],
+    });
+    expect(
+      await sdk.results.list({
+        status: 'failed',
+        limit: 2,
+        page: 2,
+        sort: 'name',
+        order: 'asc',
+      })
+    ).toMatchObject({
+      total: 12,
+      hasMore: true,
+      data: [{ id: 'run-5' }, { id: 'run-7' }],
+    });
+    expect(
+      await sdk.results.list({
+        from: '2026-10-01T00:00:00Z',
+        to: '2026-10-01T00:00:02Z',
+        sort: 'duration',
+        order: 'desc',
+      })
+    ).toMatchObject({
+      total: 3,
+      data: [{ id: 'run-2' }, { id: 'run-1' }, { id: 'run-0' }],
+    });
+    expect(
+      await sdk.results.list({ status: 'passed', q: 'Run 24' })
+    ).toMatchObject({ total: 0 });
+    expect(await sdk.results.list({ status: 'running' })).toMatchObject({
+      total: 1,
+      data: [{ id: 'run-24' }],
+    });
+    expect(await sdk.datasets.list({ q: 'unique remote' })).toMatchObject({
+      total: 1,
+      data: [{ id: 'dataset-24' }],
+    });
+    expect(
+      await sdk.datasets.list({
+        limit: 2,
+        sort: 'itemCount',
+        order: 'desc',
+        page: 2,
+      })
+    ).toMatchObject({
+      total: 25,
+      data: [{ id: 'dataset-22' }, { id: 'dataset-21' }],
+    });
+    expect(await sdk.datasets.list({ sort: 'recent', limit: 1 })).toMatchObject(
+      { data: [{ id: 'dataset-24' }] }
+    );
+    expect(
+      await sdk.suites.list({ q: 'Eval 24', status: 'running' })
+    ).toMatchObject({ total: 1, data: [{ name: 'Eval 24' }] });
+    expect(
+      await sdk.suites.list({
+        sort: 'latestDuration',
+        order: 'desc',
+        limit: 2,
+        page: 2,
+      })
+    ).toMatchObject({
+      total: 25,
+      data: [{ name: 'Eval 22' }, { name: 'Eval 21' }],
+    });
+  });
+
+  it('should resolve exact suite identities and reject ambiguous legacy slugs', async () => {
+    await mkdir(path.join(root, '.viteval/results'), { recursive: true });
+    const first = {
+      name: 'accuracy',
+      projectName: 'gpt-4',
+      filepath: 'src/accuracy.eval.ts',
+    };
+    const second = { ...first, projectName: 'gpt_4' };
+    const sameDisplay = [
+      { name: 'accuracy [gpt]', projectName: 'x', filepath: first.filepath },
+      { name: 'accuracy', projectName: 'gpt] [x', filepath: first.filepath },
+    ];
+    for (const [index, suite] of [first, second, ...sameDisplay].entries()) {
+      await writeFile(
+        path.join(root, '.viteval/results', `identity-${index}.json`),
+        JSON.stringify(
+          reportFixture({ id: `identity-${index}`, index, suites: [suite] })
+        )
+      );
+    }
+    const sdk = createViteval({ root });
+    const listed = await sdk.suites.list();
+    expect(listed.total).toBe(4);
+    expect(new Set(listed.data.map((suite) => suite.slug)).size).toBe(4);
+    expect(await sdk.suites.get({ slug: suiteId(first) })).toMatchObject({
+      data: { name: 'accuracy [gpt-4]', latestDuration: 0 },
+    });
+    expect(await sdk.suites.get({ slug: suiteId(second) })).toMatchObject({
+      data: { name: 'accuracy [gpt_4]', latestDuration: 1 },
+    });
+    expect(await sdk.suites.get({ slug: 'accuracy-gpt-4' })).toEqual({
+      data: null,
+    });
+    expect(await sdk.suites.get({ slug: 'accuracy-gpt-x' })).toEqual({
+      data: null,
+    });
+    expect(await sdk.results.list({ suiteId: suiteId(second) })).toMatchObject({
+      total: 1,
+      data: [{ id: 'identity-1' }],
+    });
+    await writeFile(
+      path.join(root, '.viteval/results/unique.json'),
+      JSON.stringify(
+        reportFixture({ id: 'unique', suites: [{ name: 'Legacy unique' }] })
+      )
+    );
+    expect(await sdk.suites.get({ slug: 'legacy-unique' })).toMatchObject({
+      data: { name: 'Legacy unique' },
+    });
+  });
+
+  it('should distinguish missing datasets from malformed JSON, schema failures, and filesystem errors', async () => {
+    await mkdir(path.join(root, '.viteval/datasets'), { recursive: true });
+    const sdk = createViteval({ root });
+    expect(await sdk.datasets.get({ id: 'missing' })).toEqual({ data: null });
+    for (const contents of ['{broken', 'null', '{"data":"invalid"}']) {
+      await writeFile(
+        path.join(root, '.viteval/datasets/broken.json'),
+        contents
+      );
+      expect(await sdk.datasets.get({ id: 'broken' })).toHaveProperty('error');
+    }
+    await mkdir(path.join(root, '.viteval/datasets/directory.json'));
+    expect(await sdk.datasets.get({ id: 'directory' })).toMatchObject({
+      error: expect.stringContaining('Unable to read dataset file'),
+    });
+  });
   it('should preserve provider dataset identifiers containing encoded filename characters', async () => {
     const provider = createJsonProvider({ root });
     const created = await provider.datasets!.create({

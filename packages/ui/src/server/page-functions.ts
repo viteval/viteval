@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-
-const paginationSchema = z.object({
-  limit: z.number(),
-  page: z.number(),
-});
+import {
+  datasetsSearchSchema,
+  resultsSearchSchema,
+  suitesSearchSchema,
+} from './search';
 
 /**
  * Loads dashboard summaries using the configured project root.
@@ -32,7 +32,7 @@ export const getDashboard = createServerFn({ method: 'GET' }).handler(
  * @example await getDatasets({ data: { page: 1, limit: 20 } });
  */
 export const getDatasets = createServerFn({ method: 'GET' })
-  .validator(paginationSchema)
+  .validator(datasetsSearchSchema)
   .handler(async ({ data }) => {
     const { createViteval } = await import('@/sdk');
     return createViteval().datasets.list(data);
@@ -59,7 +59,7 @@ export const getDataset = createServerFn({ method: 'GET' })
  * @example await getResults({ data: { page: 1, limit: 20 } });
  */
 export const getResults = createServerFn({ method: 'GET' })
-  .validator(paginationSchema)
+  .validator(resultsSearchSchema)
   .handler(async ({ data }) => {
     const { createViteval } = await import('@/sdk');
     return createViteval().results.list(data);
@@ -86,7 +86,7 @@ export const getResult = createServerFn({ method: 'GET' })
  * @example await getSuites({ data: { page: 1, limit: 20 } });
  */
 export const getSuites = createServerFn({ method: 'GET' })
-  .validator(paginationSchema)
+  .validator(suitesSearchSchema)
   .handler(async ({ data }) => {
     const { createViteval } = await import('@/sdk');
     return createViteval().suites.list(data);
@@ -99,7 +99,7 @@ export const getSuites = createServerFn({ method: 'GET' })
  * @example await getSuiteDetail({ data: { slug: 'eval', page: 1, limit: 20 } });
  */
 export const getSuiteDetail = createServerFn({ method: 'GET' })
-  .validator(paginationSchema.extend({ slug: z.string() }))
+  .validator(resultsSearchSchema.and(z.object({ slug: z.string() })))
   .handler(async ({ data }) => {
     const { createViteval } = await import('@/sdk');
     const viteval = createViteval();
@@ -110,15 +110,14 @@ export const getSuiteDetail = createServerFn({ method: 'GET' })
     const suite = response.data;
     const [results, schema] = await Promise.all([
       viteval.results.list({
-        limit: data.limit,
-        page: data.page,
-        suite: suite.name,
+        ...data,
+        suiteId: suite.slug,
       }),
       suite.filepath ? viteval.schemas.get({ id: suite.filepath }) : null,
     ]);
     return {
       suite,
-      suiteResults: results.data,
+      suiteResults: results,
       latestSource: schema?.data?.content ?? null,
     };
   });

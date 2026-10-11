@@ -16,6 +16,7 @@ import { DELETE as removeTagging, POST as addTagging } from './api-taggings';
 import { POST as lookupTaggings } from './api-taggings-lookup';
 import { GET as listTags, POST as createTag } from './api-tags';
 import { toSerializable } from './serializable';
+import { writeListingFixtures } from '@/sdk/test-fixtures';
 
 let root: string;
 
@@ -30,6 +31,81 @@ afterEach(async () => {
 });
 
 describe('UI HTTP API', () => {
+  it('should expose filtered totals and ordering beyond the first server page', async () => {
+    await writeListingFixtures(root);
+    const datasets = await listDatasets(
+      new Request('http://localhost/api/datasets?q=unique%20remote&limit=1')
+    );
+    expect(await datasets.json()).toMatchObject({
+      total: 1,
+      data: [{ id: 'dataset-24' }],
+    });
+    const results = await listResults(
+      new Request(
+        'http://localhost/api/results?status=failed&sort=name&order=asc&page=2&limit=2'
+      )
+    );
+    expect(await results.json()).toMatchObject({
+      total: 12,
+      page: 2,
+      limit: 2,
+      data: [{ id: 'run-5' }, { id: 'run-7' }],
+    });
+    const suites = await listSuites(
+      new Request('http://localhost/api/suites?q=Eval%2024&status=running')
+    );
+    expect(await suites.json()).toMatchObject({
+      total: 1,
+      data: [{ name: 'Eval 24' }],
+    });
+  });
+
+  it('should preserve omitted PATCH fields and validate only supplied values', async () => {
+    const created = await createTag(
+      jsonRequest('/api/tags', {
+        name: 'original',
+        color: '#123456',
+        description: 'retain me',
+      })
+    );
+    const { data: tag } = await created.json();
+    const params = { params: { id: tag.id } };
+    const renamed = await updateTag(
+      jsonRequest('/api/tags/id', { name: 'renamed' }),
+      params
+    );
+    expect(renamed.status).toBe(200);
+    expect(await renamed.json()).toMatchObject({
+      data: { name: 'renamed', color: '#123456', description: 'retain me' },
+    });
+    const recolored = await updateTag(
+      jsonRequest('/api/tags/id', { color: '#abcdef' }),
+      params
+    );
+    expect(recolored.status).toBe(200);
+    expect(await recolored.json()).toMatchObject({
+      data: { name: 'renamed', color: '#abcdef', description: 'retain me' },
+    });
+    for (const body of [{ name: '' }, { name: null }, { color: 123 }, null]) {
+      expect(
+        (await updateTag(jsonRequest('/api/tags/id', body), params)).status
+      ).toBe(400);
+    }
+    expect(
+      (
+        await updateTag(
+          new Request('http://localhost/api/tags/id', {
+            method: 'PATCH',
+            body: '{broken',
+          }),
+          params
+        )
+      ).status
+    ).toBe(400);
+    expect(await createViteval().tags.list()).toMatchObject({
+      data: [{ name: 'renamed', color: '#abcdef', description: 'retain me' }],
+    });
+  });
   it('should return encoded dataset IDs and pagination', async () => {
     const provider = createJsonProvider({ root });
     const created = await provider.datasets!.create({

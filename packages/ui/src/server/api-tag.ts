@@ -1,4 +1,11 @@
 import { createViteval } from '@/sdk';
+import { z } from 'zod';
+
+const updateTagSchema = z.object({
+  name: z.string().min(1).optional(),
+  color: z.string().optional(),
+  description: z.string().optional(),
+});
 
 export async function PATCH(
   request: Request,
@@ -6,17 +13,22 @@ export async function PATCH(
 ) {
   const viteval = createViteval();
   const { id } = params;
-  const body = (await request.json()) as {
-    name?: string;
-    color?: string;
-    description?: string;
-  };
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: 'Invalid JSON request body' },
+      { status: 400 }
+    );
+  }
+  const parsed = updateTagSchema.safeParse(body);
+  if (!parsed.success)
+    return Response.json({ error: parsed.error.message }, { status: 400 });
 
   const result = await viteval.tags.update({
-    color: body.color,
-    description: body.description,
+    ...parsed.data,
     id,
-    name: body.name,
   });
   if ('error' in result) {
     const status = result.error.startsWith('Tag not found:') ? 404 : 500;

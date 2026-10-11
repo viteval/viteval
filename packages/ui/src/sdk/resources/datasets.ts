@@ -2,6 +2,7 @@ import type { DatasetFile, DatasetSummary } from '@/types';
 import { DATASET_FILE_SCHEMA } from '@viteval/core/dataset';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
+import { sortItems } from '../sort';
 import type {
   DatasetsResource,
   GetDatasetParams,
@@ -37,16 +38,17 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
       params: GetDatasetParams
     ): Promise<VitevalResponse<DatasetFile | null>> {
       let filename = encodeURIComponent(params.id);
-      let value = await fsHelper.readJson<unknown>(`datasets/${filename}.json`);
-      if (value === null && filename !== params.id) {
+      let response = await fsHelper.readJsonFile(`datasets/${filename}.json`);
+      if ('error' in response) return response;
+      if (response.data === null && filename !== params.id) {
         filename = params.id;
-        value = await fsHelper.readJson<unknown>(`datasets/${filename}.json`);
+        response = await fsHelper.readJsonFile(`datasets/${filename}.json`);
       }
-
-      if (value === null) {
+      if ('error' in response) return response;
+      if (response.data === null) {
         return { data: null };
       }
-      const parsed = DATASET_FILE_SCHEMA.safeParse(value);
+      const parsed = DATASET_FILE_SCHEMA.safeParse(response.data.value);
       if (!parsed.success)
         return { error: `Invalid dataset file: ${params.id}` };
       const raw = parsed.data;
@@ -78,15 +80,29 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
         ids.map((id) => parseDatasetSummary(id, fsHelper))
       );
 
-      const filtered = parsed.filter((d): d is DatasetSummary => d !== null);
-      const items =
-        params?.sort === 'recent'
-          ? filtered.toSorted((a, b) => {
-              const aTs = a.createdAt ? Date.parse(a.createdAt) : 0;
-              const bTs = b.createdAt ? Date.parse(b.createdAt) : 0;
-              return bTs - aTs;
-            })
-          : filtered.toSorted((a, b) => a.name.localeCompare(b.name));
+      const query = params?.q?.toLowerCase();
+      const filtered = parsed
+        .filter((d): d is DatasetSummary => d !== null)
+        .filter(
+          (d) =>
+            !query ||
+            d.name.toLowerCase().includes(query) ||
+            Boolean(d.description?.toLowerCase().includes(query))
+        );
+      const items = sortItems({
+        items: filtered,
+        sort: params?.sort,
+        order:
+          params?.order ?? (params?.sort === 'recent' ? 'desc' : undefined),
+        defaultSort: 'name',
+        fields: {
+          name: (d) => d.name,
+          itemCount: (d) => d.itemCount,
+          source: (d) => d.source,
+          createdAt: (d) => (d.createdAt ? Date.parse(d.createdAt) : 0),
+          recent: (d) => (d.createdAt ? Date.parse(d.createdAt) : 0),
+        },
+      });
 
       return {
         ...paginate(items, { limit: params?.limit, page: params?.page }),

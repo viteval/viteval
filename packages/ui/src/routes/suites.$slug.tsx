@@ -9,17 +9,18 @@ import {
 } from '@/components/icons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/page-header';
-import { ResultsTable } from '@/components/results-table';
+import { ResultsList } from '@/components/results-list';
 import { SourceViewer } from '@/components/source-viewer';
 import { StatRow } from '@/components/stat-row';
 import { getStatusBadge } from '@/lib/badges';
-import { paginationSearchSchema } from '@/server/search';
+import { resultsSearchSchema } from '@/server/search';
+import { useRemoteTable } from '@/hooks/use-remote-table';
 import { getSuiteDetail } from '@/server/page-functions';
 import { Duration, FilePath, PassRate, ScoreBadge } from '@/components/display';
 
 export const Route = createFileRoute('/suites/$slug')({
-  validateSearch: paginationSearchSchema,
-  loaderDeps: ({ search }) => ({ page: search.page, limit: search.limit }),
+  validateSearch: resultsSearchSchema,
+  loaderDeps: ({ search }) => search,
   loader: async ({ params, deps }) => {
     const detail = await getSuiteDetail({
       data: { ...deps, slug: params.slug },
@@ -37,6 +38,7 @@ export const Route = createFileRoute('/suites/$slug')({
 
 function EvalDetailPage() {
   const { suite, suiteResults, latestSource } = Route.useLoaderData();
+  const remote = useRemoteTable(suiteResults);
 
   const statItems = [
     {
@@ -92,7 +94,7 @@ function EvalDetailPage() {
         <TabsContent value="overview" className="mt-3 space-y-6">
           <StatRow items={statItems} />
           <h3 className="text-sm font-medium">Runs</h3>
-          <ResultsTable results={suiteResults} />
+          <ResultsList results={suiteResults.data} remote={remote} />
         </TabsContent>
         {latestSource && (
           <TabsContent value="source" className="mt-3">

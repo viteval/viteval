@@ -25,6 +25,9 @@
     "@viteval/ui#types": {
       "dependsOn": ["build"]
     },
+    "@viteval/ui#test": {
+      "dependsOn": ["build"]
+    },
     "@viteval/providers#prisma:generate": {
       "inputs": ["prisma/schema.prisma", "package.json"],
       "outputs": ["src/generated/prisma/**"]

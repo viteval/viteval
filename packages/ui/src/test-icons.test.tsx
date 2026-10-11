@@ -20,7 +20,7 @@ describe('offline test icons', () => {
       encoding: 'utf8',
       recursive: true,
     })
-      .filter((path) => /\.tsx?$/.test(path))
+      .filter((path) => /\.tsx?$/.test(path) && !/\.test\.tsx?$/.test(path))
       .map((path) => readFileSync(join(componentsPath, path), 'utf8'));
     const literalNames = sources.flatMap((source) =>
       [...source.matchAll(/['"]([a-z][a-z0-9-]*:[a-z][a-z0-9-]*)['"]/g)].map(

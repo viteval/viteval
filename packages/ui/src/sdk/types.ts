@@ -36,11 +36,17 @@ export interface VitevalListResponse<T> {
 export interface ListParams {
   page?: number;
   limit?: number;
+  q?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
 }
 
 export interface ListResultsParams extends ListParams {
-  status?: 'running' | 'finished';
+  status?: 'running' | 'finished' | 'passed' | 'failed';
   suite?: string;
+  suiteId?: string;
+  from?: string;
+  to?: string;
 }
 
 export interface GetResultParams {
@@ -48,7 +54,7 @@ export interface GetResultParams {
 }
 
 export interface ListSuitesParams extends ListParams {
-  status?: 'passed' | 'failed';
+  status?: 'passed' | 'failed' | 'running';
 }
 
 export interface GetSuiteParams {
@@ -57,7 +63,7 @@ export interface GetSuiteParams {
 
 export interface ListDatasetsParams extends ListParams {
   /** Sort order for the listing. Defaults to `'name'`. */
-  sort?: 'name' | 'recent';
+  sort?: 'name' | 'recent' | 'createdAt' | 'itemCount' | 'source';
 }
 
 export interface GetDatasetParams {

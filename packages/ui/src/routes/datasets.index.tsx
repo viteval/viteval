@@ -2,19 +2,22 @@ import { createFileRoute } from '@tanstack/react-router';
 import { DatabaseIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { DatasetsList } from '@/components/datasets-list';
-import { paginationSearchSchema } from '@/server/search';
+import { datasetsSearchSchema } from '@/server/search';
+import { useRemoteTable } from '@/hooks/use-remote-table';
 import { getDatasets } from '@/server/page-functions';
 
 export const Route = createFileRoute('/datasets/')({
-  validateSearch: paginationSearchSchema,
-  loaderDeps: ({ search }) => ({ page: search.page, limit: search.limit }),
+  validateSearch: datasetsSearchSchema,
+  loaderDeps: ({ search }) => search,
   loader: ({ deps }) => getDatasets({ data: deps }),
   head: () => ({ meta: [{ title: 'Datasets | Viteval' }] }),
   component: DatasetsPage,
 });
 
 function DatasetsPage() {
-  const { data: datasets, warnings } = Route.useLoaderData();
+  const response = Route.useLoaderData();
+  const { data: datasets, warnings } = response;
+  const remote = useRemoteTable(response);
 
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
@@ -28,7 +31,7 @@ function DatasetsPage() {
           {warning}
         </p>
       ))}
-      <DatasetsList datasets={datasets} />
+      <DatasetsList datasets={datasets} remote={remote} />
     </div>
   );
 }

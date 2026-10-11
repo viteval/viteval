@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
 import { useSettings } from '@/hooks/use-settings';
-import { slugify } from '@/lib/utils';
+import { suiteId } from '@/lib/suite-id';
 import { suiteName } from '@/lib/suite-name';
 import { Badge } from '@/components/ui/badge';
 import type { EvalResults } from '@/types';
@@ -157,7 +157,7 @@ function ResultDetailPage() {
               <Button variant="outline" asChild>
                 <Link
                   to="/suites/$slug"
-                  params={{ slug: slugify(suiteName(results.evalResults[0])) }}
+                  params={{ slug: suiteId(results.evalResults[0]) }}
                 >
                   View Eval
                 </Link>

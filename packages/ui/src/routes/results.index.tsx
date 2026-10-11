@@ -2,19 +2,22 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ResultsIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { ResultsList } from '@/components/results-list';
-import { paginationSearchSchema } from '@/server/search';
+import { resultsSearchSchema } from '@/server/search';
+import { useRemoteTable } from '@/hooks/use-remote-table';
 import { getResults } from '@/server/page-functions';
 
 export const Route = createFileRoute('/results/')({
-  validateSearch: paginationSearchSchema,
-  loaderDeps: ({ search }) => ({ page: search.page, limit: search.limit }),
+  validateSearch: resultsSearchSchema,
+  loaderDeps: ({ search }) => search,
   loader: ({ deps }) => getResults({ data: deps }),
   head: () => ({ meta: [{ title: 'Results | Viteval' }] }),
   component: ResultsPage,
 });
 
 function ResultsPage() {
-  const { data: results, total, warnings } = Route.useLoaderData();
+  const response = Route.useLoaderData();
+  const { data: results, total, warnings } = response;
+  const remote = useRemoteTable(response);
 
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
@@ -28,7 +31,7 @@ function ResultsPage() {
           {warning}
         </p>
       ))}
-      <ResultsList results={results} />
+      <ResultsList results={results} remote={remote} />
     </div>
   );
 }

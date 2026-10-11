@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
 import type { ResultFile, Tag } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
+import type { RemoteTableState } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import { Duration, Timestamp } from '@/components/display';
@@ -135,9 +136,14 @@ const allColumns: ColumnDef<DataTableFeatures, ResultRow>[] = [
 interface ResultsTableProps {
   results: ResultFile[];
   hiddenColumnIds?: string[];
+  remote?: RemoteTableState;
 }
 
-export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
+export function ResultsTable({
+  results,
+  hiddenColumnIds,
+  remote,
+}: ResultsTableProps) {
   const navigate = useNavigate();
   const ids = useMemo(() => results.map((r) => r.runId ?? r.id), [results]);
   const { tagsByEntity } = useTags('eval_run', ids);
@@ -167,6 +173,7 @@ export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
     <DataTable
       columns={columns}
       data={rows}
+      remote={remote}
       onRowClick={(row) =>
         void navigate({ to: '/results/$id', params: { id: row.id } })
       }

@@ -21,7 +21,7 @@ function DataTablePagination<TData extends RowData>({
   return (
     <div className="flex items-center justify-between">
       <div className="text-sm text-muted-foreground">
-        {table.getFilteredRowModel().rows.length} row(s)
+        {table.getRowCount()} row(s)
       </div>
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
@@ -49,8 +49,9 @@ function DataTablePagination<TData extends RowData>({
           <Button
             variant="outline"
             size="icon-xs"
+            aria-label="First page"
             onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            disabled={table.getPageCount() === 0 || !table.getCanPreviousPage()}
           >
             <Icon icon="lucide:chevrons-left" />
           </Button>
@@ -58,7 +59,8 @@ function DataTablePagination<TData extends RowData>({
             variant="outline"
             size="icon-xs"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            aria-label="Previous page"
+            disabled={table.getPageCount() === 0 || !table.getCanPreviousPage()}
           >
             <Icon icon="lucide:chevron-left" />
           </Button>
@@ -66,6 +68,7 @@ function DataTablePagination<TData extends RowData>({
             variant="outline"
             size="icon-xs"
             onClick={() => table.nextPage()}
+            aria-label="Next page"
             disabled={!table.getCanNextPage()}
           >
             <Icon icon="lucide:chevron-right" />
@@ -74,6 +77,7 @@ function DataTablePagination<TData extends RowData>({
             variant="outline"
             size="icon-xs"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            aria-label="Last page"
             disabled={!table.getCanNextPage()}
           >
             <Icon icon="lucide:chevrons-right" />

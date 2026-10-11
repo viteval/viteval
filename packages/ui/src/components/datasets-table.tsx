@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import type { DatasetSummary, Tag } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
+import type { RemoteTableState } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import { ProviderBadge } from '@/components/display';
@@ -69,9 +70,10 @@ const columns: ColumnDef<DataTableFeatures, DatasetRow>[] = [
 
 interface DatasetsTableProps {
   datasets: DatasetSummary[];
+  remote?: RemoteTableState;
 }
 
-export function DatasetsTable({ datasets }: DatasetsTableProps) {
+export function DatasetsTable({ datasets, remote }: DatasetsTableProps) {
   const navigate = useNavigate();
   const ids = useMemo(() => datasets.map((d) => d.id), [datasets]);
   const { tagsByEntity } = useTags('dataset', ids);
@@ -89,6 +91,7 @@ export function DatasetsTable({ datasets }: DatasetsTableProps) {
     <DataTable
       columns={columns}
       data={rows}
+      remote={remote}
       onRowClick={(row) =>
         void navigate({ to: '/datasets/$id', params: { id: row.id } })
       }

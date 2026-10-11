@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { attemptAsync, err, type Result } from 'massaman/control';
 import { writeJsonAtomic } from '@viteval/internal';
+import type { VitevalResponse } from './types';
 
 /**
  * Shared filesystem helpers for SDK resources.
@@ -51,6 +52,26 @@ export function createFs(root: string) {
     }
   }
 
+  async function readJsonFile(
+    filePath: string
+  ): Promise<VitevalResponse<{ value: unknown } | null>> {
+    const fullPath = resolveWithin(resolvedVitevalDir, filePath);
+    if (!fullPath) return { error: `Invalid storage path: ${filePath}` };
+    try {
+      return {
+        data: {
+          value: JSON.parse(await fs.readFile(fullPath, 'utf8')) as unknown,
+        },
+      };
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT')
+        return { data: null };
+      return {
+        error: `Unable to read dataset file ${filePath}: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  }
+
   async function readRawFile(filePath: string): Promise<string | null> {
     const fullPath = resolveWithin(resolvedVitevalDir, filePath);
     if (!fullPath) {
@@ -88,6 +109,7 @@ export function createFs(root: string) {
     filePath,
     listJsonIds,
     readJson,
+    readJsonFile,
     readRawFile,
     relativePath,
     root: resolvedRoot,

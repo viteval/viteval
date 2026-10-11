@@ -3,6 +3,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { getStatusBadge } from '@/lib/badges';
 import type { SuiteSummary } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
+import type { RemoteTableState } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import {
@@ -86,15 +87,17 @@ const columns: ColumnDef<DataTableFeatures, SuiteSummary>[] = [
 
 interface SuitesTableProps {
   suites: SuiteSummary[];
+  remote?: RemoteTableState;
 }
 
-export function SuitesTable({ suites }: SuitesTableProps) {
+export function SuitesTable({ suites, remote }: SuitesTableProps) {
   const navigate = useNavigate();
 
   return (
     <DataTable
       columns={columns}
       data={suites}
+      remote={remote}
       onRowClick={(row) =>
         void navigate({ to: '/suites/$slug', params: { slug: row.slug } })
       }

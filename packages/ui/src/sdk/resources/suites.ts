@@ -2,6 +2,8 @@ import type { SuiteSummary } from '@/types';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
 import { slugify } from '@/lib/utils';
 import { suiteName } from '@/lib/suite-name';
+import { suiteId } from '@/lib/suite-id';
+import { sortItems } from '../sort';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
 import type {
@@ -34,9 +36,10 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
 
       for (const suite of result.evalResults) {
         const name = suiteName(suite);
-        const existing = suiteMap.get(name);
+        const id = suiteId(suite);
+        const existing = suiteMap.get(id);
         if (!existing) {
-          suiteMap.set(name, {
+          suiteMap.set(id, {
             filepath: suite.filepath,
             latestDuration: suite.duration,
             latestMeanScore: suite.summary.meanScore,
@@ -47,7 +50,7 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
             latestTotalCount: suite.summary.totalCount,
             name,
             runCount: 1,
-            slug: slugify(name),
+            slug: id,
           });
           continue;
         }
@@ -78,7 +81,9 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
       params: GetSuiteParams
     ): Promise<VitevalResponse<SuiteSummary | null>> {
       const all = await aggregateSuites();
-      const data = all.find((s) => s.slug === params.slug) ?? null;
+      const exact = all.find((s) => s.slug === params.slug);
+      const legacy = all.filter((s) => slugify(s.name) === params.slug);
+      const data = exact ?? (legacy.length === 1 ? legacy[0] : null);
       return { data };
     },
 
@@ -90,6 +95,33 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
       if (params?.status) {
         items = items.filter((s) => s.latestStatus === params.status);
       }
+
+      if (params?.q) {
+        const query = params.q.toLowerCase();
+        items = items.filter(
+          (s) =>
+            s.name.toLowerCase().includes(query) ||
+            s.filepath?.toLowerCase().includes(query)
+        );
+      }
+      items = sortItems({
+        items,
+        sort: params?.sort,
+        order: params?.order,
+        defaultSort: 'name',
+        fields: {
+          name: (s) => s.name,
+          latestStatus: (s) => s.latestStatus,
+          runCount: (s) => s.runCount,
+          latestRunTimestamp: (s) => Number(s.latestRunTimestamp),
+          latestDuration: (s) => s.latestDuration,
+          latestMeanScore: (s) => s.latestMeanScore,
+          passRate: (s) =>
+            s.latestTotalCount > 0
+              ? s.latestPassedCount / s.latestTotalCount
+              : 0,
+        },
+      });
 
       return paginate(items, { limit: params?.limit, page: params?.page });
     },
