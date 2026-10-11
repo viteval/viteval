@@ -23,6 +23,7 @@
     "test:coverage": "turbo run test --force --filter='./packages/*' -- --coverage && node scripts/merge-integration-coverage.mjs",
     "types": "turbo run types",
     "validate": "pnpm check && turbo run types test build --filter='./packages/*'",
+    "validate:consumer": "turbo run build --filter='./packages/*' --output-logs=errors-only && node scripts/validate-consumer.mjs",
     "validate:browser": "turbo run build --filter='./packages/*' --output-logs=errors-only && node scripts/validate-browser.mjs",
     "types:packages": "turbo run types --filter='./packages/*'",
     "types:examples": "turbo run types --filter='./examples/*'",

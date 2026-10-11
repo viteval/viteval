@@ -33,6 +33,14 @@
     "./voltops": {
       "types": "./dist/voltops.d.mts",
       "import": "./dist/voltops.mjs"
+    },
+    "./s3": {
+      "types": "./dist/s3.d.mts",
+      "import": "./dist/s3.mjs"
+    },
+    "./gcs": {
+      "types": "./dist/gcs.d.mts",
+      "import": "./dist/gcs.mjs"
     }
   },
   "scripts": {
@@ -49,7 +57,9 @@
     "massaman": "^0.5.2"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1149.0",
     "@braintrust/api": "^0.5.0",
+    "@google-cloud/storage": "^8.4.0",
     "@langfuse/client": "^5.13.1",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.223.0",
@@ -71,7 +81,9 @@
     "vitest": "^5.0.3"
   },
   "peerDependencies": {
+    "@aws-sdk/client-s3": "^3.1147.0",
     "@braintrust/api": ">=0.5.0",
+    "@google-cloud/storage": "^8.3.0",
     "@langfuse/client": "^5.13.1",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.223.0",
@@ -84,6 +96,12 @@
     "pg": ">=8.0.0"
   },
   "peerDependenciesMeta": {
+    "@aws-sdk/client-s3": {
+      "optional": true
+    },
+    "@google-cloud/storage": {
+      "optional": true
+    },
     "@opentelemetry/api": {
       "optional": true
     },
