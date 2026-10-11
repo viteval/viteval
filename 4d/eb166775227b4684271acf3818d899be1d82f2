@@ -1,0 +1,39 @@
+packages/cli/src/native/index.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-40
+packages/cli/test-binary.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-36
+packages/cli/src/lib/node-cli.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-74
+packages/cli/build-binary.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-65
+packages/cli/src/native/commands/data.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-10
+packages/cli/package.json
+  s_9d60e04c9c1468::t_fe04ba16bf9124 20,23-24,40
+packages/cli/src/native/commands/init.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1
+.changeset/maltty-cli.md
+  s_9d60e04c9c1468::t_c80d0648135541 7-8
+packages/cli/src/native/commands/ui.ts
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-9
+packages/cli/tsconfig.scripts.json
+  s_9d60e04c9c1468::t_fe04ba16bf9124 1-8
+pnpm-lock.yaml
+  s_9d60e04c9c1468::t_ea3dc68c716597 358-360,2228-2231,5508-5585,5652-5729,5733-5735,6965-6968,8643-8661,9175-9208,9498-9501,9918-9920,9925-9927,9936-9938,11525-11552,14877-14912,14949-14984,14987-14988,16193-16196,18159-18172,18782-18808,19084-19085,19493-19496,19501-19517,19540-19557
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4deb166775227b4684271acf3818d899be1d82f2",
+  "prompts": {},
+  "sessions": {
+    "s_9d60e04c9c1468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7527f9affeNDaUvawxNe67az",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
