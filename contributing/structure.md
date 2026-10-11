@@ -9,9 +9,10 @@ viteval/
 ├── packages/       # Core packages
 ├── apps/           # Applications (website)
 ├── examples/       # Example projects
-├── tools/          # Code generators
-├── docs/           # Contributor documentation
-└── scripts/        # Build/automation scripts
+├── tools/          # Generator templates
+├── turbo/          # Turborepo generator configuration
+├── contributing/   # Contributor documentation
+└── scripts/        # Build and development scripts
 ```
 
 ## Packages
@@ -34,9 +35,10 @@ See [Architecture](./architecture.md) for how packages work together.
 
 ## Tools
 
-| Tool          | Purpose                             |
-| ------------- | ----------------------------------- |
-| `@tools/core` | Nx generators for packages/examples |
+| Path         | Purpose                                     |
+| ------------ | ------------------------------------------- |
+| `turbo/`     | Turborepo generators for packages/examples  |
+| `tools/core` | Template files consumed by those generators |
 
 ## Examples
 

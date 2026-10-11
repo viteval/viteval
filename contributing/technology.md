@@ -4,45 +4,45 @@ Technologies and dependencies used in the Viteval codebase.
 
 ## Requirements
 
-- Node.js >= 22.0.0
-- pnpm >= 10.0.0
+- Node.js >= 26.0.0
+- pnpm >= 12.0.0
 
 ## Core Technologies
 
 | Technology | Version | Purpose                          |
 | ---------- | ------- | -------------------------------- |
-| TypeScript | ~5.9.x  | Type-safe JavaScript             |
-| Vitest     | ^4.0.x  | Test runner (evals run as tests) |
-| pnpm       | 10.x    | Package manager                  |
-| Nx         | 22.x    | Monorepo task orchestration      |
+| TypeScript | ~7.0.x  | Type-safe JavaScript             |
+| Vitest     | ^5.0.x  | Test runner (evals run as tests) |
+| pnpm       | 12.x    | Package manager                  |
+| Turborepo  | ^2.10.x | Monorepo task orchestration      |
 
 ## Build Tools
 
-| Tool   | Version      | Purpose                             |
-| ------ | ------------ | ----------------------------------- |
-| tsdown | ^0.19.x-beta | TypeScript bundler (Rolldown-based) |
-| SWC    | ~1.15.x      | Fast TypeScript compilation         |
-| Vite   | ^7.2.x       | Development server and bundling     |
+| Tool   | Version | Purpose                             |
+| ------ | ------- | ----------------------------------- |
+| tsdown | ^0.23.x | TypeScript bundler (Rolldown-based) |
+| SWC    | ~1.16.x | Fast TypeScript compilation         |
+| Vite   | ^8.2.x  | Development server and bundling     |
 
 ## Code Quality
 
-| Tool       | Version | Purpose                |
-| ---------- | ------- | ---------------------- |
-| Biome      | ^2.3.x  | Linting and formatting |
-| TypeScript | ~5.9.x  | Type checking          |
+| Tool       | Version | Purpose       |
+| ---------- | ------- | ------------- |
+| oxlint     | ^1.82.x | Linting       |
+| oxfmt      | ^0.67.x | Formatting    |
+| TypeScript | ~7.0.x  | Type checking |
 
 ## Key Dependencies
 
 ### @viteval/core
 
-| Dependency   | Purpose                         |
-| ------------ | ------------------------------- |
-| `vitest`     | Test runner integration         |
-| `ts-pattern` | Pattern matching                |
-| `zod`        | Schema validation               |
-| `openai`     | LLM provider                    |
-| `autoevals`  | Prebuilt scorer implementations |
-| `js-yaml`    | YAML config parsing             |
+| Dependency | Purpose                                             |
+| ---------- | --------------------------------------------------- |
+| `vitest`   | Test runner integration                             |
+| `ai`       | AI SDK model integration                            |
+| `massaman` | Results, functional utilities, and pattern matching |
+| `zod`      | Schema validation                                   |
+| `js-yaml`  | YAML config parsing                                 |
 
 ### @viteval/internal
 
@@ -55,19 +55,28 @@ Technologies and dependencies used in the Viteval codebase.
 | Dependency | Purpose                       |
 | ---------- | ----------------------------- |
 | `yargs`    | Command-line argument parsing |
-| `chalk`    | Terminal colors               |
+| `consola`  | CLI output                    |
+| `c12`      | Configuration loading         |
 | `find-up`  | Config file discovery         |
 
 ### @viteval/ui
 
-| Dependency               | Purpose            |
-| ------------------------ | ------------------ |
-| `react`                  | UI framework (v19) |
-| `@tanstack/react-router` | Client routing     |
-| `tailwindcss`            | Styling (v4)       |
-| `express`                | Dev server         |
+| Dependency               | Purpose                                 |
+| ------------------------ | --------------------------------------- |
+| `react`                  | UI framework (v19)                      |
+| `@tanstack/react-start`  | Server rendering and server routes      |
+| `@tanstack/react-router` | Typed file routes and navigation        |
+| `@tanstack/react-table`  | Data tables                             |
+| `vite`                   | Development server and client/SSR build |
+| `tailwindcss`            | Styling (v4)                            |
+| `hono`                   | Packaged Node request/static bridge     |
+| `@hono/node-server`      | Node HTTP adapter                       |
 
-## Biome Configuration
+The UI build ships `dist/client`, `dist/server`, and the public `server.mjs` /
+`server.d.mts` launcher. Turbo caches these outputs. Generated route types must
+be available before UI typechecking, including when restoring a cached build.
+
+## Oxc Configuration
 
 Formatting rules:
 
@@ -82,25 +91,24 @@ Formatting rules:
 
 Key linter rules:
 
-| Rule                | Severity |
-| ------------------- | -------- |
-| `noExplicitAny`     | Error    |
-| `noConsole`         | Error    |
-| `noUnusedImports`   | Error    |
-| `noParameterAssign` | Error    |
+| Rule              | Severity |
+| ----------------- | -------- |
+| `no-explicit-any` | Error    |
+| `no-console`      | Error    |
+| `no-unused-vars`  | Error    |
+| `no-var`          | Error    |
+| `eqeqeq`          | Error    |
 
-## Nx Configuration
+## Turborepo Configuration
 
 Task caching:
 
-| Task       | Cached | Dependencies       |
-| ---------- | ------ | ------------------ |
-| `build`    | Yes    | `^build`           |
-| `test`     | Yes    | `^build`           |
-| `check`    | Yes    | `^check`           |
-| `types`    | Yes    | `^build`, `^types` |
-| `dev`      | No     | -                  |
-| `validate` | No     | -                  |
+| Task    | Cached | Dependencies       |
+| ------- | ------ | ------------------ |
+| `build` | Yes    | `^build`           |
+| `test`  | Yes    | `^build`           |
+| `types` | Yes    | `^build`, `^types` |
+| `dev`   | No     | -                  |
 
 ## TypeScript Configuration
 
@@ -108,7 +116,7 @@ Base configuration (all packages extend):
 
 | Setting           | Value   |
 | ----------------- | ------- |
-| Target            | ES2022  |
+| Target            | ES2024  |
 | Module            | ESNext  |
 | Module resolution | Bundler |
 | Strict mode       | Enabled |

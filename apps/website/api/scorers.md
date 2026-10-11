@@ -1,6 +1,8 @@
 # `scorers`
 
-Viteval provides a comprehensive set of pre-built scorers for common evaluation scenarios, powered by the `autoevals` library.
+Viteval includes deterministic scorers, embedding similarity scorers, and LLM
+judges. Call each factory to create a scorer. LLM and embedding scorers use the
+models initialized in native Vitest setup; Viteval does not depend on autoevals.
 
 ## Import
 
@@ -15,7 +17,7 @@ import { scorers } from 'viteval';
 Returns 1 if output exactly matches expected, 0 otherwise.
 
 ```ts
-scorers.exactMatch;
+scorers.exactMatch();
 ```
 
 **Use cases**: Exact answers, structured outputs, code generation
@@ -38,7 +40,7 @@ scorers.exactMatch;
 Measures text similarity using edit distance algorithm.
 
 ```ts
-scorers.levenshtein;
+scorers.levenshtein();
 ```
 
 **Range**: 0.0 - 1.0 (higher = more similar)  
@@ -61,7 +63,7 @@ scorers.levenshtein;
 Semantic similarity using embeddings.
 
 ```ts
-scorers.answerSimilarity;
+scorers.answerSimilarity();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -80,7 +82,7 @@ scorers.answerSimilarity;
 Measures semantic similarity using embeddings.
 
 ```ts
-scorers.embeddingSimilarity;
+scorers.embeddingSimilarity();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -99,7 +101,7 @@ scorers.embeddingSimilarity;
 Evaluates factual accuracy against ground truth.
 
 ```ts
-scorers.factual;
+scorers.factual();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -122,7 +124,7 @@ scorers.factual;
 Evaluates summary quality and completeness.
 
 ```ts
-scorers.summary;
+scorers.summary();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -140,7 +142,7 @@ scorers.summary;
 Assesses translation accuracy between languages.
 
 ```ts
-scorers.translation;
+scorers.translation();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -160,7 +162,7 @@ scorers.translation;
 Measures how correct an answer is compared to expected.
 
 ```ts
-scorers.answerCorrectness;
+scorers.answerCorrectness();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -171,7 +173,7 @@ scorers.answerCorrectness;
 Evaluates how relevant the answer is to the question.
 
 ```ts
-scorers.answerRelevancy;
+scorers.answerRelevancy();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -195,7 +197,7 @@ scorers.answerRelevancy;
 Checks if all expected entities are mentioned in context.
 
 ```ts
-scorers.contextEntityRecall;
+scorers.contextEntityRecall();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -206,7 +208,7 @@ scorers.contextEntityRecall;
 Measures precision of context usage in responses.
 
 ```ts
-scorers.contextPrecision;
+scorers.contextPrecision();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -217,7 +219,7 @@ scorers.contextPrecision;
 Evaluates how well context information is recalled.
 
 ```ts
-scorers.contextRecall;
+scorers.contextRecall();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -228,7 +230,7 @@ scorers.contextRecall;
 Assesses relevance of provided context to the task.
 
 ```ts
-scorers.contextRelevancy;
+scorers.contextRelevancy();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -241,7 +243,7 @@ scorers.contextRelevancy;
 Detects harmful, inappropriate, or unsafe content.
 
 ```ts
-scorers.moderation;
+scorers.moderation();
 ```
 
 **Range**: 0.0 - 1.0 (1.0 = safe, 0.0 = unsafe)  
@@ -272,7 +274,7 @@ scorers.moderation;
 Compares JSON structures for differences.
 
 ```ts
-scorers.jsonDiff;
+scorers.jsonDiff();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -295,7 +297,7 @@ scorers.jsonDiff;
 Validates SQL query syntax and correctness.
 
 ```ts
-scorers.sql;
+scorers.sql();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -314,7 +316,7 @@ scorers.sql;
 Calculates numerical difference between outputs.
 
 ```ts
-scorers.numericDiff;
+scorers.numericDiff();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -337,7 +339,7 @@ scorers.numericDiff;
 Verifies if a list contains expected items.
 
 ```ts
-scorers.listContains;
+scorers.listContains();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -362,7 +364,7 @@ scorers.listContains;
 Checks if an answer is logically possible.
 
 ```ts
-scorers.possible;
+scorers.possible();
 ```
 
 **Range**: 0.0 - 1.0  
@@ -384,7 +386,7 @@ scorers.possible;
 Evaluates humor quality and appropriateness.
 
 ```ts
-scorers.humor;
+scorers.humor();
 ```
 
 **Range**: 0.0 - 1.0  

@@ -110,6 +110,8 @@ export default defineConfig({
             { link: '/guide/getting-started', text: 'Getting Started' },
             { link: '/guide/concepts', text: 'Core Concepts' },
             { link: '/guide/cli', text: 'CLI Usage' },
+            { link: '/guide/providers', text: 'Providers' },
+            { link: '/guide/migration', text: 'Migrate to v1' },
           ],
           text: 'Introduction',
         },

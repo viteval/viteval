@@ -26,19 +26,25 @@ Next generation LLM evaluation framework powered by Vitest.
 
 ## Features
 
-- ✅ Vitest-like API: easily define and run evals the same way you run tests.
-- ✅ Local Dataset: quickly define and generate datasets that are stored locally or in a database.
-- ✅ Scorer framework: easily define and use scorers to evaluate your LLM.
-- ✅ CI ready: easily integrate with your CI pipeline and run evals the same way you run tests.
-- 🧪 UI for viewing the results of Evals (alpha)
-- (SOON) Report Exports: custom reporters to help you visualize your evals, or upload them to a 3rd party
-- (SOON) Remote Datasets: easily define & use datasets that are stored in a database, S3 bucket, or a 3rd party
+- Native Vitest configuration, execution, watch mode, retries, and CI exit codes.
+- Typed tasks, reusable datasets, built-in scorers, and custom scoring functions.
+- JSON storage by default, with atomic writes and a local results dashboard.
+- TanStack Start dashboard with server-rendered pages and bundled Vite assets.
+- Optional SQLite, Braintrust, Langfuse, and hosted VoltOps providers for datasets and evaluation results, plus S3/GCS dataset storage. Backend SDKs and database drivers are opt-in.
+- Maltty project commands and an optional compiled command shell.
 
 ## Installation
 
 ```bash
-npm install viteval
+pnpm add -D viteval
+pnpm exec viteval init --no-env-file
+pnpm exec viteval run
+pnpm exec viteval ui
 ```
+
+Requires Node >=26. Initialization creates native Vitest configuration, a worker
+setup module, and a passing `src/viteval.eval.ts` example. JSON results are saved
+under `.viteval/results`.
 
 ## Usage
 
@@ -46,24 +52,37 @@ You can use `viteval` to evaluate your LLM and add tests in your CI in one singl
 
 ```ts
 import { evaluate, scorers } from 'viteval';
-import { generateText } from 'ai';
 
-evaluate('Color detection', {
-  data: async () => [
-    { input: 'What color is the sky?', expected: 'Blue' },
-    { input: 'What color is grass?', expected: 'Green' },
+evaluate('Uppercase', {
+  data: [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
   ],
-  task: async (input) => {
-    const result = await generateText(input);
-    return result.text;
-  },
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
 });
 ```
 
 Now you can run the eval by running:
 
 ```bash
-npx viteval
+pnpm exec viteval run
 ```
+
+Replace `task` with your model, agent, or workflow. Each case passes when its
+configured mean, median, or sum meets the threshold. Failed execution and scorer
+errors fail the case and remain inspectable in the JSON report.
+
+## Development
+
+```bash
+pnpm validate
+pnpm validate:consumer
+pnpm --filter @viteval/cli test:binary
+```
+
+The consumer check installs packed packages outside the workspace and verifies
+initialization, evaluations, JSON datasets, SQLite, server-rendered dashboard
+deep links, JavaScript/CSS delivery, and API/404 behavior. Run
+`pnpm dev:ui examples/basic` to develop the dashboard with Vite on port 6274.
+See [v1 completion](./contributing/v1.md) for the release contract and evidence.
