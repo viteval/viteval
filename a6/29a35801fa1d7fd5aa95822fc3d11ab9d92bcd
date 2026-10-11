@@ -1,0 +1,29 @@
+.github/workflows/ci.yaml
+  s_7b159bb2779e15::t_8dcf5e6a10d31f 38,84,105
+.github/workflows/publish.yaml
+  s_7b159bb2779e15::t_8dcf5e6a10d31f 20,40,45,54-58
+package.json
+  s_7b159bb2779e15::t_62eae46d276e78 55
+  s_7b159bb2779e15::t_8dcf5e6a10d31f 50-54
+  s_7b159bb2779e15::t_61ccb115fbb3cd 49
+.github/workflows/docs.yaml
+  s_7b159bb2779e15::t_8dcf5e6a10d31f 31
+pnpm-lock.yaml
+  s_7b159bb2779e15::t_20bb02fbbe0f7d 187-189,7732-7863,16999-17000
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a629a35801fa1d7fd5aa95822fc3d11ab9d92bcd",
+  "prompts": {},
+  "sessions": {
+    "s_7b159bb2779e15": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7968b96ffe8PQ214ApP8YBPe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
