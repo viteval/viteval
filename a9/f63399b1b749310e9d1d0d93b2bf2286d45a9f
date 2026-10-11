@@ -1,0 +1,19 @@
+turbo.json
+  s_9d60e04c9c1468::t_ded10c71165de8 19-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a9f63399b1b749310e9d1d0d93b2bf2286d45a9f",
+  "prompts": {},
+  "sessions": {
+    "s_9d60e04c9c1468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7527f9affeNDaUvawxNe67az",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
