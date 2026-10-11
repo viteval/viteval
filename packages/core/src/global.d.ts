@@ -7,6 +7,9 @@ import type {
 } from '#/provider/types';
 
 declare global {
+  var __viteval_datasetDiscovery:
+    | { register: (dataset: unknown) => void }
+    | undefined;
   // Biome-ignore lint: used by model internals
   var __viteval_model: LanguageModel | undefined;
   // Biome-ignore lint: used by model internals
@@ -21,6 +24,4 @@ declare global {
   var __viteval_tagProvider: TagProvider | undefined;
   // Biome-ignore lint: used by provider internals
   var __viteval_providerInitialized: boolean | undefined;
-  // Biome-ignore lint: used by provider internals
-  var __viteval_providerInitPromise: Promise<void> | undefined;
 }

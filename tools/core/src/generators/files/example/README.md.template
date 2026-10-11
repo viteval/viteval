@@ -1,6 +1,6 @@
-# Example `<%= name %>`
+# Example `{{name}}`
 
-<%= description %>
+{{description}}
 
 ## 🚀 Quick Start
 

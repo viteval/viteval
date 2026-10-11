@@ -1,12 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { createFile, fileExists, withResult } from '@viteval/internal';
-import type { DataItem, DatasetStorage, Extra } from '#/types';
+import { err, isErr, ok, type Result } from 'massaman/control';
+import { getDatasetProvider } from '#/provider/client';
+import { createJsonProvider } from '#/provider/json';
+import type { DataItem, Extra } from '#/types';
 
 export interface DatasetStorageConfig {
+  description?: string;
   name: string;
   root: string;
-  storage: DatasetStorage;
+  storage: 'local';
 }
 
 /**
@@ -17,71 +18,61 @@ export interface DatasetStorageConfig {
 export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
   payload: DatasetStorageConfig
 ) {
-  const { name, root, storage } = payload;
-  assertStorage(storage);
+  const { name, root } = payload;
+  const provider =
+    getDatasetProvider() ?? createJsonProvider({ root }).datasets;
+  if (!provider) throw new Error('Dataset provider is unavailable');
   return {
     /**
      * Check if the dataset exists in the storage
      * @returns True if the dataset exists, false otherwise
      */
-    async exists(): Promise<boolean> {
-      const filePath = getDatasetPath(root, name);
-      const exists = await fileExists(filePath);
-      return exists;
+    async exists(): Promise<Result<boolean>> {
+      const result = await provider.get({ name });
+      return isErr(result) ? result : ok(result.value !== null);
     },
     /**
      * Save the dataset to the storage
      * @param data - The dataset to save
      */
-    async save(data: DataItem<INPUT, OUTPUT, EXTRA>[]): Promise<void> {
-      const filePath = getDatasetPath(root, name);
-      await createFile(
-        filePath,
-        JSON.stringify(
-          {
-            data,
-            timestamp: new Date().toISOString(),
-          },
-          null,
-          2
-        )
-      );
+    async save(data: DataItem<INPUT, OUTPUT, EXTRA>[]): Promise<Result<void>> {
+      const existing = await provider.get({ name });
+      if (isErr(existing)) return existing;
+      const items = data.map(({ input, expected, ...extra }) => ({
+        input,
+        expected,
+        extra,
+      }));
+      if (existing.value) {
+        if (!provider.replaceItems)
+          return err(`Provider cannot overwrite dataset ${name}`);
+        return provider.replaceItems({ datasetId: existing.value.id, items });
+      }
+      const created = await provider.create({
+        name,
+        items,
+        description: payload.description,
+      });
+      return isErr(created) ? created : ok(undefined);
     },
     /**
      * Load the dataset from the storage
      * @returns The dataset
      */
-    async load(): Promise<DataItem<INPUT, OUTPUT, EXTRA>[] | null> {
-      const R = await withResult(async () => {
-        const filePath = getDatasetPath(root, name);
-        if (!(await this.exists())) {
-          return null;
-        }
-        const data = await readFile(filePath, 'utf8');
-        return JSON.parse(data).data as DataItem<INPUT, OUTPUT, EXTRA>[];
-      });
-
-      if (R.status === 'error') {
-        throw R.result;
-      }
-
-      return R.result;
+    async load(): Promise<Result<DataItem<INPUT, OUTPUT, EXTRA>[] | null>> {
+      const dataset = await provider.get({ name });
+      if (isErr(dataset)) return dataset;
+      if (!dataset.value) return ok(null);
+      const items = await provider.getItems({ datasetId: dataset.value.id });
+      if (isErr(items)) return items;
+      // The dataset's generator supplies its generic shape; provider storage is type-erased.
+      return ok(
+        items.value.map(({ input, expected, extra }) => ({
+          ...extra,
+          input,
+          expected,
+        })) as DataItem<INPUT, OUTPUT, EXTRA>[]
+      );
     },
   };
-}
-
-/*
-|------------------
-| Internals
-|------------------
-*/
-
-function assertStorage(storage: DatasetStorage): asserts storage is 'local' {
-  if (storage !== 'local') {
-    throw new Error(`Unsupported storage type: ${storage}`);
-  }
-}
-
-function getDatasetPath(root: string, name: string) {
-  return path.join(root, '.viteval', 'datasets', `${name}.json`);
 }

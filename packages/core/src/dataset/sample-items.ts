@@ -1,3 +1,4 @@
+import { err, ok, type Result } from 'massaman/control';
 import type { DataGenerator, DataItem, SampleItemsParams } from '#/types';
 
 /**
@@ -6,31 +7,32 @@ import type { DataGenerator, DataItem, SampleItemsParams } from '#/types';
  * @param params - The sampling parameters.
  * @param params.item - Function that generates a single dataset item. Receives the current index (0-based).
  * @param params.count - Number of items to sample (must be >= 1).
- * @returns A `DataGenerator` compatible with `defineDataset` and `evaluate`.
+ * @returns A `DataGenerator`, or an error when count is invalid.
  *
  * @example
  * ```ts
- * defineDataset({
- *   name: 'my-dataset',
- *   data: sampleItems({
- *     item: async (index) => ({ input: `prompt-${index}`, expected: '...' }),
- *     count: 20,
- *   }),
- * })
+ * const sampled = sampleItems({
+ *   item: async (index) => ({ input: `prompt-${index}`, expected: '...' }),
+ *   count: 20,
+ * });
+ *
+ * if (sampled.ok) {
+ *   defineDataset({ name: 'my-dataset', data: sampled.value });
+ * }
  * ```
  */
 export function sampleItems<DATA_ITEM extends DataItem>(
   params: SampleItemsParams<DATA_ITEM>
-): DataGenerator<DATA_ITEM> {
+): Result<DataGenerator<DATA_ITEM>> {
   const { item, count } = params;
 
   if (!Number.isSafeInteger(count) || count < 1) {
-    throw new Error(
+    return err(
       `sampleItems: count must be a positive integer (>= 1), received ${count}`
     );
   }
 
-  return async () => {
+  return ok(async () => {
     const items: DATA_ITEM[] = [];
 
     for (let i = 0; i < count; i++) {
@@ -38,5 +40,5 @@ export function sampleItems<DATA_ITEM extends DataItem>(
     }
 
     return items;
-  };
+  });
 }

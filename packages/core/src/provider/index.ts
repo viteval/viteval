@@ -1,5 +1,7 @@
 export { initializeProvider } from './initialize';
 export { createProvider } from './create';
+export { createJsonProvider } from './json';
+export { getDatasetProvider } from './client';
 export type {
   Provider,
   ProviderConfig,

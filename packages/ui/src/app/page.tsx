@@ -118,7 +118,7 @@ export default async function DashboardPage() {
               recentResults.map((r) => (
                 <Link
                   key={r.id}
-                  href={`/results/${r.id}`}
+                  href={`/results/${encodeURIComponent(r.id)}`}
                   className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted transition-colors"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0">
@@ -177,7 +177,7 @@ export default async function DashboardPage() {
               recentDatasets.map((d) => (
                 <Link
                   key={d.id}
-                  href={`/datasets/${d.id}`}
+                  href={`/datasets/${encodeURIComponent(d.id)}`}
                   className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted transition-colors"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0">

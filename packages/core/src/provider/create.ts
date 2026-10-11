@@ -1,7 +1,5 @@
-import type { Result } from '@viteval/internal';
+import { ok } from 'massaman/control';
 import type { CreateProviderParams, Provider } from './types';
-
-const ok: Result<void> = { ok: true, result: undefined, status: 'ok' };
 
 /**
  * Create a custom provider from individual domain implementations.
@@ -24,10 +22,10 @@ export function createProvider(params: CreateProviderParams): Provider {
   const { name, datasets, evals, tags, initialize, close } = params;
 
   return {
-    close: close ?? (() => Promise.resolve(ok)),
+    close: close ?? (() => Promise.resolve(ok(undefined))),
     datasets,
     evals,
-    initialize: initialize ?? (() => Promise.resolve(ok)),
+    initialize: initialize ?? (() => Promise.resolve(ok(undefined))),
     name,
     tags,
   };

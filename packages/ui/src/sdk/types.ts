@@ -16,11 +16,10 @@ import type {
 |------------------
 */
 
-export interface VitevalResponse<T> {
-  data: T;
-}
+export type VitevalResponse<T> = { data: T } | { data?: never; error: string };
 
 export interface VitevalListResponse<T> {
+  warnings?: string[];
   data: T[];
   total: number;
   page: number;

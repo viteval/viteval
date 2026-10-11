@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { generateObject } from 'ai';
+import { generateText, Output } from 'ai';
 import { defineDataset } from 'viteval/dataset';
 import { z } from 'zod';
 
@@ -8,22 +8,24 @@ export default defineDataset({
     const data = [];
 
     for (let i = 0; i < 10; i++) {
-      const { object } = await generateObject({
+      const { output } = await generateText({
         model: openai('gpt-5'),
         prompt:
           'Generate a math problem that can be solved with basic arithmetic operations and the expected answer',
-        schema: z.object({
-          answer: z.string().describe('The answer to the question'),
-          question: z.string().describe('The question to answer'),
+        output: Output.object({
+          schema: z.object({
+            answer: z.string().describe('The answer to the question'),
+            question: z.string().describe('The question to answer'),
+          }),
         }),
-        system: `
+        instructions: `
           You are an expert at generating test data for a math agent. You will generate a math problem and the expected answer.
           Generate problems that can be solved with basic arithmetic operations (addition, subtraction, multiplication, division).
           `,
       });
       data.push({
-        expected: object.answer,
-        input: object.question,
+        expected: output.answer,
+        input: output.question,
       });
     }
 

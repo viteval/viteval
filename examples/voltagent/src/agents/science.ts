@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai';
 import { Agent } from '@voltagent/core';
 
 export interface ScienceInput {
@@ -37,6 +36,6 @@ Return your response in the following JSON format:
   "concepts": ["key concept 1", "key concept 2"],
   "confidence": 0.95
 }`,
-  model: openai('gpt-4o-mini'),
+  model: 'openai/gpt-4o-mini',
   name: 'science-agent',
 });

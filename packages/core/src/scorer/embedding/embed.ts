@@ -1,4 +1,5 @@
 import { embed } from 'ai';
+import { attemptAsync, isErr, type Result } from 'massaman/control';
 import { clamp } from '@viteval/internal';
 import cosineSimilarity from 'compute-cosine-similarity';
 import { requireEmbeddingModel } from '#/model/client';
@@ -7,22 +8,30 @@ import { requireEmbeddingModel } from '#/model/client';
  * Get an embedding vector for the given text using the configured embedding model.
  *
  * @param text - The text to embed.
- * @returns The embedding vector as a number array.
+ * @returns The embedding vector or the error that prevented generation.
  *
  * @example
  * ```ts
- * const vector = await getEmbedding('Hello world');
+ * const result = await getEmbedding('Hello world');
+ * if (result.ok) {
+ *   const vector = result.value;
+ * }
  * ```
  */
-export async function getEmbedding(text: string): Promise<number[]> {
-  const model = requireEmbeddingModel();
+export async function getEmbedding(text: string): Promise<Result<number[]>> {
+  const modelResult = requireEmbeddingModel();
+  if (isErr(modelResult)) {
+    return modelResult;
+  }
+  const model = modelResult.value;
 
-  const { embedding } = await embed({
-    model,
-    value: text,
+  return attemptAsync(async () => {
+    const { embedding } = await embed({
+      model,
+      value: text,
+    });
+    return embedding;
   });
-
-  return embedding;
 }
 
 /**
@@ -35,7 +44,10 @@ export async function getEmbedding(text: string): Promise<number[]> {
 export async function computeEmbeddingSimilarity(
   output: unknown,
   expected: unknown
-): Promise<{ score: number; metadata: { similarity: number } }> {
+): Promise<{
+  score: number | null;
+  metadata: { similarity: number; error?: string };
+}> {
   const outputStr = String(output);
   const expectedStr = String(expected);
 
@@ -43,12 +55,22 @@ export async function computeEmbeddingSimilarity(
     return { metadata: { similarity: 1 }, score: 1 };
   }
 
-  const [outputEmb, expectedEmb] = await Promise.all([
+  const [outputResult, expectedResult] = await Promise.all([
     getEmbedding(outputStr),
     getEmbedding(expectedStr),
   ]);
+  if (isErr(outputResult) || isErr(expectedResult)) {
+    const error = isErr(outputResult)
+      ? outputResult.error
+      : expectedResult.error;
+    return {
+      metadata: { error: error?.message ?? 'Embedding failed', similarity: 0 },
+      score: null,
+    };
+  }
 
-  const similarity = cosineSimilarity(outputEmb, expectedEmb) ?? 0;
+  const similarity =
+    cosineSimilarity(outputResult.value, expectedResult.value) ?? 0;
   const score = clamp(similarity, 0, 1);
 
   return { metadata: { similarity }, score };

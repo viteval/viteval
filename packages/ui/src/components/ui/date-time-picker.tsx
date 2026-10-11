@@ -83,7 +83,7 @@ function DateTimePicker({
           mode="single"
           selected={value}
           onSelect={handleDateSelect}
-          initialFocus
+          autoFocus
         />
         <div className="border-t px-3 py-2">
           <Input

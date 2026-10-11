@@ -32,4 +32,4 @@ ABSOLUTE_ROOT="$(cd "$ROOT" && pwd)"
 
 echo "Starting viteval UI with root: $ABSOLUTE_ROOT"
 
-VITEVAL_ROOT_PATH="$ABSOLUTE_ROOT" pnpm --filter @viteval/ui dev
+VITEVAL_ROOT_PATH="$ABSOLUTE_ROOT" pnpm exec turbo run dev --filter=@viteval/ui

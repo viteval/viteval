@@ -21,7 +21,7 @@ export function TagList({
   className,
   readOnly,
 }: TagListProps) {
-  const { allTags, tagsByEntity, addTagging, removeTagging, createTag } =
+  const { allTags, tagsByEntity, addTagging, removeTagging, createTag, error } =
     useTags(entityType, [entityId]);
 
   const selected = tagsByEntity[entityId] ?? [];
@@ -43,6 +43,11 @@ export function TagList({
 
   return (
     <div className={cn('flex flex-wrap items-center gap-1', className)}>
+      {error && (
+        <span role="alert" className="text-destructive text-xs">
+          {error}
+        </span>
+      )}
       {selected.map((tag) => (
         <TagChip
           key={tag.id}

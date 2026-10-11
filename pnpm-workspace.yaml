@@ -3,3 +3,11 @@ packages:
   - 'tools/*'
   - 'examples/*'
   - 'apps/*'
+allowBuilds:
+  '@prisma/engines': true
+  better-sqlite3: true
+  esbuild: true
+  msgpackr-extract: true
+  prisma: true
+  protobufjs: true
+  workerd: true

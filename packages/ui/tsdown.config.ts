@@ -2,7 +2,7 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   clean: false,
-  dts: true,
+  dts: { generator: 'tsgo' },
   entry: ['server.ts'],
   format: ['esm'],
   minify: true,
@@ -13,7 +13,7 @@ export default defineConfig({
     };
   },
   sourcemap: true,
-  splitting: false,
   target: 'esnext',
+  tsconfig: 'tsconfig.server.json',
   unbundle: true,
 });

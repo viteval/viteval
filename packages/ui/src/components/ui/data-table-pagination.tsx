@@ -1,6 +1,6 @@
 "use client"
 
-import { type Table } from "@tanstack/react-table"
+import { type ReactTable, type RowData } from "@tanstack/react-table"
 import { Icon } from "@iconify/react"
 
 import { Button } from "@/components/ui/button"
@@ -11,12 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { DataTableFeatures } from "@/components/ui/data-table-features"
 
-interface DataTablePaginationProps<TData> {
-  table: Table<TData>
+interface DataTablePaginationProps<TData extends RowData> {
+  table: ReactTable<DataTableFeatures, TData>
 }
 
-function DataTablePagination<TData>({
+function DataTablePagination<TData extends RowData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
@@ -28,7 +29,7 @@ function DataTablePagination<TData>({
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Rows</span>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
+            value={`${table.state.pagination.pageSize}`}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
             <SelectTrigger className="h-8 w-[70px]">
@@ -44,7 +45,7 @@ function DataTablePagination<TData>({
           </Select>
         </div>
         <span className="text-sm text-muted-foreground">
-          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+          {table.getPageCount() === 0 ? 0 : table.state.pagination.pageIndex + 1} / {table.getPageCount()}
         </span>
         <div className="flex items-center gap-1">
           <Button

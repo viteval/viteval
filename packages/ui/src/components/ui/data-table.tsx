@@ -5,14 +5,10 @@ import {
   type ColumnFiltersState,
   type ExpandedState,
   type Row,
+  type RowData,
   type SortingState,
   flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  useTable,
 } from "@tanstack/react-table"
 import * as React from "react"
 
@@ -25,34 +21,31 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { DataTablePagination } from "@/components/ui/data-table-pagination"
+import { dataTableFeatures, type DataTableFeatures } from "@/components/ui/data-table-features"
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<DataTableFeatures, TData, unknown>[]
   data: TData[]
   onRowClick?: (row: TData) => void
-  getRowCanExpand?: (row: Row<TData>) => boolean
-  renderExpandedRow?: (row: Row<TData>) => React.ReactNode
+  getRowCanExpand?: (row: Row<DataTableFeatures, TData>) => boolean
+  renderExpandedRow?: (row: Row<DataTableFeatures, TData>) => React.ReactNode
 }
 
-function DataTable<TData, TValue>({
+function DataTable<TData extends RowData>({
   columns,
   data,
   onRowClick,
   getRowCanExpand,
   renderExpandedRow,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [expanded, setExpanded] = React.useState<ExpandedState>({})
 
-  const table = useReactTable({
+  const table = useTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
+    features: dataTableFeatures,
     getRowCanExpand,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

@@ -1,5 +1,6 @@
 import type Braintrust from '@braintrust/api';
-import { withResult } from '@viteval/internal';
+import { randomUUID } from 'node:crypto';
+import { attemptAsync, err, ok } from 'massaman/control';
 import type {
   AddEvalResultParams,
   CompleteEvalRunParams,
@@ -22,11 +23,13 @@ export function createBraintrustEvalOps(
 ): EvalProvider {
   return {
     addResult: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const response = await client.experiments.insert(params.evalRunId, {
           events: [mapResultToEvent(params)],
         });
+        if (!response.row_ids[0])
+          throw new Error('Braintrust did not return an evaluation result ID');
 
         return {
           duration: params.duration,
@@ -44,22 +47,28 @@ export function createBraintrustEvalOps(
         };
       }),
 
-    addResults: (paramsList) =>
-      withResult(async () => {
-        if (paramsList.length === 0) {
-          return [];
-        }
+    addResults: (paramsList) => {
+      if (paramsList.length === 0) {
+        return Promise.resolve(ok([]));
+      }
 
-        const { evalRunId } = paramsList[0]!;
-        if (paramsList.some((p) => p.evalRunId !== evalRunId)) {
-          throw new Error('All results must belong to the same eval run');
-        }
+      const { evalRunId } = paramsList[0]!;
+      if (paramsList.some((p) => p.evalRunId !== evalRunId)) {
+        return Promise.resolve(
+          err('All results must belong to the same eval run')
+        );
+      }
 
+      return attemptAsync(async () => {
         const client = await getClient();
 
         const response = await client.experiments.insert(evalRunId, {
           events: paramsList.map(mapResultToEvent),
         });
+        if (response.row_ids.length !== paramsList.length)
+          throw new Error(
+            'Braintrust returned an unexpected number of result IDs'
+          );
 
         return paramsList.map((params, i) => ({
           duration: params.duration,
@@ -75,16 +84,19 @@ export function createBraintrustEvalOps(
           scores: params.scores,
           sumScore: params.sumScore,
         }));
-      }),
+      });
+    },
 
     complete: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
-        // Braintrust has no explicit complete — store summary in metadata
+        const current = await client.experiments.retrieve(params.id);
         const experiment = await client.experiments.update(params.id, {
           metadata: {
+            ...current.metadata,
             _viteval_status: params.status ?? 'completed',
             _viteval_summary: params.summary,
+            _viteval_completed_at: new Date().toISOString(),
           },
         });
 
@@ -92,15 +104,16 @@ export function createBraintrustEvalOps(
       }),
 
     create: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const experiment = await client.experiments.create({
           dataset_id: params.datasetId,
           metadata: {
             ...params.metadata,
             _viteval_config: params.config,
+            _viteval_name: params.name,
           },
-          name: params.name,
+          name: `${params.name}-${randomUUID()}`,
           project_id: getProjectId(),
         });
 
@@ -108,15 +121,30 @@ export function createBraintrustEvalOps(
       }),
 
     get: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const experiment = await client.experiments.retrieve(params.id);
 
         const run = mapExperiment(experiment);
 
         if (params.includeResults) {
-          const response = await client.experiments.fetch(params.id);
-          run.results = response.events.map((event) =>
+          const events: Braintrust.ExperimentEvent[] = [];
+          let cursor: string | undefined;
+          const seen = new Set<string>();
+          do {
+            const page = await client.experiments.fetchPost(params.id, {
+              cursor,
+            });
+            const ids = new Set(events.map((event) => event.id));
+            events.push(...page.events.filter((event) => !ids.has(event.id)));
+            cursor = page.cursor ?? undefined;
+            if (cursor && seen.has(cursor))
+              throw new Error(
+                'Braintrust returned a repeated experiment cursor'
+              );
+            if (cursor) seen.add(cursor);
+          } while (cursor);
+          run.results = events.map((event) =>
             mapExperimentEvent(event, params.id)
           );
         }
@@ -125,7 +153,7 @@ export function createBraintrustEvalOps(
       }),
 
     list: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const hasLocalFilters = params?.datasetId || params?.status;
         const serverLimit = hasLocalFilters
@@ -213,7 +241,11 @@ function mapExperiment(
     'running';
 
   return {
-    completedAt: completeParams ? new Date() : undefined,
+    completedAt: completeParams
+      ? new Date()
+      : typeof metadata._viteval_completed_at === 'string'
+        ? new Date(metadata._viteval_completed_at)
+        : undefined,
     config: (createParams?.config ??
       metadata._viteval_config ?? {
         aggregation: 'mean',
@@ -225,7 +257,11 @@ function mapExperiment(
     metadata: Object.fromEntries(
       Object.entries(metadata).filter(([k]) => !k.startsWith('_viteval_'))
     ),
-    name: experiment.name,
+    name:
+      createParams?.name ??
+      (typeof metadata._viteval_name === 'string'
+        ? metadata._viteval_name
+        : experiment.name),
     startedAt: experiment.created ? new Date(experiment.created) : new Date(),
     status,
     summary: (completeParams?.summary ??

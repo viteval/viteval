@@ -1,3 +1,4 @@
+import { isErr, ok, type Result } from 'massaman/control';
 import type {
   DatasetProvider,
   EvalProvider,
@@ -16,19 +17,22 @@ import type {
  */
 export async function initializeProvider(
   config: ProviderConfig
-): Promise<void> {
-  if (globalThis.__viteval_providerInitialized) {
-    return;
+): Promise<Result<void>> {
+  if (
+    isProvider(config) &&
+    globalThis.__viteval_provider === config &&
+    globalThis.__viteval_providerInitialized
+  ) {
+    return ok(undefined);
   }
 
   if (isProvider(config)) {
-    globalThis.__viteval_provider = config;
-
     const result = await config.initialize();
-    if (!result.ok) {
-      throw result.result;
+    if (isErr(result)) {
+      return result;
     }
 
+    globalThis.__viteval_provider = config;
     globalThis.__viteval_datasetProvider = config.datasets;
     globalThis.__viteval_evalProvider = config.evals;
     globalThis.__viteval_tagProvider = config.tags;
@@ -37,8 +41,8 @@ export async function initializeProvider(
     for (const slot of [config.datasets, config.evals, config.tags]) {
       if (slot && isProvider(slot) && !initialized.has(slot)) {
         const result = await slot.initialize();
-        if (!result.ok) {
-          throw result.result;
+        if (isErr(result)) {
+          return result;
         }
         initialized.add(slot);
       }
@@ -53,10 +57,11 @@ export async function initializeProvider(
       'evals'
     );
     globalThis.__viteval_tagProvider = resolveSubProvider(config.tags, 'tags');
+    globalThis.__viteval_provider = undefined;
   }
 
   globalThis.__viteval_providerInitialized = true;
-  globalThis.__viteval_providerInitPromise = undefined;
+  return ok(undefined);
 }
 
 /*

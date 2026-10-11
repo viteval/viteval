@@ -11,9 +11,9 @@ import { summary } from './summary';
 describe('summary', () => {
   it('should call runJudge with summary prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'B',
-      rationale: 'Summary B is better',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'B', rationale: 'Summary B is better', score: 1 },
     });
 
     const scorer = summary();

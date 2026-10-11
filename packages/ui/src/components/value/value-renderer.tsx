@@ -1,6 +1,6 @@
 'use client';
 
-import { match } from 'ts-pattern';
+import { match } from 'massaman/match';
 import { detectValueKind } from './detect';
 import { CodeRenderer } from './code-renderer';
 import { MarkdownRenderer } from './markdown-renderer';

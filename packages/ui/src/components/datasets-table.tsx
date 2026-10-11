@@ -7,6 +7,7 @@ import type { DatasetSummary, Tag } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import { ProviderBadge } from '@/components/display';
 import { TagChip, useTags } from '@/components/tag';
 
@@ -14,7 +15,7 @@ interface DatasetRow extends DatasetSummary {
   tags: Tag[];
 }
 
-const columns: ColumnDef<DatasetRow>[] = [
+const columns: ColumnDef<DataTableFeatures, DatasetRow>[] = [
   {
     accessorKey: 'name',
     cell: ({ row }) => (
@@ -90,7 +91,9 @@ export function DatasetsTable({ datasets }: DatasetsTableProps) {
     <DataTable
       columns={columns}
       data={rows}
-      onRowClick={(row) => router.push(`/datasets/${row.id}`)}
+      onRowClick={(row) =>
+        router.push(`/datasets/${encodeURIComponent(row.id)}`)
+      }
     />
   );
 }

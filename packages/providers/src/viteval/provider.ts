@@ -1,48 +1,62 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { withResult } from '@viteval/internal';
-import type { Provider } from '@viteval/core';
-import type { PrismaClient } from '@prisma/client';
+import { attemptAsync } from 'massaman/control';
+import { createJsonProvider, type Provider } from '@viteval/core/provider';
+import type { PrismaClient } from '#/generated/prisma/client';
 import { createPrismaClient, resolveSqlitePath } from './db';
 import { createDatasetOps } from './datasets';
 import { createEvalOps } from './evals';
 import { createTagOps } from './tags';
-import type { VitevalProviderOptions } from './types';
+import type {
+  VitevalProviderOptions,
+  VitevalSqliteOptions,
+  VitevalPostgresOptions,
+} from './types';
 
 /**
  * Create the native viteval provider.
  *
- * Uses SQLite by default (stored at `.viteval/viteval.db`), or PostgreSQL
- * for team/production setups.
+ * Uses JSON by default. SQLite and PostgreSQL are explicit options whose
+ * client/driver packages are optional peers.
  *
  * The Prisma client and domain ops are created lazily on first `initialize()` call,
  * so calling `viteval()` at config time is cheap.
  *
  * @param options - Database configuration options.
- * @returns A Provider backed by Prisma (SQLite or PostgreSQL).
+ * @returns A JSON provider, or a lazy database provider when explicitly configured.
  *
- * @example Default SQLite
+ * @example Default JSON
  * ```ts
  * import { viteval } from '@viteval/providers';
  *
- * defineConfig({
- *   provider: viteval(),
- * });
+ * const result = await initializeProvider(viteval());
+ * if (!result.ok) process.exitCode = 1;
  * ```
  *
  * @example PostgreSQL
  * ```ts
  * import { viteval } from '@viteval/providers';
  *
- * defineConfig({
- *   provider: viteval({
- *     database: 'postgres',
- *     url: process.env.DATABASE_URL!,
- *   }),
- * });
+ * const result = await initializeProvider(viteval({
+ *   database: 'postgres',
+ *   url: process.env.DATABASE_URL!,
+ * }));
+ * if (!result.ok) process.exitCode = 1;
  * ```
  */
 export function viteval(options: VitevalProviderOptions = {}): Provider {
+  if (options.database === 'postgres') return createDatabaseProvider(options);
+  if (options.database === 'sqlite' || 'path' in options)
+    return createDatabaseProvider({
+      database: 'sqlite',
+      path: 'path' in options ? options.path : undefined,
+    });
+  return createJsonProvider('root' in options ? { root: options.root } : {});
+}
+
+function createDatabaseProvider(
+  options: VitevalSqliteOptions | VitevalPostgresOptions
+): Provider {
   const isPostgres = options.database === 'postgres';
 
   let prisma: PrismaClient | undefined;
@@ -50,18 +64,9 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
   let evals: ReturnType<typeof createEvalOps> | undefined;
   let tags: ReturnType<typeof createTagOps> | undefined;
 
-  function getPrisma(): PrismaClient {
-    if (!prisma) {
-      throw new Error(
-        'Viteval provider not initialized. Call initialize() first.'
-      );
-    }
-    return prisma;
-  }
-
   return {
     close: () =>
-      withResult(async () => {
+      attemptAsync(async () => {
         if (prisma) {
           await prisma.$disconnect();
           prisma = undefined;
@@ -72,21 +77,15 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
       }),
 
     get datasets() {
-      if (!datasets) {
-        datasets = createDatasetOps(getPrisma());
-      }
       return datasets;
     },
 
     get evals() {
-      if (!evals) {
-        evals = createEvalOps(getPrisma());
-      }
       return evals;
     },
 
     initialize: () =>
-      withResult(async () => {
+      attemptAsync(async () => {
         if (!prisma) {
           prisma = await createPrismaClient(options);
         }
@@ -99,14 +98,14 @@ export function viteval(options: VitevalProviderOptions = {}): Provider {
         }
 
         await ensureSchema(prisma, isPostgres);
+        datasets = createDatasetOps(prisma);
+        evals = createEvalOps(prisma);
+        tags = createTagOps(prisma);
       }),
 
     name: 'viteval',
 
     get tags() {
-      if (!tags) {
-        tags = createTagOps(getPrisma());
-      }
       return tags;
     },
   };

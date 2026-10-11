@@ -7,8 +7,8 @@ on:
   workflow_dispatch: {}
 
 env:
-  NODE_VERSION: 24
-  PNPM_VERSION: 10.14.0
+  NODE_VERSION: 26
+  PNPM_VERSION: 12.11.2
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -25,15 +25,15 @@ jobs:
 
     steps:
       - name: '⬇️ Checkout Repo'
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: '🟨 Install pnpm'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: '💚 Setup Node'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
@@ -42,9 +42,12 @@ jobs:
       - name: '📦 Install Packages'
         run: pnpm install
 
+      - name: Validate release
+        run: pnpm validate && pnpm validate:consumer
+
       - name: '🔄 Create Release Pull Request or Publish'
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           createGithubReleases: true
           publish: pnpm run publish
@@ -55,7 +58,3 @@ jobs:
             ${{ github.ref_name == 'main' && 'chore(release): publish a new stable version' || 'chore(release): publish a new pre-release version' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: '🚀 Publish'
-        if: steps.changesets.outputs.hasChangesets == 'false'
-        run: pnpm run publish

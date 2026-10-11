@@ -17,7 +17,7 @@ export function Stat({
   className,
 }: StatProps) {
   return (
-    <div className={className}>
+    <div className={className} role="group" aria-label={label}>
       <div className="flex items-center justify-between mb-1">
         <span
           className={cn(

@@ -1,59 +1,23 @@
-/* oxlint-disable no-explicit-any -- UI display types where any is intentional */
+import type { JsonEvalResults, JsonEvalSuite } from '@viteval/core/reporters';
 
-export interface Score {
-  name: string;
-  score: number;
-}
-
-export interface EvalResult {
-  name: string;
-  sum: number;
-  median: number;
-  mean: number;
-  threshold: number;
-  aggregation: string;
-  scores: Score[];
-  input?: any;
-  expected?: any;
-  output?: any;
-  metadata?: Record<string, any>;
-}
+export type Score = Omit<
+  JsonEvalSuite['evalResults'][number]['scores'][number],
+  'score'
+> & { score: number };
+export type EvalResult = Omit<
+  JsonEvalSuite['evalResults'][number],
+  'scores'
+> & { scores: Score[] };
 
 export type EvalStatus = 'passed' | 'failed' | 'running';
 
-export interface EvalSuite {
-  name: string;
+export type EvalSuite = Omit<JsonEvalSuite, 'status' | 'evalResults'> & {
   status: EvalStatus;
-  filepath?: string;
-  startTime: number;
-  endTime: number;
-  duration: number;
   evalResults: EvalResult[];
-  summary: {
-    meanScore: number;
-    medianScore: number;
-    sumScore: number;
-    passedCount: number;
-    totalCount: number;
-  };
-}
-
-export interface EvalResults {
-  runId?: string;
-  runName?: string;
-  status: 'running' | 'finished';
-  success: boolean;
-  numTotalEvalSuites: number;
-  numPassedEvalSuites: number;
-  numFailedEvalSuites: number;
-  numTotalEvals: number;
-  numPassedEvals: number;
-  numFailedEvals: number;
-  startTime: number;
-  endTime: number;
-  duration: number;
+};
+export type EvalResults = Omit<JsonEvalResults, 'evalResults'> & {
   evalResults: EvalSuite[];
-}
+};
 
 export interface ResultFile {
   id: string;
@@ -110,9 +74,9 @@ export interface SuiteSummary {
 export interface DatasetItem {
   id: string;
   name?: string;
-  input: any;
-  expected?: any;
-  metadata?: Record<string, any>;
+  input: unknown;
+  expected?: unknown;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DatasetFile {

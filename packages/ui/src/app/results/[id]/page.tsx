@@ -12,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
 import { useSettings } from '@/hooks/use-settings';
 import { slugify } from '@/lib/utils';
+import { suiteName } from '@/lib/suite-name';
 import { Badge } from '@/components/ui/badge';
 import type { EvalResults } from '@/types';
 import { Duration, Timestamp } from '@/components/display';
@@ -29,7 +30,7 @@ export default function ResultDetailPage() {
 
   const fetchResult = useCallback(async () => {
     try {
-      const res = await fetch(`/api/results/${id}`);
+      const res = await fetch(`/api/results/${encodeURIComponent(id)}`);
       if (res.status === 404) {
         setNotFound(true);
         setResults(null);
@@ -119,7 +120,7 @@ export default function ResultDetailPage() {
   }
 
   const runName = results?.runName || id;
-  const suiteNames = results?.evalResults.map((s) => s.name).join(', ') ?? '';
+  const suiteNames = results?.evalResults.map(suiteName).join(', ') ?? '';
   const subtitle = suiteNames || undefined;
 
   return (
@@ -144,7 +145,7 @@ export default function ResultDetailPage() {
               <Badge variant="secondary" className="text-xs">
                 {results.numTotalEvals} evals
               </Badge>
-              <Duration ms={results.duration} />
+              <Duration ms={results.duration ?? 0} />
             </span>
           )
         }
@@ -155,7 +156,9 @@ export default function ResultDetailPage() {
             </Button>
             {results && results.evalResults.length === 1 && (
               <Button variant="outline" asChild>
-                <Link href={`/suites/${slugify(results.evalResults[0].name)}`}>
+                <Link
+                  href={`/suites/${slugify(suiteName(results.evalResults[0]))}`}
+                >
                   View Eval
                 </Link>
               </Button>
@@ -166,6 +169,11 @@ export default function ResultDetailPage() {
       {results && (
         <TagList entityType="eval_run" entityId={results.runId ?? id} />
       )}
+      {results?.errors?.map((message) => (
+        <p role="alert" key={message} className="text-destructive text-sm">
+          {message}
+        </p>
+      ))}
       {results && <ResultsDetail results={results} />}
       {loading && (
         <div className="flex items-center justify-center py-8">

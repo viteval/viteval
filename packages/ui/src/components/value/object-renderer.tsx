@@ -3,7 +3,7 @@
 import { get } from 'lodash-es';
 import { useMemo, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { match } from 'ts-pattern';
+import { match } from 'massaman/match';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import {
   Select,

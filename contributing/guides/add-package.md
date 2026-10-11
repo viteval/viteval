@@ -7,7 +7,7 @@ Create a new package in the Viteval monorepo.
 ### 1. Run the generator
 
 ```bash
-pnpm gen @tools/core:package my-package
+pnpm gen package --args my-package "Package description"
 ```
 
 ### 2. Follow the prompts

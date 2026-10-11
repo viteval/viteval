@@ -1,12 +1,12 @@
 import { createId } from '@paralleldrive/cuid2';
-import { withResult } from '@viteval/internal';
+import { attemptAsync } from 'massaman/control';
 import type {
   StoredTag,
   StoredTagging,
   TagEntityType,
   TagProvider,
 } from '@viteval/core';
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '#/generated/prisma/client';
 
 /**
  * Create tag operations backed by Prisma.
@@ -23,7 +23,7 @@ import type { PrismaClient } from '@prisma/client';
 export function createTagOps(prisma: PrismaClient): TagProvider {
   return {
     addTagging: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const tagging = await prisma.tagging.upsert({
           create: {
             entityId: params.entityId,
@@ -45,7 +45,7 @@ export function createTagOps(prisma: PrismaClient): TagProvider {
       }),
 
     create: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const tag = await prisma.tag.create({
           data: {
             color: params.color,
@@ -59,12 +59,12 @@ export function createTagOps(prisma: PrismaClient): TagProvider {
       }),
 
     delete: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         await prisma.tag.delete({ where: { id: params.id } });
       }),
 
     list: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const tags = await prisma.tag.findMany({
           orderBy: { name: 'asc' },
           skip: params?.offset,
@@ -75,7 +75,7 @@ export function createTagOps(prisma: PrismaClient): TagProvider {
       }),
 
     listEntitiesForTag: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const taggings = await prisma.tagging.findMany({
           orderBy: { createdAt: 'desc' },
           where: {
@@ -88,7 +88,7 @@ export function createTagOps(prisma: PrismaClient): TagProvider {
       }),
 
     listTaggings: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const taggings = await prisma.tagging.findMany({
           include: { tag: true },
           orderBy: { createdAt: 'asc' },
@@ -102,7 +102,7 @@ export function createTagOps(prisma: PrismaClient): TagProvider {
       }),
 
     removeTagging: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         await prisma.tagging.deleteMany({
           where: {
             entityId: params.entityId,
@@ -113,7 +113,7 @@ export function createTagOps(prisma: PrismaClient): TagProvider {
       }),
 
     update: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const tag = await prisma.tag.update({
           data: {
             color: params.color,

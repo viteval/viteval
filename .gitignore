@@ -110,6 +110,13 @@ dist
 # viteval results
 **/.viteval/results
 
+# Local evaluation and agent artifacts
+/.viteval/
+/packages/*/.viteval/
+**/.vitest/
+.serena/
+/examples/basic/.viteval/datasets/number-parsing.json
+
 # viteval local database
 **/.viteval/viteval.db
 **/.viteval/viteval.db-journal
@@ -154,9 +161,8 @@ dist
 !.env.example
 !.env.example.*
 
-# Nx
-.nx/cache
-.nx/workspace-data
+# Turborepo
+.turbo
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
 # Prisma generated client

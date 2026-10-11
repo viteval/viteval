@@ -1,5 +1,7 @@
-import type { EvalResults, SuiteSummary } from '@/types';
+import type { SuiteSummary } from '@/types';
+import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
 import { slugify } from '@/lib/utils';
+import { suiteName } from '@/lib/suite-name';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
 import type {
@@ -15,7 +17,11 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
     const ids = await fsHelper.listJsonIds('results');
 
     const allResults = await Promise.all(
-      ids.map((id) => fsHelper.readJson<EvalResults>(`results/${id}.json`))
+      ids.map(async (id) => {
+        const raw = await fsHelper.readJson<unknown>(`results/${id}.json`);
+        const parsed = EVAL_RESULTS_SCHEMA.safeParse(raw);
+        return parsed.success ? parsed.data : null;
+      })
     );
 
     const suiteMap = new Map<string, SuiteSummary>();
@@ -27,19 +33,21 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
       const runTimestamp = String(result.startTime);
 
       for (const suite of result.evalResults) {
-        const existing = suiteMap.get(suite.name);
+        const name = suiteName(suite);
+        const existing = suiteMap.get(name);
         if (!existing) {
-          suiteMap.set(suite.name, {
+          suiteMap.set(name, {
             filepath: suite.filepath,
             latestDuration: suite.duration,
             latestMeanScore: suite.summary.meanScore,
             latestPassedCount: suite.summary.passedCount,
             latestRunTimestamp: runTimestamp,
-            latestStatus: suite.status,
+            latestStatus:
+              result.status === 'running' ? 'running' : suite.status,
             latestTotalCount: suite.summary.totalCount,
-            name: suite.name,
+            name,
             runCount: 1,
-            slug: slugify(suite.name),
+            slug: slugify(name),
           });
           continue;
         }
@@ -53,7 +61,8 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
           existing.latestMeanScore = suite.summary.meanScore;
           existing.latestPassedCount = suite.summary.passedCount;
           existing.latestRunTimestamp = runTimestamp;
-          existing.latestStatus = suite.status;
+          existing.latestStatus =
+            result.status === 'running' ? 'running' : suite.status;
           existing.latestTotalCount = suite.summary.totalCount;
         }
       }

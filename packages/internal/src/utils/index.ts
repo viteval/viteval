@@ -17,4 +17,4 @@ export {
 } from './lang';
 export { clamp } from './math';
 export { hasKey } from './objects';
-export { type Result, withResult } from './result';
+export { serializeJson, writeJsonAtomic } from './json';

@@ -7,7 +7,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { data } = await viteval.results.get({ id });
+  const result = await viteval.results.get({ id });
+  if ('error' in result)
+    return Response.json({ error: result.error }, { status: 500 });
+  const { data } = result;
 
   if (!data) {
     return Response.json({ error: 'Not found' }, { status: 404 });

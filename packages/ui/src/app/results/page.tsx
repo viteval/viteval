@@ -11,9 +11,11 @@ export default async function ResultsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const { data: results, total } = await viteval.results.list(
-    parsePaginateParams(params)
-  );
+  const {
+    data: results,
+    total,
+    warnings,
+  } = await viteval.results.list(parsePaginateParams(params));
 
   return (
     <div className="container mx-auto p-6 space-y-6 overflow-hidden">
@@ -22,6 +24,11 @@ export default async function ResultsPage({
         title="Results"
         description={`View and analyze your evaluation results (${total} total)`}
       />
+      {warnings?.map((warning) => (
+        <p role="alert" key={warning} className="text-destructive text-sm">
+          {warning}
+        </p>
+      ))}
       <ResultsList results={results} />
     </div>
   );

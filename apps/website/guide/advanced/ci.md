@@ -49,7 +49,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '26'
           cache: 'npm'
 
       - name: Install dependencies
@@ -62,10 +62,21 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
-## GitLab CI/CD
+## Preserve reports
 
-Coming soon!
+Configure `JsonReporter` to write `.viteval/results/<id>.json`, then upload the
+files even when a score or execution failure makes the evaluation step fail:
 
-## CircleCI
+```yaml
+- name: Upload evaluation reports
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: evaluation-results
+    path: .viteval/results/*.json
+    if-no-files-found: warn
+```
 
-Coming soon!
+The same `viteval run` command works in GitLab, CircleCI, and other CI systems.
+Install with a lockfile, provide model credentials through the CI environment,
+and retain the JSON reports. A nonzero Vitest exit code fails the job.

@@ -7,9 +7,10 @@ import type { DatasetFile, DatasetItem } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import { ValuePreview, ValueRenderer } from '@/components/value';
 
-const columns: ColumnDef<DatasetItem>[] = [
+const columns: ColumnDef<DataTableFeatures, DatasetItem>[] = [
   {
     cell: ({ row }) => {
       const hasDetails =
@@ -96,7 +97,7 @@ const columns: ColumnDef<DatasetItem>[] = [
   },
 ];
 
-function ExpandedRow({ row }: { row: Row<DatasetItem> }) {
+function ExpandedRow({ row }: { row: Row<DataTableFeatures, DatasetItem> }) {
   const item = row.original;
   return (
     <div className="bg-muted/30 p-4 space-y-4 overflow-hidden">
@@ -128,7 +129,7 @@ interface DatasetDetailProps {
 
 export default function DatasetDetail({ dataset }: DatasetDetailProps) {
   const renderExpandedRow = useCallback(
-    (row: Row<DatasetItem>) => <ExpandedRow row={row} />,
+    (row: Row<DataTableFeatures, DatasetItem>) => <ExpandedRow row={row} />,
     []
   );
 

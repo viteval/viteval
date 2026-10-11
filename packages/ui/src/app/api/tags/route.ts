@@ -33,6 +33,9 @@ export async function POST(request: Request) {
     description: body.description,
     name: body.name,
   });
+  if ('error' in result) {
+    return Response.json(result, { status: 500 });
+  }
 
   return Response.json(result);
 }

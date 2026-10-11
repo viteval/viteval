@@ -12,10 +12,7 @@
     "module": "esnext",
     "lib": ["es2024", "dom"],
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "paths": {
-      "core": ["./tools/core/src/index.ts"]
-    }
+    "skipDefaultLibCheck": true
   },
   "exclude": ["node_modules", "tmp"]
 }

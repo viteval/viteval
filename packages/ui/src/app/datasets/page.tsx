@@ -11,7 +11,7 @@ export default async function DatasetsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const { data: datasets } = await viteval.datasets.list(
+  const { data: datasets, warnings } = await viteval.datasets.list(
     parsePaginateParams(params)
   );
 
@@ -22,6 +22,11 @@ export default async function DatasetsPage({
         title="Datasets"
         description="View and manage your evaluation datasets"
       />
+      {warnings?.map((warning) => (
+        <p role="alert" key={warning} className="text-destructive text-sm">
+          {warning}
+        </p>
+      ))}
       <DatasetsList datasets={datasets} />
     </div>
   );

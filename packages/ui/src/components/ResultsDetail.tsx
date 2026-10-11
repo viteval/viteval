@@ -14,6 +14,8 @@ import {
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { getStatusBadge } from '@/lib/badges';
+import { isEvalPassed } from '@/lib/eval-status';
+import { suiteName } from '@/lib/suite-name';
 import { slugify } from '@/lib/utils';
 import type { EvalResult, EvalResults, EvalSuite, Score } from '@/types';
 import { Duration, PassRate, ScoreBadge } from '@/components/display';
@@ -23,9 +25,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import { ValuePreview, ValueRenderer } from '@/components/value';
 
-const evalColumns: ColumnDef<EvalResult>[] = [
+const evalColumns: ColumnDef<DataTableFeatures, EvalResult>[] = [
   {
     cell: ({ row }) => {
       if (!row.getCanExpand()) {
@@ -85,9 +88,9 @@ const evalColumns: ColumnDef<EvalResult>[] = [
     ),
   },
   {
-    accessorFn: (row) => (row.mean >= row.threshold ? 'passed' : 'failed'),
+    accessorFn: (row) => (isEvalPassed(row) ? 'passed' : 'failed'),
     cell: ({ row }) => {
-      const passed = row.original.mean >= row.original.threshold;
+      const passed = isEvalPassed(row.original);
       return (
         <Badge variant={passed ? 'success' : 'destructive'}>
           {passed ? 'Passed' : 'Failed'}
@@ -120,7 +123,7 @@ const evalColumns: ColumnDef<EvalResult>[] = [
   },
 ];
 
-function ExpandedEvalRow({ row }: { row: Row<EvalResult> }) {
+function ExpandedEvalRow({ row }: { row: Row<DataTableFeatures, EvalResult> }) {
   const evalResult = row.original;
   return (
     <div className="bg-muted/30 p-4 space-y-4 overflow-hidden">
@@ -128,6 +131,15 @@ function ExpandedEvalRow({ row }: { row: Row<EvalResult> }) {
         <div>
           <h4 className="font-semibold text-sm mb-2">Input:</h4>
           <ValueRenderer value={evalResult.input} label="Input" />
+        </div>
+      )}
+      {(evalResult.error ||
+        typeof evalResult.metadata?.executionError === 'string') && (
+        <div
+          role="alert"
+          className="text-destructive text-sm whitespace-pre-wrap"
+        >
+          {evalResult.error ?? String(evalResult.metadata?.executionError)}
         </div>
       )}
       {evalResult.expected !== undefined && (
@@ -160,18 +172,18 @@ function ExpandedEvalRow({ row }: { row: Row<EvalResult> }) {
 
 function SuiteSection({ suite }: { suite: EvalSuite }) {
   const renderExpandedRow = useCallback(
-    (row: Row<EvalResult>) => <ExpandedEvalRow row={row} />,
+    (row: Row<DataTableFeatures, EvalResult>) => <ExpandedEvalRow row={row} />,
     []
   );
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{suite.name}</h2>
+        <h2 className="text-lg font-semibold">{suiteName(suite)}</h2>
         <div className="flex items-center gap-2">
           {getStatusBadge(suite.status)}
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/suites/${slugify(suite.name)}`}>View Eval</Link>
+            <Link href={`/suites/${slugify(suiteName(suite))}`}>View Eval</Link>
           </Button>
         </div>
       </div>
@@ -191,9 +203,17 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
             label: 'Failed',
             value: (
               <span className="text-red-600">
-                {suite.summary.totalCount - suite.summary.passedCount}
+                {suite.summary.failedCount ??
+                  suite.summary.totalCount -
+                    suite.summary.passedCount -
+                    (suite.summary.skippedCount ?? 0)}
               </span>
             ),
+          },
+          {
+            icon: <HashIcon className="h-3.5 w-3.5" />,
+            label: 'Skipped',
+            value: suite.summary.skippedCount ?? 0,
           },
           {
             icon: <HashIcon className="h-3.5 w-3.5" />,
@@ -222,6 +242,14 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
           },
         ]}
       />
+      {suite.message && (
+        <p
+          role="alert"
+          className="text-destructive text-sm whitespace-pre-wrap"
+        >
+          {suite.message}
+        </p>
+      )}
       <h3 className="text-sm font-medium">Results</h3>
       <DataTable
         columns={evalColumns}
@@ -248,7 +276,10 @@ export default function ResultsDetail({ results }: ResultsDetailProps) {
   return (
     <div className="space-y-8">
       {results.evalResults.map((suite: EvalSuite) => (
-        <SuiteSection key={suite.name} suite={suite} />
+        <SuiteSection
+          key={`${suite.filepath}:${suiteName(suite)}`}
+          suite={suite}
+        />
       ))}
     </div>
   );

@@ -7,16 +7,13 @@ This section provides practical examples of using Viteval for different scenario
 ```ts
 import { evaluate, scorers } from 'viteval';
 
-evaluate('Simple QA', {
-  data: async () => [
-    { input: 'What is the capital of France?', expected: 'Paris' },
-    { input: 'What is 2+2?', expected: '4' },
+evaluate('Uppercase', {
+  data: [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
   ],
-  task: async (input) => {
-    return await callYourLLM(input);
-  },
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
 });
 ```
 
@@ -24,45 +21,52 @@ evaluate('Simple QA', {
 
 ```ts
 import { defineDataset } from 'viteval/dataset';
+import { evaluate, scorers } from 'viteval';
 
 const mathDataset = defineDataset({
   name: 'basic-math',
-  data: async () => {
-    const problems = [];
-    for (let i = 0; i < 100; i++) {
-      const a = Math.floor(Math.random() * 10);
-      const b = Math.floor(Math.random() * 10);
-      problems.push({
-        input: `What is ${a} + ${b}?`,
-        expected: String(a + b),
-      });
-    }
-    return problems;
-  },
+  data: async () =>
+    Array.from({ length: 10 }, (_, index) => ({
+      input: { a: index, b: 2 },
+      expected: index + 2,
+    })),
 });
 
 evaluate('Math solver', {
-  data: () => mathDataset.data(),
-  task: async (input) => await solveMath(input),
-  scorers: [scorers.exactMatch],
-  threshold: 0.9,
+  data: mathDataset,
+  task: ({ input }) => input.a + input.b,
+  scorers: [scorers.exactMatch()],
 });
 ```
 
 ## Multiple Scorers
 
 ```ts
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
+import { evaluate, initializeModel, scorers } from 'viteval';
+
+const model = openai('gpt-4.1-mini');
+initializeModel({
+  language: model,
+  embedding: openai.embedding('text-embedding-3-small'),
+});
+
 evaluate('Content quality', {
-  data: async () => loadQuestions(),
-  task: async (input) => await generateContent(input),
+  data: [{ input: 'What is the Sun?', expected: 'The Sun is a star.' }],
+  task: async ({ input }) =>
+    (await generateText({ model, prompt: input })).text,
   scorers: [
-    scorers.factual, // Must be factually correct
-    scorers.answerSimilarity, // Must be semantically similar
-    scorers.moderation, // Must be safe content
+    scorers.factual(),
+    scorers.answerSimilarity(),
+    scorers.moderation(),
   ],
   threshold: 0.8, // an average of the scores is used to determine if threshold is met
 });
 ```
+
+The multiple-scorer example requires `ai`, `@ai-sdk/openai`, and
+`OPENAI_API_KEY`. It performs real generation, embedding, and judge requests.
 
 ## Runnable Examples
 

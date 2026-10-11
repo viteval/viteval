@@ -7,6 +7,7 @@ import { getStatusBadge, getSuccessBadge } from '@/lib/badges';
 import type { ResultFile, Tag } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import { Duration, Timestamp } from '@/components/display';
 import { TagChip, useTags } from '@/components/tag';
 
@@ -14,7 +15,7 @@ interface ResultRow extends ResultFile {
   tags: Tag[];
 }
 
-const allColumns: ColumnDef<ResultRow>[] = [
+const allColumns: ColumnDef<DataTableFeatures, ResultRow>[] = [
   {
     accessorKey: 'name',
     cell: ({ row }) => (
@@ -168,7 +169,9 @@ export function ResultsTable({ results, hiddenColumnIds }: ResultsTableProps) {
     <DataTable
       columns={columns}
       data={rows}
-      onRowClick={(row) => router.push(`/results/${row.id}`)}
+      onRowClick={(row) =>
+        router.push(`/results/${encodeURIComponent(row.id)}`)
+      }
     />
   );
 }

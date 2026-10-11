@@ -1,19 +1,19 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { withResult } from './result';
+import { attemptAsync, isErr, ok, type Result } from 'massaman/control';
 
 /**
  * Check if a file exists
  * @param filePath - The path to check for a file
  * @returns True if the file exists, false otherwise
  */
-export async function fileExists(filePath: string) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
+export async function fileExists(filePath: string): Promise<Result<boolean>> {
+  const result = await attemptAsync(() => fs.access(filePath));
+  if (result.ok) {
+    return ok(true);
   }
+
+  return isNotFoundError(result.error) ? ok(false) : result;
 }
 
 /**
@@ -21,13 +21,10 @@ export async function fileExists(filePath: string) {
  * @param filePath - The path to check for a directory
  * @returns True if the directory exists, false otherwise
  */
-export async function directoryExists(filePath: string) {
-  try {
-    await fs.access(filePath, fs.constants.F_OK);
-    return true;
-  } catch {
-    return false;
-  }
+export async function directoryExists(
+  filePath: string
+): Promise<Result<boolean>> {
+  return await fileExists(filePath);
 }
 
 /**
@@ -35,23 +32,14 @@ export async function directoryExists(filePath: string) {
  * @param filePath - The path to create the directory
  * @returns True if the directory was created, false if it already exists
  */
-export async function createDirectory(filePath: string) {
-  const R = await withResult(async () => {
+export async function createDirectory(
+  filePath: string
+): Promise<Result<boolean>> {
+  return await attemptAsync(async () => {
     const dirPath = path.dirname(filePath);
-    const exists = await directoryExists(dirPath);
-    if (exists) {
-      return false;
-    }
-
-    await fs.mkdir(dirPath, { recursive: true });
-    return true;
+    const created = await fs.mkdir(dirPath, { recursive: true });
+    return created !== undefined;
   });
-
-  if (R.ok) {
-    return R.result;
-  }
-
-  return false;
 }
 
 /**
@@ -63,23 +51,23 @@ export async function createDirectory(filePath: string) {
 export async function createFile(
   filePath: string,
   content: string
-): Promise<boolean> {
-  const R = await withResult(async () => {
-    const exists = await fileExists(filePath);
-    if (exists) {
-      return false;
-    }
+): Promise<Result<boolean>> {
+  const exists = await fileExists(filePath);
+  if (isErr(exists) || exists.value) {
+    return exists.ok ? ok(false) : exists;
+  }
 
-    // We initialize the directory to avoid errors
-    await createDirectory(filePath);
+  const directory = await createDirectory(filePath);
+  if (isErr(directory)) {
+    return directory;
+  }
 
+  return await attemptAsync(async () => {
     await fs.writeFile(filePath, content);
     return true;
   });
+}
 
-  if (R.ok) {
-    return R.result;
-  }
-
-  return false;
+function isNotFoundError(error: Error): boolean {
+  return 'code' in error && error.code === 'ENOENT';
 }

@@ -54,11 +54,19 @@ The evaluation engine. Provides:
 
 ### @viteval/cli
 
-Command-line interface built on Vitest. Provides:
+Command-line interface built on maltty. Uses maltty commands, logging, prompts,
+and progress indicators for project initialization, dataset generation, and the UI.
+Evaluation arguments pass directly to Vitest. Provides:
 
 - `viteval run` - Execute evaluations
 - `viteval init` - Initialize projects
 - `viteval data` - Manage datasets
+- `viteval ui` - Inspect local results
+
+The optional compiled CLI uses maltty's Bun bundler. Help, version, and project
+initialization run inside the binary. Evaluations, dataset imports, and the UI
+run through the project's installed Node CLI, preserving Vitest workers and
+project-specific dependencies.
 
 ### @viteval/ui
 
@@ -71,3 +79,13 @@ Shared utilities used across packages. Type guards, helpers, and common types. N
 ## Built on Vitest
 
 Evaluations run as Vitest test suites, leveraging its speed, parallelization, and ecosystem.
+
+The CLI uses Vitest's native CLI for argument parsing, configuration, discovery,
+execution, watch mode, reporting, failure semantics, and exit status. Each
+evaluation records its structured result as a custom Vitest artifact, which reporters
+consume from the reported test case. This keeps evaluation data on Vitest's supported
+worker-to-main-process transport instead of mutating internal task metadata.
+
+Viteval uses native `vitest.config.ts` files. Non-serializable model and provider
+instances initialize in Vitest `setupFiles`, inside each worker. Viteval does not
+provide a custom runner, plugin, virtual config module, default reporter, or task transport.

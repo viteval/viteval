@@ -11,7 +11,7 @@ import { evaluate } from 'viteval';
 ## Signature
 
 ```ts
-function evaluate<DATA_ITEM extends DataItem, DATA extends Data<DATA_ITEM>>(
+function evaluate<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>>(
   name: string,
   {
     data,
@@ -19,8 +19,8 @@ function evaluate<DATA_ITEM extends DataItem, DATA extends Data<DATA_ITEM>>(
     task,
     scorers,
     threshold = 1.0,
-    timeout,
-  }: Eval<DATA>
+    testOptions,
+  }: Eval<DATA, TASK_OUTPUT>
 );
 ```
 
@@ -41,7 +41,7 @@ function evaluate<DATA_ITEM extends DataItem, DATA extends Data<DATA_ITEM>>(
 ## Eval Interface
 
 ```ts
-interface Eval<DATA extends Data> {
+interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
   /**
    * The description of the evaluation.
    */
@@ -53,11 +53,11 @@ interface Eval<DATA extends Data> {
   /**
    * The task to evaluate.
    */
-  task: Task<InferDataInput<DATA>, InferDataOutput<DATA>, InferDataExtra<DATA>>;
+  task: Task<InferDataInput<DATA>, TASK_OUTPUT, InferDataExtra<DATA>>;
   /**
    * The scorers to use for the evaluation.
    */
-  scorers: Scorer<InferDataOutput<DATA>, InferDataExtra<DATA>>[];
+  scorers: Scorer<TASK_OUTPUT, InferDataOutput<DATA>, InferDataExtra<DATA>>[];
   /**
    * The aggregation type for the evaluation.
    *
@@ -70,12 +70,8 @@ interface Eval<DATA extends Data> {
    * @default 1.0
    */
   threshold?: number;
-  /**
-   * The timeout for the evaluation.
-   *
-   * @default Value provided to `timeout`, or if not supplied, the runtime configuration value (`config.eval?.timeout`), or 25000ms if none provided.
-   */
-  timeout?: number;
+  /** Native Vitest options applied to every generated test case. */
+  testOptions?: TestOptions;
 }
 ```
 
@@ -120,12 +116,7 @@ type Task<INPUT, OUTPUT, EXTRA extends Extra> = (
   args: TaskArgs<INPUT, EXTRA>
 ) => Promise<OUTPUT> | OUTPUT;
 
-type TaskArgs<INPUT, EXTRA extends Extra> = TF.Merge<
-  EXTRA,
-  {
-    input: INPUT;
-  }
->;
+type TaskArgs<INPUT, EXTRA extends Extra> = EXTRA & { input: INPUT };
 ```
 
 ```ts
@@ -166,8 +157,8 @@ Array of scorer functions to evaluate the output quality.
 import { scorers, createScorer } from 'viteval';
 
 // Built-in scorers
-scorers: [scorers.exactMatch];
-scorers: [scorers.levenshtein, scorers.factual];
+scorers: [scorers.exactMatch()];
+scorers: [scorers.levenshtein(), scorers.factual()];
 
 // Custom scorer
 const customScorer = createScorer({
@@ -180,16 +171,16 @@ const customScorer = createScorer({
   },
 });
 
-scorers: [customScorer, scorers.answerSimilarity];
+scorers: [customScorer, scorers.answerSimilarity()];
 ```
 
 ### `threshold` (optional)
 
-Minimum average score required for the evaluation to pass.
+Minimum score for each case's configured mean, median, or sum aggregation.
 
 **Type**: `number`  
 **Default**: `1.0`  
-**Range**: `0.0` to `1.0`
+**Range**: Any finite number. Sum thresholds may exceed `1.0`.
 
 ```ts
 // Require 90% average score
@@ -202,22 +193,27 @@ threshold: 0.6;
 threshold: 1.0;
 ```
 
-### `timeout` (optional)
+### `testOptions` (optional)
 
-Maximum time (in milliseconds) for each test case.
+Native [Vitest test options](https://vitest.dev/api/test.html#test-options) applied to every generated test case. Configure timeout, retry, repeats, concurrency, tags, and other test behavior here instead of through a Viteval-specific wrapper.
 
-**Type**: `number`  
-**Default**: Value provided to `timeout`, or if not supplied, the runtime configuration value (`config.eval?.timeout`), or 25000ms if none provided.
+**Type**: `TestOptions`
 
 ```ts
 // 1 minute timeout
-timeout: 60000;
+testOptions: {
+  timeout: 60_000;
+}
 
-// Quick timeout for fast models
-timeout: 5000;
+// Retry transient model failures through Vitest
+testOptions: {
+  retry: 2;
+}
 
-// No timeout (not recommended)
-timeout: 0;
+// Disable timeout
+testOptions: {
+  timeout: 0;
+}
 ```
 
 ### `aggregation` (optional)
@@ -258,14 +254,11 @@ type DataItem<
   INPUT = unknown,
   OUTPUT = unknown,
   EXTRA extends Extra = Extra,
-> = TF.Merge<
-  EXTRA,
-  {
-    name?: string;
-    input: INPUT;
-    expected?: OUTPUT;
-  }
->;
+> = EXTRA & {
+  name?: string;
+  input: INPUT;
+  expected: OUTPUT;
+};
 ```
 
 Where `Extra` is:

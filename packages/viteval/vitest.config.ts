@@ -9,5 +9,14 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    provide: {
+      integrationCoverage: process.argv.includes('--coverage'),
+    },
   },
 });
+
+declare module 'vitest' {
+  export interface ProvidedContext {
+    integrationCoverage: boolean;
+  }
+}

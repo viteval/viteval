@@ -19,6 +19,10 @@ export async function PATCH(
     id,
     name: body.name,
   });
+  if ('error' in result) {
+    const status = result.error.startsWith('Tag not found:') ? 404 : 500;
+    return Response.json(result, { status });
+  }
 
   return Response.json(result);
 }
@@ -28,6 +32,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  await viteval.tags.delete({ id });
-  return Response.json({ data: null });
+  const result = await viteval.tags.delete({ id });
+  return 'error' in result
+    ? Response.json(result, { status: 500 })
+    : Response.json(result);
 }

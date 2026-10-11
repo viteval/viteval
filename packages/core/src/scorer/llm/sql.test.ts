@@ -11,9 +11,13 @@ import { sql } from './sql';
 describe('sql', () => {
   it('should call runJudge with sql prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'Correct',
-      rationale: 'Semantically equivalent queries',
-      score: 1,
+      error: null,
+      ok: true,
+      value: {
+        choice: 'Correct',
+        rationale: 'Semantically equivalent queries',
+        score: 1,
+      },
     });
 
     const scorer = sql();

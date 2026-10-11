@@ -17,7 +17,10 @@ interface TagsState {
  * @param entityIds - Stable list of entity IDs to load taggings for.
  */
 export function useTags(entityType: TagEntityType, entityIds: string[]) {
-  const idsKey = useMemo(() => [...entityIds].sort().join(','), [entityIds]);
+  const idsKey = useMemo(
+    () => JSON.stringify([...entityIds].sort()),
+    [entityIds]
+  );
 
   const [state, setState] = useState<TagsState>({
     allTags: [],
@@ -29,17 +32,26 @@ export function useTags(entityType: TagEntityType, entityIds: string[]) {
   const reload = useCallback(async () => {
     setState((s) => ({ ...s, loading: true }));
     try {
-      const ids = idsKey ? idsKey.split(',') : [];
-      const [tagsRes, lookupRes] = await Promise.all([
-        fetch('/api/tags').then((r) => r.json()),
+      const ids: string[] = JSON.parse(idsKey);
+      const [tagsResponse, lookupResponse] = await Promise.all([
+        fetch('/api/tags'),
         ids.length > 0
           ? fetch('/api/taggings/lookup', {
               body: JSON.stringify({ entityIds: ids, entityType }),
               headers: { 'Content-Type': 'application/json' },
               method: 'POST',
-            }).then((r) => r.json())
-          : Promise.resolve({ data: {} }),
+            })
+          : Promise.resolve(null),
       ]);
+      if (!tagsResponse.ok || (lookupResponse && !lookupResponse.ok)) {
+        throw new Error('Failed to load tags');
+      }
+      const tagsRes = await tagsResponse.json();
+      const lookupRes = lookupResponse
+        ? await lookupResponse.json()
+        : { data: {} };
+      const issue = tagsRes.error ?? lookupRes.error ?? tagsRes.warnings?.[0];
+      if (issue) throw new Error(`Failed to load tags: ${String(issue)}`);
 
       setState({
         allTags: (tagsRes.data ?? []) as Tag[],
@@ -67,11 +79,13 @@ export function useTags(entityType: TagEntityType, entityIds: string[]) {
       method: 'POST',
     });
     if (!res.ok) {
+      setState((state) => ({ ...state, error: 'Failed to create tag' }));
       return null;
     }
     const { data } = (await res.json()) as { data: Tag };
     setState((s) => ({
       ...s,
+      error: null,
       allTags: s.allTags.some((t) => t.id === data.id)
         ? s.allTags
         : [...s.allTags, data].sort((a, b) => a.name.localeCompare(b.name)),
@@ -81,11 +95,15 @@ export function useTags(entityType: TagEntityType, entityIds: string[]) {
 
   const addTagging = useCallback(
     async (tagId: string, type: TagEntityType, entityId: string) => {
-      await fetch('/api/taggings', {
+      const response = await fetch('/api/taggings', {
         body: JSON.stringify({ entityId, entityType: type, tagId }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       });
+      if (!response.ok) {
+        setState((state) => ({ ...state, error: 'Failed to add tagging' }));
+        return;
+      }
       setState((s) => {
         const tag = s.allTags.find((t) => t.id === tagId);
         if (!tag) {
@@ -114,7 +132,13 @@ export function useTags(entityType: TagEntityType, entityIds: string[]) {
         entityType: type,
         tagId,
       });
-      await fetch(`/api/taggings?${params.toString()}`, { method: 'DELETE' });
+      const response = await fetch(`/api/taggings?${params.toString()}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        setState((state) => ({ ...state, error: 'Failed to remove tagging' }));
+        return;
+      }
       setState((s) => ({
         ...s,
         tagsByEntity: {

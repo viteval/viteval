@@ -1,5 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { attemptAsync, err, type Result } from 'massaman/control';
+import { writeJsonAtomic } from '@viteval/internal';
 
 /**
  * Shared filesystem helpers for SDK resources.
@@ -61,13 +63,17 @@ export function createFs(root: string) {
     }
   }
 
-  async function writeJson(filePath: string, value: unknown): Promise<void> {
+  async function writeJson(
+    filePath: string,
+    value: unknown
+  ): Promise<Result<void>> {
     const fullPath = resolveWithin(resolvedVitevalDir, filePath);
     if (!fullPath) {
-      throw new Error(`Refusing to write outside .viteval: ${filePath}`);
+      return err(`Refusing to write outside .viteval: ${filePath}`);
     }
-    await fs.mkdir(path.dirname(fullPath), { recursive: true });
-    await fs.writeFile(fullPath, `${JSON.stringify(value, null, 2)}\n`);
+    return attemptAsync(async () => {
+      await writeJsonAtomic({ filePath: fullPath, value });
+    });
   }
 
   function filePath(dirPath: string, id: string): string {

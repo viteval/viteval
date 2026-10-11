@@ -32,5 +32,4 @@ Add polymorphic tag/tagging system for human labeling
 
 - `EvalRun.tags` column dropped from Prisma schema. Existing runs lose their string-array tags; re-tag via the new system after upgrading
 - `StoredEvalRun.tags`, `CreateEvalRunParams.tags`, `ListEvalRunsParams.tags` removed — apply tags via `TagProvider.addTagging({ entityType: 'eval_run', entityId })` instead
-- `CreateRunParams.tags` removed from `createRun()` — tag runs separately via the tag provider after creation
 - `Braintrust` provider no longer writes/reads `_viteval_tags` metadata or filters by tags

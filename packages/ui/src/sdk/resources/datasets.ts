@@ -1,4 +1,5 @@
-import type { DatasetFile, DatasetItem, DatasetSummary } from '@/types';
+import type { DatasetFile, DatasetSummary } from '@/types';
+import { DATASET_FILE_SCHEMA } from '@viteval/core/dataset';
 import type { FsHelper } from '../fs';
 import { paginate } from '../paginate';
 import type {
@@ -9,30 +10,24 @@ import type {
   VitevalResponse,
 } from '../types';
 
-interface RawDataset {
-  name?: string;
-  description?: string;
-  createdAt?: string;
-  storage?: string;
-  data?: DatasetItem[];
-}
-
 async function parseDatasetSummary(
   id: string,
   fsHelper: FsHelper
 ): Promise<DatasetSummary | null> {
-  const raw = await fsHelper.readJson<RawDataset>(`datasets/${id}.json`);
-  if (!raw) {
+  const value = await fsHelper.readJson<unknown>(`datasets/${id}.json`);
+  const parsed = DATASET_FILE_SCHEMA.safeParse(value);
+  if (!parsed.success) {
     return null;
   }
+  const raw = parsed.data;
   return {
-    createdAt: raw.createdAt,
+    createdAt: raw.createdAt ?? raw.timestamp,
     description: raw.description,
-    id,
+    id: raw.id ?? id,
     itemCount: raw.data ? raw.data.length : 0,
     name: raw.name || id,
     path: fsHelper.relativePath(fsHelper.filePath('datasets', id)),
-    source: raw.storage || 'local',
+    source: 'json',
   };
 }
 
@@ -41,22 +36,35 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
     async get(
       params: GetDatasetParams
     ): Promise<VitevalResponse<DatasetFile | null>> {
-      const raw = await fsHelper.readJson<Record<string, unknown>>(
-        `datasets/${params.id}.json`
-      );
+      let filename = encodeURIComponent(params.id);
+      let value = await fsHelper.readJson<unknown>(`datasets/${filename}.json`);
+      if (value === null && filename !== params.id) {
+        filename = params.id;
+        value = await fsHelper.readJson<unknown>(`datasets/${filename}.json`);
+      }
 
-      if (!raw) {
+      if (value === null) {
         return { data: null };
       }
+      const parsed = DATASET_FILE_SCHEMA.safeParse(value);
+      if (!parsed.success)
+        return { error: `Invalid dataset file: ${params.id}` };
+      const raw = parsed.data;
+      const id = raw.id ?? params.id;
 
       const data = {
         ...raw,
-        description: raw.description as string | undefined,
-        id: params.id,
-        name: (raw.name as string) || params.id,
-        path: fsHelper.relativePath(fsHelper.filePath('datasets', params.id)),
-        source: (raw.storage as string) || 'local',
-      } as DatasetFile;
+        description: raw.description,
+        id,
+        name: raw.name || params.id,
+        path: fsHelper.relativePath(fsHelper.filePath('datasets', filename)),
+        source: 'json',
+        data: raw.data.map((item, index) => ({
+          ...item,
+          id: typeof item.id === 'string' ? item.id : `${id}:${index}`,
+          metadata: itemMetadata(item),
+        })),
+      } satisfies DatasetFile;
 
       return { data };
     },
@@ -80,7 +88,31 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
             })
           : filtered.toSorted((a, b) => a.name.localeCompare(b.name));
 
-      return paginate(items, { limit: params?.limit, page: params?.page });
+      return {
+        ...paginate(items, { limit: params?.limit, page: params?.page }),
+        warnings: ids
+          .filter((_id, index) => parsed[index] === null)
+          .map((id) => `Invalid dataset file: ${id}.json`),
+      };
     },
   };
+}
+
+function itemMetadata(item: Record<string, unknown>): Record<string, unknown> {
+  const {
+    id: _id,
+    name: _name,
+    input: _input,
+    expected: _expected,
+    metadata,
+    ...extra
+  } = item;
+  if (
+    typeof metadata === 'object' &&
+    metadata !== null &&
+    !Array.isArray(metadata)
+  ) {
+    return { ...extra, ...metadata };
+  }
+  return metadata === undefined ? extra : { ...extra, metadata };
 }

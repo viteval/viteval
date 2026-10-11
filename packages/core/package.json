@@ -13,6 +13,10 @@
   "main": "dist/main/index.mjs",
   "types": "dist/main/index.d.mts",
   "exports": {
+    "./provider": {
+      "types": "./dist/provider/index.d.mts",
+      "import": "./dist/provider/index.mjs"
+    },
     ".": {
       "types": "./dist/main/index.d.mts",
       "import": "./dist/main/index.mjs"
@@ -28,51 +32,44 @@
     "./reporters": {
       "types": "./dist/reporters/index.d.mts",
       "import": "./dist/reporters/index.mjs"
-    },
-    "./runner": {
-      "types": "./dist/runner/index.d.mts",
-      "import": "./dist/runner/index.mjs"
-    },
-    "./plugin": {
-      "types": "./dist/plugin/index.d.mts",
-      "import": "./dist/plugin/index.mjs"
     }
   },
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "test": "vitest --typecheck",
+    "test": "vitest run --typecheck",
     "types": "tsc --noEmit --project tsconfig.build.json"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^2.3.1",
-    "@vitest/runner": "^4.1.2",
+    "@paralleldrive/cuid2": "^3.3.0",
     "@viteval/internal": "workspace:^",
-    "ai": "^6.0.141",
-    "ajv": "^8.18.0",
-    "chalk": "^5.6.2",
+    "ai": "^7.0.137",
+    "ajv": "^8.20.0",
     "compute-cosine-similarity": "^1.1.0",
-    "find-up": "^8.0.0",
-    "human-id": "^4.1.3",
+    "human-id": "^4.2.2",
     "js-levenshtein": "^1.1.6",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^5.4.3",
     "linear-sum-assignment": "^1.0.9",
+    "massaman": "^0.5.2",
     "mustache": "^4.2.0",
-    "ts-pattern": "^5.9.0",
-    "vite-node": "^6.0.0",
-    "zod": "^4.3.6"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@tsconfig/node24": "^24.0.4",
+    "@tsconfig/node24": "^24.0.5",
     "@types/js-levenshtein": "^1.1.3",
     "@types/js-yaml": "^4.0.9",
     "@types/mustache": "^4.2.6",
-    "@types/node": "^25.5.0",
-    "dotenv": "^17.3.1",
-    "tsdown": "^0.21.7",
-    "type-fest": "^5.5.0",
-    "typescript": "^6.0.2",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.2"
+    "@types/node": "^26.6.5",
+    "dotenv": "^18.0.7",
+    "tsdown": "^0.23.0",
+    "type-fest": "^5.10.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "peerDependencies": {
+    "vitest": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=26.0.0"
   }
 }

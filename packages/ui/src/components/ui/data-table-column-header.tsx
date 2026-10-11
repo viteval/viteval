@@ -1,6 +1,6 @@
 "use client"
 
-import { type Column } from "@tanstack/react-table"
+import { type Column, type RowData } from "@tanstack/react-table"
 import { Icon } from "@iconify/react"
 
 import { cn } from "@/lib/utils"
@@ -11,14 +11,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { DataTableFeatures } from "@/components/ui/data-table-features"
 
-interface DataTableColumnHeaderProps<TData, TValue>
+interface DataTableColumnHeaderProps<TData extends RowData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
-  column: Column<TData, TValue>
+  column: Column<DataTableFeatures, TData, TValue>
   title: string
 }
 
-function DataTableColumnHeader<TData, TValue>({
+function DataTableColumnHeader<TData extends RowData, TValue>({
   column,
   title,
   className,

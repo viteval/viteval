@@ -39,6 +39,9 @@ export async function POST(request: Request) {
     entityType,
     tagId: body.tagId,
   });
+  if ('error' in result) {
+    return Response.json(result, { status: 500 });
+  }
 
   return Response.json(result);
 }
@@ -56,6 +59,12 @@ export async function DELETE(request: Request) {
     );
   }
 
-  await viteval.tags.removeTagging({ entityId, entityType, tagId });
-  return Response.json({ data: null });
+  const result = await viteval.tags.removeTagging({
+    entityId,
+    entityType,
+    tagId,
+  });
+  return 'error' in result
+    ? Response.json(result, { status: 500 })
+    : Response.json(result);
 }

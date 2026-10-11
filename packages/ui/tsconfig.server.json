@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": false,
+    "noEmit": false
+  },
+  "include": ["server.ts"],
+  "exclude": ["node_modules", "dist"]
+}

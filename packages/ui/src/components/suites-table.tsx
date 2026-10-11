@@ -6,6 +6,7 @@ import { getStatusBadge } from '@/lib/badges';
 import type { SuiteSummary } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import type { DataTableFeatures } from '@/components/ui/data-table-features';
 import {
   Duration,
   FilePath,
@@ -14,7 +15,7 @@ import {
   Timestamp,
 } from '@/components/display';
 
-const columns: ColumnDef<SuiteSummary>[] = [
+const columns: ColumnDef<DataTableFeatures, SuiteSummary>[] = [
   {
     accessorKey: 'name',
     cell: ({ row }) => (

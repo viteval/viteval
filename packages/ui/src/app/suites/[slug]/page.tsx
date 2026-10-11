@@ -4,11 +4,9 @@ import {
   ClockIcon,
   EvalsIcon,
   HashIcon,
-  PlayIcon,
   TargetIcon,
   TrendingUpIcon,
 } from '@/components/icons';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/page-header';
 import { ResultsTable } from '@/components/results-table';
@@ -90,10 +88,9 @@ export default async function EvalDetailPage({
         title={suite.name}
         description={suite.filepath && <FilePath path={suite.filepath} />}
         actions={
-          <Button variant="outline" disabled title="Run eval (coming soon)">
-            <PlayIcon className="h-4 w-4" />
-            Run
-          </Button>
+          suite.filepath && (
+            <code className="text-xs">viteval run {suite.filepath}</code>
+          )
         }
       />
 

@@ -1,14 +1,13 @@
 import type { ChildProcess } from 'node:child_process';
 import { fork } from 'node:child_process';
 import path from 'node:path';
-import { findUp } from 'find-up';
 import getPort from 'get-port';
 
 const DEFAULT_PORT = 6274;
 
 export interface CreateVitevalServerOptions {
   /**
-   * A custom root path to serve the UI from, otherwise will look for the `viteval.config.ts` file or `.viteval` directory
+   * Root path containing the `.viteval` directory.
    * @default process.cwd()
    */
   root?: string;
@@ -37,6 +36,8 @@ export interface CreateVitevalServerOptions {
  */
 export function createVitevalServer(options?: CreateVitevalServerOptions) {
   let child: ChildProcess | undefined;
+  let exit: Promise<void> | undefined;
+  let stopping = false;
 
   return {
     /**
@@ -44,7 +45,9 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      * @returns The port the server is listening on
      */
     async start(): Promise<number> {
-      const root = await findRoot(options?.root);
+      if (child) throw new Error('Viteval UI server is already running');
+      stopping = false;
+      const root = path.resolve(options?.root ?? process.cwd());
       const port = await getPort({
         port: [
           options?.port ?? DEFAULT_PORT,
@@ -75,22 +78,40 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
           },
           stdio: 'pipe',
         });
+        const runningChild = child;
+        exit = new Promise<void>((resolveExit, rejectExit) => {
+          runningChild.once('error', rejectExit);
+          runningChild.once('exit', (code, signal) => {
+            if (stopping) resolveExit();
+            else
+              rejectExit(
+                new Error(
+                  `Viteval UI server exited unexpectedly (code=${code ?? 'null'}, signal=${signal ?? 'null'})`
+                )
+              );
+          });
+        });
+        // Startup may fail before the caller can subscribe through waitForExit().
+        void exit.catch(() => {});
 
         let settled = false;
-        const fallbackTimer = setTimeout(() => {
+        let stdout = '';
+        const readinessTimer = setTimeout(() => {
           if (settled) {
             return;
           }
-          settled = true;
-          resolve(port);
-        }, 2000);
+          finish(
+            new Error('viteval UI server did not become ready within 10s')
+          );
+          child?.kill();
+        }, 10_000);
 
         const finish = (value: number | Error) => {
           if (settled) {
             return;
           }
           settled = true;
-          clearTimeout(fallbackTimer);
+          clearTimeout(readinessTimer);
           if (value instanceof Error) {
             reject(value);
           } else {
@@ -100,6 +121,7 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
 
         child.on('error', finish);
         child.on('exit', (code, signal) => {
+          child = undefined;
           if (settled) {
             return;
           }
@@ -119,10 +141,11 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
 
         child.stdout?.on('data', (data: Buffer) => {
           const msg = data.toString();
+          stdout = `${stdout}${msg}`.slice(-1024);
           if (options?.debug) {
             process.stdout.write(msg);
           }
-          if (msg.includes('Ready') || msg.includes('started server')) {
+          if (stdout.includes('Ready') || stdout.includes('started server')) {
             finish(port);
           }
         });
@@ -137,33 +160,34 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
       return await this.start();
     },
     /**
+     * Wait for shutdown and surface unexpected child-process exits.
+     * @returns Resolves for requested shutdown, rejects for server failure.
+     * @example await server.waitForExit();
+     */
+    async waitForExit(): Promise<void> {
+      if (!exit) throw new Error('Viteval UI server has not been started');
+      await exit;
+    },
+    /**
      * Shuts down the Viteval server
      */
     async shutdown(): Promise<void> {
+      stopping = true;
       return new Promise((resolve) => {
-        if (child) {
-          child.once('exit', () => {
-            child = undefined;
-            resolve();
-          });
-          child.kill();
-        } else {
+        if (
+          !child ||
+          child.pid === undefined ||
+          child.exitCode !== null ||
+          child.signalCode !== null
+        ) {
+          child = undefined;
           resolve();
+          return;
         }
+
+        child.once('exit', () => resolve());
+        child.kill();
       });
     },
   };
-}
-
-async function findRoot(root: string = process.cwd()) {
-  const configFile = await findUp(
-    [
-      ...['ts', 'js', 'mts', 'mjs'].map((ext) => `viteval.config.${ext}`),
-      '.viteval',
-    ],
-    {
-      cwd: root,
-    }
-  );
-  return configFile ? path.dirname(configFile) : root;
 }

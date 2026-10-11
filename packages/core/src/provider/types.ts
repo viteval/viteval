@@ -1,4 +1,4 @@
-import type { Result } from '@viteval/internal';
+import type { Result } from 'massaman/control';
 
 /*
 |------------------
@@ -292,6 +292,8 @@ export interface DatasetProvider {
   delete(params: DeleteDatasetParams): Promise<Result<void>>;
   getItems(params: GetDatasetItemsParams): Promise<Result<StoredDataItem[]>>;
   addItems(params: AddDatasetItemsParams): Promise<Result<void>>;
+  /** Replace all items atomically when supported by the provider. */
+  replaceItems?(params: AddDatasetItemsParams): Promise<Result<void>>;
 }
 
 /**
@@ -349,9 +351,8 @@ export interface EvalProvider {
  * ```ts
  * import { viteval } from '@viteval/providers';
  *
- * defineConfig({
- *   provider: viteval(),
- * });
+ * const result = await initializeProvider(viteval());
+ * if (!result.ok) process.exitCode = 1;
  * ```
  */
 export interface Provider {
@@ -378,26 +379,24 @@ export interface Provider {
 }
 
 /**
- * Provider configuration for `defineConfig()`.
+ * Provider configuration for `initializeProvider()`.
  *
  * Accepts either a single provider for all domains, or per-domain providers
  * for composable setups.
  *
  * @example Single provider
  * ```ts
- * defineConfig({
- *   provider: viteval(),
- * });
+ * const result = await initializeProvider(viteval());
+ * if (!result.ok) process.exitCode = 1;
  * ```
  *
  * @example Composable providers
  * ```ts
- * defineConfig({
- *   provider: {
- *     datasets: viteval(),
- *     evals: braintrust({ apiKey: '...' }),
- *   },
+ * const result = await initializeProvider({
+ *   datasets: viteval(),
+ *   evals: braintrust({ apiKey: '...' }),
  * });
+ * if (!result.ok) process.exitCode = 1;
  * ```
  */
 export type ProviderConfig =

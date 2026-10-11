@@ -1,4 +1,9 @@
-import { randomUUID } from 'node:crypto';
+import {
+  createJsonProvider,
+  type StoredTag,
+  type StoredTagging,
+} from '@viteval/core/provider';
+import { type Result } from 'massaman/control';
 import type { Tag, TagEntityType, Tagging } from '@/types';
 import type { FsHelper } from '../fs';
 import type {
@@ -14,186 +19,99 @@ import type {
   VitevalResponse,
 } from '../types';
 
-const TAGS_FILE = 'tags.json';
-const TAGGINGS_FILE = 'taggings.json';
-
 export function createTagsResource(fsHelper: FsHelper): TagsResource {
-  async function loadTags(): Promise<Tag[]> {
-    return (await fsHelper.readJson<Tag[]>(TAGS_FILE)) ?? [];
-  }
-
-  async function loadTaggings(): Promise<Tagging[]> {
-    return (await fsHelper.readJson<Tagging[]>(TAGGINGS_FILE)) ?? [];
-  }
-
-  async function saveTags(tags: Tag[]): Promise<void> {
-    await fsHelper.writeJson(TAGS_FILE, tags);
-  }
-
-  async function saveTaggings(taggings: Tagging[]): Promise<void> {
-    await fsHelper.writeJson(TAGGINGS_FILE, taggings);
-  }
-
+  const provider = createJsonProvider({ root: fsHelper.root }).tags!;
   return {
     async addTagging(
       params: AddTaggingParams
     ): Promise<VitevalResponse<Tagging>> {
-      const taggings = await loadTaggings();
-      const existing = taggings.find(
-        (t) =>
-          t.tagId === params.tagId &&
-          t.entityType === params.entityType &&
-          t.entityId === params.entityId
-      );
-      if (existing) {
-        return { data: existing };
-      }
-      const tagging: Tagging = {
-        createdAt: new Date().toISOString(),
-        entityId: params.entityId,
-        entityType: params.entityType,
-        id: randomUUID(),
-        tagId: params.tagId,
-      };
-      await saveTaggings([...taggings, tagging]);
-      return { data: tagging };
+      return response(await provider.addTagging(params), toTagging);
     },
 
     async create(params: CreateTagParams): Promise<VitevalResponse<Tag>> {
-      const tags = await loadTags();
-      const existing = tags.find(
-        (t) => t.name.toLowerCase() === params.name.toLowerCase()
-      );
-      if (existing) {
-        return { data: existing };
-      }
-      const tag: Tag = {
-        color: params.color,
-        createdAt: new Date().toISOString(),
-        description: params.description,
-        id: randomUUID(),
-        name: params.name,
-      };
-      await saveTags([...tags, tag]);
-      return { data: tag };
+      return response(await provider.create(params), toTag);
     },
 
     async delete(params: DeleteTagParams): Promise<VitevalResponse<null>> {
-      const tags = await loadTags();
-      const taggings = await loadTaggings();
-      await saveTags(tags.filter((t) => t.id !== params.id));
-      await saveTaggings(taggings.filter((t) => t.tagId !== params.id));
-      return { data: null };
+      return response(await provider.delete(params), () => null);
     },
 
     async list(): Promise<VitevalListResponse<Tag>> {
-      const tags = await loadTags();
-      const sorted = [...tags].sort((a, b) => a.name.localeCompare(b.name));
-      return {
-        data: sorted,
-        hasMore: false,
-        limit: sorted.length,
-        page: 1,
-        total: sorted.length,
-      };
+      return listResponse(await provider.list(), toTag);
     },
 
     async listEntitiesForTag(
       params: ListEntitiesForTagParams
     ): Promise<VitevalListResponse<Tagging>> {
-      const taggings = await loadTaggings();
-      const filtered = taggings.filter(
-        (t) =>
-          t.tagId === params.tagId &&
-          (!params.entityType || t.entityType === params.entityType)
-      );
-      return {
-        data: filtered,
-        hasMore: false,
-        limit: filtered.length,
-        page: 1,
-        total: filtered.length,
-      };
+      return listResponse(await provider.listEntitiesForTag(params), toTagging);
     },
 
     async listTaggings(
       params: ListTaggingsParams
     ): Promise<VitevalListResponse<Tag>> {
-      const [tags, taggings] = await Promise.all([loadTags(), loadTaggings()]);
-      const tagIds = new Set(
-        taggings
-          .filter(
-            (t) =>
-              t.entityType === params.entityType &&
-              t.entityId === params.entityId
-          )
-          .map((t) => t.tagId)
-      );
-      const matched = tags.filter((t) => tagIds.has(t.id));
-      return {
-        data: matched,
-        hasMore: false,
-        limit: matched.length,
-        page: 1,
-        total: matched.length,
-      };
+      return listResponse(await provider.listTaggings(params), toTag);
     },
 
     async listTaggingsForEntities(
       entityType: TagEntityType,
       entityIds: string[]
     ): Promise<VitevalResponse<Record<string, Tag[]>>> {
-      const [tags, taggings] = await Promise.all([loadTags(), loadTaggings()]);
-      const tagMap = new Map(tags.map((t) => [t.id, t]));
-      const result: Record<string, Tag[]> = {};
-      for (const id of entityIds) {
-        result[id] = [];
-      }
-      for (const tagging of taggings) {
-        if (tagging.entityType !== entityType || !result[tagging.entityId]) {
-          continue;
-        }
-        const tag = tagMap.get(tagging.tagId);
-        if (tag) {
-          result[tagging.entityId]!.push(tag);
-        }
-      }
-      return { data: result };
+      const results = await Promise.all(
+        entityIds.map(async (entityId) => ({
+          entityId,
+          result: await provider.listTaggings({ entityType, entityId }),
+        }))
+      );
+      const failed = results.find(({ result }) => !result.ok);
+      if (failed && !failed.result.ok)
+        return { error: failed.result.error.message };
+      return {
+        data: Object.fromEntries(
+          results.map(({ entityId, result }) => [
+            entityId,
+            result.ok ? result.value.map(toTag) : [],
+          ])
+        ),
+      };
     },
 
     async removeTagging(
       params: RemoveTaggingParams
     ): Promise<VitevalResponse<null>> {
-      const taggings = await loadTaggings();
-      await saveTaggings(
-        taggings.filter(
-          (t) =>
-            !(
-              t.tagId === params.tagId &&
-              t.entityType === params.entityType &&
-              t.entityId === params.entityId
-            )
-        )
-      );
-      return { data: null };
+      return response(await provider.removeTagging(params), () => null);
     },
 
     async update(params: UpdateTagParams): Promise<VitevalResponse<Tag>> {
-      const tags = await loadTags();
-      const index = tags.findIndex((t) => t.id === params.id);
-      if (index === -1) {
-        throw new Error(`Tag not found: ${params.id}`);
-      }
-      const next: Tag = {
-        ...tags[index]!,
-        color: params.color ?? tags[index]!.color,
-        description: params.description ?? tags[index]!.description,
-        name: params.name ?? tags[index]!.name,
-      };
-      const updated = [...tags];
-      updated[index] = next;
-      await saveTags(updated);
-      return { data: next };
+      return response(await provider.update(params), toTag);
     },
+  };
+}
+
+function toTag(tag: StoredTag): Tag {
+  return { ...tag, createdAt: tag.createdAt.toISOString() };
+}
+function toTagging(tagging: StoredTagging): Tagging {
+  return { ...tagging, createdAt: tagging.createdAt.toISOString() };
+}
+function response<T, U>(
+  result: Result<T>,
+  convert: (value: T) => U
+): VitevalResponse<U> {
+  return result.ok
+    ? { data: convert(result.value) }
+    : { error: result.error.message };
+}
+function listResponse<T, U>(
+  result: Result<T[]>,
+  convert: (value: T) => U
+): VitevalListResponse<U> {
+  const data = result.ok ? result.value.map(convert) : [];
+  return {
+    data,
+    hasMore: false,
+    limit: data.length,
+    page: 1,
+    total: data.length,
+    warnings: result.ok ? [] : [result.error.message],
   };
 }
