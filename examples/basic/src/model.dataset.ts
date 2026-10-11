@@ -4,16 +4,16 @@ export default defineDataset({
   data: async () => [
     {
       expected: 1,
-      input: 'Generate a random number between 0 and 100',
+      input: '1',
     },
     {
       expected: 2,
-      input: 'Generate a random number between 0 and 100',
+      input: '2',
     },
     {
       expected: 3,
-      input: 'Generate a random number between 0 and 100',
+      input: '3',
     },
   ],
-  name: 'example',
+  name: 'number-parsing',
 });

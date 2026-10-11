@@ -1,4 +1,4 @@
-import type { Result } from '@viteval/internal';
+import type { Result } from 'massaman/control';
 
 /*
 |------------------
@@ -43,10 +43,40 @@ export interface StoredEvalRun {
   config: StoredEvalConfig;
   summary?: StoredEvalSummary;
   results?: StoredEvalResult[];
-  tags: string[];
   metadata: Record<string, unknown>;
   startedAt: Date;
   completedAt?: Date;
+}
+
+/**
+ * Entity types that can be tagged.
+ */
+export type TagEntityType =
+  | 'eval_run'
+  | 'eval_result'
+  | 'dataset'
+  | 'dataset_item';
+
+/**
+ * A user-defined tag (label) used to annotate entities.
+ */
+export interface StoredTag {
+  id: string;
+  name: string;
+  color?: string;
+  description?: string;
+  createdAt: Date;
+}
+
+/**
+ * A single application of a tag to an entity.
+ */
+export interface StoredTagging {
+  id: string;
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+  createdAt: Date;
 }
 
 /**
@@ -156,7 +186,6 @@ export interface CreateEvalRunParams {
   name: string;
   datasetId?: string;
   config: StoredEvalConfig;
-  tags?: string[];
   metadata?: Record<string, unknown>;
 }
 
@@ -168,7 +197,6 @@ export interface GetEvalRunParams {
 export interface ListEvalRunsParams {
   datasetId?: string;
   status?: 'running' | 'completed' | 'failed';
-  tags?: string[];
   limit?: number;
   offset?: number;
 }
@@ -199,6 +227,56 @@ export interface CompleteEvalRunParams {
 
 /*
 |------------------
+| Tag Provider Params
+|------------------
+*/
+
+export interface CreateTagParams {
+  name: string;
+  color?: string;
+  description?: string;
+}
+
+export interface UpdateTagParams {
+  id: string;
+  name?: string;
+  color?: string;
+  description?: string;
+}
+
+export interface DeleteTagParams {
+  id: string;
+}
+
+export interface ListTagsParams {
+  limit?: number;
+  offset?: number;
+}
+
+export interface AddTaggingParams {
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+export interface RemoveTaggingParams {
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+export interface ListTaggingsParams {
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+export interface ListEntitiesForTagParams {
+  tagId: string;
+  entityType?: TagEntityType;
+}
+
+/*
+|------------------
 | Provider Sub-Interfaces
 |------------------
 */
@@ -214,6 +292,24 @@ export interface DatasetProvider {
   delete(params: DeleteDatasetParams): Promise<Result<void>>;
   getItems(params: GetDatasetItemsParams): Promise<Result<StoredDataItem[]>>;
   addItems(params: AddDatasetItemsParams): Promise<Result<void>>;
+  /** Replace all items atomically when supported by the provider. */
+  replaceItems?(params: AddDatasetItemsParams): Promise<Result<void>>;
+}
+
+/**
+ * Tag and tagging operations a provider can implement.
+ */
+export interface TagProvider {
+  list(params?: ListTagsParams): Promise<Result<StoredTag[]>>;
+  create(params: CreateTagParams): Promise<Result<StoredTag>>;
+  update(params: UpdateTagParams): Promise<Result<StoredTag>>;
+  delete(params: DeleteTagParams): Promise<Result<void>>;
+  addTagging(params: AddTaggingParams): Promise<Result<StoredTagging>>;
+  removeTagging(params: RemoveTaggingParams): Promise<Result<void>>;
+  listTaggings(params: ListTaggingsParams): Promise<Result<StoredTag[]>>;
+  listEntitiesForTag(
+    params: ListEntitiesForTagParams
+  ): Promise<Result<StoredTagging[]>>;
 }
 
 /**
@@ -255,9 +351,8 @@ export interface EvalProvider {
  * ```ts
  * import { viteval } from '@viteval/providers';
  *
- * defineConfig({
- *   provider: viteval(),
- * });
+ * const result = await initializeProvider(viteval());
+ * if (!result.ok) process.exitCode = 1;
  * ```
  */
 export interface Provider {
@@ -267,6 +362,8 @@ export interface Provider {
   readonly datasets?: DatasetProvider;
   /** Eval run operations. Undefined if this provider does not support evals. */
   readonly evals?: EvalProvider;
+  /** Tag operations. Undefined if this provider does not support tags. */
+  readonly tags?: TagProvider;
   /**
    * Initialize the provider (run migrations, open connections, etc.).
    *
@@ -282,26 +379,24 @@ export interface Provider {
 }
 
 /**
- * Provider configuration for `defineConfig()`.
+ * Provider configuration for `initializeProvider()`.
  *
  * Accepts either a single provider for all domains, or per-domain providers
  * for composable setups.
  *
  * @example Single provider
  * ```ts
- * defineConfig({
- *   provider: viteval(),
- * });
+ * const result = await initializeProvider(viteval());
+ * if (!result.ok) process.exitCode = 1;
  * ```
  *
  * @example Composable providers
  * ```ts
- * defineConfig({
- *   provider: {
- *     datasets: viteval(),
- *     evals: braintrust({ apiKey: '...' }),
- *   },
+ * const result = await initializeProvider({
+ *   datasets: viteval(),
+ *   evals: braintrust({ apiKey: '...' }),
  * });
+ * if (!result.ok) process.exitCode = 1;
  * ```
  */
 export type ProviderConfig =
@@ -309,6 +404,7 @@ export type ProviderConfig =
   | {
       datasets?: DatasetProvider | Provider;
       evals?: EvalProvider | Provider;
+      tags?: TagProvider | Provider;
     };
 
 /*
@@ -324,6 +420,7 @@ export interface CreateProviderParams {
   name: string;
   datasets?: DatasetProvider;
   evals?: EvalProvider;
+  tags?: TagProvider;
   initialize?: () => Promise<Result<void>>;
   close?: () => Promise<Result<void>>;
 }

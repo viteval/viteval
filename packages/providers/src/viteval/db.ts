@@ -1,6 +1,7 @@
 import path from 'node:path';
-import { PrismaClient } from '@prisma/client';
-import type { VitevalProviderOptions } from './types';
+import type { PrismaClient } from '#/generated/prisma/client';
+import { attemptAsync } from 'massaman/control';
+import type { VitevalPostgresOptions, VitevalSqliteOptions } from './types';
 
 /**
  * Create a Prisma client configured for the specified database.
@@ -13,18 +14,31 @@ import type { VitevalProviderOptions } from './types';
  * @returns A configured PrismaClient instance.
  */
 export async function createPrismaClient(
-  options: VitevalProviderOptions
+  options: VitevalSqliteOptions | VitevalPostgresOptions
 ): Promise<PrismaClient> {
-  if (options.database === 'postgres') {
-    const { PrismaPg } = await import('@prisma/adapter-pg');
-    return new PrismaClient({ adapter: new PrismaPg(options.url) });
-  }
-
-  const { PrismaBetterSqlite3 } =
-    await import('@prisma/adapter-better-sqlite3');
-  return new PrismaClient({
-    adapter: new PrismaBetterSqlite3({ url: resolveSqlitePath(options) }),
+  const created = await attemptAsync(async () => {
+    const { PrismaClient } = await import('#/generated/prisma/client');
+    if (options.database === 'postgres') {
+      const { PrismaPg } = await import('@prisma/adapter-pg');
+      return new PrismaClient({ adapter: new PrismaPg(options.url) });
+    }
+    const { PrismaBetterSqlite3 } =
+      await import('@prisma/adapter-better-sqlite3');
+    return new PrismaClient({
+      adapter: new PrismaBetterSqlite3({ url: resolveSqlitePath(options) }),
+    });
   });
+  if (!created.ok) {
+    const packages =
+      options.database === 'postgres'
+        ? '@prisma/client @prisma/adapter-pg pg'
+        : '@prisma/client @prisma/adapter-better-sqlite3 better-sqlite3';
+    throw new Error(
+      `Cannot initialize ${options.database ?? 'sqlite'} provider. Install ${packages}. ${created.error.message}`,
+      { cause: created.error }
+    );
+  }
+  return created.value;
 }
 
 /*
@@ -39,11 +53,11 @@ export async function createPrismaClient(
  * @param options - Provider options.
  * @returns The absolute path to the SQLite database file.
  */
-export function resolveSqlitePath(options: VitevalProviderOptions): string {
-  if (options.database === 'postgres') {
-    throw new Error('resolveSqlitePath should not be called for postgres');
-  }
-
-  const dbPath = options.path ?? path.join('.viteval', 'viteval.db');
+export function resolveSqlitePath(
+  options: VitevalSqliteOptions | VitevalPostgresOptions
+): string {
+  const dbPath =
+    ('path' in options ? options.path : undefined) ??
+    path.join('.viteval', 'viteval.db');
   return path.isAbsolute(dbPath) ? dbPath : path.resolve(process.cwd(), dbPath);
 }

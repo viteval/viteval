@@ -11,9 +11,13 @@ import { contextRecall } from './context-recall';
 describe('contextRecall', () => {
   it('should call runJudge with recall prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'A',
-      rationale: 'Context fully supports answer',
-      score: 1,
+      error: null,
+      ok: true,
+      value: {
+        choice: 'A',
+        rationale: 'Context fully supports answer',
+        score: 1,
+      },
     });
 
     const scorer = contextRecall();

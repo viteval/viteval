@@ -1,6 +1,7 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import { match } from 'ts-pattern';
+import { createId } from '@paralleldrive/cuid2';
+import { humanId } from 'human-id';
+import { serializeJson, writeJsonAtomic } from '@viteval/internal';
 import type {
   Reporter,
   SerializedError,
@@ -9,434 +10,418 @@ import type {
   TestRunEndReason,
   Vitest,
 } from 'vitest/node';
+import { isEvalResultArtifact } from '#/evaluate/artifact';
 import type { EvalResult } from '#/types';
+import { getMedianScore } from '#/scorer/aggregation';
 
-/**
- * JSON output format for LLM evaluation results
- */
+/** JSON output for a complete evaluation run. */
 export interface JsonEvalResults {
-  /**
-   * Status of the evaluation run
-   */
+  schemaVersion?: 1;
+  errors?: string[];
+  runId: string;
+  runName: string;
   status: 'running' | 'finished';
-  /**
-   * Whether all evaluations passed their thresholds
-   */
   success: boolean;
-  /**
-   * Number of total evaluation suites run
-   */
   numTotalEvalSuites: number;
-  /**
-   * Number of evaluation suites that passed
-   */
   numPassedEvalSuites: number;
-  /**
-   * Number of evaluation suites that failed
-   */
   numFailedEvalSuites: number;
-  /**
-   * Number of total individual evaluations
-   */
   numTotalEvals: number;
-  /**
-   * Number of individual evaluations that passed
-   */
   numPassedEvals: number;
-  /**
-   * Number of individual evaluations that failed
-   */
   numFailedEvals: number;
-  /**
-   * Timestamp when evaluation started
-   */
+  numSkippedEvals: number;
   startTime: number;
-  /**
-   * Timestamp when evaluation ended
-   */
   endTime?: number;
-  /**
-   * Total duration of evaluation in milliseconds
-   */
   duration?: number;
-  /**
-   * Results for each evaluation suite
-   */
   evalResults: JsonEvalSuite[];
 }
 
-/**
- * JSON format for an evaluation suite result
- */
+/** JSON output for one evaluation suite. */
 export interface JsonEvalSuite {
-  /**
-   * Name of the evaluation suite
-   */
+  projectName?: string;
   name: string;
-  /**
-   * Filepath of the evaluation suite
-   */
   filepath: string;
-  /**
-   * Whether the suite passed (all evals met threshold)
-   */
   status: 'passed' | 'failed';
-  /**
-   * Timestamp when suite started
-   */
   startTime: number;
-  /**
-   * Timestamp when suite ended
-   */
   endTime: number;
-  /**
-   * Duration of the suite in milliseconds
-   */
   duration: number;
-  /**
-   * Individual evaluation results within this suite
-   */
   evalResults: EvalResult[];
-  /**
-   * Error message if suite failed
-   */
   message?: string;
-  /**
-   * Suite-level aggregated metrics
-   */
   summary: {
-    /**
-     * Overall mean score across all evals in suite
-     */
     meanScore: number;
-    /**
-     * Overall median score across all evals in suite
-     */
     medianScore: number;
-    /**
-     * Overall sum score across all evals in suite
-     */
     sumScore: number;
-    /**
-     * Number of evals that passed threshold
-     */
     passedCount: number;
-    /**
-     * Total number of evals
-     */
     totalCount: number;
+    failedCount?: number;
+    skippedCount?: number;
   };
 }
 
-/**
- * Params for constructing a JsonReporter
- */
-interface JsonReporterOptions {
+/** Options for the Viteval JSON reporter. */
+export interface JsonReporterOptions {
   outputFile?: string;
+  run?: { id: string; name: string };
 }
 
-/**
- * Collected eval results keyed by suite identifier (parent suite name or module ID)
- */
-interface SuiteAccumulator {
+interface SuiteProjection {
+  projectName?: string;
   name: string;
   moduleId: string;
   evalResults: EvalResult[];
-  hasFailedTests: boolean;
+  hasFailed: boolean;
   startTime: number;
   endTime: number;
   errorMessages: string[];
+  failedTests: number;
+  passedTests: number;
+  skippedTests: number;
+  totalTests: number;
 }
 
 /**
- * JSON reporter for LLM evaluations
- *
- * Collects evaluation results from test case metadata using Vitest v4's
- * granular Reporter API and outputs comprehensive JSON format suitable
- * for UI generation and analysis.
+ * Project Viteval artifacts and Vitest's final task state into evaluation JSON.
  *
  * @example
  * ```ts
- * // vitest.config.ts
+ * import { JsonReporter } from 'viteval/reporters';
+ * import { defineConfig } from 'vitest/config';
+ *
  * export default defineConfig({
  *   test: {
  *     reporters: [
  *       'default',
- *       ['@viteval/core/reporters/json', { outputFile: 'eval-results.json' }]
- *     ]
- *   }
+ *       new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
+ *     ],
+ *   },
  * });
  * ```
  */
 export default class JsonReporter implements Reporter {
   private results: JsonEvalResults;
-  private outputFile: string | null;
-  private suiteAccumulators: Map<string, SuiteAccumulator>;
+  private readonly outputFile: string | null;
+  private root = process.cwd();
+  private iteration = 0;
+  private outputPath: string | null = null;
 
   constructor(options: JsonReporterOptions = {}) {
-    this.outputFile = options.outputFile || null;
-    this.suiteAccumulators = new Map();
-    this.results = {
-      evalResults: [],
-      numFailedEvalSuites: 0,
-      numFailedEvals: 0,
-      numPassedEvalSuites: 0,
-      numPassedEvals: 0,
-      numTotalEvalSuites: 0,
-      numTotalEvals: 0,
-      startTime: Date.now(),
-      status: 'running',
-      success: true,
-    };
+    const run = options.run ?? createRunIdentity();
+    this.outputFile = options.outputFile ?? null;
+    this.results = createResults(run);
   }
 
-  /**
-   * Called when Vitest is initialized. Stores a reference and sets the start time.
-   *
-   * @param vitest - The Vitest instance
-   */
-  onInit(_vitest: Vitest) {
-    this.results.startTime = Date.now();
-    this.results.status = 'running';
-
-    // Write initial file with 'running' status
-    this.writeResults();
+  onInit(vitest: Vitest) {
+    this.root = vitest.config.root;
   }
 
-  /**
-   * Called after each test case finishes. Reads evalResult from task meta
-   * and accumulates it into the appropriate suite bucket.
-   *
-   * @param testCase - The completed test case
-   */
-  onTestCaseResult(testCase: TestCase) {
-    const { evalResult } = testCase.meta();
-    if (!evalResult) {
-      return;
-    }
-
-    const suiteKey = getSuiteKey(testCase);
-    const accumulator = this.getOrCreateAccumulator(testCase, suiteKey);
-    accumulator.evalResults.push(evalResult);
-
-    const testResult = testCase.result();
-    if (testResult.state === 'failed') {
-      accumulator.hasFailedTests = true;
-      if (testResult.errors) {
-        for (const err of testResult.errors) {
-          accumulator.errorMessages.push(err.message);
-        }
-      }
-    }
-
-    const diagnostic = testCase.diagnostic();
-    if (diagnostic) {
-      const testEndTime = diagnostic.startTime + diagnostic.duration;
-      if (testEndTime > accumulator.endTime) {
-        accumulator.endTime = testEndTime;
-      }
-      if (diagnostic.startTime < accumulator.startTime) {
-        accumulator.startTime = diagnostic.startTime;
-      }
-    }
+  onTestRunStart() {
+    this.results = createResults(
+      this.iteration++ === 0
+        ? {
+            id: this.results.runId,
+            name: this.results.runName,
+          }
+        : createRunIdentity()
+    );
+    this.outputPath = null;
   }
 
-  /**
-   * Called when a test module finishes. Writes incremental output so
-   * consumers can see partial results.
-   *
-   * @param _testModule - The completed test module
-   */
-  onTestModuleEnd(_testModule: TestModule) {
-    this.writeResults();
-  }
-
-  /**
-   * Called when the entire test run ends. Finalizes all suite accumulators
-   * into the output format and writes the final results.
-   *
-   * @param _testModules - All test modules from the run
-   * @param _unhandledErrors - Unhandled errors during the run
-   * @param _reason - Why the run ended (passed, failed, interrupted)
-   */
-  onTestRunEnd(
-    _testModules: readonly TestModule[],
+  async onTestRunEnd(
+    testModules: readonly TestModule[],
     unhandledErrors: readonly SerializedError[],
     reason: TestRunEndReason
   ) {
-    this.results.endTime = Date.now();
-    this.results.duration = this.results.endTime - this.results.startTime;
-    this.results.status = 'finished';
-
-    // Reset aggregated results before finalizing
-    this.results.evalResults = [];
-    this.results.numTotalEvalSuites = 0;
-    this.results.numPassedEvalSuites = 0;
-    this.results.numFailedEvalSuites = 0;
-    this.results.numTotalEvals = 0;
-    this.results.numPassedEvals = 0;
-    this.results.numFailedEvals = 0;
-
-    for (const accumulator of this.suiteAccumulators.values()) {
-      if (accumulator.evalResults.length === 0) {
-        continue;
-      }
-
-      this.results.numTotalEvalSuites++;
-      this.results.numTotalEvals += accumulator.evalResults.length;
-
-      const summary = calculateSuiteSummary(accumulator.evalResults);
-      const suitePassed =
-        !accumulator.hasFailedTests &&
-        isAllThresholdsMet(accumulator.evalResults);
-
-      if (suitePassed) {
-        this.results.numPassedEvalSuites++;
-      } else {
-        this.results.numFailedEvalSuites++;
-      }
-
-      this.results.numPassedEvals += summary.passedCount;
-      this.results.numFailedEvals += summary.totalCount - summary.passedCount;
-
-      const duration = accumulator.endTime - accumulator.startTime;
-
-      const suiteResult: JsonEvalSuite = {
-        duration,
-        endTime: accumulator.endTime,
-        evalResults: accumulator.evalResults,
-        filepath: path.relative(process.cwd(), accumulator.moduleId),
-        message:
-          accumulator.errorMessages.length > 0
-            ? accumulator.errorMessages.join('\n')
-            : undefined,
-        name: accumulator.name,
-        startTime: accumulator.startTime,
-        status: suitePassed ? 'passed' : 'failed',
-        summary,
+    const endTime = Date.now();
+    const suites = collectSuiteProjections(testModules);
+    const evalResults = Array.from(suites.values()).map((suite) => {
+      const projected = toJsonEvalSuite(suite, this.root);
+      return {
+        ...projected,
+        evalResults: projected.evalResults.map((result, index) => ({
+          ...result,
+          id: `${this.results.runId}:${result.id ?? index}`,
+        })),
       };
+    });
 
-      this.results.evalResults.push(suiteResult);
-    }
-
-    this.results.success =
-      reason === 'passed' &&
-      unhandledErrors.length === 0 &&
-      this.results.numFailedEvalSuites === 0;
-
-    this.writeResults();
-  }
-
-  private getOrCreateAccumulator(
-    testCase: TestCase,
-    suiteKey: string
-  ): SuiteAccumulator {
-    const existing = this.suiteAccumulators.get(suiteKey);
-    if (existing) {
-      return existing;
-    }
-
-    const suiteName = getSuiteName(testCase);
-    const now = Date.now();
-
-    const accumulator: SuiteAccumulator = {
-      endTime: now,
-      errorMessages: [],
-      evalResults: [],
-      hasFailedTests: false,
-      moduleId: testCase.module.moduleId,
-      name: suiteName,
-      startTime: now,
+    this.results = {
+      ...this.results,
+      schemaVersion: 1,
+      errors: [
+        ...unhandledErrors.map((error) => error.message),
+        ...(reason === 'interrupted' ? ['Evaluation run interrupted'] : []),
+      ],
+      duration: endTime - this.results.startTime,
+      endTime,
+      evalResults,
+      numFailedEvalSuites: evalResults.filter(
+        (suite) => suite.status === 'failed'
+      ).length,
+      numFailedEvals: sum(suites, (suite) => suite.failedTests),
+      numPassedEvalSuites: evalResults.filter(
+        (suite) => suite.status === 'passed'
+      ).length,
+      numPassedEvals: sum(suites, (suite) => suite.passedTests),
+      numSkippedEvals: sum(suites, (suite) => suite.skippedTests),
+      numTotalEvalSuites: evalResults.length,
+      numTotalEvals: sum(suites, (suite) => suite.totalTests),
+      status: 'finished',
+      success:
+        reason !== 'interrupted' &&
+        unhandledErrors.length === 0 &&
+        evalResults.every((suite) => suite.status === 'passed'),
     };
 
-    this.suiteAccumulators.set(suiteKey, accumulator);
-    return accumulator;
+    await this.writeResults();
   }
 
-  private writeResults() {
-    try {
-      const output = JSON.stringify(this.results, null, 2);
+  private async writeResults() {
+    const output = serializeJson(this.results);
+    if (!this.outputFile) {
+      process.stdout.write(output);
+      return;
+    }
 
-      if (this.outputFile) {
-        const outputPath = path.resolve(this.outputFile);
+    const outputPath =
+      this.outputPath ??
+      path.resolve(
+        this.root,
+        this.outputFile
+          .replaceAll('<run>', encodeURIComponent(this.results.runName))
+          .replaceAll('<id>', encodeURIComponent(this.results.runId))
+          .replaceAll('<timestamp>', String(this.results.startTime))
+      );
+    this.outputPath = outputPath;
+    await writeJsonAtomic({ filePath: outputPath, value: this.results });
+  }
+}
 
-        // Ensure directory exists
-        const dir = path.dirname(outputPath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
+function createResults(run: { id: string; name: string }): JsonEvalResults {
+  return {
+    evalResults: [],
+    numFailedEvalSuites: 0,
+    numFailedEvals: 0,
+    numPassedEvalSuites: 0,
+    numPassedEvals: 0,
+    numSkippedEvals: 0,
+    numTotalEvalSuites: 0,
+    numTotalEvals: 0,
+    runId: run.id,
+    runName: run.name,
+    startTime: Date.now(),
+    status: 'running',
+    success: true,
+  };
+}
 
-        fs.writeFileSync(outputPath, output);
-      } else {
-        process.stdout.write(output);
-        process.stdout.write('\n');
+function collectSuiteProjections(
+  testModules: readonly TestModule[]
+): Map<string, SuiteProjection> {
+  const suites = new Map<string, SuiteProjection>();
+
+  for (const testModule of testModules) {
+    const testCases = Array.from(testModule.children.allTests()).filter(
+      (testCase) => testCase.meta().viteval === true
+    );
+    for (const testCase of testCases) {
+      const suite = getOrCreateSuite(suites, testCase);
+      const result = testCase.result();
+      suite.totalTests++;
+
+      if (result.state === 'passed') {
+        suite.passedTests++;
+      } else if (result.state === 'failed') {
+        suite.failedTests++;
+        suite.errorMessages.push(
+          ...result.errors.map((error) => error.message)
+        );
+      } else if (result.state === 'skipped') {
+        suite.skippedTests++;
       }
-    } catch (error) {
-      throw new Error(`Failed to write evaluation results: ${error}`, {
-        cause: error,
-      });
+
+      suite.hasFailed ||=
+        !testCase.ok() ||
+        (testCase.parent.type === 'suite' && !testCase.parent.ok());
+      const artifact = testCase.artifacts().findLast(isEvalResultArtifact);
+      if (artifact) {
+        suite.evalResults.push({
+          ...artifact.result,
+          id: testCase.id,
+          state:
+            result.state === 'passed'
+              ? 'passed'
+              : result.state === 'failed'
+                ? 'failed'
+                : 'skipped',
+          error:
+            result.state === 'failed'
+              ? result.errors.map((error) => error.message).join('\n')
+              : undefined,
+        });
+      }
+
+      const diagnostic = testCase.diagnostic();
+      if (diagnostic) {
+        suite.startTime = Math.min(suite.startTime, diagnostic.startTime);
+        suite.endTime = Math.max(
+          suite.endTime,
+          diagnostic.startTime + diagnostic.duration
+        );
+      }
+    }
+
+    const moduleErrors = isEvalModule(testModule, testCases)
+      ? testModule.errors()
+      : [];
+    if (moduleErrors.length > 0) {
+      let suite = Array.from(suites.values()).find(
+        (candidate) => candidate.moduleId === testModule.moduleId
+      );
+      if (!suite) {
+        suite = createModuleProjection(testModule);
+        suites.set(getModuleKey(testModule), suite);
+      }
+      suite.hasFailed = true;
+      suite.errorMessages.push(...moduleErrors.map((error) => error.message));
     }
   }
+
+  return suites;
 }
 
-/*
-|------------------
-| Internals
-|------------------
-*/
-
-function getSuiteKey(testCase: TestCase): string {
-  const { parent } = testCase;
-  if (parent.type === 'suite') {
-    return `${testCase.module.moduleId}::${parent.id}`;
+function getOrCreateSuite(
+  suites: Map<string, SuiteProjection>,
+  testCase: TestCase
+): SuiteProjection {
+  const key = getSuiteKey(testCase);
+  const existing = suites.get(key);
+  if (existing) {
+    return existing;
   }
-  return testCase.module.moduleId;
+
+  const now = Date.now();
+  const suiteErrors =
+    testCase.parent.type === 'suite'
+      ? testCase.parent.errors().map((error) => error.message)
+      : [];
+  const suite: SuiteProjection = {
+    projectName: testCase.module.project?.name || undefined,
+    endTime: now,
+    errorMessages: suiteErrors,
+    evalResults: [],
+    failedTests: 0,
+    hasFailed: testCase.parent.type === 'suite' && !testCase.parent.ok(),
+    moduleId: testCase.module.moduleId,
+    name:
+      testCase.parent.type === 'suite'
+        ? testCase.parent.name
+        : testCase.module.relativeModuleId,
+    passedTests: 0,
+    skippedTests: 0,
+    startTime: now,
+    totalTests: 0,
+  };
+  suites.set(key, suite);
+  return suite;
 }
 
-function getSuiteName(testCase: TestCase): string {
-  const { parent } = testCase;
-  if (parent.type === 'suite') {
-    return parent.name;
-  }
-  return testCase.module.moduleId;
+function createModuleProjection(testModule: TestModule): SuiteProjection {
+  const endTime = Date.now();
+  return {
+    projectName: testModule.project?.name || undefined,
+    endTime,
+    errorMessages: [],
+    evalResults: [],
+    failedTests: 0,
+    hasFailed: true,
+    moduleId: testModule.moduleId,
+    name: testModule.relativeModuleId,
+    passedTests: 0,
+    skippedTests: 0,
+    startTime: endTime - testModule.diagnostic().duration,
+    totalTests: 0,
+  };
 }
 
-function getAggregatedScore(result: EvalResult): number {
-  return match(result.aggregation)
-    .with('mean', () => result.mean)
-    .with('median', () => result.median)
-    .with('sum', () => result.sum)
-    .exhaustive();
+function toJsonEvalSuite(suite: SuiteProjection, root: string): JsonEvalSuite {
+  return {
+    projectName: suite.projectName,
+    duration: suite.endTime - suite.startTime,
+    endTime: suite.endTime,
+    evalResults: suite.evalResults,
+    filepath: path.relative(root, suite.moduleId),
+    message:
+      suite.errorMessages.length > 0
+        ? suite.errorMessages.join('\n')
+        : undefined,
+    name: suite.name,
+    startTime: suite.startTime,
+    status: suite.hasFailed ? 'failed' : 'passed',
+    summary: {
+      ...calculateSuiteSummary(
+        suite.evalResults,
+        suite.totalTests,
+        suite.passedTests
+      ),
+      failedCount: suite.failedTests,
+      skippedCount: suite.skippedTests,
+    },
+  };
 }
 
-function calculateSuiteSummary(evalResults: EvalResult[]) {
-  const totalCount = evalResults.length;
-  let passedCount = 0;
+function calculateSuiteSummary(
+  evalResults: EvalResult[],
+  totalCount: number,
+  passedCount: number
+) {
   let totalMean = 0;
-  let totalMedian = 0;
   let totalSum = 0;
 
   for (const result of evalResults) {
     totalMean += result.mean;
-    totalMedian += result.median;
     totalSum += result.sum;
-
-    if (getAggregatedScore(result) >= result.threshold) {
-      passedCount++;
-    }
   }
 
   return {
-    meanScore: totalCount > 0 ? totalMean / totalCount : 0,
-    medianScore: totalCount > 0 ? totalMedian / totalCount : 0,
+    meanScore: evalResults.length > 0 ? totalMean / evalResults.length : 0,
+    medianScore: getMedianScore(
+      evalResults.map((result) => ({ name: result.name, score: result.median }))
+    ),
     passedCount,
     sumScore: totalSum,
     totalCount,
   };
 }
 
-function isAllThresholdsMet(evalResults: EvalResult[]): boolean {
-  return evalResults.every(
-    (result) => getAggregatedScore(result) >= result.threshold
+function sum(
+  suites: Map<string, SuiteProjection>,
+  select: (suite: SuiteProjection) => number
+) {
+  return Array.from(suites.values()).reduce(
+    (total, suite) => total + select(suite),
+    0
   );
+}
+
+function getSuiteKey(testCase: TestCase): string {
+  return testCase.parent.type === 'suite'
+    ? `${testCase.module.moduleId}::${testCase.parent.id}`
+    : getModuleKey(testCase.module);
+}
+
+function getModuleKey(testModule: TestModule): string {
+  return testModule.moduleId;
+}
+
+function isEvalModule(testModule: TestModule, testCases: readonly TestCase[]) {
+  return (
+    testCases.length > 0 ||
+    /\.eval\.(?:[cm]?[jt]sx?)$/.test(testModule.moduleId)
+  );
+}
+
+function createRunIdentity() {
+  return {
+    id: createId(),
+    name: humanId({ capitalize: false, separator: '-' }),
+  };
 }

@@ -11,8 +11,9 @@ import { humor } from './humor';
 describe('humor', () => {
   it('should call runJudge with humor prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'Yes',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'Yes', score: 1 },
     });
 
     const scorer = humor();

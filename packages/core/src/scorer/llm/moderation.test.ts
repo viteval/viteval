@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('#/model/client', () => ({
-  requireModel: vi.fn(),
+  requireModel: vi.fn(() => ({ ok: true, value: {} })),
 }));
 
 vi.mock('ai', () => ({
@@ -9,6 +9,7 @@ vi.mock('ai', () => ({
 }));
 
 import { generateObject } from 'ai';
+import { requireModel } from '#/model/client';
 import { moderation } from './moderation';
 
 describe('moderation', () => {
@@ -40,16 +41,25 @@ describe('moderation', () => {
     expect(result.metadata?.choice).toBe('Unsafe');
   });
 
-  it('should throw if model is not initialized', async () => {
-    vi.mocked(generateObject).mockRejectedValueOnce(
-      new Error(
-        'Model not initialized. Configure a model in your viteval config.'
-      )
-    );
+  it('should return a null score if model is not initialized', async () => {
+    vi.mocked(requireModel).mockReturnValueOnce({
+      error: new Error(
+        'Model not initialized. Call initializeModel() from a Vitest setup file.'
+      ),
+      ok: false,
+    });
 
     const scorer = moderation();
-    await expect(scorer({ output: 'test' })).rejects.toThrow(
-      'Model not initialized.'
+    const result = await scorer({ output: 'test' });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        metadata: {
+          error:
+            'Model not initialized. Call initializeModel() from a Vitest setup file.',
+        },
+        score: null,
+      })
     );
   });
 });

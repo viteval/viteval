@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai';
 import { Agent } from '@voltagent/core';
 
 export interface HistoryInput {
@@ -37,6 +36,6 @@ Return your response in the following JSON format:
   "location": "relevant location if applicable",
   "confidence": 0.95
 }`,
-  model: openai('gpt-4o-mini'),
+  model: 'openai/gpt-4o-mini',
   name: 'history-agent',
 });

@@ -1,10 +1,36 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { createFile, fileExists } from '@viteval/internal';
+import { createFile } from '@viteval/internal';
+import { err, isErr, ok, type Result } from 'massaman/control';
 
-const TEMPLATES_DIR = import.meta.dirname;
+const TEMPLATES = {
+  'vitest.config.ts': `import { defineConfig } from 'viteval/config';
+import { JsonReporter } from 'viteval/reporters';
 
-export type TemplateName = 'viteval.config.ts' | 'viteval.setup.ts';
+export default defineConfig({
+  test: {
+    testTimeout: 100_000,
+    include: ['src/**/*.eval.ts'],
+    reporters: [
+      'default',
+      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
+    ],
+    setupFiles: ['./viteval.setup.ts'],
+  },
+});
+`,
+  'starter.eval.ts': `import { evaluate, scorers } from 'viteval';
+
+evaluate('Uppercase', {
+  data: [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
+  ],
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
+});
+`,
+} as const;
+
+export type TemplateName = keyof typeof TEMPLATES;
 
 /**
  * Create a file from a template
@@ -17,10 +43,13 @@ export async function createFileFromTemplate(
   template: TemplateName
 ) {
   const content = await readTemplateContents(template);
-  if (!content) {
-    return { status: 'error', error: new Error('Template not found') };
+  if (isErr(content)) {
+    return content;
   }
-  return await createFile(filePath, content);
+  if (content.value === null) {
+    return err('Template not found');
+  }
+  return await createFile(filePath, content.value);
 }
 
 /**
@@ -30,12 +59,6 @@ export async function createFileFromTemplate(
  */
 export async function readTemplateContents(
   template: TemplateName
-): Promise<string | null> {
-  const templatePath = path.join(TEMPLATES_DIR, `${template}.template`);
-  const exists = await fileExists(templatePath);
-  if (!exists) {
-    return null;
-  }
-
-  return await fs.readFile(templatePath, 'utf-8');
+): Promise<Result<string | null>> {
+  return ok(TEMPLATES[template]);
 }

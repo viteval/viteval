@@ -1,7 +1,15 @@
 import type { EmbeddingModel, LanguageModel } from 'ai';
-import type { DatasetProvider, EvalProvider, Provider } from '#/provider/types';
+import type {
+  DatasetProvider,
+  EvalProvider,
+  Provider,
+  TagProvider,
+} from '#/provider/types';
 
 declare global {
+  var __viteval_datasetDiscovery:
+    | { register: (dataset: unknown) => void }
+    | undefined;
   // Biome-ignore lint: used by model internals
   var __viteval_model: LanguageModel | undefined;
   // Biome-ignore lint: used by model internals
@@ -13,7 +21,7 @@ declare global {
   // Biome-ignore lint: used by provider internals
   var __viteval_evalProvider: EvalProvider | undefined;
   // Biome-ignore lint: used by provider internals
-  var __viteval_providerInitialized: boolean | undefined;
+  var __viteval_tagProvider: TagProvider | undefined;
   // Biome-ignore lint: used by provider internals
-  var __viteval_providerInitPromise: Promise<void> | undefined;
+  var __viteval_providerInitialized: boolean | undefined;
 }

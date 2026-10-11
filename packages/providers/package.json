@@ -1,7 +1,7 @@
 {
   "name": "@viteval/providers",
-  "version": "0.5.9",
-  "description": "Provider implementations for Viteval — SQLite (default), PostgreSQL, and third-party platforms.",
+  "version": "1.0.0-rc.0",
+  "description": "JSON, SQLite, and third-party evaluation providers for Viteval.",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",
   "license": "MIT",
@@ -28,39 +28,53 @@
     }
   },
   "scripts": {
-    "build": "prisma generate && tsdown",
+    "build": "tsdown",
     "dev": "tsdown --watch",
-    "test": "vitest --typecheck --passWithNoTests",
-    "types": "prisma generate && tsc --noEmit",
-    "prisma:generate": "prisma generate"
+    "test": "vitest run --typecheck",
+    "types": "tsc --noEmit",
+    "prisma:generate": "prisma7 generate"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^2.2.2",
-    "@prisma/adapter-better-sqlite3": "^7.6.0",
-    "@prisma/client": "^7.6.0",
+    "@paralleldrive/cuid2": "^3.3.0",
     "@viteval/core": "workspace:^",
     "@viteval/internal": "workspace:^",
-    "better-sqlite3": "^12.8.0"
+    "massaman": "^0.5.2"
   },
   "devDependencies": {
     "@braintrust/api": "^0.5.0",
-    "@prisma/adapter-pg": "^7.6.0",
-    "@tsconfig/node24": "^24.0.4",
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^25.5.0",
-    "pg": "^8.16.2",
-    "prisma": "^7.6.0",
-    "tsdown": "^0.21.7",
-    "type-fest": "^5.5.0",
-    "typescript": "^6.0.2",
-    "vitest": "^4.1.2"
+    "@prisma/adapter-better-sqlite3": "^7.10.0",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "@prisma/prisma7": "^7.10.0",
+    "@tsconfig/node24": "^24.0.5",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.5",
+    "better-sqlite3": "^13.0.3",
+    "pg": "^8.23.1",
+    "prisma": "8.0.0-rc.22",
+    "tsdown": "^0.23.0",
+    "type-fest": "^5.10.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   },
   "peerDependencies": {
     "@braintrust/api": ">=0.5.0",
+    "@prisma/adapter-better-sqlite3": "^7.10.0",
     "@prisma/adapter-pg": ">=7.0.0",
+    "@prisma/client": "^7.10.0",
+    "better-sqlite3": "^13.0.3",
     "pg": ">=8.0.0"
   },
   "peerDependenciesMeta": {
+    "@prisma/adapter-better-sqlite3": {
+      "optional": true
+    },
+    "@prisma/client": {
+      "optional": true
+    },
+    "better-sqlite3": {
+      "optional": true
+    },
     "@braintrust/api": {
       "optional": true
     },
@@ -70,5 +84,8 @@
     "pg": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=26.0.0"
   }
 }

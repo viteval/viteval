@@ -2,12 +2,17 @@
 '@viteval/ui': major
 ---
 
-Migrate @viteval/ui from TanStack Start + Express to Next.js 16 + Hono + shadcn dashboard
+Migrate the v1 dashboard from Next.js to TanStack Start and TanStack Router.
 
-- Replace TanStack Start/Router with Next.js 16 App Router (standalone output)
-- Replace Express with Hono + @hono/node-server as production server wrapper
-- Replace header navigation with shadcn sidebar layout
-- Add dashboard home page with summary cards
-- Install all shadcn UI primitives via CLI
-- Replace @iconify/react with lucide-react
-- Add /api/results/[id] route for polling refresh
+### Architecture
+
+- Replace Next.js App Router and standalone output with typed TanStack file routes and Vite client/server builds.
+- Serve bundled browser assets and Start SSR/API requests through a Node child process with a Hono bridge.
+- Preserve the public `createVitevalServer()` launcher API, project-root selection, automatic port selection, and default port 6274.
+- Keep existing dashboard and API URLs, persisted data formats, filtering, tagging, and inspection workflows.
+- Verify packed JavaScript/CSS delivery, SSR deep links, missing-page/resource behavior, and clean server shutdown.
+
+The existing theme, summary cards, charts, sortable tables, case diagnostics,
+suite history/source views, and dataset metadata remain available. URL-based
+filters and encoded detail identifiers continue to work through direct links
+and browser reloads.

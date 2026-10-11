@@ -1,5 +1,5 @@
 import type Braintrust from '@braintrust/api';
-import { withResult } from '@viteval/internal';
+import { attemptAsync } from 'massaman/control';
 import type {
   DatasetProvider,
   StoredDataItem,
@@ -18,8 +18,23 @@ export function createBraintrustDatasetOps(
   getProjectId: () => string
 ): DatasetProvider {
   return {
+    replaceItems: (params) =>
+      attemptAsync(async () => {
+        const client = await getClient();
+        const current = await fetchItems(client, params.datasetId);
+        await client.datasets.insert(params.datasetId, {
+          events: [
+            ...current.map((event) => ({ id: event.id, _object_delete: true })),
+            ...params.items.map((item) => ({
+              input: item.input,
+              expected: item.expected,
+              metadata: item.extra,
+            })),
+          ],
+        });
+      }),
     addItems: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         await client.datasets.insert(params.datasetId, {
           events: params.items.map((item) => ({
@@ -31,7 +46,7 @@ export function createBraintrustDatasetOps(
       }),
 
     create: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const dataset = await client.datasets.create({
           description: params.description,
@@ -53,13 +68,13 @@ export function createBraintrustDatasetOps(
       }),
 
     delete: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         await client.datasets.delete(params.id);
       }),
 
     get: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
 
         if (params.id) {
@@ -87,18 +102,14 @@ export function createBraintrustDatasetOps(
       }),
 
     getItems: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
-        const fetchLimit = params.limit
-          ? params.offset
-            ? params.offset + params.limit
-            : params.limit
-          : undefined;
-        const response = await client.datasets.fetch(params.datasetId, {
-          limit: fetchLimit,
-        });
-
-        let { events } = response;
+        if (params.limit === 0) return [];
+        const fetchLimit =
+          params.limit === undefined
+            ? undefined
+            : (params.offset ?? 0) + params.limit;
+        let events = await fetchItems(client, params.datasetId, fetchLimit);
         if (params.offset) {
           events = events.slice(params.offset);
         }
@@ -112,7 +123,7 @@ export function createBraintrustDatasetOps(
       }),
 
     list: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const fetchLimit = params?.limit
           ? params?.offset
@@ -141,7 +152,7 @@ export function createBraintrustDatasetOps(
       }),
 
     update: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const client = await getClient();
         const dataset = await client.datasets.update(params.id, {
           description: params.description,
@@ -171,6 +182,29 @@ function mapDataset(dataset: Braintrust.Dataset, itemCount = 0): StoredDataset {
     createdAt: dataset.created ? new Date(dataset.created) : new Date(),
     updatedAt: dataset.created ? new Date(dataset.created) : new Date(),
   };
+}
+
+async function fetchItems(
+  client: Braintrust,
+  datasetId: string,
+  limit?: number
+): Promise<Braintrust.DatasetEvent[]> {
+  const events: Braintrust.DatasetEvent[] = [];
+  let cursor: string | undefined;
+  const seen = new Set<string>();
+  do {
+    const page = await client.datasets.fetchPost(datasetId, {
+      cursor,
+      limit: limit === undefined ? undefined : limit - events.length,
+    });
+    const ids = new Set(events.map((event) => event.id));
+    events.push(...page.events.filter((event) => !ids.has(event.id)));
+    cursor = page.cursor ?? undefined;
+    if (cursor && seen.has(cursor))
+      throw new Error('Braintrust returned a repeated dataset cursor');
+    if (cursor) seen.add(cursor);
+  } while (cursor && (limit === undefined || events.length < limit));
+  return events;
 }
 
 function mapDatasetItem(

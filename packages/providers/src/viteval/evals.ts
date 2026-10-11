@@ -1,11 +1,11 @@
 import { createId } from '@paralleldrive/cuid2';
-import { withResult } from '@viteval/internal';
+import { attemptAsync } from 'massaman/control';
 import type {
   EvalProvider,
   StoredEvalResult,
   StoredEvalRun,
 } from '@viteval/core';
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '#/generated/prisma/client';
 
 /**
  * Create eval run operations backed by Prisma.
@@ -22,7 +22,7 @@ import type { PrismaClient } from '@prisma/client';
 export function createEvalOps(prisma: PrismaClient): EvalProvider {
   return {
     addResult: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const result = await prisma.evalRunResult.create({
           data: {
             duration: params.duration,
@@ -44,7 +44,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
       }),
 
     addResults: (paramsList) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const data = paramsList.map((params) => ({
           duration: params.duration,
           evalRunId: params.evalRunId,
@@ -81,7 +81,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
       }),
 
     complete: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const run = await prisma.evalRun.update({
           data: {
             completedAt: new Date(),
@@ -95,7 +95,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
       }),
 
     create: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const run = await prisma.evalRun.create({
           data: {
             config: JSON.stringify(params.config),
@@ -103,7 +103,6 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
             id: createId(),
             metadata: JSON.stringify(params.metadata ?? {}),
             name: params.name,
-            tags: JSON.stringify(params.tags ?? []),
           },
         });
 
@@ -111,7 +110,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
       }),
 
     get: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const run = await prisma.evalRun.findUnique({
           include: params.includeResults ? { results: true } : undefined,
           where: { id: params.id },
@@ -135,7 +134,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
       }),
 
     list: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const runs = await prisma.evalRun.findMany({
           orderBy: { startedAt: 'desc' },
           skip: params?.offset,
@@ -143,15 +142,6 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
           where: {
             datasetId: params?.datasetId,
             status: params?.status,
-            ...(params?.tags?.length
-              ? {
-                  // Filter runs that contain any of the specified tags.
-                  // Tags are stored as JSON arrays, so we use string contains.
-                  OR: params.tags.map((tag) => ({
-                    tags: { contains: JSON.stringify(tag) },
-                  })),
-                }
-              : {}),
           },
         });
 
@@ -173,7 +163,6 @@ function mapEvalRun(row: {
   status: string;
   config: string;
   summary: string | null;
-  tags: string;
   metadata: string;
   startedAt: Date;
   completedAt: Date | null;
@@ -188,7 +177,6 @@ function mapEvalRun(row: {
     startedAt: row.startedAt,
     status: parseEvalRunStatus(row.status),
     summary: row.summary ? JSON.parse(row.summary) : undefined,
-    tags: JSON.parse(row.tags) as string[],
   };
 }
 

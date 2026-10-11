@@ -7,23 +7,26 @@ const TEMPLATES_DIR = path.join(import.meta.dirname, 'src', 'templates');
 
 export default defineConfig({
   clean: true,
+  deps: {
+    neverBundle: [
+      'vitest',
+      'maltty',
+      'zod',
+      'yargs',
+      'consola',
+      'massaman/match',
+      '@viteval/core',
+      '@viteval/internal',
+      '@viteval/ui',
+      /^vitest\//,
+      /^vite\//,
+      /^@vitest\//,
+      'fsevents',
+      'lightningcss',
+    ],
+  },
   dts: false,
   entry: ['src/index.ts'],
-  external: [
-    'vitest',
-    'find-up',
-    'yargs',
-    'consola',
-    'ts-pattern',
-    '@viteval/core',
-    '@viteval/internal',
-    '@viteval/ui',
-    /^vitest\//,
-    /^vite\//,
-    /^@vitest\//,
-    'fsevents',
-    'lightningcss',
-  ],
   format: ['esm'],
   minify: true,
   async onSuccess() {
@@ -40,6 +43,5 @@ export default defineConfig({
   outDir: OUTPUT_DIR,
   platform: 'node',
   sourcemap: true,
-  splitting: false,
   target: 'es2022',
 });

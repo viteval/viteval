@@ -1,7 +1,7 @@
 {
-  "name": "@examples/<%= name %>",
+  "name": "@viteval/{{name}}",
   "version": "0.0.1",
-  "description": "Viteval <%= name %> - <%= description %>",
+  "description": "Viteval {{name}} - {{description}}",
   "license": "MIT",
   "exports": {
     ".": {
@@ -17,15 +17,15 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write",
+    "lint": "pnpm --workspace-root lint",
+    "lint:fix": "pnpm --workspace-root lint:fix",
     "test": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0",
-    "tsdown": "^0.19.0-beta.3",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "@types/node": "^26.6.5",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

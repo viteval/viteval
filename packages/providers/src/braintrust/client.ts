@@ -1,4 +1,5 @@
 import type Braintrust from '@braintrust/api';
+import { attemptAsync, err, isErr, ok, type Result } from 'massaman/control';
 import type { BraintrustProviderOptions } from './types';
 
 /**
@@ -12,23 +13,17 @@ import type { BraintrustProviderOptions } from './types';
  */
 export function createBraintrustClient(
   options: BraintrustProviderOptions
-): () => Promise<Braintrust> {
+): () => Promise<Result<Braintrust>> {
   let client: Braintrust | undefined;
 
   return async () => {
     if (client) {
-      return client;
+      return ok(client);
     }
 
-    let BraintrustClient: new (
-      opts: ConstructorParameters<typeof Braintrust>[0]
-    ) => Braintrust;
-
-    try {
-      const mod = await import('@braintrust/api');
-      BraintrustClient = (mod.default ?? mod) as typeof BraintrustClient;
-    } catch {
-      throw new Error(
+    const importResult = await attemptAsync(() => import('@braintrust/api'));
+    if (isErr(importResult)) {
+      return err(
         [
           'The Braintrust provider requires the "@braintrust/api" package.',
           '',
@@ -39,12 +34,16 @@ export function createBraintrustClient(
         ].join('\n')
       );
     }
+    const mod = importResult.value;
+    const BraintrustClient = (mod.default ?? mod) as new (
+      opts: ConstructorParameters<typeof Braintrust>[0]
+    ) => Braintrust;
 
     client = new BraintrustClient({
       apiKey: options.apiKey,
       baseURL: options.baseUrl,
     });
 
-    return client;
+    return ok(client);
   };
 }

@@ -7,8 +7,8 @@ on:
   workflow_dispatch: {}
 
 env:
-  NODE_VERSION: 24
-  PNPM_VERSION: 10.14.0
+  NODE_VERSION: 26
+  PNPM_VERSION: 12.11.2
 
 concurrency:
   group: publish-${{ github.ref }}

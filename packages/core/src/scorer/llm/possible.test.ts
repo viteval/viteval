@@ -11,9 +11,9 @@ import { possible } from './possible';
 describe('possible', () => {
   it('should call runJudge with possible prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'B',
-      rationale: 'Provides a solution',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'B', rationale: 'Provides a solution', score: 1 },
     });
 
     const scorer = possible();

@@ -8,6 +8,5 @@ export default defineConfig({
   minify: false,
   outDir: 'dist',
   sourcemap: true,
-  splitting: false,
   target: 'es2015',
 });

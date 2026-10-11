@@ -1,252 +1,201 @@
 import path from 'node:path';
-import { ProgressBar } from '@opentf/cli-pbar';
-import type { DataItem, Dataset } from '@viteval/core';
-import { findConfigFile } from '@viteval/core/config';
-import chalk from 'chalk';
+import { randomUUID } from 'node:crypto';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { glob } from 'glob';
-import { createJiti } from 'jiti';
-import type { TsConfigJson } from 'type-fest';
-import type { CommandModule } from 'yargs';
-import { createLogger } from '#/lib/logger';
-import { hasTSConfig, loadTSConfig, loadVitevalConfig } from '#/lib/utils';
+import { command } from 'maltty';
+import { createVitest, type Reporter } from 'vitest/node';
+import type { TestArtifactBase } from 'vitest';
+import { createDatasetWorker } from '#/commands/data/worker';
+import {
+  DATA_ARGS,
+  DATA_OPTIONS,
+  DATA_POSITIONALS,
+} from '#/lib/command-options';
 
-export const dataCommand: CommandModule<
-  unknown,
-  { pattern: string; overwrite?: boolean; verbose?: boolean }
-> = {
-  builder: (yargs) =>
-    yargs
-      .positional('pattern', {
-        default: '**/*.dataset.{js,ts,mts,mjs}',
-        describe: 'Dataset file pattern to match',
-        type: 'string',
-      })
-      .option('overwrite', {
-        default: false,
-        describe: 'Overwrite existing datasets',
-        type: 'boolean',
-      })
-      .option('verbose', {
-        alias: 'V',
-        default: false,
-        describe: 'Verbose output',
-        type: 'boolean',
-      }),
-  command: 'data [pattern]',
-  describe: 'Generate the datasets in your codebase',
-  handler: async (argv) => {
-    const logger = createLogger();
-
-    try {
-      const configFilePath = await findConfigFile(process.cwd());
-      if (!configFilePath) {
-        logger.error('No viteval config file found');
-        process.exit(1);
-      }
-
-      const rootPath = path.dirname(configFilePath);
-      const tsConfig = await loadTSConfig(rootPath);
-      const aliases = getAliases(rootPath, tsConfig);
-      const vitevalConfig = await loadVitevalConfig(rootPath);
-
-      // If there is a TSConfig but we couldn't load it, throw an error
-      if (!tsConfig && (await hasTSConfig(rootPath))) {
-        logger.error(
-          'Unable to load tsconfig.json file, make sure it is valid JSON'
+export const dataCommand = command({
+  description: 'Generate the datasets in your codebase',
+  options: DATA_OPTIONS,
+  positionals: DATA_POSITIONALS,
+  handler: async ({ args, log: logger, status, colors }) => {
+    const argv = DATA_ARGS.parse(args);
+    const outcomes = new Map<string, DatasetOutcome>();
+    let progress: ReturnType<typeof status.progress> | undefined;
+    const reporter: Reporter = {
+      onTestModuleCollected(testModule) {
+        const datasets = [...testModule.children.allTests()].filter(
+          (testCase) => testCase.meta().vitevalDataset === true
         );
-        process.exit(1);
-      }
-
-      const datasets = await glob(argv.pattern, {
-        cwd: rootPath,
-      });
-
-      if (datasets.length === 0) {
-        throw new Error(
-          `No datasets found matching pattern, "${argv.pattern}"`
-        );
-      }
-
-      const jiti = createJiti(`file:${path.dirname(configFilePath)}`, {
-        alias: {
-          ...aliases,
-        },
-        fsCache: false,
-        interopDefault: true,
-        moduleCache: false,
-        sourceMaps: true,
-        transformOptions: {
-          filename: '',
-          ts: true,
-        },
-      });
-
-      try {
-        // @ts-expect-error - TODO: fix this
-        if (vitevalConfig?.test?.setupFiles) {
-          await Promise.all(
-            // @ts-expect-error - TODO: fix this
-            vitevalConfig.test.setupFiles.map(async (file) => {
-              const resolvedPath = jiti.esmResolve(
-                path.join(rootPath, file),
-                rootPath
-              );
-              return await jiti.import<Mod>(resolvedPath, {
-                default: true,
-                try: true,
-              });
-            })
-          );
+        if (process.stderr.isTTY && datasets.length) {
+          progress = status.progress({ max: datasets.length });
+          progress.start('Generating datasets');
         }
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error('Unknown error');
-        logger.error(
-          `Failed loading Viteval setup files${argv.verbose ? `: ${err.message}` : ''}`
-        );
-        process.exit(1);
-      }
-
-      const mods: Mod[] = [];
-      await Promise.all(
-        datasets.map(async (dataset) => {
-          const resolvedPath = jiti.esmResolve(
-            path.join(rootPath, dataset),
-            rootPath
-          );
-          const datasetFn = await jiti.import<Mod>(resolvedPath, {
-            default: true,
-            try: true,
-          });
-          mods.push(datasetFn);
-        })
-      );
-
-      const results: {
-        successes: { name: string; error?: null }[];
-        failures: { name: string; error: Error }[];
-        skipped: { name: string }[];
-      } = {
-        failures: [],
-        skipped: [],
-        successes: [],
-      };
-
-      const progressBar = new ProgressBar({
-        prefix: 'Generating datasets',
-        showCount: true,
-        showPercent: false,
-        size: 'MEDIUM',
-        variant: 'PLAIN',
-      });
-      progressBar.start();
-
-      await Promise.all(
-        mods.map(async (mod, index) => {
-          // If we are not overwriting, check if the dataset exists
-          // And skip it if it does
-          if (argv.overwrite !== true) {
-            try {
-              if (await mod.exists()) {
-                results.skipped.push({ name: mod.name });
-                return;
+      },
+      onTestCaseResult(testCase) {
+        if (testCase.meta().vitevalDataset !== true) return;
+        const artifact = testCase.artifacts().findLast(isDatasetOutcome);
+        const result = testCase.result();
+        const outcome: DatasetOutcome =
+          result.state === 'failed'
+            ? {
+                type: 'viteval:dataset',
+                name: artifact?.name ?? testCase.name,
+                kind: 'failed',
+                error: result.errors.map((error) => error.message).join('\n'),
               }
-            } catch {
-              // Do nothing
-            }
+            : (artifact ?? {
+                type: 'viteval:dataset',
+                name: testCase.name,
+                kind: 'skipped',
+              });
+        outcomes.set(testCase.id, outcome);
+        progress?.advance(1, outcome.name);
+      },
+    };
+    try {
+      const vitest = await createVitest({
+        config: argv.config,
+        root: path.resolve(process.cwd(), argv.root ?? '.'),
+        run: true,
+        watch: false,
+        testNamePattern: '^viteval dataset: ',
+        reporters: [reporter],
+      });
+
+      let workerPath: string | undefined;
+      try {
+        const project = argv.project
+          ? vitest.getProjectByName(argv.project)
+          : vitest.getRootProject();
+        if (argv.project && project.name !== argv.project) {
+          logger.error(`Vitest project "${argv.project}" was not found`);
+          process.exitCode = 1;
+          return;
+        }
+        const rootPath = project.config.root;
+        const datasets = await glob(argv.pattern, {
+          cwd: rootPath,
+          ignore: ['**/node_modules/**', '**/.git/**'],
+        }).then((files) => files.toSorted());
+
+        if (datasets.length === 0) {
+          logger.error(`No datasets found matching pattern, "${argv.pattern}"`);
+          process.exitCode = 1;
+          return;
+        }
+
+        workerPath = path.join(
+          rootPath,
+          '.viteval',
+          `.data-${randomUUID()}.test.mjs`
+        );
+        await mkdir(path.dirname(workerPath), { recursive: true });
+        await writeFile(
+          workerPath,
+          createDatasetWorker({
+            files: datasets.map((file) => path.resolve(rootPath, file)),
+            root: rootPath,
+            overwrite: argv.overwrite,
+          }),
+          { flag: 'wx' }
+        );
+        const run = await vitest.runTestSpecifications([
+          project.createSpecification(workerPath),
+        ]);
+        progress?.stop('Dataset generation finished');
+        const runErrors = [
+          ...run.testModules.flatMap((module) =>
+            module.errors().map((error) => error.message)
+          ),
+          ...run.unhandledErrors.map((error) =>
+            error instanceof Error ? error.message : String(error)
+          ),
+        ];
+        if (runErrors.length) logger.error(runErrors.join('\n'));
+        if (runErrors.length || run.testModules.some((module) => !module.ok()))
+          process.exitCode = 1;
+
+        const values = [...outcomes.values()];
+        const results = {
+          failures: values.filter((outcome) => outcome.kind === 'failed'),
+          skipped: values.filter((outcome) => outcome.kind === 'skipped'),
+          successes: values.filter((outcome) => outcome.kind === 'generated'),
+        };
+
+        if (results.failures.length > 0) {
+          if (argv.verbose) {
+            logger.error(
+              [
+                `Failed to generate ${results.failures.length} datasets:`,
+                '\n\n',
+                ...results.failures.map(
+                  (f) => `  ${colors.red('>')} ${f.name}: ${f.error}`
+                ),
+                '\n',
+              ].join('')
+            );
+          } else {
+            logger.error(
+              `Failed to generate ${results.failures.length} datasets: ${results.failures.map((f) => f.name).join(', ')}`
+            );
           }
 
-          // Just run the data function to generate it
-          const progressBarItem = progressBar.add({
-            id: index,
-            progress: true,
-            suffix: chalk.cyan(mod.name),
-            total: 100,
-          });
-          let value = 0;
-          const inc = 1;
-          const wait = 350;
-          const intervalId = setInterval(() => {
-            value += inc;
-            if (value >= 100) {
-              clearInterval(intervalId);
-              return;
-            }
-            progressBarItem.update({ value });
-          }, wait);
-
-          try {
-            // Import the dataset
-            await mod.save({ overwrite: argv.overwrite });
-            results.successes.push({ name: mod.name });
-
-            clearInterval(intervalId);
-            progressBarItem.update({
-              value: 100,
-            });
-          } catch (error) {
-            results.failures.push({ error: error as Error, name: mod.name });
-            clearInterval(intervalId);
-            progressBarItem.update({
-              value: 100,
-            });
-          }
-        })
-      );
-
-      progressBar.stop();
-
-      if (results.failures.length > 0) {
-        if (argv.verbose) {
-          logger.error(
-            [
-              `Failed to generate ${results.failures.length} datasets:`,
-              '\n\n',
-              ...results.failures.map(
-                (f) => `  ${chalk.red('>')} ${f.name}: ${f.error.message}`
-              ),
-              '\n',
-            ].join('')
+          logger.info(
+            `Successfully generated ${results.successes.length} datasets`
           );
         } else {
-          logger.error(
-            `Failed to generate ${results.failures.length} datasets: ${results.failures.map((f) => f.name).join(', ')}`
+          logger.info(
+            `Skipped ${results.skipped.length} datasets as they already exist`
           );
+          logger.success(`Generated ${results.successes.length} datasets`);
         }
-
-        logger.info(
-          `Successfully generated ${results.successes.length} datasets`
-        );
-      } else {
-        logger.info(
-          `Skipped ${results.skipped.length} datasets as they already exist`
-        );
-        logger.success(`Generated ${results.successes.length} datasets`);
+        logger.newline();
+        if (results.failures.length > 0) {
+          process.exitCode = 1;
+        }
+      } finally {
+        progress?.stop();
+        try {
+          await vitest.close();
+        } finally {
+          if (workerPath) await rm(workerPath, { force: true });
+        }
       }
-      logger.log('');
-      process.exit(0);
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Unknown error');
       logger.error(`Failed to generate datasets: ${err.message}`);
-      logger.log('');
-      process.exit(1);
+      logger.newline();
+      process.exitCode = 1;
     }
   },
-};
+});
 
-type Mod = Dataset<() => Promise<DataItem[]>>;
+interface DatasetOutcome extends TestArtifactBase {
+  type: 'viteval:dataset';
+  name: string;
+  kind: 'generated' | 'skipped' | 'failed';
+  error?: string;
+}
 
-function getAliases(
-  rootPath: string,
-  tsConfig?: TsConfigJson | null
-): Record<string, string> {
-  if (!tsConfig?.compilerOptions?.paths) {
-    return {};
+declare module 'vitest' {
+  interface TaskMeta {
+    vitevalDataset?: true;
   }
+  interface TestArtifactRegistry {
+    'viteval:dataset': DatasetOutcome;
+  }
+}
 
-  return Object.fromEntries(
-    Object.entries(tsConfig.compilerOptions.paths).map(([key, value]) => [
-      key.replace('/*', ''),
-      path.join(rootPath, value[0].replace('/*', '')),
-    ])
+function isDatasetOutcome(value: unknown): value is DatasetOutcome {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    value.type === 'viteval:dataset' &&
+    'name' in value &&
+    typeof value.name === 'string' &&
+    'kind' in value &&
+    (value.kind === 'generated' ||
+      value.kind === 'skipped' ||
+      value.kind === 'failed')
   );
 }
