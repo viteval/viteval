@@ -53,7 +53,7 @@
     "compute-cosine-similarity": "^1.1.0",
     "find-up": "^8.0.0",
     "js-levenshtein": "^1.1.6",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.3.2",
     "linear-sum-assignment": "^1.0.9",
     "mustache": "^4.2.0",
     "ts-pattern": "^5.9.0",
@@ -71,6 +71,6 @@
     "type-fest": "^5.5.0",
     "typescript": "^6.0.2",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.2"
+    "vitest": "^5.0.3"
   }
 }
