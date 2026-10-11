@@ -1,0 +1,66 @@
+.changeset/discovery-and-metadata.md
+  s_7b159bb2779e15::t_3c21a8e0237d82 1-9
+packages/providers/src/braintrust/provider.test.ts
+  s_a36d246742afd7::t_b3709c878f64b6 195-196
+  s_a36d246742afd7::t_e17383a3807802 35-36,38-40,43-45,50-51,60-63,69-73,78-81,84-88,178-179,182-186,201-226,229-233,236-238
+  s_a36d246742afd7::t_82d8cbee2f0958 2,10-11,16-17,33-34,37,41-42,46-49,52-59,64-68,74-77,82-83,175-177,180-181,187-189,199-200,227-228,234-235,239,341-343
+  s_a36d246742afd7::t_3f603fa902b1d8 32,159-174,190-194,197-198,240-241
+  s_a36d246742afd7::t_e1f85897d4634d 344
+packages/providers/src/braintrust/datasets.ts
+  s_a36d246742afd7::t_e17383a3807802 57-62
+  s_a36d246742afd7::t_82d8cbee2f0958 51,56
+packages/viteval/cli.test.ts
+  s_a36d246742afd7::t_b3709c878f64b6 423-427,438-440,442-445,450-457,473-474,483-502,530-532,534-536
+  s_a36d246742afd7::t_89c0e97dde98b4 539-542
+  s_a36d246742afd7::t_121156cb93d472 434-437,475-482
+  s_a36d246742afd7::t_f1c72bbef20228 446,449,458-462,464-472,503-512,514-515,521-526,528-529,533,537,545-546
+  s_a36d246742afd7::t_454b788b02ea1c 513,516-520,527,538,543-544
+  s_a36d246742afd7::t_59a8095c642981 428-433,441,447-448
+  s_a36d246742afd7::t_5474b19fdbbfdf 463
+packages/cli/src/commands/data/worker.ts
+  s_a36d246742afd7::t_3f603fa902b1d8 13,18,40,47,49,54,58,65,71,94-97
+  s_a36d246742afd7::t_b347459531952e 5,7,25,36,43
+  s_0ccc5079110415::t_60ab1bb5d2f05d 98-99
+packages/cli/src/commands/data/command.ts
+  s_a36d246742afd7::t_b3709c878f64b6 121-123
+  s_a36d246742afd7::t_121156cb93d472 61-86,110-112
+  s_a36d246742afd7::t_3f603fa902b1d8 89,120,124-130,137,142-144,203
+  s_a36d246742afd7::t_b347459531952e 10-12,58-59
+  s_a36d246742afd7::t_15272f8342abc9 9
+packages/cli/src/commands/data/bootstrap.ts
+  s_a36d246742afd7::t_454b788b02ea1c 59-60
+  s_a36d246742afd7::t_b347459531952e 11,16-21,30-33,42-58,61-65
+  s_a36d246742afd7::t_3f603fa902b1d8 1-10,12-15,22-29,34-41,66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "77730d8a5d4c5a4488149c7582c3ea8f16162bce",
+  "prompts": {},
+  "sessions": {
+    "s_0ccc5079110415": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed6eed130ffeMaQ79KmSPMV9Mo",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_7b159bb2779e15": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7968b96ffe8PQ214ApP8YBPe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_a36d246742afd7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed6e724a1ffeAfOsPytfjtgGaW",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
