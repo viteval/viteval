@@ -1,0 +1,37 @@
+scripts/validate-consumer.mjs
+  s_9d60e04c9c1468::t_c4078cb70df2fb 1-353
+packages/providers/src/object-storage/datasets.ts
+  s_9d60e04c9c1468::t_c4078cb70df2fb 1-417
+packages/providers/src/gcs.ts
+  s_9d60e04c9c1468::t_c4078cb70df2fb 1-114
+.changeset/object-storage-datasets.md
+  s_9d60e04c9c1468::t_c4078cb70df2fb 1-12
+packages/providers/src/s3.ts
+  s_9d60e04c9c1468::t_c4078cb70df2fb 1-94
+packages/providers/package.json
+  s_9d60e04c9c1468::t_c4078cb70df2fb 36-43,60,62,84,86,99-104
+packages/providers/src/object-storage/datasets.test.ts
+  s_9d60e04c9c1468::t_c4078cb70df2fb 1-690
+package.json
+  s_9d60e04c9c1468::t_c4078cb70df2fb 26
+packages/providers/tsdown.config.ts
+  s_9d60e04c9c1468::t_c4078cb70df2fb 20-21,31-32
+pnpm-lock.yaml
+  s_9d60e04c9c1468::t_1e584dd52c6764 484-486,490-492,978-985,1030-1033,1842-1857,6699-6701,7073-7076,7153-7156,7161-7164,7264-7266,7277-7280,8011-8015,8310-8313,8802-8805,9101-9106,9155-9157,9265-9268,10099-10102,10475-10496,10619-10627,11404-11430,16185-16191,16620-16627,16713-16723,16726-16727,16844-16845,16858-16864,17674-17675,18034-18037,18652-18655,19042-19047,19106-19107,19215-19223,20013-20014
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ced83ee4f57bccb04edeb5181a7def7f4d38d511",
+  "prompts": {},
+  "sessions": {
+    "s_9d60e04c9c1468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7527f9affeNDaUvawxNe67az",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
