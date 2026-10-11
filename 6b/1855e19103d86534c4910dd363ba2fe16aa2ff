@@ -1,0 +1,19 @@
+contributing/v1.md
+  s_7b159bb2779e15::t_14262070f97484 86,155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6b1855e19103d86534c4910dd363ba2fe16aa2ff",
+  "prompts": {},
+  "sessions": {
+    "s_7b159bb2779e15": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7968b96ffe8PQ214ApP8YBPe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
