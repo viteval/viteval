@@ -1,0 +1,66 @@
+packages/ui/src/components/page-header.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-32
+packages/ui/src/components/value/detect.ts
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-103
+packages/ui/package.json
+  s_9d60e04c9c1468::t_d6c3bee95372bf 42
+  s_9d60e04c9c1468::t_9a416187f06db3 34
+packages/ui/src/components/display/file-path.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-22
+packages/ui/src/components/display/index.ts
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-7
+packages/ui/src/components/display/pass-rate.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-29
+packages/ui/src/components/display/provider-badge.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-83
+packages/ui/src/components/display/score-badge.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-30
+packages/ui/src/components/stat.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-37
+packages/ui/src/components/value/copy-button.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-49
+.changeset/renderer-primitives.md
+  s_9d60e04c9c1468::t_8cb6ee0a16c79d 1-6
+packages/ui/src/components/display/timestamp.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-14
+packages/ui/src/components/value/markdown-renderer.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-77
+packages/ui/src/components/source-viewer.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-45
+packages/ui/src/components/icons/index.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-63
+packages/ui/src/components/stat-row.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-40
+packages/ui/src/components/value/code-renderer.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-58
+packages/ui/src/components/value/value-preview.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-59
+packages/ui/src/components/value/text-renderer.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-17
+packages/ui/src/lib/utils.ts
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 2,17,24-28,31,34-38,41-45,48-51,56-71,74-90,92-118
+packages/ui/src/components/display/duration.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-22
+packages/ui/src/components/display/file-icon.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-151
+packages/ui/src/components/value/primitive-renderer.tsx
+  s_9d60e04c9c1468::t_e38a89e1b18a6a 1-14
+pnpm-lock.yaml
+  s_9d60e04c9c1468::t_8e8a93e6d12470 424-426,448-450,1819-1823,5606-5608,5913,10815-10819,14798-14799
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "450597f9b33e14c52bb4fa4f87ad2ec5bf20da4d",
+  "prompts": {},
+  "sessions": {
+    "s_9d60e04c9c1468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7527f9affeNDaUvawxNe67az",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
