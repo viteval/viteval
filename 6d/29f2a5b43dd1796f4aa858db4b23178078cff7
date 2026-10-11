@@ -1,0 +1,291 @@
+packages/ui/src/components/list-filter.tsx
+  s_b934eb2354e2d3::t_3258ee3c5990e8 69-73
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,39-41,60,75,79-80
+packages/ui/production-server.ts
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 1-11,14-55,59-68
+  s_2c001e3d7a2585::t_90e8e507134c0d 12-13
+  s_2c001e3d7a2585::t_44a647b188c3e8 56-58
+.gitignore
+  s_7b159bb2779e15::t_5fef9e1b1b2018 127
+  s_d7b6f25668ec06::t_b1e63ace7854a7 54-57,60-64
+  s_d7b6f25668ec06::t_b21f600ca3b7cb 58-59
+packages/ui/src/router.tsx
+  s_35a41bc6a8539c::t_cd38f45f308dc0 11-39
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 1-10,40-46
+packages/ui/src/router.test.tsx
+  s_35a41bc6a8539c::t_cd38f45f308dc0 1-37,46,52,55-60,65-79,81-144
+  s_35a41bc6a8539c::t_3d81d44a7b1280 47-49
+  s_35a41bc6a8539c::t_6a3f3a4fb53eda 38-45,50-51
+  s_35a41bc6a8539c::t_0843c9fc61f622 53-54,61-64,80
+packages/ui/src/routes/datasets.index.tsx
+  s_06703796a1f03b::t_e408873606d855 10
+  s_06703796a1f03b::t_24e6470cee109c 6,8,11-14,16-17
+  s_06703796a1f03b::t_45919c775a8bd9 5,9
+  s_06703796a1f03b::t_56fe9a2f34acd8 1
+packages/ui/src/routes/api.taggings.index.ts
+  s_06703796a1f03b::t_512331b8548589 4-13,15
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,14,16
+contributing/architecture.md
+  s_d7b6f25668ec06::t_a12b760d737a38 73-86
+packages/ui/src/routes/datasets.$id.tsx
+  s_06703796a1f03b::t_56fe9a2f34acd8 14-16,19-21
+  s_06703796a1f03b::t_24e6470cee109c 1,9,11-13,17-18,22-23,25-26,45
+packages/ui/src/server/api-tag.ts
+  s_06703796a1f03b::t_45919c775a8bd9 5,7-8,31,33-34
+packages/ui/src/server/api.test.ts
+  s_06703796a1f03b::t_8d8a7953c88c29 8-9,18,53-59,174-176
+  s_06703796a1f03b::t_eec106bf0542e1 33,39-41,62,87,98-99,143
+  s_06703796a1f03b::t_512331b8548589 42-44,71-83,88-90,93-97,100,102-125,127-140,147-153,155-160,162-164,166-172
+  s_06703796a1f03b::t_56fe9a2f34acd8 1-7,10-17,19-32,34-38,45-52,60-61,63-70,84-86,91-92,101,126,141-142,144-146,154,161,165,173,177-186
+packages/ui/src/routes/api.results.index.ts
+  s_06703796a1f03b::t_512331b8548589 4-9,11
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,10,12
+packages/ui/src/components/results-list.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,23-24
+scripts/validate-browser.mjs
+  s_d7b6f25668ec06::t_b1e63ace7854a7 116-120
+  s_d7b6f25668ec06::t_bfad08b5b28684 95,106,124,251,253
+  s_b934eb2354e2d3::t_8b398ecccc32f8 121-123
+packages/ui/src/routes/results.index.tsx
+  s_06703796a1f03b::t_56fe9a2f34acd8 1,17
+  s_06703796a1f03b::t_24e6470cee109c 6,8,11-14,16
+  s_06703796a1f03b::t_e408873606d855 10
+  s_06703796a1f03b::t_45919c775a8bd9 5,9
+packages/ui/src/routes/suites.$slug.tsx
+  s_06703796a1f03b::t_512331b8548589 24-25
+  s_06703796a1f03b::t_56fe9a2f34acd8 27-28,32-34
+  s_06703796a1f03b::t_e408873606d855 22
+  s_06703796a1f03b::t_45919c775a8bd9 16,21
+  s_06703796a1f03b::t_24e6470cee109c 1,17,20,23,30-31,35-39
+packages/ui/src/server/search.test.ts
+  s_06703796a1f03b::t_512331b8548589 21-23
+  s_06703796a1f03b::t_eec106bf0542e1 12-14
+  s_06703796a1f03b::t_56fe9a2f34acd8 1-11,15-20,24-27,43
+  s_06703796a1f03b::t_e408873606d855 28-42
+packages/ui/src/components/nav-main.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,12,17,31
+  s_b934eb2354e2d3::t_3258ee3c5990e8 27-29
+packages/ui/src/server/api-tags.ts
+  s_06703796a1f03b::t_45919c775a8bd9 5,20
+packages/viteval/cli.test.ts
+  s_d7b6f25668ec06::t_b1e63ace7854a7 706-707,710-714,721-724
+  s_d7b6f25668ec06::t_b21f600ca3b7cb 701-705
+  s_d7b6f25668ec06::t_bfad08b5b28684 696-700,708-709,715-720,725-738
+packages/ui/src/routes/api.suites.ts
+  s_06703796a1f03b::t_45919c775a8bd9 1,3,10,12
+  s_06703796a1f03b::t_512331b8548589 4-9,11
+packages/ui/tsdown.config.ts
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 6
+packages/ui/src/components/suites-table.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,92
+  s_b934eb2354e2d3::t_3258ee3c5990e8 98-100
+packages/ui/src/app/globals.css
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 5-6,8-14,16-20,49-50
+  s_2c001e3d7a2585::t_f8915381857721 7,15
+packages/ui/src/routes/api.results.$id.ts
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,10,12
+  s_06703796a1f03b::t_512331b8548589 4-9,11
+packages/ui/src/routes/api.taggings.lookup.ts
+  s_06703796a1f03b::t_512331b8548589 4-9,11
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,10,12
+packages/ui/src/components/results-detail.test.tsx
+  s_b934eb2354e2d3::t_3258ee3c5990e8 2-9,17,51,59,125,144-164
+  s_b934eb2354e2d3::t_04e1f2658cd676 133-137
+packages/ui/src/components/suites-list.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,23-24
+packages/ui/src/server/page-functions.ts
+  s_06703796a1f03b::t_eec106bf0542e1 18-23
+  s_06703796a1f03b::t_f5894541d859c3 9-13,28-33,41-46,55-60,68-73,82-87,95-100
+  s_7b159bb2779e15::t_e65db1fe1c13e9 35,48,62,75,89,102
+  s_06703796a1f03b::t_24e6470cee109c 1-8,27,34,36-40,47,49-50,53-54,61,63-67,74,76-77,80-81,88,90-94,101,103-111,117-118,124
+  s_06703796a1f03b::t_512331b8548589 14-17,24-26
+  s_06703796a1f03b::t_56fe9a2f34acd8 112-116,119-123
+  s_06703796a1f03b::t_cd987a0f58c984 51-52,78-79
+packages/ui/src/routes/__root.tsx
+  s_2c001e3d7a2585::t_2b6f8c19f92fcb 9,13,53-55,65-67
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 1-8,11-12,16-17,19-21,23-52,56-60,62,64,69,81
+contributing/v1.md
+  s_d7b6f25668ec06::t_b1e63ace7854a7 20
+  s_7b159bb2779e15::t_064a8dc6e51be3 65,73-74,76-77,84-87,94,170
+scripts/dev-ui.sh
+  s_d7b6f25668ec06::t_b1e63ace7854a7 10
+apps/website/guide/cli.md
+  s_d7b6f25668ec06::t_a12b760d737a38 94-97
+packages/ui/package.json
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 10-13,32-35,44-45,79,83-84
+  s_2c001e3d7a2585::t_5d3aa2c989c252 72
+  s_2c001e3d7a2585::t_44a647b188c3e8 80
+turbo.json
+  s_d7b6f25668ec06::t_b21f600ca3b7cb 46-47
+  s_d7b6f25668ec06::t_bfad08b5b28684 8
+  s_d7b6f25668ec06::t_b1e63ace7854a7 43-45
+packages/ui/src/components/ResultsDetail.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1
+  s_b934eb2354e2d3::t_3258ee3c5990e8 184-189
+pnpm-workspace.yaml
+  s_7b159bb2779e15::t_eaaef24014847e 6
+packages/ui/src/components/app-sidebar.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,27,52,60,67
+packages/ui/src/routes/api.tags.index.ts
+  s_06703796a1f03b::t_512331b8548589 4-13,15
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,14,16
+packages/ui/src/components/results-table.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,141,171
+packages/ui/src/routes/api.tags.$id.ts
+  s_06703796a1f03b::t_512331b8548589 4-13,15
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,14,16
+packages/ui/src/server/serializable.ts
+  s_06703796a1f03b::t_8d8a7953c88c29 18-19
+  s_06703796a1f03b::t_cd987a0f58c984 1-17,20
+packages/ui/src/components/datasets-list.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,17-18
+packages/ui/src/server/api-taggings-lookup.ts
+  s_06703796a1f03b::t_45919c775a8bd9 21
+packages/ui/src/routes/index.tsx
+  s_06703796a1f03b::t_56fe9a2f34acd8 27-28
+  s_06703796a1f03b::t_24e6470cee109c 1,17,20-24,26,108,122-123,168,182-183
+packages/ui/src/server/search.ts
+  s_06703796a1f03b::t_45919c775a8bd9 1-5
+  s_06703796a1f03b::t_56fe9a2f34acd8 6,8-10,14-15,18-24
+  s_06703796a1f03b::t_e408873606d855 7,11-13,16-17
+packages/ui/src/hooks/use-settings.ts
+  s_b934eb2354e2d3::t_d77ad653aa4766 1,4,48-51,58,62-67,158-168,174-194
+  s_b934eb2354e2d3::t_e64e109c5269c5 52,54-57,59-61,169-173
+  s_b934eb2354e2d3::t_4b52510accb35c 53
+packages/ui/src/server/api-result.ts
+  s_06703796a1f03b::t_45919c775a8bd9 5,7-8
+packages/ui/src/routes/suites.index.tsx
+  s_06703796a1f03b::t_45919c775a8bd9 5,9
+  s_06703796a1f03b::t_24e6470cee109c 6,8,11-14,16-17
+  s_06703796a1f03b::t_e408873606d855 10
+  s_06703796a1f03b::t_56fe9a2f34acd8 1
+packages/ui/vite.config.ts
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 6-8,11-12
+  s_2c001e3d7a2585::t_f8915381857721 9-10,13-15,20-21
+  s_2c001e3d7a2585::t_2b6f8c19f92fcb 5,16-19
+  s_2c001e3d7a2585::t_5d3aa2c989c252 4,22
+  s_7b159bb2779e15::t_e65db1fe1c13e9 1
+packages/ui/src/components/navigation.test.tsx
+  s_b934eb2354e2d3::t_acfe4780849ba4 100-102
+  s_b934eb2354e2d3::t_fd202c888c34e3 1-8,17-34,38-54,63-78,93-96,103-106,113-114,119-139,145-152
+  s_b934eb2354e2d3::t_6df6cdf54c4006 9-16,35-37,55-62,79-92,97-99,107-112,115-118
+  s_b934eb2354e2d3::t_cda656fac264ec 140-144
+packages/ui/src/server/api-datasets.ts
+  s_06703796a1f03b::t_45919c775a8bd9 4
+.changeset/migrate-ui-nextjs.md
+  s_d7b6f25668ec06::t_a12b760d737a38 5,9-13
+  s_d7b6f25668ec06::t_c16b89e23969e2 15-18
+README.md
+  s_d7b6f25668ec06::t_a12b760d737a38 32,85-87
+scripts/validate-consumer.mjs
+  s_d7b6f25668ec06::t_b21f600ca3b7cb 255-257,314,327,348-352
+  s_d7b6f25668ec06::t_bfad08b5b28684 254,260,266-269,273-276,278,282-295,301-306,308-312,318,325-326,328-333,342
+  s_d7b6f25668ec06::t_b1e63ace7854a7 261-265,270-272,313,315-317,319-320,322-324
+  s_d7b6f25668ec06::t_167d07e2529793 296-300,307,321
+  s_d7b6f25668ec06::t_f294d73942f226 259
+  s_d7b6f25668ec06::t_b15396772712ce 353
+packages/ui/src/routes/settings.tsx
+  s_06703796a1f03b::t_24e6470cee109c 1,191-196
+packages/ui/src/hooks/use-settings.test.tsx
+  s_b934eb2354e2d3::t_d77ad653aa4766 1-28,32-35
+  s_b934eb2354e2d3::t_e64e109c5269c5 29-31
+packages/ui/tsconfig.json
+  s_7b159bb2779e15::t_2aecd16494bc75 16,22
+  s_7b159bb2779e15::t_1c25ccb2e542cb 21
+contributing/technology.md
+  s_d7b6f25668ec06::t_b1e63ace7854a7 64-69,71-73
+  s_d7b6f25668ec06::t_a12b760d737a38 7-8,70,74-77
+packages/ui/src/components/site-header.tsx
+  s_b934eb2354e2d3::t_3258ee3c5990e8 30-40,54-56
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,23,79
+contributing/guides/setup-local-env.md
+  s_d7b6f25668ec06::t_a12b760d737a38 7-8,59-69,76,82
+contributing/commands.md
+  s_d7b6f25668ec06::t_a12b760d737a38 43-47,80-91
+  s_02c1c53c2e8733::t_d24a7a65c792bf 92
+packages/ui/src/routes/results.$id.tsx
+  s_06703796a1f03b::t_45919c775a8bd9 20,24-26,30-31,35-46,50,101,113,154,159-160,186-204,208-216
+  s_06703796a1f03b::t_56fe9a2f34acd8 1-5,27-29,32-34,47-49,51-53,205-207
+packages/ui/src/components/datasets-table.tsx
+  s_b934eb2354e2d3::t_b1ac49d89ad2f6 1,75,93
+packages/ui/tsconfig.server.json
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 10
+apps/website/guide/migration.md
+  s_d7b6f25668ec06::t_a12b760d737a38 76-86
+packages/ui/server.ts
+  s_2c001e3d7a2585::t_90e8e507134c0d 71
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 62,67,120-129
+packages/ui/src/server/api-taggings.ts
+  s_06703796a1f03b::t_45919c775a8bd9 21,49
+packages/ui/src/app/not-found.tsx
+  s_2c001e3d7a2585::t_953b0a2e5fcdbc 1,14
+packages/ui/src/routes/api.datasets.ts
+  s_06703796a1f03b::t_512331b8548589 4-9,11
+  s_06703796a1f03b::t_45919c775a8bd9 1-3,10,12
+pnpm-lock.yaml
+  s_06703796a1f03b::t_933789e0ab61e7 571-576,650,652,671-676,686-688,1054-1083,1092-1099,1109-1116,2286-2301,4365-4427,4441-4501,4509-4512,4991-5006,5688-5690,5790-5794,6050-6052,6250-6253,6294-6296,6542-6544,6650-6653,6756-6765,7018-7021,7081-7085,7105-7109,7358-7360,7722-7725,8391-8393,8434-8437,8450-8459,8553-8556,8571-8575,9043-9084,9248-9255,9487-9490,9506-9508,10085-10140,10145-10151,10158-10175,11324-11340,13333,13338-13422,13439-13559,13566-13567,14100-14104,14747-14755,14850-14857,15077-15078,15241-15242,15277-15278,15559-15560,15665,15667,15673-15674,15790-15796,16043-16044,16117-16118,16136-16137,16350-16353,16802,16811,16858-16859,17728-17729,17769-17770,17791-17796,17940-17941,17950-17951,18035,18039-18040,18439-18455,18561-18564,18816-18822,18830-18831
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6d29f2a5b43dd1796f4aa858db4b23178078cff7",
+  "prompts": {},
+  "sessions": {
+    "s_02c1c53c2e8733": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7bf2a6cffenrIHuFK53fjR4W",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_06703796a1f03b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed78b0fe0ffeX2B4dGJoyoemCz",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_2c001e3d7a2585": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed78b104bffeFeN6s3xJpVbfGj",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_35a41bc6a8539c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7627db5ffelEh1duwG1ialvH",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_7b159bb2779e15": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7968b96ffe8PQ214ApP8YBPe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_b934eb2354e2d3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed78b0f77ffeTlbOHfRTkrislm",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_d7b6f25668ec06": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed78b0f59ffedf1wUHc8Arr1Sg",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
