@@ -1,0 +1,19 @@
+apps/website/guide/concepts.md
+  s_9d60e04c9c1468::t_4c636c6eff13d6 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ea1142ab084f63d335d9b705e76b362db013602e",
+  "prompts": {},
+  "sessions": {
+    "s_9d60e04c9c1468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7527f9affeNDaUvawxNe67az",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
