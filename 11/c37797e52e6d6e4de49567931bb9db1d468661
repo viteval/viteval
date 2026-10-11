@@ -1,0 +1,26 @@
+packages/ui/src/test-icons.test.tsx
+  s_b934eb2354e2d3::t_50e98a5e0cccc5 19-22
+  s_b934eb2354e2d3::t_952546299904b9 18
+  s_b934eb2354e2d3::t_f37310b3077de1 4,41-44
+  s_b934eb2354e2d3::t_bf9792f690b7c6 1-3,5-17,23-40,45-86
+packages/ui/src/test-icons.ts
+  s_b934eb2354e2d3::t_bf9792f690b7c6 1-105
+packages/ui/vitest.config.ts
+  s_b934eb2354e2d3::t_bf9792f690b7c6 5-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "11c37797e52e6d6e4de49567931bb9db1d468661",
+  "prompts": {},
+  "sessions": {
+    "s_b934eb2354e2d3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed78b0f77ffeTlbOHfRTkrislm",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
