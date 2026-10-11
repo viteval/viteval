@@ -1,0 +1,41 @@
+packages/providers/package.json
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 28-35,53-56,64,75-78,82,87-101
+packages/providers/src/langfuse/datasets.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-177
+packages/providers/src/remote-record.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-161
+.changeset/hosted-evaluation-providers.md
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-12
+packages/providers/src/langfuse/provider.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-363
+packages/providers/src/voltops/datasets.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-194
+packages/providers/tsdown.config.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 15-19,23-29
+packages/providers/src/voltops/provider.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-277
+packages/providers/src/hosted.test.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-648
+packages/providers/src/voltops.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-2
+packages/providers/src/langfuse.ts
+  s_9d60e04c9c1468::t_f6d3e2e3685e3d 1-2
+pnpm-lock.yaml
+  s_9d60e04c9c1468::t_f3e4c644b37023 487-498,520-522,755-760,839-844,855-858,2202-2217,2500-2503,2526-2531,2550-2555,2568-2573,2586-2591,2604-2609,2628-2633,2646-2651,2664-2669,2682-2687,5517-5519,5874-5879,9427-9430,10134-10140,10235-10242,10256-10259,11604-11619,11781-11792,11960-11963,11980-11984,12008-12014,12027-12032,12055-12064,12077-12082,12103-12110,12123-12128,12143-12150,12165-12171,14953-15012,15077-15095,15323-15330,19244-19245,19690-19694
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b060d473a3619901f17323eb884de40db1544fd9",
+  "prompts": {},
+  "sessions": {
+    "s_9d60e04c9c1468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7527f9affeNDaUvawxNe67az",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
