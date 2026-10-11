@@ -4,4 +4,5 @@
 ---
 
 Use maltty for project commands, terminal prompts, logging, and dataset progress.
-Preserve native Vitest execution and CLI exit codes.
+Add an optional compiled command shell while preserving native Vitest execution
+and CLI exit codes.

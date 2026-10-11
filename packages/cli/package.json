@@ -17,9 +17,11 @@
   "main": "cli.mjs",
   "scripts": {
     "build": "tsdown",
+    "build:binary": "node build-binary.ts",
     "dev": "tsdown --watch",
     "test": "vitest run --typecheck --passWithNoTests",
-    "types": "tsc --noEmit"
+    "test:binary": "pnpm build:binary && node test-binary.ts",
+    "types": "tsc --noEmit && tsc --noEmit --project tsconfig.scripts.json"
   },
   "dependencies": {
     "@viteval/core": "workspace:*",
@@ -35,6 +37,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@maltty/bundler": "1.0.0-rc.4",
     "@tsconfig/node24": "^24.0.5",
     "@types/node": "^26.6.5",
     "tsdown": "^0.23.0",
