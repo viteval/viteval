@@ -1,0 +1,135 @@
+packages/ui/.gitignore
+  s_b2ebb14b88ff45::t_a04e7132160b34 14,16
+packages/ui/package.json
+  s_b2ebb14b88ff45::t_e639e0f3698aad 3,10-14,19-21,24,29-30,32-35,38-46,48-50,53-61,63-67,69,72-74,76-87
+packages/ui/production-server.ts
+  s_b2ebb14b88ff45::t_e03d923313472a 1-68
+packages/ui/server.ts
+  s_b2ebb14b88ff45::t_cff4151c0d1a2b 1-2,6-7,10,16,30,38-40,48-58,60,62,65-92,94-104,106-117,119-139,142-145,147-158,169-177,182,184-190,192,194-196
+packages/ui/src/app/not-found.tsx
+  s_b2ebb14b88ff45::t_35eefd246fe578 1,6,14
+packages/ui/src/router.test.tsx
+  s_b2ebb14b88ff45::t_ca08f717ad65e5 1-144
+packages/ui/src/router.tsx
+  s_b2ebb14b88ff45::t_01b3b7600f3163 1-46
+packages/ui/src/routes/__root.tsx
+  s_b2ebb14b88ff45::t_a63fd0955eb312 1-9,11-13,16-17,19-21,23-60,62,65-67,69,73,75-77,81
+packages/ui/src/routes/api.datasets.ts
+  s_b2ebb14b88ff45::t_f8ce463b5fa93e 1-12
+packages/ui/src/routes/api.results.$id.ts
+  s_b2ebb14b88ff45::t_5ba7a07dc04a50 1-12
+packages/ui/src/routes/api.results.index.ts
+  s_b2ebb14b88ff45::t_062ef91039ce22 1-12
+packages/ui/src/routes/api.suites.ts
+  s_b2ebb14b88ff45::t_9cc6ad66295b9a 1-12
+packages/ui/src/routes/api.taggings.index.ts
+  s_b2ebb14b88ff45::t_90440e55ac376b 1-16
+packages/ui/src/routes/api.taggings.lookup.ts
+  s_b2ebb14b88ff45::t_cbfdbaff918034 1-12
+packages/ui/src/routes/api.tags.$id.ts
+  s_b2ebb14b88ff45::t_d1edf3959ad295 1-16
+packages/ui/src/routes/api.tags.index.ts
+  s_b2ebb14b88ff45::t_8362e7e507c201 1-16
+packages/ui/src/routes/datasets.$id.tsx
+  s_b2ebb14b88ff45::t_d11906e93f3444 1-5,7,9,11-32,34-35,38-59
+packages/ui/src/routes/datasets.index.tsx
+  s_b2ebb14b88ff45::t_35d970e83146da 1-7,9-20,23-31,33-34
+packages/ui/src/routes/index.tsx
+  s_b2ebb14b88ff45::t_7039ccc08cfb0c 1,3-28,30-34,36-39,42-95,98,101-105,107-110,112-157,160-165,167-170,172-201
+packages/ui/src/routes/results.$id.tsx
+  s_b2ebb14b88ff45::t_8656a96686d6a8 1-5,7-8,10,13-17,19-42,44-53,55,59,84-93,96,98,101,106-116,121-124,126-177,186-216
+packages/ui/src/routes/results.index.tsx
+  s_b2ebb14b88ff45::t_17d524b54d683c 1-7,9-20,23-31,33-34
+packages/ui/src/routes/settings.tsx
+  s_b2ebb14b88ff45::t_a006f737a30144 1-413
+packages/ui/src/routes/suites.$slug.tsx
+  s_b2ebb14b88ff45::t_135a609f86ea2d 1-107
+packages/ui/src/routes/suites.index.tsx
+  s_b2ebb14b88ff45::t_7fcca85794060c 1-32
+packages/ui/src/sdk/client.test.ts
+  s_b2ebb14b88ff45::t_f86982b03bd34a 1-373
+packages/ui/src/sdk/client.ts
+  s_b2ebb14b88ff45::t_eb7a4ba9fee52b 1-34
+packages/ui/src/sdk/fs.ts
+  s_b2ebb14b88ff45::t_4dcc30963883f8 3-15,18-21,24,27,29-30,33-36,42-46,48-49,55-59,62-63,66-71,75-79,81,87-102,104-105,107-118,120-121
+packages/ui/src/sdk/index.ts
+  s_b2ebb14b88ff45::t_c2e12e75f21a03 1-29
+packages/ui/src/sdk/paginate.ts
+  s_b2ebb14b88ff45::t_61f7ca82b2901e 1-76
+packages/ui/src/sdk/resources/datasets.ts
+  s_b2ebb14b88ff45::t_43f7bbc2a3a074 1-134
+packages/ui/src/sdk/resources/results.ts
+  s_b2ebb14b88ff45::t_5400748525fc0c 1-162
+packages/ui/src/sdk/resources/schemas.ts
+  s_b2ebb14b88ff45::t_0306f4ef4d3ae8 1-69
+packages/ui/src/sdk/resources/suites.ts
+  s_b2ebb14b88ff45::t_1a7b02ed2271e4 1-129
+packages/ui/src/sdk/resources/tags.ts
+  s_b2ebb14b88ff45::t_b8e7cec430b2b5 1-117
+packages/ui/src/sdk/sort.ts
+  s_b2ebb14b88ff45::t_98aec31eb29810 1-39
+packages/ui/src/sdk/test-fixtures.ts
+  s_b2ebb14b88ff45::t_553fc4cfe0f094 1-90
+packages/ui/src/sdk/types.ts
+  s_b2ebb14b88ff45::t_f76d9404a6a707 1-177
+packages/ui/src/server/api-datasets.ts
+  s_b2ebb14b88ff45::t_ee02c1d00fb88e 1-14
+packages/ui/src/server/api-result.ts
+  s_b2ebb14b88ff45::t_027ca0bc35e07c 1,5,7-12,14,18
+packages/ui/src/server/api-results.ts
+  s_b2ebb14b88ff45::t_f346624453484f 1-32
+packages/ui/src/server/api-suites.ts
+  s_b2ebb14b88ff45::t_0b94d771aa16f1 1-29
+packages/ui/src/server/api-tag.ts
+  s_b2ebb14b88ff45::t_74882223cbe2d5 1-51
+packages/ui/src/server/api-taggings-lookup.ts
+  s_b2ebb14b88ff45::t_b6aba24819d83f 1-41
+packages/ui/src/server/api-taggings.ts
+  s_b2ebb14b88ff45::t_5521bab8224de1 1-70
+packages/ui/src/server/api-tags.ts
+  s_b2ebb14b88ff45::t_96579b190d7aef 1-41
+packages/ui/src/server/api.test.ts
+  s_b2ebb14b88ff45::t_80b5f665b2bbc4 1-262
+packages/ui/src/server/page-functions.ts
+  s_b2ebb14b88ff45::t_38303f968cc1b3 1-123
+packages/ui/src/server/production.test.ts
+  s_b2ebb14b88ff45::t_8f9b8eefc41ea3 1-219
+packages/ui/src/server/search.test.ts
+  s_b2ebb14b88ff45::t_bad50eb7c256a3 1-43
+packages/ui/src/server/search.ts
+  s_b2ebb14b88ff45::t_c09319a919672c 1-64
+packages/ui/src/server/serializable.ts
+  s_b2ebb14b88ff45::t_30fb05aa7b31a8 1-20
+packages/ui/src/types.ts
+  s_b2ebb14b88ff45::t_9c80559859160a 1,3-10,12,14-15,17-18,20,24,40-41,48,52-72,78-80,86,89,92-113
+packages/ui/tsconfig.json
+  s_b2ebb14b88ff45::t_d07f8854c53d21 16,21-22
+packages/ui/tsconfig.server.json
+  s_b2ebb14b88ff45::t_5cbbec1995fa7f 1-12
+packages/ui/tsdown.config.ts
+  s_b2ebb14b88ff45::t_ebf1eb25185ef2 5-6,17
+packages/ui/vite.config.ts
+  s_b2ebb14b88ff45::t_d64b70bae1cd92 1-23
+packages/ui/vitest.config.ts
+  s_b2ebb14b88ff45::t_73c4528340a17e 1,3-10
+scripts/dev-ui.sh
+  s_b2ebb14b88ff45::t_e440c9ad9ae9f3 1-35
+scripts/validate-browser.mjs
+  s_b2ebb14b88ff45::t_56f42f14083c9d 1-489
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5fda5013ec699dadcc6ccbdbbbc4b979a1339b2a",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
