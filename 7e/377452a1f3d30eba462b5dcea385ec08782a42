@@ -1,0 +1,48 @@
+packages/providers/CHANGELOG.md
+  s_b2ebb14b88ff45::t_60b70d4895cc14 1-105
+packages/core/package.json
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3
+packages/ui/CHANGELOG.md
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3-90
+packages/ui/package.json
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3
+packages/viteval/CHANGELOG.md
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3-125
+contributing/v1.md
+  s_b2ebb14b88ff45::t_b2657925833e88 96
+packages/cli/CHANGELOG.md
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3-64
+.github/workflows/publish.yaml
+  s_b2ebb14b88ff45::t_b2657925833e88 68-80
+  s_b2ebb14b88ff45::t_7c9820cfae0e0d 20,47-64,81-86,88
+packages/internal/CHANGELOG.md
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3-35
+packages/providers/package.json
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3
+packages/internal/package.json
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3
+packages/core/CHANGELOG.md
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3-140
+packages/viteval/package.json
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3
+.changeset/pre.json
+  s_b2ebb14b88ff45::t_c15f95d73de4c4 3
+packages/cli/package.json
+  s_b2ebb14b88ff45::t_60b70d4895cc14 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7e377452a1f3d30eba462b5dcea385ec08782a42",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
