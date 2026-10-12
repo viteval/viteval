@@ -14,6 +14,51 @@ afterEach(async () => {
 });
 
 describe('createJsonProvider', () => {
+  it('should persist undefined dataset values as null across create, append, and replacement', async () => {
+    const datasets = createJsonProvider({ root }).datasets!;
+    const item = {
+      input: undefined,
+      expected: undefined,
+      extra: { category: 'void' },
+    };
+    const created = await datasets.create({
+      name: 'void-values',
+      items: [item],
+    });
+    if (!created.ok) throw created.error;
+    expect(
+      await datasets.getItems({ datasetId: created.value.id })
+    ).toMatchObject({
+      ok: true,
+      value: [{ input: null, expected: null, extra: { category: 'void' } }],
+    });
+    expect(
+      await datasets.addItems({ datasetId: created.value.id, items: [item] })
+    ).toMatchObject({ ok: true });
+    expect(await datasets.get({ id: created.value.id })).toMatchObject({
+      ok: true,
+      value: { itemCount: 2, version: 2 },
+    });
+    expect(
+      await datasets.replaceItems!({
+        datasetId: created.value.id,
+        items: [item],
+      })
+    ).toMatchObject({ ok: true });
+    expect(
+      await createJsonProvider({ root }).datasets!.getItems({
+        datasetId: created.value.id,
+      })
+    ).toMatchObject({
+      ok: true,
+      value: [{ input: null, expected: null, extra: { category: 'void' } }],
+    });
+    expect(await datasets.list()).toMatchObject({
+      ok: true,
+      value: [{ name: 'void-values', itemCount: 1, version: 3 }],
+    });
+  });
+
   it('should preserve renamed datasets when their original name is reused', async () => {
     const datasets = createJsonProvider({ root }).datasets!;
     const original = await datasets.create({
@@ -284,6 +329,82 @@ describe('createJsonProvider', () => {
     ).toMatchObject({
       ok: true,
       value: { status: 'completed', results: [{ output: 'HELLO' }] },
+    });
+  });
+
+  it('should exclude skipped native cases from provider score summaries without dropping their outcomes', async () => {
+    await mkdir(path.join(root, '.viteval/results'), { recursive: true });
+    const report = {
+      runId: 'native-skips',
+      runName: 'native skips',
+      status: 'finished',
+      success: true,
+      numTotalEvalSuites: 1,
+      numPassedEvalSuites: 1,
+      numFailedEvalSuites: 0,
+      numTotalEvals: 3,
+      numPassedEvals: 1,
+      numFailedEvals: 0,
+      numSkippedEvals: 2,
+      startTime: 1,
+      endTime: 2,
+      evalResults: [
+        {
+          name: 'accuracy',
+          status: 'passed',
+          startTime: 1,
+          endTime: 2,
+          duration: 1,
+          summary: {
+            meanScore: 1,
+            medianScore: 1,
+            sumScore: 1,
+            passedCount: 1,
+            failedCount: 0,
+            skippedCount: 2,
+            totalCount: 3,
+          },
+          evalResults: ['skipped', 'passed', 'skipped'].map((state, index) => ({
+            id: `native-case-${index}`,
+            name: `case ${index}`,
+            state,
+            aggregation: 'mean',
+            threshold: 1,
+            mean: state === 'passed' ? 1 : 0,
+            median: state === 'passed' ? 1 : 0,
+            sum: state === 'passed' ? 1 : 0,
+            scores: state === 'passed' ? [{ name: 'exact', score: 1 }] : [],
+          })),
+        },
+      ],
+    };
+    await writeFile(
+      path.join(root, '.viteval/results/native-skips.json'),
+      JSON.stringify(report)
+    );
+    expect(
+      await createJsonProvider({ root }).evals!.get({
+        id: 'native-skips',
+        includeResults: true,
+      })
+    ).toMatchObject({
+      ok: true,
+      value: {
+        config: { scorerNames: ['exact'] },
+        summary: {
+          meanScore: 1,
+          medianScore: 1,
+          sumScore: 1,
+          passedCount: 1,
+          failedCount: 0,
+          totalCount: 3,
+        },
+        results: [
+          { metadata: { state: 'skipped' } },
+          { passed: true, metadata: { state: 'passed' } },
+          { metadata: { state: 'skipped' } },
+        ],
+      },
     });
   });
 

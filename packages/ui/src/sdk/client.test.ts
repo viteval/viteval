@@ -17,6 +17,30 @@ afterEach(async () => {
 });
 
 describe('dashboard storage', () => {
+  it('should preserve dataset names containing json suffixes through listing and detail reads', async () => {
+    const provider = createJsonProvider({ root });
+    const names = ['questions.json.release', 'questions.json'];
+    for (const name of names) {
+      const created = await provider.datasets!.create({
+        name,
+        items: [{ input: name, expected: name }],
+      });
+      if (!created.ok) throw created.error;
+    }
+    const sdk = createViteval({ root });
+    const listed = await sdk.datasets.list();
+    expect(listed.total).toBe(2);
+    expect(listed.warnings).toEqual([]);
+    expect(listed.data.map((dataset) => dataset.id).toSorted()).toEqual(
+      names.toSorted()
+    );
+    for (const dataset of listed.data) {
+      expect(await sdk.datasets.get({ id: dataset.id })).toMatchObject({
+        data: { id: dataset.id, data: [{ input: dataset.id }] },
+      });
+    }
+  });
+
   it('should filter and sort all records before paginating every listing', async () => {
     await writeListingFixtures(root);
     const sdk = createViteval({ root });

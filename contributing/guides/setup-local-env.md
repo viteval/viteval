@@ -23,6 +23,13 @@ cd viteval
 pnpm install
 ```
 
+pnpm downloads the latest Node 26 runtime when resolving the development runtime
+and records it in the lockfile. Scripts use that project runtime:
+
+```bash
+pnpm exec node --version
+```
+
 ### 3. Build packages
 
 ```bash

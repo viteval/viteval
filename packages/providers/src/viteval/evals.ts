@@ -5,6 +5,7 @@ import type {
   StoredEvalResult,
   StoredEvalRun,
 } from '@viteval/core';
+import { serializeJson } from '@viteval/internal';
 import type { PrismaClient } from '#/generated/prisma/client';
 
 /**
@@ -27,15 +28,15 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
           data: {
             duration: params.duration,
             evalRunId: params.evalRunId,
-            expected: JSON.stringify(params.expected),
+            expected: serializeJson(params.expected ?? null),
             id: createId(),
-            input: JSON.stringify(params.input),
+            input: serializeJson(params.input ?? null),
             meanScore: params.meanScore,
             medianScore: params.medianScore,
-            metadata: JSON.stringify(params.metadata ?? {}),
-            output: JSON.stringify(params.output),
+            metadata: serializeJson(params.metadata ?? {}),
+            output: serializeJson(params.output ?? null),
             passed: params.passed,
-            scores: JSON.stringify(params.scores),
+            scores: serializeJson(params.scores),
             sumScore: params.sumScore,
           },
         });
@@ -48,15 +49,15 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
         const data = paramsList.map((params) => ({
           duration: params.duration,
           evalRunId: params.evalRunId,
-          expected: JSON.stringify(params.expected),
+          expected: serializeJson(params.expected ?? null),
           id: createId(),
-          input: JSON.stringify(params.input),
+          input: serializeJson(params.input ?? null),
           meanScore: params.meanScore,
           medianScore: params.medianScore,
-          metadata: JSON.stringify(params.metadata ?? {}),
-          output: JSON.stringify(params.output),
+          metadata: serializeJson(params.metadata ?? {}),
+          output: serializeJson(params.output ?? null),
           passed: params.passed,
-          scores: JSON.stringify(params.scores),
+          scores: serializeJson(params.scores),
           sumScore: params.sumScore,
         }));
 
@@ -86,7 +87,7 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
           data: {
             completedAt: new Date(),
             status: params.status ?? 'completed',
-            summary: JSON.stringify(params.summary),
+            summary: serializeJson(params.summary),
           },
           where: { id: params.id },
         });
@@ -98,10 +99,10 @@ export function createEvalOps(prisma: PrismaClient): EvalProvider {
       attemptAsync(async () => {
         const run = await prisma.evalRun.create({
           data: {
-            config: JSON.stringify(params.config),
+            config: serializeJson(params.config),
             datasetId: params.datasetId,
             id: createId(),
-            metadata: JSON.stringify(params.metadata ?? {}),
+            metadata: serializeJson(params.metadata ?? {}),
             name: params.name,
           },
         });

@@ -108,7 +108,12 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
         },
       }))
     );
-    const first = report.evalResults[0]?.evalResults[0];
+    const scored = results.filter(
+      (result) => result.metadata.state !== 'skipped'
+    );
+    const cases = report.evalResults.flatMap((suite) => suite.evalResults);
+    const first =
+      cases.find((result) => result.state !== 'skipped') ?? cases[0];
     return {
       id: report.runId,
       name: report.runName,
@@ -142,12 +147,12 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
       completedAt:
         report.endTime === undefined ? undefined : new Date(report.endTime),
       summary: {
-        meanScore: results.length
-          ? results.reduce((sum, result) => sum + result.meanScore, 0) /
-            results.length
+        meanScore: scored.length
+          ? scored.reduce((sum, result) => sum + result.meanScore, 0) /
+            scored.length
           : 0,
-        medianScore: median(results.map((result) => result.medianScore)),
-        sumScore: results.reduce((sum, result) => sum + result.sumScore, 0),
+        medianScore: median(scored.map((result) => result.medianScore)),
+        sumScore: scored.reduce((sum, result) => sum + result.sumScore, 0),
         passedCount: report.numPassedEvals,
         failedCount: report.numFailedEvals,
         totalCount: report.numTotalEvals,

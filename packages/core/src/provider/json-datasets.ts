@@ -53,8 +53,8 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
             updatedAt: now,
             data: (params.items ?? []).map(({ input, expected, extra }) => ({
               ...extra,
-              input,
-              expected,
+              input: input ?? null,
+              expected: expected ?? null,
             })),
           };
           return store.update(file(id), async () => {
@@ -158,8 +158,8 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
             ...current,
             data: params.items.map(({ input, expected, extra }) => ({
               ...extra,
-              input,
-              expected,
+              input: input ?? null,
+              expected: expected ?? null,
             })),
             updatedAt: new Date().toISOString(),
             version: (current.version ?? 1) + 1,
@@ -181,8 +181,8 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
               ...current.data,
               ...params.items.map(({ input, expected, extra }) => ({
                 ...extra,
-                input,
-                expected,
+                input: input ?? null,
+                expected: expected ?? null,
               })),
             ],
             updatedAt: new Date().toISOString(),

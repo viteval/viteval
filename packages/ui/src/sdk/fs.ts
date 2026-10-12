@@ -33,7 +33,7 @@ export function createFs(root: string) {
       const files = await fs.readdir(fullPath);
       return files
         .filter((f) => f.endsWith('.json'))
-        .map((f) => f.replace('.json', ''));
+        .map((f) => f.slice(0, -5));
     } catch {
       return [];
     }

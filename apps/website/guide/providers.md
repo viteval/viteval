@@ -273,6 +273,7 @@ referenced by the current catalog. No automatic garbage collection is performed.
 ## Serialization and failures
 
 - Store JSON-compatible inputs, expected values, outputs, and metadata. Dates serialize to ISO strings.
+- Native JSON and SQLite providers normalize undefined inputs, expected values, and outputs to null. Optional object fields remain omitted.
 - Non-finite numbers, BigInt, functions, symbols, cycles, and unsupported object classes fail explicitly.
 - JSON writes use a temporary file and atomic rename. Serialization failure preserves the previous file.
 - Local JSON dataset/tag updates use a cross-process lock. A lock timeout identifies the affected file; if a writer was interrupted, confirm it has stopped before removing its `.lock` directory.

@@ -5,6 +5,7 @@ import type {
   StoredDataItem,
   StoredDataset,
 } from '@viteval/core';
+import { serializeJson } from '@viteval/internal';
 import type { PrismaClient } from '#/generated/prisma/client';
 
 /**
@@ -25,9 +26,9 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
             data: params.items.map((item, ordinal) => ({
               id: createId(),
               datasetId: params.datasetId,
-              input: JSON.stringify(item.input ?? null),
-              expected: JSON.stringify(item.expected ?? null),
-              extra: JSON.stringify(item.extra ?? {}),
+              input: serializeJson(item.input ?? null),
+              expected: serializeJson(item.expected ?? null),
+              extra: serializeJson(item.extra ?? {}),
               ordinal,
             })),
           });
@@ -51,10 +52,10 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
           await tx.datasetItem.createMany({
             data: params.items.map((item, i) => ({
               datasetId: params.datasetId,
-              expected: JSON.stringify(item.expected),
-              extra: JSON.stringify(item.extra ?? {}),
+              expected: serializeJson(item.expected ?? null),
+              extra: serializeJson(item.extra ?? {}),
               id: createId(),
-              input: JSON.stringify(item.input),
+              input: serializeJson(item.input ?? null),
               ordinal: maxOrdinal + 1 + i,
             })),
           });
@@ -75,15 +76,15 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
             items: params.items
               ? {
                   create: params.items.map((item, i) => ({
-                    expected: JSON.stringify(item.expected),
-                    extra: JSON.stringify(item.extra ?? {}),
+                    expected: serializeJson(item.expected ?? null),
+                    extra: serializeJson(item.extra ?? {}),
                     id: createId(),
-                    input: JSON.stringify(item.input),
+                    input: serializeJson(item.input ?? null),
                     ordinal: i,
                   })),
                 }
               : undefined,
-            metadata: JSON.stringify(params.metadata ?? {}),
+            metadata: serializeJson(params.metadata ?? {}),
             name: params.name,
           },
           include: { _count: { select: { items: true } } },
@@ -147,7 +148,7 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
           data: {
             description: params.description,
             metadata: params.metadata
-              ? JSON.stringify(params.metadata)
+              ? serializeJson(params.metadata)
               : undefined,
             name: params.name,
           },
