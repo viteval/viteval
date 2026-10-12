@@ -1,4 +1,5 @@
 import type { EmbeddingModel, LanguageModel } from 'ai';
+import { err, ok, type Result } from 'massaman/control';
 
 /**
  * Get the language model.
@@ -10,19 +11,18 @@ export function getModel(): LanguageModel | null {
 }
 
 /**
- * Get the language model, throwing if not initialized.
+ * Get the initialized language model.
  *
- * @returns The initialized language model.
- * @throws If the model has not been initialized via `defineConfig()`.
+ * @returns The initialized language model or an initialization error.
  */
-export function requireModel(): LanguageModel {
+export function requireModel(): Result<LanguageModel> {
   const model = getModel();
   if (!model) {
-    throw new Error(
-      'Model not initialized. Configure a model in your viteval config.'
+    return err(
+      'Model not initialized. Call initializeModel() from a Vitest setup file.'
     );
   }
-  return model;
+  return ok(model);
 }
 
 /**
@@ -35,17 +35,16 @@ export function getEmbeddingModel(): EmbeddingModel | null {
 }
 
 /**
- * Get the embedding model, throwing if not configured.
+ * Get the configured embedding model.
  *
- * @returns The initialized embedding model.
- * @throws If no embedding model was provided in the model config.
+ * @returns The initialized embedding model or a configuration error.
  */
-export function requireEmbeddingModel(): EmbeddingModel {
+export function requireEmbeddingModel(): Result<EmbeddingModel> {
   const model = getEmbeddingModel();
   if (!model) {
-    throw new Error(
+    return err(
       'Embedding model not configured. Add an embedding model to your model config to use embedding-based scorers.'
     );
   }
-  return model;
+  return ok(model);
 }

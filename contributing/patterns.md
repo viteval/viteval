@@ -9,7 +9,7 @@ Global code patterns for the Viteval codebase.
 Use `#/` within packages to import from other files in the same package:
 
 ```ts
-import { getRuntimeConfig } from '#/internals/config';
+import { resolve } from '#/internals/utils';
 ```
 
 Configured in `tsconfig.json`:

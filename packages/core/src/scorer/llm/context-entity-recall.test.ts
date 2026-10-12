@@ -11,9 +11,9 @@ import { contextEntityRecall } from './context-entity-recall';
 describe('contextEntityRecall', () => {
   it('should call runJudge with entity recall prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'A',
-      rationale: 'All entities found',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'A', rationale: 'All entities found', score: 1 },
     });
 
     const scorer = contextEntityRecall();

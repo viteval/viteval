@@ -11,9 +11,9 @@ import { answerCorrectness } from './answer-correctness';
 describe('answerCorrectness', () => {
   it('should call runJudge with correctness prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'A',
-      rationale: 'Completely correct',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'A', rationale: 'Completely correct', score: 1 },
     });
 
     const scorer = answerCorrectness();

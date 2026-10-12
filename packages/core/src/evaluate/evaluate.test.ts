@@ -2,12 +2,6 @@ import { describe, vi } from 'vitest';
 import { createScorer } from '../scorer/custom';
 import { evaluate } from './evaluate';
 
-vi.mock('#/internals/config', () => ({
-  getRuntimeConfig: () => ({
-    eval: { timeout: 25_000 },
-  }),
-}));
-
 describe('evaluate', () => {
   const mockTask = vi.fn(async ({ input }: { input: string }) =>
     input.toUpperCase()
@@ -61,7 +55,7 @@ describe('evaluate', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
       return input;
     }),
-    timeout: 5000,
+    testOptions: { timeout: 5000 },
   });
 
   evaluate('function-based data', {

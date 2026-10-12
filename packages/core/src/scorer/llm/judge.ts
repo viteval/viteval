@@ -1,5 +1,6 @@
 import type { LanguageModel } from 'ai';
 import { generateObject } from 'ai';
+import { attemptAsync, err, isErr, ok, type Result } from 'massaman/control';
 import Mustache from 'mustache';
 import { z } from 'zod';
 import { requireModel } from '#/model/client';
@@ -32,7 +33,7 @@ export interface JudgeResult {
  *
  * @param config - The judge configuration (prompt template, choice scores, etc.)
  * @param variables - Template variables to render into the prompt.
- * @returns The judge result with score, choice, and optional rationale.
+ * @returns The judge result or the error that prevented evaluation.
  *
  * @example
  * ```ts
@@ -43,13 +44,19 @@ export interface JudgeResult {
  *   },
  *   { input: '2+2', output: '4' }
  * );
+ * if (result.ok) {
+ *   const score = result.value.score;
+ * }
  * ```
  */
 export async function runJudge(
   config: JudgeConfig,
   variables: Record<string, unknown>
-): Promise<JudgeResult> {
-  const model = config.model ?? requireModel();
+): Promise<Result<JudgeResult>> {
+  const modelResult = config.model ? ok(config.model) : requireModel();
+  if (isErr(modelResult)) {
+    return modelResult;
+  }
 
   const renderedPrompt = Mustache.render(config.prompt, variables);
   const choices = Object.keys(config.choiceScores);
@@ -72,21 +79,27 @@ export async function runJudge(
           .describe('The selected choice.'),
       });
 
-  const { object } = await generateObject({
-    model,
-    prompt: `${renderedPrompt}\n\n${systemSuffix}`,
-    schema,
-    temperature: 0,
-  });
-
-  const score = config.choiceScores[object.choice];
-  if (score === undefined) {
-    throw new Error(`Unknown choice "${object.choice}" returned by LLM judge.`);
+  const generationResult = await attemptAsync(() =>
+    generateObject({
+      model: modelResult.value,
+      prompt: `${renderedPrompt}\n\n${systemSuffix}`,
+      schema,
+      temperature: 0,
+    })
+  );
+  if (isErr(generationResult)) {
+    return generationResult;
   }
 
-  return {
+  const { object } = generationResult.value;
+  const score = config.choiceScores[object.choice];
+  if (score === undefined) {
+    return err(`Unknown choice "${object.choice}" returned by LLM judge.`);
+  }
+
+  return ok({
     choice: object.choice,
     rationale: 'reasons' in object ? (object.reasons as string) : undefined,
     score,
-  };
+  });
 }

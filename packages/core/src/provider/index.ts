@@ -1,10 +1,13 @@
 export { initializeProvider } from './initialize';
 export { createProvider } from './create';
+export { createJsonProvider } from './json';
+export { getDatasetProvider } from './client';
 export type {
   Provider,
   ProviderConfig,
   DatasetProvider,
   EvalProvider,
+  TagProvider,
   CreateProviderParams,
   StoredDataset,
   StoredDataItem,
@@ -12,6 +15,9 @@ export type {
   StoredEvalResult,
   StoredEvalConfig,
   StoredEvalSummary,
+  StoredTag,
+  StoredTagging,
+  TagEntityType,
   CreateDatasetParams,
   GetDatasetParams,
   ListDatasetsParams,
@@ -24,4 +30,12 @@ export type {
   ListEvalRunsParams,
   AddEvalResultParams,
   CompleteEvalRunParams,
+  CreateTagParams,
+  UpdateTagParams,
+  DeleteTagParams,
+  ListTagsParams,
+  AddTaggingParams,
+  RemoveTaggingParams,
+  ListTaggingsParams,
+  ListEntitiesForTagParams,
 } from './types';

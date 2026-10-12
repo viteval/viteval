@@ -1,37 +1,31 @@
 import { defineConfig } from 'tsdown';
 
-const baseConfig = defineConfig({
-  config: 'tsconfig.build.json',
-  dts: { build: true },
-  external: [
-    'vite',
-    'vitest',
-    'openai',
-    '@viteval/internal',
-    /^vitest\//,
-    /^vite\//,
-    /^@vitest\//,
-    'fsevents',
-    'lightningcss',
-  ],
+export default defineConfig({
+  deps: {
+    neverBundle: [
+      'vite',
+      'vitest',
+      'openai',
+      '@viteval/internal',
+      /^vitest\//,
+      /^vite\//,
+      /^@vitest\//,
+      'fsevents',
+      'lightningcss',
+    ],
+  },
+  dts: { generator: 'tsgo' },
+  entry: {
+    'provider/index': 'src/provider/index.ts',
+    'config/index': 'src/config/index.ts',
+    'dataset/index': 'src/dataset/index.ts',
+    'main/index': 'src/index.ts',
+    'reporters/index': 'src/reporters/index.ts',
+  },
   format: ['esm'],
+  outDir: 'dist',
   platform: 'node',
   sourcemap: true,
-  splitting: false,
+  tsconfig: 'tsconfig.build.json',
   treeshake: true,
 });
-
-export default defineConfig(
-  [
-    { entry: 'src/index.ts', outDir: 'dist/main' },
-    { entry: 'src/config/index.ts', outDir: 'dist/config' },
-    { entry: 'src/dataset/index.ts', outDir: 'dist/dataset' },
-    { entry: 'src/reporters/index.ts', outDir: 'dist/reporters' },
-    { entry: 'src/runner/index.ts', outDir: 'dist/runner' },
-    { entry: 'src/plugin/index.ts', outDir: 'dist/plugin' },
-  ].map(({ entry, outDir }) => ({
-    ...baseConfig,
-    entry: [entry],
-    outDir,
-  }))
-);

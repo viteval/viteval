@@ -43,12 +43,12 @@ reviews:
     - path: '**'
       instructions: |
         ## Review Standards
-        Check CLAUDE.md and contributing/ directory for standards and guidelines before reviewing.
+        Check AGENTS.md and contributing/ directory for standards and guidelines before reviewing.
         Key areas:
         - contributing/standards.md - Code standards and conventions
         - contributing/patterns.md - Code patterns
         - contributing/architecture.md - Package relationships and design
-        - CLAUDE.md - Repository rules and conventions
+        - AGENTS.md - Repository rules and conventions
 
         ## High Signal Only
         Only flag issues that meet these criteria:
@@ -67,7 +67,7 @@ reviews:
       instructions: |
         ## TypeScript Patterns
         Check contributing/standards.md for conventions:
-        - Use ts-pattern for conditional logic with 2+ branches instead of switch statements
+        - Use massaman/match for conditional logic with 2+ branches instead of switch statements
         - Prefer exhaustive pattern matching for type safety
         - No 'any' type - use 'unknown' and narrow appropriately
         - Object params when 2+ parameters (define *Params interface)
@@ -79,9 +79,11 @@ reviews:
         ## Core Package
         This is the main evaluation framework package. Check:
         - Scorers follow createScorer() factory pattern
-        - Provider interactions use requireClient() from client.ts
+        - Models and providers initialize in native Vitest setup files
+        - Model access uses Result-returning requireModel() and requireEmbeddingModel()
+        - Dataset and evaluation persistence use the shared provider contracts
         - LLM judge scorers use createJudgeScorer() factory
-        - Embedding scorers use computeEmbeddingSimilarity() shared helper
+        - Embedding scorers use the shared Result-returning embedding helper
 
     - path: '**/package.json'
       instructions: |

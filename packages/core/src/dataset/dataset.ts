@@ -1,4 +1,4 @@
-import { findRoot } from '#/internals/utils';
+import { attemptAsync, isErr, ok, type Result } from 'massaman/control';
 import type {
   DataGenerator,
   DataItem,
@@ -54,60 +54,80 @@ export function defineDataset<
   >,
 >(config: DatasetConfig<DATA_FUNC>): Dataset<DATA_FUNC, DATA_ITEM> {
   const finalStorage = config.storage ?? 'local';
-  return {
+  const dataset: Dataset<DATA_FUNC, DATA_ITEM> = {
     name: config.name,
+    description: config.description,
     storage: finalStorage,
     async exists() {
       if (finalStorage === 'memory') {
-        return false;
+        return ok(false);
       }
 
       const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
+        description: config.description,
         name: config.name,
-        root: await findRoot(process.cwd()),
+        root: process.cwd(),
         storage: finalStorage,
       });
       return await storage.exists();
     },
     async load(options) {
       if (finalStorage === 'memory') {
-        return (await config.data()) as DATA_ITEM[];
+        return await attemptAsync(
+          async () => (await config.data()) as DATA_ITEM[]
+        );
       }
 
       const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
+        description: config.description,
         name: config.name,
-        root: await findRoot(process.cwd()),
+        root: process.cwd(),
         storage: finalStorage,
       });
-      const data = await storage.load();
-
-      if (options?.create === true && !data) {
-        const newData = await config.data();
-        await storage.save(newData as DATA_ITEM[]);
-        return newData as DATA_ITEM[];
+      const result = (await storage.load()) as Result<DATA_ITEM[] | null>;
+      if (isErr(result)) {
+        return result;
       }
 
-      return data as DATA_ITEM[];
+      if (options?.create === true && !result.value) {
+        const generated = await attemptAsync(
+          async () => (await config.data()) as DATA_ITEM[]
+        );
+        if (isErr(generated)) {
+          return generated;
+        }
+        const saved = await storage.save(generated.value);
+        return isErr(saved) ? saved : generated;
+      }
+
+      return result;
     },
     async save(options) {
       if (finalStorage === 'memory') {
-        return;
+        return ok(undefined);
       }
 
       const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
+        description: config.description,
         name: config.name,
-        root: await findRoot(process.cwd()),
+        root: process.cwd(),
         storage: finalStorage,
       });
 
-      if (options?.overwrite !== true && (await storage.exists())) {
-        return;
+      const exists = await storage.exists();
+      if (isErr(exists)) {
+        return exists;
+      }
+      if (options?.overwrite !== true && exists.value) {
+        return ok(undefined);
       }
 
-      const data = await config.data();
-      await storage.save(data as DATA_ITEM[]);
+      const data = await attemptAsync(
+        async () => (await config.data()) as DATA_ITEM[]
+      );
+      return isErr(data) ? data : await storage.save(data.value);
     },
-    // @ts-expect-error - allowed, internal only
-    ___viteval_type: 'dataset',
   };
+  globalThis.__viteval_datasetDiscovery?.register(dataset);
+  return dataset;
 }

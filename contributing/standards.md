@@ -38,7 +38,7 @@ Detailed TypeScript and development standards for viteval. For the quick version
 
 ### Conditionals
 
-- Use **ts-pattern** for 2+ conditional branches:
+- Use **`massaman/match`** for 2+ conditional branches:
   - Always call `.exhaustive()` for compile-time safety
   - Use inferred types from callback parameters (never cast)
   - Match on shape directly, don't pre-categorize
@@ -54,7 +54,7 @@ Detailed TypeScript and development standards for viteval. For the quick version
 - Define **domain-specific error types** (not generic `Error`)
 - Never throw in Result-returning functions
 - Chain Results with early returns for clean flow
-- Combine Result + ts-pattern for exhaustive error handling
+- Combine Massaman Result + `massaman/match` for exhaustive error handling
 
 ### State
 
@@ -81,7 +81,7 @@ Detailed TypeScript and development standards for viteval. For the quick version
 
 ### Utilities
 
-- **Always check es-toolkit first** before writing utility functions
+- **Always check Massaman first** before writing utility functions; it proxies es-toolkit
 - Common categories:
   - **Type guards**: `isNil`, `isNull`, `isUndefined`, `isString`, `isNumber`, `isPlainObject`
   - **Objects**: `pick`, `omit`, `mapValues`, `merge`, `clone`, `cloneDeep`
@@ -96,7 +96,7 @@ Detailed TypeScript and development standards for viteval. For the quick version
 
 1. **Imports** — grouped with blank lines between groups:
    1. Node built-ins (`node:fs`, `node:path`)
-   2. External packages (`es-toolkit`, `ts-pattern`)
+   2. External packages (`massaman/control`, `massaman/match`)
    3. Internal packages (`@viteval/core`, `@viteval/internal`)
    4. Relative imports (`#/internals/config`, `./types`)
 2. **Types** — type definitions, interfaces, schemas
