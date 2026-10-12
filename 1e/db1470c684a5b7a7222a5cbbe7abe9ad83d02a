@@ -1,0 +1,19 @@
+.github/workflows/publish.yaml
+  s_b2ebb14b88ff45::t_0d1e7d49640498 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1edb1470c684a5b7a7222a5cbbe7abe9ad83d02a",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
