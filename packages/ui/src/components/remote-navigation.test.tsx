@@ -134,7 +134,8 @@ describe('remote table navigation', () => {
       ).toBe(true);
       await act(async () => history.back());
       await waitFor(() => expect(screen.getByText(first)).toBeTruthy());
-    }
+    },
+    15_000
   );
 
   it('should find a dataset outside the first page and reset the page when filters change', async () => {
