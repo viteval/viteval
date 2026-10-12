@@ -19,6 +19,21 @@ afterEach(async () => {
 });
 
 describe('JsonReporter', () => {
+  it('should retain each suite end time instead of extending it to reporter projection time', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(10_000);
+    const reporter = createReporter();
+    await reporter.onTestRunEnd(
+      [createMockModule([{ state: 'passed' }, { state: 'passed' }])],
+      [],
+      'passed'
+    );
+    expect((await readResults()).evalResults[0]).toMatchObject({
+      startTime: 1_000,
+      endTime: 1_020,
+      duration: 20,
+    });
+  });
+
   it('projects final Vitest task states and evaluation artifacts', async () => {
     const reporter = createReporter();
     const testModule = createMockModule([

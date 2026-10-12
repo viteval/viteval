@@ -14,6 +14,77 @@ afterEach(async () => {
 });
 
 describe('createJsonProvider', () => {
+  it('should retain raw legacy filenames and distinguish encoded-looking names during CRUD', async () => {
+    const directory = path.join(root, '.viteval/datasets');
+    await mkdir(directory, { recursive: true });
+    const names = ['my dataset', 'percent%value', 'encoded%20name'];
+    for (const name of names) {
+      await writeFile(
+        path.join(directory, `${name}.json`),
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          data: [{ input: name, expected: null }],
+        })
+      );
+    }
+    const datasets = createJsonProvider({ root }).datasets!;
+    const listed = await datasets.list();
+    if (!listed.ok) throw listed.error;
+    expect(listed.value.map((dataset) => dataset.id).toSorted()).toEqual(
+      names.toSorted()
+    );
+    const collision = await datasets.create({
+      name: 'encoded name',
+      items: [{ input: 'new', expected: null }],
+    });
+    if (!collision.ok) throw collision.error;
+    expect(collision.value.id).not.toBe('encoded name');
+    expect(
+      await datasets.getItems({ datasetId: 'encoded%20name' })
+    ).toMatchObject({ ok: true, value: [{ input: 'encoded%20name' }] });
+    for (const id of names) {
+      expect(await datasets.get({ id })).toMatchObject({
+        ok: true,
+        value: { id },
+      });
+      expect(
+        await datasets.addItems({
+          datasetId: id,
+          items: [{ input: 'appended', expected: null }],
+        })
+      ).toMatchObject({ ok: true });
+      expect(await datasets.getItems({ datasetId: id })).toMatchObject({
+        ok: true,
+        value: [{ input: id }, { input: 'appended' }],
+      });
+      expect(
+        await datasets.replaceItems!({
+          datasetId: id,
+          items: [{ input: 'replacement', expected: null }],
+        })
+      ).toMatchObject({ ok: true });
+      expect(
+        await datasets.update({ id, name: `renamed ${id}` })
+      ).toMatchObject({ ok: true });
+      expect(await datasets.get({ name: `renamed ${id}` })).toMatchObject({
+        ok: true,
+        value: { id },
+      });
+      expect(await datasets.getItems({ datasetId: id })).toMatchObject({
+        ok: true,
+        value: [{ input: 'replacement' }],
+      });
+      expect(await datasets.delete({ id })).toMatchObject({ ok: true });
+      expect(await datasets.get({ id })).toMatchObject({
+        ok: true,
+        value: null,
+      });
+    }
+    expect(
+      await datasets.getItems({ datasetId: collision.value.id })
+    ).toMatchObject({ ok: true, value: [{ input: 'new' }] });
+  });
+
   it('should persist undefined dataset values as null across create, append, and replacement', async () => {
     const datasets = createJsonProvider({ root }).datasets!;
     const item = {
