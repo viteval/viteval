@@ -7,8 +7,8 @@ on:
   workflow_dispatch: {}
 
 env:
-  NODE_VERSION: 24
-  PNPM_VERSION: 10.14.0
+  NODE_VERSION: 26
+  PNPM_VERSION: 12.11.2
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -17,6 +17,7 @@ concurrency:
 jobs:
   release:
     name: Release
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -25,37 +26,71 @@ jobs:
 
     steps:
       - name: '⬇️ Checkout Repo'
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: '🟨 Install pnpm'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: '💚 Setup Node'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+          check-latest: true
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
       - name: '📦 Install Packages'
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify manually dispatched RC
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          pnpm exec node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          const pre = JSON.parse(await readFile('.changeset/pre.json', 'utf8'));
+          assert.equal(pre.mode, 'pre');
+          assert.equal(pre.tag, 'rc');
+          const versions = new Set();
+          for (const name of ['internal', 'core', 'providers', 'ui', 'cli', 'viteval']) {
+            const manifest = JSON.parse(await readFile(`packages/${name}/package.json`, 'utf8'));
+            assert.match(manifest.version, /^\d+\.\d+\.\d+-rc\.\d+$/);
+            versions.add(manifest.version);
+          }
+          assert.equal(versions.size, 1, 'All RC package versions must match');
+          NODE
+
+      - name: Validate release
+        run: pnpm validate && pnpm validate:consumer
+
+      - name: Pack manually dispatched RC
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: pnpm changeset pack --out-dir "$RUNNER_TEMP/rc-packages"
+
+      - name: Upload RC packages
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rc-packages
+          path: ${{ runner.temp }}/rc-packages
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish manually dispatched RC
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: pnpm changeset publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: '🔄 Create Release Pull Request or Publish'
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
-          createGithubReleases: true
-          publish: pnpm run publish
-          version: pnpm run version
-          title: >-
-            ${{ github.ref_name == 'main' && 'chore(release): publish a new stable version' || 'chore(release): publish a new pre-release version' }}
-          commit: >-
-            ${{ github.ref_name == 'main' && 'chore(release): publish a new stable version' || 'chore(release): publish a new pre-release version' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: '🚀 Publish'
-        if: steps.changesets.outputs.hasChangesets == 'false'
-        run: pnpm run publish
+          create-github-releases: true
+          publish-script: pnpm run publish
+          version-script: pnpm run version
+          pr-title: 'chore(release): version packages'
+          commit-message: 'chore(release): version packages'
