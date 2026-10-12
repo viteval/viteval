@@ -1,5 +1,5 @@
 import type Braintrust from '@braintrust/api';
-import { withResult } from '@viteval/internal';
+import { attemptAsync, isErr, ok } from 'massaman/control';
 import type { Provider } from '@viteval/core';
 import { createBraintrustClient } from './client';
 import { createBraintrustDatasetOps } from './datasets';
@@ -29,30 +29,42 @@ import type { BraintrustProviderOptions } from './types';
  */
 export function braintrust(options: BraintrustProviderOptions): Provider {
   const getClient = createBraintrustClient(options);
-  let projectId: string | undefined;
-
-  const getProjectId = (): string => {
-    if (!projectId) {
-      throw new Error(
-        'Braintrust provider not initialized. Call initialize() first.'
-      );
-    }
-    return projectId;
-  };
+  let datasets: ReturnType<typeof createBraintrustDatasetOps> | undefined;
+  let evals: ReturnType<typeof createBraintrustEvalOps> | undefined;
 
   return {
     close: () =>
-      withResult(async () => {
+      attemptAsync(async () => {
         // No persistent connections to close — HTTP client is stateless
       }),
-    datasets: createBraintrustDatasetOps(getClient, getProjectId),
-    evals: createBraintrustEvalOps(getClient, getProjectId),
+    get datasets() {
+      return datasets;
+    },
+    get evals() {
+      return evals;
+    },
 
-    initialize: () =>
-      withResult(async () => {
-        const client = await getClient();
-        projectId = await resolveProjectId(client, options.project);
-      }),
+    initialize: async () => {
+      const clientResult = await getClient();
+      if (isErr(clientResult)) {
+        return clientResult;
+      }
+
+      const client = clientResult.value;
+      const projectResult = await attemptAsync(() =>
+        resolveProjectId(client, options.project)
+      );
+      if (isErr(projectResult)) {
+        return projectResult;
+      }
+
+      const projectId = projectResult.value;
+      const getInitializedClient = async () => client;
+      const getProjectId = () => projectId;
+      datasets = createBraintrustDatasetOps(getInitializedClient, getProjectId);
+      evals = createBraintrustEvalOps(getInitializedClient, getProjectId);
+      return ok(undefined);
+    },
 
     name: 'braintrust',
   };

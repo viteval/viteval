@@ -2,8 +2,15 @@
  * Configuration for the native viteval provider.
  */
 export type VitevalProviderOptions =
+  | VitevalJsonOptions
   | VitevalSqliteOptions
   | VitevalPostgresOptions;
+
+/** Local JSON configuration (default). */
+export interface VitevalJsonOptions {
+  database?: 'json';
+  root?: string;
+}
 
 /**
  * SQLite configuration (default).

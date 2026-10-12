@@ -1,6 +1,6 @@
 {
   "name": "viteval",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "Next generation LLM evaluation framework powered by Vitest.",
   "keywords": [
     "ai",
@@ -19,10 +19,18 @@
   "bin": {
     "viteval": "./cli.mjs"
   },
+  "files": [
+    "cli.mjs",
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.mjs",
   "types": "dist/index.d.mts",
   "exports": {
+    "./provider": {
+      "types": "./dist/provider.d.mts",
+      "import": "./dist/provider.mjs"
+    },
     ".": {
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
@@ -34,26 +42,30 @@
     "./dataset": {
       "types": "./dist/dataset.d.mts",
       "import": "./dist/dataset.mjs"
+    },
+    "./reporters": {
+      "types": "./dist/reporters.d.mts",
+      "import": "./dist/reporters.mjs"
     }
   },
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "test": "vitest --typecheck --passWithNoTests",
+    "test": "vitest run --typecheck --passWithNoTests",
     "types": "tsc --noEmit"
   },
   "dependencies": {
     "@viteval/cli": "workspace:*",
     "@viteval/core": "workspace:*",
-    "@viteval/internal": "workspace:*",
-    "@viteval/providers": "workspace:*",
-    "@viteval/ui": "workspace:*",
-    "vitest": "^4.1.2"
+    "vitest": "^5.0.3"
   },
   "devDependencies": {
-    "@tsconfig/node24": "^24.0.4",
-    "@types/node": "^25.5.0",
-    "tsdown": "^0.21.7",
-    "typescript": "^6.0.2"
+    "@tsconfig/node24": "^24.0.5",
+    "@types/node": "^26.6.5",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=26.0.0"
   }
 }
