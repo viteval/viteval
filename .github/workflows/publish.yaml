@@ -80,7 +80,10 @@ jobs:
 
       - name: Publish manually dispatched RC
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: pnpm changeset publish
+        run: |
+          pnpm --filter @viteval/cli publish --tag rc --access public --publish-branch "$GITHUB_REF_NAME"
+          pnpm --filter viteval publish --tag rc --access public --publish-branch "$GITHUB_REF_NAME"
+          pnpm changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
