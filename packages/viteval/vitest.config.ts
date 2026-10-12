@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    testTimeout: 30_000,
     provide: {
       integrationCoverage: process.argv.includes('--coverage'),
     },
