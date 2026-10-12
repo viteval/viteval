@@ -1,0 +1,38 @@
+packages/core/src/provider/json.test.ts
+  s_b2ebb14b88ff45::t_865c7863d62976 17-21,29-32,40-41,45,77,82,86-87
+  s_b2ebb14b88ff45::t_c9718117de34fa 22-28,33-39,42-44,46-76,78-81,83-85
+.changeset/core-review-correctness.md
+  s_b2ebb14b88ff45::t_865c7863d62976 1-9
+packages/core/src/scorer/llm/judge.ts
+  s_b2ebb14b88ff45::t_425b68bb51249d 81-83,88-89
+packages/core/src/provider/json-datasets.ts
+  s_b2ebb14b88ff45::t_c9718117de34fa 24-28,33-35,50-54,81-86,134-136
+  s_b2ebb14b88ff45::t_425b68bb51249d 32,36,102-103,107,127,133,141,162-163,165,170,183-184,186,191
+packages/core/src/reporters/json.test.ts
+  s_b2ebb14b88ff45::t_c9718117de34fa 25-34
+  s_b2ebb14b88ff45::t_865c7863d62976 22-24,35-36
+packages/core/vitest.config.ts
+  s_b2ebb14b88ff45::t_425b68bb51249d 1
+  s_b2ebb14b88ff45::t_c9718117de34fa 20-22
+packages/core/src/scorer/llm/judge.test.ts
+  s_b2ebb14b88ff45::t_865c7863d62976 1-6,15-19
+  s_b2ebb14b88ff45::t_c9718117de34fa 7-14
+packages/core/src/reporters/json.ts
+  s_b2ebb14b88ff45::t_425b68bb51249d 310,348,351-352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ac736c82d6f2641ba546e1f5e5bed2e6153331a0",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
