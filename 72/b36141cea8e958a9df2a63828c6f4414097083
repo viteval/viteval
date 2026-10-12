@@ -1,0 +1,139 @@
+packages/cli/build-binary.ts
+  s_b2ebb14b88ff45::t_393b20be5ce583 1-65
+packages/cli/package.json
+  s_b2ebb14b88ff45::t_f492db1d40c340 3,11-15,20,22-24,32-37,40-51
+packages/cli/src/commands/data/bootstrap.ts
+  s_b2ebb14b88ff45::t_a070ef5bcaedd0 1-66
+packages/cli/src/commands/data/command.ts
+  s_b2ebb14b88ff45::t_ae341182b80b65 2-3,5-30,32-68,70-86,88-89,91-97,99-111,114-181,184-185,188-189,191-203,209-210,213,215-220,222-224,226-229,231-242
+packages/cli/src/commands/data/worker.ts
+  s_b2ebb14b88ff45::t_da3c49910c4d40 1-104
+packages/cli/src/commands/init/command.ts
+  s_b2ebb14b88ff45::t_13ebcc5c0176fa 3-5,9-23,28-33,38,40-45,47,49,51,57-60,63,65-77,81-82,84-91,94-100,102-105,110-112,114
+packages/cli/src/commands/ui.ts
+  s_b2ebb14b88ff45::t_f287f6e8b2d532 2,4,6-24,26,31,35,37,39-47,50
+packages/cli/src/index.ts
+  s_b2ebb14b88ff45::t_c14d1da89c8fb3 1-2,4,6-48
+packages/cli/src/lib/argv.ts
+  s_b2ebb14b88ff45::t_d341b24ecf3f49 1-29
+packages/cli/src/lib/command-options.ts
+  s_b2ebb14b88ff45::t_4469d08e5c3399 1-83
+packages/cli/src/lib/node-cli.ts
+  s_b2ebb14b88ff45::t_1a2e2d129c10ae 1-3,5-38,40-42,46-68,71-73
+packages/cli/src/lib/utils.ts
+  s_b2ebb14b88ff45::t_5bb942461fb460 10
+packages/cli/src/native/commands/data.ts
+  s_b2ebb14b88ff45::t_e13f4ac889bd01 1-10
+packages/cli/src/native/commands/init.ts
+  s_b2ebb14b88ff45::t_ea8591c39dc2b6 1
+packages/cli/src/native/commands/ui.ts
+  s_b2ebb14b88ff45::t_dce227b80d157d 1-9
+packages/cli/src/native/index.ts
+  s_b2ebb14b88ff45::t_6b58bd937ece9d 1-40
+packages/cli/src/templates/index.ts
+  s_b2ebb14b88ff45::t_ec562e91a0dac2 1-2,4-6,8-33,46-50,52,62-63
+packages/cli/src/templates/vitest.config.ts.template
+  s_b2ebb14b88ff45::t_0cb723cf6f212f 2,5,7-10
+packages/cli/test-binary.ts
+  s_b2ebb14b88ff45::t_f502e2d26accc9 1-36
+packages/cli/tsconfig.scripts.json
+  s_b2ebb14b88ff45::t_aabd8ba2fdd6fb 1-8
+packages/cli/tsdown.config.ts
+  s_b2ebb14b88ff45::t_6f0808cb8c2a6e 10-27
+packages/providers/package.json
+  s_b2ebb14b88ff45::t_ed8ef33b75f81c 3-4,28-43,47,49-51,54,57,60,62-81,84,86-91,93-95,99-128,138-140
+packages/providers/prisma/schema.prisma
+  s_b2ebb14b88ff45::t_098ff28d851095 2-4,51,78-104
+packages/providers/src/braintrust/client.ts
+  s_b2ebb14b88ff45::t_1bf5590e9f898e 2,16,21,24-26,37-40,47
+packages/providers/src/braintrust/datasets.ts
+  s_b2ebb14b88ff45::t_b1717403603fe7 2,21-35,37,49,51,56-62,78,84,112,114-119,133,162,194-216
+packages/providers/src/braintrust/evals.ts
+  s_b2ebb14b88ff45::t_dd3dfe0688295d 2-3,26,31-32,50-53,55-60,62,68-71,87-88,91,93,96,99,107,114,116,124,131-147,156,158,244-248,260-264
+packages/providers/src/braintrust/provider.test.ts
+  s_b2ebb14b88ff45::t_c294a2384cc1fa 1-344
+packages/providers/src/braintrust/provider.ts
+  s_b2ebb14b88ff45::t_bf486e97d430b4 2,32-33,37,40-45,47-67
+packages/providers/src/gcs.ts
+  s_b2ebb14b88ff45::t_995846d91528d3 1-114
+packages/providers/src/hosted.test.ts
+  s_b2ebb14b88ff45::t_fe9948e48e3bf4 1-648
+packages/providers/src/langfuse.ts
+  s_b2ebb14b88ff45::t_b59a3da9a723df 1-2
+packages/providers/src/langfuse/datasets.ts
+  s_b2ebb14b88ff45::t_9b00a65a9abfcb 1-177
+packages/providers/src/langfuse/provider.ts
+  s_b2ebb14b88ff45::t_d19693838fbe40 1-363
+packages/providers/src/object-storage/datasets.test.ts
+  s_b2ebb14b88ff45::t_8a5c91873cfd75 1-690
+packages/providers/src/object-storage/datasets.ts
+  s_b2ebb14b88ff45::t_1d8033ca70a4f2 1-417
+packages/providers/src/remote-record.ts
+  s_b2ebb14b88ff45::t_44410a3f8d7e06 1-161
+packages/providers/src/s3.ts
+  s_b2ebb14b88ff45::t_533d588c441d2a 1-94
+packages/providers/src/viteval/datasets.ts
+  s_b2ebb14b88ff45::t_63478078a76b71 2,8-9,19-40,42,55-56,58,71,79-80,82,87,97,102,122,134,146,151
+packages/providers/src/viteval/db.ts
+  s_b2ebb14b88ff45::t_8085f3528a895a 2-4,17,19-29,31-41,56-61
+packages/providers/src/viteval/evals.ts
+  s_b2ebb14b88ff45::t_203a3f56c29152 2,8-9,26,31,33,36-37,39,48,52,54,57-58,60,85,90,99,102,105,114,138
+packages/providers/src/viteval/provider.test.ts
+  s_b2ebb14b88ff45::t_cbd63fa461cd75 1-286
+packages/providers/src/viteval/provider.ts
+  s_b2ebb14b88ff45::t_ab3438dbbff168 3-5,9-14,19-20,26,28,32-33,40-44,48-59,65,69,75,88,101-103,107-110,203-233
+packages/providers/src/viteval/tags.ts
+  s_b2ebb14b88ff45::t_e4fb60ae18f92c 1-167
+packages/providers/src/viteval/types.ts
+  s_b2ebb14b88ff45::t_d753357e5a0aa6 5,9-14
+packages/providers/src/voltops.ts
+  s_b2ebb14b88ff45::t_99a7b744a9511c 1-2
+packages/providers/src/voltops/datasets.ts
+  s_b2ebb14b88ff45::t_fe2399464ba361 1-194
+packages/providers/src/voltops/provider.ts
+  s_b2ebb14b88ff45::t_9d3055e63a59f3 1-277
+packages/providers/tsconfig.json
+  s_b2ebb14b88ff45::t_ddd3bb8f7ce5c7 16-17
+packages/providers/tsdown.config.ts
+  s_b2ebb14b88ff45::t_4662aafde95292 5-32,40
+packages/providers/vitest.config.ts
+  s_b2ebb14b88ff45::t_e9069dde7dddc9 1-6
+packages/viteval/cli.test.ts
+  s_b2ebb14b88ff45::t_4e1d3b3f610f45 1,3,8-9,17-24,32-50,52-61,79-81,88-90,93,112-113,128,132-740,743-886
+packages/viteval/evaluation.test.ts
+  s_b2ebb14b88ff45::t_b95d96a8f2fddd 1-589
+packages/viteval/package.json
+  s_b2ebb14b88ff45::t_c25cb75aad10d7 3,22-25,30-33,45-48,54,60,63-69
+packages/viteval/src/config.ts
+  s_b2ebb14b88ff45::t_b31961550b77bf 1-2
+packages/viteval/src/index.ts
+  s_b2ebb14b88ff45::t_83dcb3f12131ab 18,23
+packages/viteval/src/provider.ts
+  s_b2ebb14b88ff45::t_5f16e068b514a5 1
+packages/viteval/src/reporters.ts
+  s_b2ebb14b88ff45::t_8da916ca96265c 1
+packages/viteval/tsdown.config.ts
+  s_b2ebb14b88ff45::t_670f837244d425 6-12
+packages/viteval/vitest.config.ts
+  s_b2ebb14b88ff45::t_38e4e92a5c22a6 12-15,18-23
+scripts/merge-integration-coverage.mjs
+  s_b2ebb14b88ff45::t_db234ce081a3c7 1-56
+scripts/validate-consumer.mjs
+  s_b2ebb14b88ff45::t_ea0fa4ea54ab62 1-353
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "72b36141cea8e958a9df2a63828c6f4414097083",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
