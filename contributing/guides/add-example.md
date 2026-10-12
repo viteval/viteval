@@ -7,7 +7,7 @@ Create a new example project demonstrating Viteval usage.
 ### 1. Run the generator
 
 ```bash
-pnpm gen @tools/core:example my-example
+pnpm gen example --args my-example "Example description"
 ```
 
 ### 2. Follow the prompts
@@ -16,7 +16,7 @@ The generator creates:
 
 - `examples/my-example/` directory
 - `package.json` with viteval dependency
-- `viteval.config.ts` configuration
+- `vitest.config.ts` configuration
 - Example evaluation file
 
 ### 3. Install dependencies
@@ -74,14 +74,15 @@ mkdir -p examples/my-example
 }
 ```
 
-### 4. Create viteval.config.ts
+### 4. Create vitest.config.ts
 
 ```ts
 import { defineConfig } from 'viteval/config';
 
 export default defineConfig({
-  eval: {
-    timeout: 30000,
+  test: {
+    include: ['src/**/*.eval.ts'],
+    testTimeout: 30_000,
   },
 });
 ```

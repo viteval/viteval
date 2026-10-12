@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { generateObject } from 'ai';
+import { generateText, Output } from 'ai';
 import { defineDataset } from 'viteval/dataset';
 import { z } from 'zod';
 import { categories } from '#/lib/categories';
@@ -8,7 +8,7 @@ export default defineDataset({
   data: async () =>
     await Promise.all(
       categories.map(async ({ name, description }) => {
-        const { object } = await generateObject({
+        const { output } = await generateText({
           model: openai('gpt-5'),
           prompt: `
           Generate a question for this category: 
@@ -17,11 +17,13 @@ export default defineDataset({
           name: ${name}
           description: ${description}
           `,
-          schema: z.object({
-            answer: z.string().describe('The answer to the question'),
-            question: z.string().describe('The question to answer'),
+          output: Output.object({
+            schema: z.object({
+              answer: z.string().describe('The answer to the question'),
+              question: z.string().describe('The question to answer'),
+            }),
           }),
-          system: `
+          instructions: `
           You are an expert at generating test data. You will generate a question and the expected answer based on the provided category.
           Be succinct in you questions and answers. The question should be a single sentence, and the answer should be a single sentence or less.
           `,
@@ -29,8 +31,8 @@ export default defineDataset({
 
         return {
           category: name,
-          expected: object.answer,
-          input: object.question,
+          expected: output.answer,
+          input: output.question,
         };
       })
     ),

@@ -1,11 +1,11 @@
-# `<%= name %>`
+# `{{name}}`
 
-<%= description %>
+{{description}}
 
 ## 🚀 Quick Start
 
 ```bash
-pnpm install @voltagent/<%= name %>
+pnpm install @viteval/{{name}}
 ```
 
 ```typescript

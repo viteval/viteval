@@ -1,27 +1,19 @@
-# ⚒️ Tools
+# Tools
 
-Internal tools for building, maintaining, testing, and publishing VoltAgent packages.
+Internal tools for building, maintaining, testing, and publishing Viteval packages.
 
 ## Getting Started
 
-We (primarily) use [nx](https://nx.dev) plugins for our tooling.
+The repository uses [Turborepo](https://turborepo.com) for task orchestration and code generation.
 
-## `nx` plugins
-
-You can see a full list of the nx plugins (our primary interface for tooling) by running:
-
-```bash
-pnpm nx list core
-```
-
-### Generators
+## Generators
 
 #### `generate-package`
 
 You can generate a new package by running:
 
 ```bash
-pnpm nx generate core:package my-package
+pnpm gen package --args my-package "Package description"
 ```
 
 This will create a new package (e.g. `my-package`) in the `packages` directory.
@@ -31,7 +23,7 @@ This will create a new package (e.g. `my-package`) in the `packages` directory.
 You can generate a new example project by running:
 
 ```bash
-pnpm nx generate core:example my-example
+pnpm gen example --args my-example "Example description"
 ```
 
 This will create a new example project (e.g. `my-example`) in the `examples` directory.

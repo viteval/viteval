@@ -59,7 +59,7 @@ Unique identifier for the dataset.
 ```ts
 defineDataset({
   name: 'math-problems',
-  // ...
+  data: async () => [{ input: '2 + 2', expected: '4' }],
 });
 ```
 
@@ -72,7 +72,7 @@ Function that generates or loads the dataset.
 
 ```ts
 // Static data
-data: () => [
+data: async () => [
   { input: '2 + 2', expected: '4' },
   { input: '3 + 3', expected: '6' },
 ];
@@ -132,14 +132,11 @@ type DataItem<
   INPUT = unknown,
   OUTPUT = unknown,
   EXTRA extends Extra = Extra,
-> = TF.Merge<
-  EXTRA,
-  {
-    name?: string;
-    input: INPUT;
-    expected?: OUTPUT;
-  }
->;
+> = EXTRA & {
+  name?: string;
+  input: INPUT;
+  expected: OUTPUT;
+};
 ```
 
 Where `Extra` is:
@@ -153,27 +150,40 @@ type Extra = Record<string, unknown>;
 Returns a `Dataset<DATA_FUNC>` object:
 
 ```ts
-type Dataset<DATA_FUNC extends DataGenerator> = TF.SetRequired<
-  DatasetConfig<DATA_FUNC>,
-  'storage' | 'data'
-> & {
-  data: DatasetGenerator<DATA_FUNC>;
-};
+interface Dataset<DATA_FUNC extends DataGenerator> {
+  name: string;
+  storage: 'local' | 'memory';
+  description?: string;
+  exists(): Promise<Result<boolean>>;
+  load(options?: {
+    create?: boolean;
+  }): Promise<Result<Awaited<ReturnType<DATA_FUNC>> | null>>;
+  save(options?: { overwrite?: boolean }): Promise<Result<void>>;
+}
 ```
 
-The `data` property is a function that can be called with optional configuration:
+Use `load()` and `save()`; the returned dataset does not expose a `data()` method:
 
 ```ts
-type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
-  config?: DatasetGeneratorConfig
-) => Promise<Awaited<ReturnType<DATA_FUNC>>>;
-
-type DatasetGeneratorConfig = {
-  /**
-   * Whether to overwrite the dataset if it already exists.
-   *
-   * @default false
-   */
-  overwrite?: boolean;
-};
+const saved = await dataset.save({ overwrite: true });
+if (!saved.ok) throw saved.error;
+const loaded = await dataset.load({ create: true });
+if (!loaded.ok) throw loaded.error;
+const cases = loaded.value;
 ```
+
+Local storage uses the configured dataset provider, falling back to JSON under
+the current working directory. Generated setup binds that directory to the
+selected project. Memory datasets regenerate on load and do not persist. See
+[Providers](/guide/providers) for optional backends and serialization rules.
+
+## CLI discovery
+
+`viteval data` discovers datasets in `.dataset.*` and `.eval.*` modules. Default
+exports, named exports, and non-exported `defineDataset()` calls are supported.
+Multiple datasets can share a module. Re-exporting the same dataset does not
+generate it twice; distinct objects must have unique names.
+
+Evaluation tasks and scorers are not executed during generation. See
+[CLI datasets](/guide/cli#datasets) for patterns, overwrite behavior, and module
+import semantics.

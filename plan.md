@@ -1,5 +1,10 @@
 # Viteval Runner Modernization Plan
 
+> Historical Vitest 4 plan. The Vitest 5 implementation supersedes the custom
+> runner and task-metadata design below with setup modules and custom artifacts.
+
+The current release contract and verification evidence are in [V1 completion](./contributing/v1.md).
+
 ## Problem Statement
 
 Viteval's Vitest integration relies on several brittle hacks that break across version bumps and make the system hard to reason about:
