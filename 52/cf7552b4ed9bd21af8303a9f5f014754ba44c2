@@ -1,0 +1,101 @@
+packages/ui/src/app/globals.css
+  s_b2ebb14b88ff45::t_817e5820e9eddb 5-20,26-27,34-45,49-83,87-118,122-123,148-150
+packages/ui/src/components/display/duration.tsx
+  s_b2ebb14b88ff45::t_a39b83c98ec373 1-22
+packages/ui/src/components/display/file-icon.tsx
+  s_b2ebb14b88ff45::t_b35c5ae9ce636c 1-151
+packages/ui/src/components/display/file-path.tsx
+  s_b2ebb14b88ff45::t_358ee944add846 1-22
+packages/ui/src/components/display/index.ts
+  s_b2ebb14b88ff45::t_8d9cc27d47f0bc 1-7
+packages/ui/src/components/display/pass-rate.tsx
+  s_b2ebb14b88ff45::t_78a50e81d23992 1-29
+packages/ui/src/components/display/provider-badge.tsx
+  s_b2ebb14b88ff45::t_302f75d15fd8b2 1-83
+packages/ui/src/components/display/score-badge.tsx
+  s_b2ebb14b88ff45::t_68e6f93f98da2f 1-30
+packages/ui/src/components/display/timestamp.tsx
+  s_b2ebb14b88ff45::t_f258791cf6927e 1-14
+packages/ui/src/components/icons/index.tsx
+  s_b2ebb14b88ff45::t_78589a0a8667da 1-63
+packages/ui/src/components/ui/breadcrumb.tsx
+  s_b2ebb14b88ff45::t_c3c0ce24559ff8 2,78,95
+packages/ui/src/components/ui/button.tsx
+  s_b2ebb14b88ff45::t_1bd135171d40d0 20
+packages/ui/src/components/ui/calendar.tsx
+  s_b2ebb14b88ff45::t_6e27a33f9f5eec 1-215
+packages/ui/src/components/ui/chart.tsx
+  s_b2ebb14b88ff45::t_08fb28e7b076b7 1-366
+packages/ui/src/components/ui/data-table-column-header.tsx
+  s_b2ebb14b88ff45::t_dc4da1183c1af3 1-57
+packages/ui/src/components/ui/data-table-features.ts
+  s_b2ebb14b88ff45::t_2064a9ce9fc479 1-50
+packages/ui/src/components/ui/data-table-pagination.tsx
+  s_b2ebb14b88ff45::t_e586d06d6019ff 1-91
+packages/ui/src/components/ui/data-table.tsx
+  s_b2ebb14b88ff45::t_8b813926a013f6 1-165
+packages/ui/src/components/ui/date-time-picker.tsx
+  s_b2ebb14b88ff45::t_0e7f5290cd8ed7 1-99
+packages/ui/src/components/ui/dropdown-menu.tsx
+  s_b2ebb14b88ff45::t_4729cc26a72974 1-255
+packages/ui/src/components/ui/popover.tsx
+  s_b2ebb14b88ff45::t_baf551695ba5fa 1-87
+packages/ui/src/components/ui/select.tsx
+  s_b2ebb14b88ff45::t_657fa9061f1e66 2,45,120,154,172
+packages/ui/src/components/ui/sheet.tsx
+  s_b2ebb14b88ff45::t_b11f53316979b4 2,77
+packages/ui/src/components/ui/sidebar.tsx
+  s_b2ebb14b88ff45::t_7251ba87fca20b 3,43-51,54,283,372,384
+packages/ui/src/components/ui/table.tsx
+  s_b2ebb14b88ff45::t_526ac509298e14 13,84
+packages/ui/src/components/ui/tabs.tsx
+  s_b2ebb14b88ff45::t_b9f115d5c059a8 65
+packages/ui/src/components/value/code-renderer.tsx
+  s_b2ebb14b88ff45::t_2d67cfc97c3384 1-58
+packages/ui/src/components/value/copy-button.tsx
+  s_b2ebb14b88ff45::t_01e40c57c3f5b9 1,5,7,9-10,13-14,16-17,22,32-40,42-47
+packages/ui/src/components/value/detect.ts
+  s_b2ebb14b88ff45::t_2cb73278f43638 1-103
+packages/ui/src/components/value/index.ts
+  s_b2ebb14b88ff45::t_982cac5ff97887 1-10
+packages/ui/src/components/value/markdown-renderer.tsx
+  s_b2ebb14b88ff45::t_00efa8d9abfcef 1-77
+packages/ui/src/components/value/object-renderer.tsx
+  s_b2ebb14b88ff45::t_4289c819aa84db 4,13-25,27-29,32-78,83,87-101,104,107-109,111-112,116-120,127,129-136,140-142,145-149,154-183,186-190,192-221
+packages/ui/src/components/value/primitive-renderer.tsx
+  s_b2ebb14b88ff45::t_3e1c7d27bd32e6 1-14
+packages/ui/src/components/value/text-renderer.tsx
+  s_b2ebb14b88ff45::t_a5fdf14a5cf392 1-17
+packages/ui/src/components/value/value-preview.tsx
+  s_b2ebb14b88ff45::t_256236eebe5c70 1-59
+packages/ui/src/components/value/value-renderer.tsx
+  s_b2ebb14b88ff45::t_33a637eece4d25 1-24
+packages/ui/src/hooks/use-settings.test.tsx
+  s_b2ebb14b88ff45::t_cff7f05ab0b3e1 1-35
+packages/ui/src/hooks/use-settings.ts
+  s_b2ebb14b88ff45::t_3a825d1fa13ad7 1-194
+packages/ui/src/lib/badges.tsx
+  s_b2ebb14b88ff45::t_b3093cb07ed97b 1,5-16,21
+packages/ui/src/lib/utils.ts
+  s_b2ebb14b88ff45::t_4f8aef69ae4225 2,17,24-28,31,34-38,41-45,48-51,56-71,74-90,92-118
+packages/ui/src/test-icons.test.tsx
+  s_b2ebb14b88ff45::t_b17106ea59edb4 1-86
+packages/ui/src/test-icons.ts
+  s_b2ebb14b88ff45::t_2565c582fb992b 1-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "52cf7552b4ed9bd21af8303a9f5f014754ba44c2",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
