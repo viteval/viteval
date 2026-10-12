@@ -80,7 +80,7 @@ jobs:
 
       - name: Publish manually dispatched RC
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: pnpm changeset publish --tag rc
+        run: pnpm changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
