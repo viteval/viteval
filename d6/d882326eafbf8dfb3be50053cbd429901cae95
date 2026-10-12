@@ -1,0 +1,19 @@
+packages/viteval/vitest.config.ts
+  s_b2ebb14b88ff45::t_10224c78f1f980 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d6d882326eafbf8dfb3be50053cbd429901cae95",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
