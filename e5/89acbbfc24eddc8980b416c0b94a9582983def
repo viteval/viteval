@@ -1,0 +1,75 @@
+.changeset/pre.json
+  s_b2ebb14b88ff45::t_a55367c1c15890 3
+.changeset/pre/dashboard-listing-contracts.md
+  s_b2ebb14b88ff45::t_214562790dbee1 1-7
+.changeset/pre/discovery-and-metadata.md
+  s_b2ebb14b88ff45::t_0b24fa9f8aba28 1-9
+.changeset/pre/hook-outcomes.md
+  s_b2ebb14b88ff45::t_f1c94df952eb7a 1-8
+.changeset/pre/hosted-evaluation-providers.md
+  s_b2ebb14b88ff45::t_c34973556ddba0 1-12
+.changeset/pre/json-dataset-roundtrips.md
+  s_b2ebb14b88ff45::t_237922699d9277 1-9
+.changeset/pre/maltty-cli.md
+  s_b2ebb14b88ff45::t_2988b0570858d4 1-8
+.changeset/pre/migrate-ui-nextjs.md
+  s_b2ebb14b88ff45::t_621d1765aa6c86 5-18
+.changeset/pre/native-skipped-summaries.md
+  s_b2ebb14b88ff45::t_13d2d3bc667d08 1-8
+.changeset/pre/object-storage-datasets.md
+  s_b2ebb14b88ff45::t_6a6fb1b52f1df3 1-12
+.changeset/pre/provider-abstraction.md
+  s_b2ebb14b88ff45::t_b5b035863d9f72 11-13,15
+.changeset/pre/replace-autoevals.md
+  s_b2ebb14b88ff45::t_02ebb9a39ced5c 10
+.changeset/pre/sample-items.md
+  s_b2ebb14b88ff45::t_39e05aaa9b9ba5 8
+.changeset/pre/sqlite-json-contract.md
+  s_b2ebb14b88ff45::t_0a22356ceeb90b 1-8
+.changeset/pre/tags-system.md
+  s_b2ebb14b88ff45::t_6c8fead7ae1468 1-35
+.changeset/pre/v1-readiness.md
+  s_b2ebb14b88ff45::t_2b5d3e47e0ca50 1-27
+.changeset/pre/vitest-v4-runner.md
+  s_b2ebb14b88ff45::t_c5e6ff90623c2c 7,9-18
+.github/workflows/ci.yaml
+  s_b2ebb14b88ff45::t_34c3ce20d4c2d7 7,10-11,26,32,35,38,41,46,54,65-113,116
+.github/workflows/discord-issue-notify.yaml
+  s_b2ebb14b88ff45::t_3b02008f077829 14
+.github/workflows/discord-pr-notify.yaml
+  s_b2ebb14b88ff45::t_fc89ef9cc8447f 16
+.github/workflows/docs.yaml
+  s_b2ebb14b88ff45::t_808b275ed946ab 23,26,28,30-31,34,38,40,54
+.github/workflows/publish.yaml
+  s_b2ebb14b88ff45::t_c78c971218f9b6 10-11,20,29,32,37,40,45,47-74,76-83,85,87-96
+contributing/v1.md
+  s_b2ebb14b88ff45::t_5cbdb3a365ce17 1-179
+packages/cli/CHANGELOG.md
+  s_b2ebb14b88ff45::t_067cfe89ecfc35 3-64
+packages/core/CHANGELOG.md
+  s_b2ebb14b88ff45::t_ec28e4341a6ce8 3-140
+packages/internal/CHANGELOG.md
+  s_b2ebb14b88ff45::t_6ccc8ce98108b5 3-35
+packages/providers/CHANGELOG.md
+  s_b2ebb14b88ff45::t_16d282a472567b 1-105
+packages/ui/CHANGELOG.md
+  s_b2ebb14b88ff45::t_fe0dadf3bd601b 3-90
+packages/viteval/CHANGELOG.md
+  s_b2ebb14b88ff45::t_0a5c94e575a8d5 3-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e589acbbfc24eddc8980b416c0b94a9582983def",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
