@@ -58,7 +58,6 @@ export async function runJudge(
     return modelResult;
   }
 
-  const renderedPrompt = Mustache.render(config.prompt, variables);
   const choices = Object.keys(config.choiceScores);
   const choicesStr = choices.map((c) => `"${c}"`).join(', ');
 
@@ -79,14 +78,15 @@ export async function runJudge(
           .describe('The selected choice.'),
       });
 
-  const generationResult = await attemptAsync(() =>
-    generateObject({
+  const generationResult = await attemptAsync(() => {
+    const renderedPrompt = Mustache.render(config.prompt, variables);
+    return generateObject({
       model: modelResult.value,
       prompt: `${renderedPrompt}\n\n${systemSuffix}`,
       schema,
       temperature: 0,
-    })
-  );
+    });
+  });
   if (isErr(generationResult)) {
     return generationResult;
   }

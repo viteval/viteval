@@ -307,7 +307,7 @@ function getOrCreateSuite(
       : [];
   const suite: SuiteProjection = {
     projectName: testCase.module.project?.name || undefined,
-    endTime: now,
+    endTime: 0,
     errorMessages: suiteErrors,
     evalResults: [],
     failedTests: 0,
@@ -345,10 +345,11 @@ function createModuleProjection(testModule: TestModule): SuiteProjection {
 }
 
 function toJsonEvalSuite(suite: SuiteProjection, root: string): JsonEvalSuite {
+  const endTime = Math.max(suite.endTime, suite.startTime);
   return {
     projectName: suite.projectName,
-    duration: suite.endTime - suite.startTime,
-    endTime: suite.endTime,
+    duration: endTime - suite.startTime,
+    endTime,
     evalResults: suite.evalResults,
     filepath: path.relative(root, suite.moduleId),
     message:
