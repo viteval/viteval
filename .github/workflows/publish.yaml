@@ -17,7 +17,7 @@ concurrency:
 jobs:
   release:
     name: Release
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -44,10 +44,48 @@ jobs:
       - name: '📦 Install Packages'
         run: pnpm install --frozen-lockfile
 
+      - name: Verify manually dispatched RC
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          pnpm exec node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          const pre = JSON.parse(await readFile('.changeset/pre.json', 'utf8'));
+          assert.equal(pre.mode, 'pre');
+          assert.equal(pre.tag, 'rc');
+          const versions = new Set();
+          for (const name of ['internal', 'core', 'providers', 'ui', 'cli', 'viteval']) {
+            const manifest = JSON.parse(await readFile(`packages/${name}/package.json`, 'utf8'));
+            assert.match(manifest.version, /^\d+\.\d+\.\d+-rc\.\d+$/);
+            versions.add(manifest.version);
+          }
+          assert.equal(versions.size, 1, 'All RC package versions must match');
+          NODE
+
       - name: Validate release
         run: pnpm validate && pnpm validate:consumer
 
+      - name: Pack manually dispatched RC
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: pnpm changeset pack --out-dir rc-packages
+
+      - name: Upload RC packages
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rc-packages
+          path: rc-packages
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish manually dispatched RC
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: pnpm changeset publish --tag rc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: '🔄 Create Release Pull Request or Publish'
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: changesets
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
