@@ -1,0 +1,62 @@
+contributing/guides/setup-local-env.md
+  s_7b159bb2779e15::t_3c21a8e0237d82 26-32
+contributing/v1.md
+  s_7b159bb2779e15::t_559977e299fe2d 88
+  s_b2ebb14b88ff45::t_8da541f5a41785 86,130-133
+packages/providers/src/viteval/datasets.ts
+  s_b2ebb14b88ff45::t_4e9c949b7ef5f9 8,29-31,55-56,58,79-80,82,87,151
+.changeset/sqlite-json-contract.md
+  s_b2ebb14b88ff45::t_4e9c949b7ef5f9 1-8
+packages/core/src/provider/json.test.ts
+  s_b2ebb14b88ff45::t_e871a9c116fc45 17-18,28,32-33,41,53-54,59-61
+  s_b2ebb14b88ff45::t_1dcbd2be086820 351-379,381-390,394-406
+  s_b2ebb14b88ff45::t_08dbb31163b2e6 335-350,380,391-393,407-410
+  s_b2ebb14b88ff45::t_f12530da4e29eb 19-27,29-31,34-40,42-52,55-58
+.changeset/json-dataset-roundtrips.md
+  s_b2ebb14b88ff45::t_913831977ce289 1-9
+packages/core/src/provider/json-evals.ts
+  s_b2ebb14b88ff45::t_72afeacfbe7111 111-113,115-116
+  s_b2ebb14b88ff45::t_c5aaf5de9d439f 114,150-152,154-155
+.changeset/native-skipped-summaries.md
+  s_b2ebb14b88ff45::t_c5aaf5de9d439f 1-8
+apps/website/guide/providers.md
+  s_b2ebb14b88ff45::t_5afcba346b7b7a 276
+.coderabbit.yaml
+  s_7b159bb2779e15::t_559977e299fe2d 46,51,82-84,86
+packages/providers/src/viteval/evals.ts
+  s_b2ebb14b88ff45::t_4e9c949b7ef5f9 8,31,33,36-37,39,52,54,57-58,60,90,102,105
+packages/ui/src/sdk/fs.ts
+  s_b2ebb14b88ff45::t_913831977ce289 36
+packages/providers/src/viteval/provider.test.ts
+  s_b2ebb14b88ff45::t_1c8a329884cbed 20,25-28,33,53,73-75,87-92,97-99,104,129,149-154,159-161,166,193-197
+  s_b2ebb14b88ff45::t_63dc8a381820b0 21-24,29-32,34-52,54-72,76-86,93-96,100-103,105-128,130-148,155-158,162-165,167-192
+packages/ui/src/sdk/client.test.ts
+  s_b2ebb14b88ff45::t_e871a9c116fc45 20-23,28-33,37,41-43
+  s_b2ebb14b88ff45::t_f12530da4e29eb 24-27,34-36,38-40
+packages/core/src/provider/json-datasets.ts
+  s_b2ebb14b88ff45::t_913831977ce289 56-57,161-162,184-185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d7e37800ee0cd85746dc55333ced6bb38f4d1313",
+  "prompts": {},
+  "sessions": {
+    "s_7b159bb2779e15": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7968b96ffe8PQ214ApP8YBPe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
