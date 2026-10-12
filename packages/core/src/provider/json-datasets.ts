@@ -21,8 +21,17 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
           DATASET_FILE_SCHEMA
         );
         if (!record) throw new Error(`Dataset disappeared: ${name}`);
-        return { id: decodeURIComponent(name.slice(0, -5)), record };
+        return {
+          id: record.id ?? name.slice(0, -5),
+          filename: `datasets/${name}`,
+          record,
+        };
       })
+    );
+  }
+  async function filename(id: string) {
+    return (
+      (await list()).find((dataset) => dataset.id === id)?.filename ?? file(id)
     );
   }
   return {
@@ -38,7 +47,11 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
             )
           )
             throw new Error(`Dataset already exists: ${params.name}`);
-          const id = datasets.some((dataset) => dataset.id === params.name)
+          const id = datasets.some(
+            (dataset) =>
+              dataset.id === params.name ||
+              dataset.filename === file(params.name)
+          )
             ? `${params.name}-${randomUUID()}`
             : params.name;
           const now = new Date().toISOString();
@@ -65,14 +78,12 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
       ),
     get: (params) =>
       attemptAsync(async () => {
-        const found = params.id
-          ? {
-              id: params.id,
-              record: await store.read(file(params.id), DATASET_FILE_SCHEMA),
-            }
-          : (await list()).find(
-              ({ record, id }) => (record.name ?? id) === params.name
-            );
+        const found =
+          params.id !== undefined
+            ? (await list()).find((dataset) => dataset.id === params.id)
+            : (await list()).find(
+                ({ record, id }) => (record.name ?? id) === params.name
+              );
         return found?.record ? toDataset(found.id, found.record) : null;
       }),
     list: (params) =>
@@ -88,12 +99,12 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
       ),
     update: (params) =>
       attemptAsync(() =>
-        store.update('datasets', () =>
-          store.update(file(params.id), async () => {
+        store.update('datasets', async () =>
+          store.update(await filename(params.id), async () => {
             if (params.name !== undefined && !params.name.trim())
               throw new Error('Dataset name must not be empty');
             const current = await store.read(
-              file(params.id),
+              await filename(params.id),
               DATASET_FILE_SCHEMA
             );
             if (!current) throw new Error(`Dataset not found: ${params.id}`);
@@ -113,19 +124,21 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
               updatedAt: new Date().toISOString(),
               version: (current.version ?? 1) + 1,
             };
-            await store.write(file(params.id), next);
+            await store.write(await filename(params.id), next);
             return toDataset(params.id, next);
           })
         )
       ),
     delete: (params) =>
-      attemptAsync(() =>
-        store.update(file(params.id), () => store.remove(file(params.id)))
+      attemptAsync(async () =>
+        store.update(await filename(params.id), async () =>
+          store.remove(await filename(params.id))
+        )
       ),
     getItems: (params) =>
       attemptAsync(async () => {
         const record = await store.read(
-          file(params.datasetId),
+          await filename(params.datasetId),
           DATASET_FILE_SCHEMA
         );
         if (!record) throw new Error(`Dataset not found: ${params.datasetId}`);
@@ -146,15 +159,15 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
           );
       }),
     replaceItems: (params) =>
-      attemptAsync(() =>
-        store.update(file(params.datasetId), async () => {
+      attemptAsync(async () =>
+        store.update(await filename(params.datasetId), async () => {
           const current = await store.read(
-            file(params.datasetId),
+            await filename(params.datasetId),
             DATASET_FILE_SCHEMA
           );
           if (!current)
             throw new Error(`Dataset not found: ${params.datasetId}`);
-          await store.write(file(params.datasetId), {
+          await store.write(await filename(params.datasetId), {
             ...current,
             data: params.items.map(({ input, expected, extra }) => ({
               ...extra,
@@ -167,15 +180,15 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
         })
       ),
     addItems: (params) =>
-      attemptAsync(() =>
-        store.update(file(params.datasetId), async () => {
+      attemptAsync(async () =>
+        store.update(await filename(params.datasetId), async () => {
           const current = await store.read(
-            file(params.datasetId),
+            await filename(params.datasetId),
             DATASET_FILE_SCHEMA
           );
           if (!current)
             throw new Error(`Dataset not found: ${params.datasetId}`);
-          await store.write(file(params.datasetId), {
+          await store.write(await filename(params.datasetId), {
             ...current,
             data: [
               ...current.data,
