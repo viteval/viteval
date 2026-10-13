@@ -11,6 +11,11 @@ import type {
   VitevalResponse,
 } from '../types';
 
+interface ResolveDatasetIdParams {
+  filename: string;
+  storedId?: string;
+}
+
 async function parseDatasetSummary(
   id: string,
   fsHelper: FsHelper
@@ -24,7 +29,7 @@ async function parseDatasetSummary(
   return {
     createdAt: raw.createdAt ?? raw.timestamp,
     description: raw.description,
-    id: raw.id ?? id,
+    id: resolveDatasetId({ filename: id, storedId: raw.id }),
     itemCount: raw.data ? raw.data.length : 0,
     name: raw.name || id,
     path: fsHelper.relativePath(fsHelper.filePath('datasets', id)),
@@ -52,7 +57,7 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
       if (!parsed.success)
         return { error: `Invalid dataset file: ${params.id}` };
       const raw = parsed.data;
-      const id = raw.id ?? params.id;
+      const id = resolveDatasetId({ filename, storedId: raw.id });
 
       const data = {
         ...raw,
@@ -112,6 +117,15 @@ export function createDatasetsResource(fsHelper: FsHelper): DatasetsResource {
       };
     },
   };
+}
+
+function resolveDatasetId({
+  filename,
+  storedId,
+}: ResolveDatasetIdParams): string {
+  return storedId !== undefined && encodeURIComponent(storedId) === filename
+    ? storedId
+    : filename;
 }
 
 function itemMetadata(item: Record<string, unknown>): Record<string, unknown> {

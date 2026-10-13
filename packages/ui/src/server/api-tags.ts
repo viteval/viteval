@@ -1,5 +1,12 @@
+import { z } from 'zod';
 import type { TagEntityType } from '@/types';
 import { createViteval } from '@/sdk';
+
+const createTagSchema = z.object({
+  name: z.string().min(1),
+  color: z.string().optional(),
+  description: z.string().optional(),
+});
 
 export async function GET(request: Request) {
   const viteval = createViteval();
@@ -18,21 +25,24 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const viteval = createViteval();
-  const body = (await request.json()) as {
-    name?: string;
-    color?: string;
-    description?: string;
-  };
-
-  if (!body.name || typeof body.name !== 'string') {
-    return Response.json({ error: 'name is required' }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: 'Invalid JSON request body' },
+      { status: 400 }
+    );
+  }
+  const parsed = createTagSchema.safeParse(body);
+  if (!parsed.success) {
+    const error = parsed.error.issues.some((issue) => issue.path[0] === 'name')
+      ? 'name is required'
+      : parsed.error.message;
+    return Response.json({ error }, { status: 400 });
   }
 
-  const result = await viteval.tags.create({
-    color: body.color,
-    description: body.description,
-    name: body.name,
-  });
+  const result = await viteval.tags.create(parsed.data);
   if ('error' in result) {
     return Response.json(result, { status: 500 });
   }
