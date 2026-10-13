@@ -111,7 +111,6 @@ function createVoltOpsEvals({
         datasetItemHash: createHash('sha256')
           .update(
             serializeJson({
-              id,
               input: params.input,
               expected: params.expected,
             })
