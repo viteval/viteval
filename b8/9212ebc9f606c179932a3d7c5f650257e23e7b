@@ -1,0 +1,20 @@
+scripts/validate-consumer.mjs
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 72,80
+  s_b2ebb14b88ff45::t_67f4607640f5c4 73-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b89212ebc9f606c179932a3d7c5f650257e23e7b",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
