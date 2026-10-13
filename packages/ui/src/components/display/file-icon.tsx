@@ -99,7 +99,7 @@ const NAME_MAP: Record<string, FileType> = {
  * Detect file type from a path or filename.
  */
 export function detectFileType(path: string): FileType {
-  const filename = path.split('/').pop()?.toLowerCase() ?? '';
+  const filename = path.split(/[/\\]/).pop()?.toLowerCase() ?? '';
   const baseName = filename.replace(/\.[^.]+$/, '');
 
   // Check full filename / known names first
@@ -112,7 +112,7 @@ export function detectFileType(path: string): FileType {
   // Check config files
   if (
     filename.includes('.config.') ||
-    filename.includes('rc.') ||
+    filename.endsWith('rc') ||
     filename.startsWith('.')
   ) {
     const ext = `.${filename.split('.').pop()}`;
