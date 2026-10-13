@@ -69,9 +69,15 @@ try {
   const overrides = Object.entries(packed)
     .map(([name, file]) => `  ${JSON.stringify(name)}: ${JSON.stringify(file)}`)
     .join('\n');
+  const allowBuildsIndex = workspace.indexOf('allowBuilds:');
+  assert.notEqual(
+    allowBuildsIndex,
+    -1,
+    'pnpm-workspace.yaml must declare allowBuilds'
+  );
   await writeFile(
     path.join(project, 'pnpm-workspace.yaml'),
-    `packages: []\noverrides:\n${overrides}\n${workspace.slice(workspace.indexOf('allowBuilds:'))}`
+    `packages: []\noverrides:\n${overrides}\n${workspace.slice(allowBuildsIndex)}`
   );
   process.stdout.write(
     'Installing packed packages in an isolated consumer...\n'
