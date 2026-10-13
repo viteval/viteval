@@ -1,5 +1,5 @@
 import { createServer, type Server } from 'node:http';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Provider } from '@viteval/core';
 import { langfuse } from '#/langfuse/provider';
 import { voltops } from '#/voltops/provider';
@@ -22,6 +22,7 @@ let observations: {
 let datasets: Map<string, Record<string, unknown>>;
 let items: Map<string, Record<string, unknown>[]>;
 let failure: string | undefined;
+let ignoreObservationSession: boolean;
 
 beforeEach(async () => {
   providers = [];
@@ -30,6 +31,7 @@ beforeEach(async () => {
   datasets = new Map();
   items = new Map();
   failure = undefined;
+  ignoreObservationSession = false;
   server = createServer(async (request, response) => {
     let text = '';
     for await (const chunk of request) text += String(chunk);
@@ -130,11 +132,27 @@ beforeEach(async () => {
       result = {};
     } else if (pathname === '/api/public/scores') result = { id: body.id };
     else if (pathname === '/api/public/v2/observations') {
+      const filters = parsed.searchParams.has('filter')
+        ? array(JSON.parse(parsed.searchParams.get('filter')!)).map(
+            requireRecord
+          )
+        : [];
       const matching = observations.filter(
         (observation) =>
-          observation.name === parsed.searchParams.get('name') &&
-          (!parsed.searchParams.get('sessionId') ||
-            observation.sessionId === parsed.searchParams.get('sessionId'))
+          (!parsed.searchParams.get('name') ||
+            observation.name === parsed.searchParams.get('name')) &&
+          (ignoreObservationSession ||
+            !parsed.searchParams.get('sessionId') ||
+            observation.sessionId === parsed.searchParams.get('sessionId')) &&
+          filters.every(
+            (filter) =>
+              (filter.column === 'sessionId' && ignoreObservationSession) ||
+              (filter.type === 'string' &&
+                filter.operator === '=' &&
+                (filter.column === 'name'
+                  ? observation.name
+                  : observation.sessionId) === filter.value)
+          )
       );
       const offset = Number(parsed.searchParams.get('cursor') ?? 0);
       result = {
@@ -199,7 +217,9 @@ beforeEach(async () => {
           ...dataset,
           versions: array(dataset.versions).map((version) => ({
             ...requireRecord(version),
-            itemCount: current.length + 1,
+            ...(requireRecord(version).id === parts[5]
+              ? { itemCount: current.length + 1 }
+              : {}),
           })),
         });
         result = item;
@@ -234,6 +254,7 @@ beforeEach(async () => {
   url = `http://127.0.0.1:${address.port}`;
 });
 afterEach(async () => {
+  vi.unstubAllEnvs();
   for (const provider of providers) await provider.close();
   await new Promise<void>((resolve, reject) =>
     server.close((error) => (error ? reject(error) : resolve()))
@@ -403,6 +424,119 @@ describe.each(['langfuse', 'voltops'] as const)(
 );
 
 describe('Langfuse remote history', () => {
+  it('should use the environment host for both SDK requests and experiment export', async () => {
+    vi.stubEnv('LANGFUSE_BASE_URL', `${url}/`);
+    const provider = langfuse({
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+    });
+    providers.push(provider);
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    const run = await provider.evals!.create({
+      name: 'env-host',
+      config: { aggregation: 'mean', threshold: 1, scorerNames: ['exact'] },
+    });
+    if (!run.ok) throw run.error;
+    expect(
+      await provider.evals!.addResult({
+        evalRunId: run.value.id,
+        input: 'q',
+        expected: 'a',
+        output: 'a',
+        scores: [{ name: 'exact', score: 1 }],
+        meanScore: 1,
+        medianScore: 1,
+        sumScore: 1,
+        passed: true,
+      })
+    ).toMatchObject({ ok: true });
+    expect(
+      requests.some((request) => request.path === '/api/public/scores')
+    ).toBe(true);
+    expect(
+      requests.some((request) => request.path === '/api/public/otel/v1/traces')
+    ).toBe(true);
+  });
+
+  it('should keep remote run and result IDs isolated when the service ignores session filtering', async () => {
+    const options = {
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+      baseUrl: url,
+    };
+    const writer = langfuse(options);
+    providers.push(writer);
+    const initialized = await writer.initialize();
+    if (!initialized.ok) throw initialized.error;
+    const ids: string[] = [];
+    for (const name of ['first', 'second']) {
+      const created = await writer.evals!.create({
+        name,
+        config: { aggregation: 'mean', threshold: 1, scorerNames: ['exact'] },
+      });
+      if (!created.ok) throw created.error;
+      ids.push(created.value.id);
+      const added = await writer.evals!.addResult({
+        evalRunId: created.value.id,
+        input: name,
+        expected: name,
+        output: name,
+        scores: [{ name: 'exact', score: 1 }],
+        meanScore: 1,
+        medianScore: 1,
+        sumScore: 1,
+        passed: true,
+      });
+      if (!added.ok) throw added.error;
+      const completed = await writer.evals!.complete({
+        id: created.value.id,
+        summary: {
+          meanScore: 1,
+          medianScore: 1,
+          sumScore: 1,
+          passedCount: 1,
+          failedCount: 0,
+          totalCount: 1,
+          passed: true,
+        },
+      });
+      if (!completed.ok) throw completed.error;
+    }
+    ignoreObservationSession = true;
+    const reader = langfuse(options);
+    providers.push(reader);
+    const readerInitialized = await reader.initialize();
+    if (!readerInitialized.ok) throw readerInitialized.error;
+    expect(
+      await reader.evals!.get({ id: 'missing', includeResults: true })
+    ).toMatchObject({ ok: true, value: null });
+    for (const [index, id] of ids.entries()) {
+      const loaded = await reader.evals!.get({ id, includeResults: true });
+      if (!loaded.ok) throw loaded.error;
+      expect(loaded.value?.id).toBe(id);
+      expect(loaded.value?.results).toHaveLength(1);
+      expect(loaded.value?.results?.[0].evalRunId).toBe(id);
+      expect(loaded.value?.results?.[0].input).toBe(
+        index === 0 ? 'first' : 'second'
+      );
+    }
+    const query = requests.find((request) =>
+      request.path.startsWith('/api/public/v2/observations?')
+    );
+    expect(
+      JSON.parse(new URL(query!.path, url).searchParams.get('filter')!)
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          type: 'string',
+          column: 'sessionId',
+          operator: '=',
+          value: 'missing',
+        },
+      ])
+    );
+  });
   it('should exclude archived dataset items from both reads and item counts', async () => {
     const provider = langfuse({
       publicKey: 'fixture-public',
@@ -533,6 +667,72 @@ describe('Langfuse remote history', () => {
 });
 
 describe('VoltOps hosted runs', () => {
+  it('should hash equivalent dataset items consistently while retaining unique result IDs', async () => {
+    const provider = voltops({
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+      baseUrl: url,
+    });
+    providers.push(provider);
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    const run = await provider.evals!.create({
+      name: 'stable-items',
+      config: { aggregation: 'mean', threshold: 1, scorerNames: ['exact'] },
+    });
+    if (!run.ok) throw run.error;
+    const params = {
+      evalRunId: run.value.id,
+      input: 'q',
+      expected: 'a',
+      output: 'a',
+      scores: [{ name: 'exact', score: 1 }],
+      meanScore: 1,
+      medianScore: 1,
+      sumScore: 1,
+      passed: true,
+    };
+    expect(await provider.evals!.addResults!([params, params])).toMatchObject({
+      ok: true,
+    });
+    const payload = requests.find(
+      (request) => request.path === '/evals/runs/run/results'
+    );
+    const records = array(payload?.body.results).map(requireRecord);
+    expect(records).toHaveLength(2);
+    expect(records[0].id).not.toBe(records[1].id);
+    expect(records[0].datasetItemHash).toBe(records[1].datasetItemHash);
+  });
+
+  it('should identify the incomplete dataset version after a rejected append upload', async () => {
+    const provider = voltops({
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+      baseUrl: url,
+    });
+    providers.push(provider);
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    const created = await provider.datasets!.create({
+      name: 'partial-version',
+      items: [{ input: 'original', expected: 'a' }],
+    });
+    if (!created.ok) throw created.error;
+    failure = `/evals/datasets/${created.value.id}/versions/version-1/items`;
+    const appended = await provider.datasets!.addItems({
+      datasetId: created.value.id,
+      items: [{ input: 'new', expected: 'a' }],
+    });
+    expect(appended.ok).toBe(false);
+    if (appended.ok) throw new Error('Expected upload rejection');
+    expect(appended.error.message).toContain(created.value.id);
+    expect(appended.error.message).toContain('version-1');
+    expect(appended.error.message).toContain('may be incomplete');
+    expect(items.get(`${created.value.id}/version-0`)).toMatchObject([
+      { input: 'original' },
+    ]);
+  });
+
   it('should batch final case outcomes and report a failed run without auto-queuing work', async () => {
     const provider = voltops({
       publicKey: 'fixture-public',
