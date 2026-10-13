@@ -31,6 +31,71 @@ afterEach(async () => {
 });
 
 describe('UI HTTP API', () => {
+  it.each([
+    {
+      name: 'tag creation',
+      handler: createTag,
+      invalid: [
+        { name: 1 },
+        { name: '' },
+        { name: 'valid', color: 1 },
+        { name: 'valid', description: null },
+      ],
+    },
+    {
+      name: 'tagging creation',
+      handler: addTagging,
+      invalid: [
+        { tagId: 1, entityType: 'dataset', entityId: 'item' },
+        { tagId: 'tag', entityType: 'dataset', entityId: {} },
+        { tagId: 'tag', entityType: 'invalid', entityId: 'item' },
+      ],
+    },
+    {
+      name: 'tagging lookup',
+      handler: lookupTaggings,
+      invalid: [
+        { entityType: 'dataset', entityIds: [1] },
+        { entityType: 'dataset', entityIds: 'item' },
+        { entityType: 1, entityIds: ['item'] },
+      ],
+    },
+  ])(
+    'should reject malformed and invalid $name bodies before touching storage',
+    async ({ handler, invalid }) => {
+      const bodies = [
+        '{broken',
+        'null',
+        '[]',
+        '{}',
+        ...invalid.map((body) => JSON.stringify(body)),
+      ];
+      for (const body of bodies) {
+        const response = await handler(
+          new Request('http://localhost/api/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+          })
+        );
+        expect(response.status, body).toBe(400);
+        expect(await response.json()).toMatchObject({
+          error: expect.any(String),
+        });
+      }
+      expect(await createViteval().tags.list()).toMatchObject({
+        data: [],
+        total: 0,
+      });
+      const provider = createJsonProvider({ root });
+      expect(
+        await provider.tags!.listTaggings({
+          entityType: 'dataset',
+          entityId: 'item',
+        })
+      ).toMatchObject({ ok: true, value: [] });
+    }
+  );
   it('should expose filtered totals and ordering beyond the first server page', async () => {
     await writeListingFixtures(root);
     const datasets = await listDatasets(

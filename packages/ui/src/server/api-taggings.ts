@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { TagEntityType } from '@/types';
 import { createViteval } from '@/sdk';
 
@@ -7,6 +8,12 @@ const VALID_ENTITY_TYPES: readonly TagEntityType[] = [
   'dataset',
   'dataset_item',
 ] as const;
+
+const addTaggingSchema = z.object({
+  tagId: z.string().min(1),
+  entityType: z.enum(VALID_ENTITY_TYPES),
+  entityId: z.string().min(1),
+});
 
 function parseEntityType(value: string | null): TagEntityType | null {
   if (!value) {
@@ -19,25 +26,24 @@ function parseEntityType(value: string | null): TagEntityType | null {
 
 export async function POST(request: Request) {
   const viteval = createViteval();
-  const body = (await request.json()) as {
-    tagId?: string;
-    entityType?: string;
-    entityId?: string;
-  };
-
-  const entityType = parseEntityType(body.entityType ?? null);
-  if (!body.tagId || !entityType || !body.entityId) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: 'Invalid JSON request body' },
+      { status: 400 }
+    );
+  }
+  const parsed = addTaggingSchema.safeParse(body);
+  if (!parsed.success) {
     return Response.json(
       { error: 'tagId, entityType, and entityId are required' },
       { status: 400 }
     );
   }
 
-  const result = await viteval.tags.addTagging({
-    entityId: body.entityId,
-    entityType,
-    tagId: body.tagId,
-  });
+  const result = await viteval.tags.addTagging(parsed.data);
   if ('error' in result) {
     return Response.json(result, { status: 500 });
   }
