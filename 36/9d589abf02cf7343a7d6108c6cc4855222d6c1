@@ -1,0 +1,41 @@
+.changeset/ui-server-review-correctness.md
+  s_b2ebb14b88ff45::t_1ae7d22a0be0bb 1-9
+packages/ui/src/server/api-taggings.ts
+  s_b2ebb14b88ff45::t_1ae7d22a0be0bb 1,12-17,29-32,37-39,46
+  s_b2ebb14b88ff45::t_82ee58c17088d9 33-36
+packages/ui/src/server/api.test.ts
+  s_b2ebb14b88ff45::t_82ee58c17088d9 35-96,98
+  s_b2ebb14b88ff45::t_c62144f315a8d8 34,97
+packages/ui/src/server/api-tags.ts
+  s_b2ebb14b88ff45::t_1ae7d22a0be0bb 1,5-10,28-31,36-38,42,45
+  s_b2ebb14b88ff45::t_82ee58c17088d9 32-35,39-41
+packages/ui/src/server/api-taggings-lookup.ts
+  s_b2ebb14b88ff45::t_82ee58c17088d9 15-18
+  s_b2ebb14b88ff45::t_1ae7d22a0be0bb 1,4-7,11-14,19-21,29-30
+packages/ui/vitest.config.ts
+  s_b2ebb14b88ff45::t_1ae7d22a0be0bb 1,5
+packages/ui/src/sdk/client.test.ts
+  s_b2ebb14b88ff45::t_c62144f315a8d8 20-23,32-35,39,46-47
+  s_b2ebb14b88ff45::t_82ee58c17088d9 24-31,36-38,40-45
+packages/ui/src/sdk/resources/datasets.ts
+  s_b2ebb14b88ff45::t_a4947c6bdc7a54 14-18,129
+  s_b2ebb14b88ff45::t_1ae7d22a0be0bb 32,60,126
+  s_b2ebb14b88ff45::t_82ee58c17088d9 122-125,127-128
+  s_b2ebb14b88ff45::t_02793739aecfd3 130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "369d589abf02cf7343a7d6108c6cc4855222d6c1",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
