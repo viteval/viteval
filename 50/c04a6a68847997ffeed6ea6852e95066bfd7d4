@@ -1,0 +1,58 @@
+packages/ui/src/components/value/object-renderer.tsx
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 77,79
+  s_b2ebb14b88ff45::t_c1927016d46c6b 82-83
+packages/ui/src/components/value/detect.ts
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 1,45
+  s_b2ebb14b88ff45::t_c1927016d46c6b 46-50
+packages/ui/src/components/display/provider-badge.test.tsx
+  s_b2ebb14b88ff45::t_a9e86a85277ba5 1-8,16
+  s_b2ebb14b88ff45::t_c1927016d46c6b 9-15
+packages/ui/src/hooks/use-settings.ts
+  s_b2ebb14b88ff45::t_a9e86a85277ba5 103,139,158-161,164,167,182-186
+  s_b2ebb14b88ff45::t_c1927016d46c6b 162-163,165-166,168-180
+  s_b2ebb14b88ff45::t_bb4e8a701db93a 181
+packages/ui/src/components/ui/date-time-picker.tsx
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 83
+packages/ui/src/components/ui/table.tsx
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 13,84
+packages/ui/src/components/ui/data-table.tsx
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 78
+  s_b2ebb14b88ff45::t_8e0c568cdb7d98 119-129,133-136,145-148,158-161,171-174
+packages/ui/src/components/value/object-renderer.test.tsx
+  s_b2ebb14b88ff45::t_02249e24c6774e 1-11,15-22,31
+  s_b2ebb14b88ff45::t_5b4d68dba54e9b 12-14,23-30
+.changeset/ui-review-correctness.md
+  s_b2ebb14b88ff45::t_a9e86a85277ba5 1-10
+packages/ui/src/components/ui/data-table.test.tsx
+  s_b2ebb14b88ff45::t_02249e24c6774e 1-46
+packages/ui/src/hooks/use-settings.test.tsx
+  s_b2ebb14b88ff45::t_a9e86a85277ba5 13,23-24,30,36-38,42
+  s_b2ebb14b88ff45::t_c1927016d46c6b 14-22,25-29,31-35,39-41
+packages/ui/src/components/display/file-icon.test.tsx
+  s_b2ebb14b88ff45::t_a9e86a85277ba5 1-18
+packages/ui/src/components/value/detect.test.ts
+  s_b2ebb14b88ff45::t_c1927016d46c6b 5-16
+  s_b2ebb14b88ff45::t_a9e86a85277ba5 1-4,17
+packages/ui/src/components/display/file-icon.tsx
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 115
+  s_b2ebb14b88ff45::t_8f1c233333dd27 102
+packages/ui/src/components/display/provider-badge.tsx
+  s_b2ebb14b88ff45::t_c1927016d46c6b 67-72
+  s_b2ebb14b88ff45::t_39b4daad87b6dd 66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "50c04a6a68847997ffeed6ea6852e95066bfd7d4",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
