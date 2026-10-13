@@ -1,0 +1,70 @@
+packages/cli/src/commands/data/bootstrap.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 67-76
+packages/cli/src/commands/init/command.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 2,75-77,96
+  s_b2ebb14b88ff45::t_c5ea3a0e06102c 3-4,6,50-52,62
+  s_b2ebb14b88ff45::t_6ab88d2c543765 15
+  s_b2ebb14b88ff45::t_f0863362ba3ecf 40-49,53-61,110-115
+  s_b2ebb14b88ff45::t_67f4607640f5c4 78-82,85
+  s_b2ebb14b88ff45::t_6c403197247e6d 117
+packages/cli/src/commands/data/worker.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 2,22
+packages/providers/src/braintrust/provider.test.ts
+  s_b2ebb14b88ff45::t_67f4607640f5c4 86-89,91-94,255-259,264-271
+  s_b2ebb14b88ff45::t_deafb2ca2dcb3d 12,19,90,95,231
+  s_b2ebb14b88ff45::t_0b6074fc542f8d 254,260-263,272-278
+packages/providers/src/voltops.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 1-2
+packages/providers/src/object-storage/datasets.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 14-18
+packages/providers/src/hosted.test.ts
+  s_b2ebb14b88ff45::t_67f4607640f5c4 135-139,142-155,220-222,429-432,436-439,441-459,463-467,474-477,480-490,492-503,511-513,520-522,524-538,671-675,679-682,684-700,708-712,716-719,722-725,731-733
+  s_b2ebb14b88ff45::t_0b6074fc542f8d 2,25,34,257,427-428,433-435,440,460-462,468-473,478-479,491,504-510,514-519,523,539
+  s_b2ebb14b88ff45::t_b90e77964dd87a 670,676-678,683,701-707,713-715,720-721,726-730,734-735
+packages/providers/src/langfuse.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 1-2
+.changeset/provider-review-contracts.md
+  s_b2ebb14b88ff45::t_b90e77964dd87a 1-7,10-13
+  s_b2ebb14b88ff45::t_6c403197247e6d 8-9
+packages/providers/src/braintrust/datasets.ts
+  s_b2ebb14b88ff45::t_150e75a73601c9 56-57,64-65,71-74,83
+  s_b2ebb14b88ff45::t_67f4607640f5c4 58-63,66-70,75-82
+packages/providers/src/voltops/datasets.ts
+  s_b2ebb14b88ff45::t_67f4607640f5c4 99-100,104-107
+  s_b2ebb14b88ff45::t_150e75a73601c9 91-98,101-103,108
+packages/cli/src/commands/data/command.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 12,77
+  s_b2ebb14b88ff45::t_67f4607640f5c4 112-114
+packages/cli/src/templates/vitest.config.ts.template
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 6
+packages/providers/src/langfuse/provider.ts
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 82,88,200-201,209-211
+  s_b2ebb14b88ff45::t_67f4607640f5c4 77-81,173-182,202-208,334-336,343-347
+packages/viteval/cli.test.ts
+  s_b2ebb14b88ff45::t_6c403197247e6d 89,93,145
+  s_b2ebb14b88ff45::t_f0863362ba3ecf 76-80
+  s_b2ebb14b88ff45::t_931ccbecb89120 68-72,159
+  s_b2ebb14b88ff45::t_a4d3993e1cd1dd 67
+  s_b2ebb14b88ff45::t_8832d007b48a2b 90-92,94-97,140-144,146-154,244-259
+  s_b2ebb14b88ff45::t_b90e77964dd87a 182
+  s_b2ebb14b88ff45::t_67f4607640f5c4 115-125,155-158,160-181,183,968-972
+  s_b2ebb14b88ff45::t_c5ea3a0e06102c 234
+  s_b2ebb14b88ff45::t_3aa1c1fc55cf09 309,324,841,959,973
+  s_b2ebb14b88ff45::t_67dfecdc96a750 184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "38895267ab2ad48ae966d6667db1b4fa020dd62e",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
