@@ -64,3 +64,13 @@ export function instrumentDatasetModule({
   }
   return `${start}${code}${finish}`;
 }
+
+/**
+ * Match native file paths to Vite's POSIX module identifiers.
+ * @param file - Native or POSIX module path.
+ * @returns A consistently separated module identifier.
+ * @example normalizeDatasetPath('C:\\app\\questions.eval.ts');
+ */
+export function normalizeDatasetPath(file: string): string {
+  return file.replaceAll('\\', '/');
+}
