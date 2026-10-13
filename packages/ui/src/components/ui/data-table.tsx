@@ -75,7 +75,7 @@ function DataTable<TData extends RowData>({
   return (
     <div className="space-y-4 min-w-0">
       <div className="overflow-x-auto rounded-md border">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -116,11 +116,24 @@ function DataTable<TData extends RowData>({
                     className={interactive ? "cursor-pointer" : ""}
                     tabIndex={interactive ? 0 : undefined}
                     role={interactive ? "button" : undefined}
-                    onClick={interactive ? activate : undefined}
+                    onClick={
+                      interactive
+                        ? (event: React.MouseEvent<HTMLTableRowElement>) => {
+                            const control = event.target instanceof Element
+                              ? event.target.closest('a, button, input, select, textarea, [role="button"], [role="link"], [role="checkbox"], [role="switch"], [role="combobox"], [contenteditable="true"], [tabindex]')
+                              : null
+                            if (control && control !== event.currentTarget) return
+                            activate()
+                          }
+                        : undefined
+                    }
                     onKeyDown={
                       interactive
                         ? (e: React.KeyboardEvent<HTMLTableRowElement>) => {
-                            if (e.key === "Enter" || e.key === " ") {
+                            if (
+                              e.target === e.currentTarget &&
+                              (e.key === "Enter" || e.key === " ")
+                            ) {
                               e.preventDefault()
                               activate()
                             }
@@ -129,7 +142,10 @@ function DataTable<TData extends RowData>({
                     }
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        className="overflow-hidden text-ellipsis whitespace-nowrap max-w-0"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -139,7 +155,10 @@ function DataTable<TData extends RowData>({
                   </TableRow>
                   {row.getIsExpanded() && renderExpandedRow && (
                     <TableRow>
-                      <TableCell colSpan={columns.length} className="p-0">
+                      <TableCell
+                        colSpan={table.getVisibleLeafColumns().length}
+                        className="p-0"
+                      >
                         {renderExpandedRow(row)}
                       </TableCell>
                     </TableRow>
@@ -149,7 +168,10 @@ function DataTable<TData extends RowData>({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={table.getVisibleLeafColumns().length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
