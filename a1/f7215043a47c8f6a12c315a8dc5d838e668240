@@ -1,0 +1,33 @@
+apps/website/guide/providers.md
+  s_b2ebb14b88ff45::t_150e75a73601c9 275-285
+apps/website/guide/cli.md
+  s_b2ebb14b88ff45::t_c5ea3a0e06102c 23-25
+  s_b2ebb14b88ff45::t_ca80019120c879 12,19-21
+  s_d12a83aa1f631c::t_ef3fa6f63a6588 22,26
+apps/website/guide/migration.md
+  s_b2ebb14b88ff45::t_150e75a73601c9 56-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a1f7215043a47c8f6a12c315a8dc5d838e668240",
+  "prompts": {},
+  "sessions": {
+    "s_b2ebb14b88ff45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed68bac86ffePb4RxfI1Co5w5H",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    },
+    "s_d12a83aa1f631c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed799bdc8ffe706pkLpyELDAoK",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Zac Rosenbauer <me@zrosenbauer.com>"
+    }
+  }
+}
