@@ -53,25 +53,35 @@ export function createBraintrustDatasetOps(
           name: params.name,
           project_id: getProjectId(),
         });
-        // @braintrust/api 0.5 supports dataset metadata through PATCH, not its create parameters.
-        const dataset =
-          params.metadata === undefined
-            ? created
-            : await client.datasets.update(created.id, {
-                metadata: params.metadata,
-              });
-
-        if (params.items?.length) {
-          await client.datasets.insert(dataset.id, {
-            events: params.items.map((item) => ({
-              expected: item.expected,
-              input: item.input,
-              metadata: item.extra,
-            })),
-          });
+        try {
+          // @braintrust/api 0.5 supports dataset metadata through PATCH, not its create parameters.
+          const dataset =
+            params.metadata === undefined
+              ? created
+              : await client.datasets.update(created.id, {
+                  metadata: params.metadata,
+                });
+          if (params.items?.length) {
+            await client.datasets.insert(dataset.id, {
+              events: params.items.map((item) => ({
+                expected: item.expected,
+                input: item.input,
+                metadata: item.extra,
+              })),
+            });
+          }
+          return mapDataset(dataset, params.items?.length ?? 0);
+        } catch (error) {
+          const cleanup = await attemptAsync(() =>
+            client.datasets.delete(created.id)
+          );
+          if (!cleanup.ok)
+            throw new Error(
+              `Braintrust dataset ${created.id} creation failed: ${error instanceof Error ? error.message : String(error)}. Cleanup also failed: ${cleanup.error.message}`,
+              { cause: error }
+            );
+          throw error;
         }
-
-        return mapDataset(dataset, params.items?.length ?? 0);
       }),
 
     delete: (params) =>

@@ -88,16 +88,24 @@ export function createVoltOpsDatasets(
       path: `/evals/datasets/${encodeURIComponent(params.datasetId)}/versions`,
       body: { metadata: params.metadata ?? null },
     });
-    for (const item of params.items)
-      await request({
-        path: `/evals/datasets/${encodeURIComponent(params.datasetId)}/versions/${encodeURIComponent(versionId)}/items`,
-        body: {
-          input: item.input,
-          expected: item.expected ?? null,
-          extra: item.extra ?? null,
-          label: typeof item.extra?.name === 'string' ? item.extra.name : null,
-        },
-      });
+    try {
+      for (const item of params.items)
+        await request({
+          path: `/evals/datasets/${encodeURIComponent(params.datasetId)}/versions/${encodeURIComponent(versionId)}/items`,
+          body: {
+            input: item.input,
+            expected: item.expected ?? null,
+            extra: item.extra ?? null,
+            label:
+              typeof item.extra?.name === 'string' ? item.extra.name : null,
+          },
+        });
+    } catch (error) {
+      throw new Error(
+        `VoltOps dataset ${params.datasetId} version ${versionId} may be incomplete after upload failure: ${error instanceof Error ? error.message : String(error)}. Inspect the version in the VoltOps console before retrying or reading the latest version.`,
+        { cause: error }
+      );
+    }
     return detail(params.datasetId);
   }
   return {
