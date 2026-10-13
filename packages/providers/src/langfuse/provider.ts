@@ -74,14 +74,18 @@ export function langfuse(options: LangfuseProviderOptions): Provider {
             { cause: imported.error }
           );
         const [sdk, tracing, otlp, api] = imported.value;
-        const client = new sdk.LangfuseClient(options);
+        const baseUrl = (
+          options.baseUrl ??
+          process.env.LANGFUSE_BASE_URL ??
+          'https://cloud.langfuse.com'
+        ).replace(/\/$/, '');
+        const client = new sdk.LangfuseClient({ ...options, baseUrl });
         const memory = new tracing.InMemorySpanExporter();
         const telemetry = new tracing.BasicTracerProvider({
           spanProcessors: [new tracing.SimpleSpanProcessor(memory)],
         });
-        const baseUrl = options.baseUrl ?? 'https://cloud.langfuse.com';
         const exporter = new otlp.OTLPTraceExporter({
-          url: `${baseUrl.replace(/\/$/, '')}/api/public/otel/v1/traces`,
+          url: `${baseUrl}/api/public/otel/v1/traces`,
           headers: {
             Authorization: `Basic ${Buffer.from(`${options.publicKey}:${options.secretKey}`).toString('base64')}`,
             'x-langfuse-ingestion-version': '4',
@@ -166,7 +170,16 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
     const seen = new Set<string>();
     do {
       const response = await runtime.client.api.observations.getMany({
-        ...params,
+        filter: JSON.stringify(
+          Object.entries(params)
+            .filter(([, value]) => value !== undefined)
+            .map(([column, value]) => ({
+              type: 'string',
+              column,
+              operator: '=',
+              value,
+            }))
+        ),
         cursor,
         fields: 'core,basic,metadata',
         expandMetadata: 'viteval_run,viteval_result',
@@ -184,14 +197,18 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
     const local = runs.get(id);
     if (local) return local;
     const remote = await observations({ name: 'viteval.run', sessionId: id });
-    if (!remote.length) return null;
-    return decodeRun(
-      requireRecord(
-        typeof remote[0].metadata === 'string'
-          ? JSON.parse(remote[0].metadata)
-          : remote[0].metadata
-      ).viteval_run
-    );
+    for (const observation of remote) {
+      if (observation.name !== 'viteval.run') continue;
+      const run = decodeRun(
+        requireRecord(
+          typeof observation.metadata === 'string'
+            ? JSON.parse(observation.metadata)
+            : observation.metadata
+        ).viteval_run
+      );
+      if (run.id === id) return run;
+    }
+    return null;
   }
   return {
     create: (params) =>
@@ -314,17 +331,20 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
         if (!params.includeResults) return { ...run, results: undefined };
         const records =
           run.results ??
-          (await observations({ name: 'viteval.case', sessionId: run.id })).map(
-            (observation) => {
+          (await observations({ name: 'viteval.case', sessionId: run.id }))
+            .filter((observation) => observation.name === 'viteval.case')
+            .map((observation) => {
               const metadata = requireRecord(
                 typeof observation.metadata === 'string'
                   ? JSON.parse(observation.metadata)
                   : observation.metadata
               );
               return decodeResult(metadata.viteval_result);
-            }
-          );
-        return { ...run, results: records };
+            });
+        return {
+          ...run,
+          results: records.filter((result) => result.evalRunId === run.id),
+        };
       }),
     list: (params) =>
       attemptAsync(async () => {

@@ -9,12 +9,20 @@ The Viteval CLI uses maltty for project commands and Vitest for evaluation execu
 ```bash
 viteval init
 viteval init --no-env-file
-viteval init --env-file --env-file-path .env.local
+viteval init --create-env-file --env-file-path .env.local
 ```
 
 Initialization preserves existing configuration. In noninteractive environments,
 it creates the configuration and setup module without prompting. Pass `--env-file`
 to create an environment file explicitly.
+
+Use its `--create-env-file` alias when selecting a custom path to avoid Node's
+runtime `--env-file` option. Absolute and relative paths target the same file
+when created and loaded by the generated setup module.
+
+Init writes `vitest.config.ts` for ESM projects and `vitest.config.mts` for
+CommonJS projects, so the generated configuration can import the ESM-only Viteval
+entry points. Existing Vitest configuration files in either format are preserved.
 
 ### Run Evaluations
 

@@ -11,6 +11,11 @@ import { DATASET_FILE_SCHEMA } from '@viteval/core/dataset';
 import { serializeJson } from '@viteval/internal';
 import { jsonValue, requireRecord } from '#/remote-record';
 
+/**
+ * Immutable snapshot storage retains superseded and unreferenced objects.
+ * Dataset deletion removes its catalog entry, not its historical payloads.
+ * Bucket cleanup is caller-managed and must protect snapshots used by readers.
+ */
 export interface ObjectDatasetOptions {
   /** Namespace in the bucket. Defaults to viteval/datasets. */
   prefix?: string;
