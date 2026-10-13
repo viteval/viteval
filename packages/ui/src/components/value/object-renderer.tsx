@@ -74,11 +74,13 @@ function getStringFieldPaths(obj: unknown, parentPath = ''): string[] {
 }
 
 function FieldViewer({ value }: { value: unknown }) {
-  const resolved = resolveObject(value);
+  const resolved = useMemo(() => resolveObject(value), [value]);
   const paths = useMemo(() => getStringFieldPaths(resolved), [resolved]);
-  const [selectedPath, setSelectedPath] = useState<string | undefined>(
+  const [preferredPath, setSelectedPath] = useState<string | undefined>(
     paths[0]
   );
+  const selectedPath =
+    preferredPath && paths.includes(preferredPath) ? preferredPath : paths[0];
 
   const fieldValue = useMemo(() => {
     if (!selectedPath) {
