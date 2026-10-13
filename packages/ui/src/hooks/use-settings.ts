@@ -100,44 +100,7 @@ export function useSettings() {
           return { error: 'Settings must be a JSON object', ok: false };
         }
 
-        const incoming = parsed as Record<string, unknown>;
-        const next: VitevalSettings = { ...DEFAULT_SETTINGS };
-
-        for (const key of Object.keys(DEFAULT_SETTINGS) as SettingsKey[]) {
-          const value = incoming[key];
-          if (value === undefined) {
-            continue;
-          }
-          if (
-            key === 'timestampFormat' &&
-            typeof value === 'string' &&
-            (TIMESTAMP_FORMATS as readonly string[]).includes(value)
-          ) {
-            next.timestampFormat = value as VitevalSettings['timestampFormat'];
-            continue;
-          }
-          if (
-            (key === 'autoRefreshInterval' ||
-              key === 'chartMaxDataPoints' ||
-              key === 'pageSize') &&
-            typeof value === 'number' &&
-            Number.isFinite(value) &&
-            value >= 0
-          ) {
-            next[key] = value;
-            continue;
-          }
-          if (
-            (key === 'expandJsonByDefault' || key === 'showLineNumbers') &&
-            typeof value === 'boolean'
-          ) {
-            next[key] = value;
-            continue;
-          }
-          // Unknown or invalid value — silently drop.
-        }
-
-        setSettings(next);
+        setSettings(normalizeSettings(parsed as Record<string, unknown>));
         return { ok: true };
       } catch {
         return { error: 'Invalid JSON', ok: false };
@@ -173,7 +136,7 @@ function parseStoredSettings(value: string | null): VitevalSettings {
     ) {
       return DEFAULT_SETTINGS;
     }
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    return normalizeSettings(parsed as Record<string, unknown>);
   } catch {
     return DEFAULT_SETTINGS;
   }
@@ -191,4 +154,33 @@ function subscribeToSettings(onChange: () => void) {
     window.removeEventListener('storage', onStorage);
     window.removeEventListener(SETTINGS_EVENT, onChange);
   };
+}
+
+function normalizeSettings(incoming: Record<string, unknown>): VitevalSettings {
+  return {
+    autoRefreshInterval: isNonNegativeNumber(incoming.autoRefreshInterval)
+      ? incoming.autoRefreshInterval
+      : DEFAULT_SETTINGS.autoRefreshInterval,
+    chartMaxDataPoints: isNonNegativeNumber(incoming.chartMaxDataPoints)
+      ? incoming.chartMaxDataPoints
+      : DEFAULT_SETTINGS.chartMaxDataPoints,
+    pageSize: isNonNegativeNumber(incoming.pageSize)
+      ? incoming.pageSize
+      : DEFAULT_SETTINGS.pageSize,
+    expandJsonByDefault:
+      typeof incoming.expandJsonByDefault === 'boolean'
+        ? incoming.expandJsonByDefault
+        : DEFAULT_SETTINGS.expandJsonByDefault,
+    showLineNumbers:
+      typeof incoming.showLineNumbers === 'boolean'
+        ? incoming.showLineNumbers
+        : DEFAULT_SETTINGS.showLineNumbers,
+    timestampFormat:
+      TIMESTAMP_FORMATS.find((value) => value === incoming.timestampFormat) ??
+      DEFAULT_SETTINGS.timestampFormat,
+  };
+}
+
+function isNonNegativeNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
