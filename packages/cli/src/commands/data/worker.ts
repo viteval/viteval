@@ -1,4 +1,5 @@
 import { pathToFileURL } from 'node:url';
+import { normalizeDatasetPath } from '#/commands/data/bootstrap';
 
 /**
  * Build a native Vitest module that generates datasets inside their project worker.
@@ -18,7 +19,7 @@ export function createDatasetWorker({
   bootstrap: string;
 }): string {
   const datasets = files.map((file) => ({
-    name: file,
+    name: normalizeDatasetPath(file),
     file: pathToFileURL(file).href,
   }));
   return `import { test, recordArtifact } from 'vitest';
