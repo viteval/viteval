@@ -53,6 +53,12 @@ and unsupported JSON values fail explicitly.
 JSON is the default provider. Explicitly use `viteval({ database: 'sqlite' })`
 for the optional database provider. See [Providers](./providers).
 
+Legacy database run tags are a breaking storage change: v1 uses separate `tags`
+and `taggings` tables and does not automatically copy `eval_runs.tags` values.
+Back up the database and export those tag associations before upgrading, then
+reapply them through the v1 tag provider. Initialization does not drop the legacy
+column, but the v1 provider does not expose its values. PostgreSQL remains experimental.
+
 Reports carry `schemaVersion: 1`, run identity, final Vitest case state, and
 execution diagnostics. The dashboard accepts legacy files that match the
 supported structure and reports malformed or incompatible files as warnings.

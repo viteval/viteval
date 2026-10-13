@@ -272,6 +272,17 @@ referenced by the current catalog. No automatic garbage collection is performed.
 
 ## Serialization and failures
 
+VoltOps dataset creation and `addItems` upload versions through multiple requests.
+They are not failure-safe: a failed item upload can leave an incomplete latest
+version that subsequent reads return. Errors include the dataset and version IDs;
+inspect and repair that version in the VoltOps console before retrying. Previous
+versions are retained remotely. The SDK does not expose transactional publication
+or version deletion, so atomic replacement remains unsupported.
+
+Braintrust creation attempts to delete a newly created dataset if its metadata
+or initial item write fails. If cleanup is also rejected, the error retains the
+original failure and identifies the dataset that needs manual cleanup.
+
 - Store JSON-compatible inputs, expected values, outputs, and metadata. Dates serialize to ISO strings.
 - Native JSON and SQLite providers normalize undefined inputs, expected values, and outputs to null. Optional object fields remain omitted.
 - Non-finite numbers, BigInt, functions, symbols, cycles, and unsupported object classes fail explicitly.
