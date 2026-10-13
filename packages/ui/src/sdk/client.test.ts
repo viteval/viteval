@@ -17,6 +17,34 @@ afterEach(async () => {
 });
 
 describe('dashboard storage', () => {
+  it('should keep copied datasets with stale or duplicate embedded IDs independently addressable', async () => {
+    await mkdir(path.join(root, '.viteval/datasets'), { recursive: true });
+    const filenames = ['original', 'copied', 'legacy %# name'];
+    for (const filename of filenames) {
+      await writeFile(
+        path.join(root, '.viteval/datasets', `${filename}.json`),
+        JSON.stringify({
+          id: 'original',
+          name: filename,
+          data: [{ input: filename, expected: filename }],
+        })
+      );
+    }
+    const sdk = createViteval({ root });
+    const listed = await sdk.datasets.list();
+    expect(listed.warnings).toEqual([]);
+    expect(listed.data.map((dataset) => dataset.id).toSorted()).toEqual(
+      filenames.toSorted()
+    );
+    for (const dataset of listed.data) {
+      expect(await sdk.datasets.get({ id: dataset.id })).toMatchObject({
+        data: {
+          id: dataset.id,
+          data: [{ id: `${dataset.id}:0`, input: dataset.id }],
+        },
+      });
+    }
+  });
   it('should preserve dataset names containing json suffixes through listing and detail reads', async () => {
     const provider = createJsonProvider({ root });
     const names = ['questions.json.release', 'questions.json'];
