@@ -9,6 +9,7 @@ import { createDatasetWorker } from '#/commands/data/worker';
 import {
   createDatasetBootstrap,
   instrumentDatasetModule,
+  normalizeDatasetPath,
 } from '#/commands/data/bootstrap';
 import {
   DATA_ARGS,
@@ -73,7 +74,7 @@ export const dataCommand = command({
               name: 'viteval-dataset-discovery',
               enforce: 'post',
               transform(code, id) {
-                const file = id.split('?')[0];
+                const file = normalizeDatasetPath(id.split('?')[0] ?? '');
                 if (!file || !matchedFiles.has(file)) return;
                 return {
                   code: instrumentDatasetModule({ code, file, checkpoint }),
@@ -108,7 +109,9 @@ export const dataCommand = command({
           return;
         }
         matchedFiles = new Set(
-          datasets.map((file) => path.resolve(rootPath, file))
+          datasets.map((file) =>
+            normalizeDatasetPath(path.resolve(rootPath, file))
+          )
         );
 
         workerPath = path.join(

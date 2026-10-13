@@ -3,6 +3,7 @@ import { JsonReporter } from 'viteval/reporters';
 
 export default defineConfig({
   test: {
+    testTimeout: 100_000,
     include: ['src/**/*.eval.ts'],
     reporters: [
       'default',

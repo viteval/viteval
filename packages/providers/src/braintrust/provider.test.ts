@@ -9,12 +9,14 @@ let requests: { method: string; path: string; body: unknown }[];
 let experiment: Record<string, unknown>;
 let dataset: (Braintrust.Dataset & { url_slug: string }) | undefined;
 let datasetUpdateStatus: 200 | 400 | 403;
+let datasetDeleteStatus: 200 | 403;
 
 beforeEach(async () => {
   requests = [];
   experiment = {};
   dataset = undefined;
   datasetUpdateStatus = 200;
+  datasetDeleteStatus = 200;
   server = createServer(async (request, response) => {
     let text = '';
     for await (const chunk of request) text += String(chunk);
@@ -81,6 +83,16 @@ beforeEach(async () => {
         };
         result = dataset;
       }
+    } else if (
+      url.pathname === '/v1/dataset/dataset' &&
+      request.method === 'DELETE'
+    ) {
+      response.statusCode = datasetDeleteStatus;
+      result =
+        datasetDeleteStatus === 200
+          ? dataset
+          : { message: 'Dataset deletion rejected' };
+      if (datasetDeleteStatus === 200) dataset = undefined;
     } else if (
       url.pathname === '/v1/dataset/dataset' &&
       request.method === 'GET'
@@ -216,7 +228,7 @@ describe('Braintrust HTTP contract', () => {
           items: [{ input: 'q', expected: 'a' }],
         })
       ).toMatchObject({ ok: false, error: { status } });
-      expect(dataset?.metadata).toEqual({});
+      expect(dataset).toBeUndefined();
       expect(
         requests.some(
           (request) => request.path === '/v1/dataset/dataset/insert'
@@ -237,6 +249,31 @@ describe('Braintrust HTTP contract', () => {
       await provider.datasets!.create({ name: 'questions' })
     ).toMatchObject({ ok: true, value: { metadata: {} } });
     expect(requests.some((request) => request.method === 'PATCH')).toBe(false);
+  });
+
+  it('should retain the creation failure and orphan ID when cleanup is also rejected', async () => {
+    const provider = braintrust({
+      project: 'test-project',
+      apiKey: 'test-only-key',
+      baseUrl,
+    });
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    datasetUpdateStatus = 400;
+    datasetDeleteStatus = 403;
+    const result = await provider.datasets!.create({
+      name: 'questions',
+      metadata: { source: 'release' },
+    });
+    expect(result).toMatchObject({
+      ok: false,
+      error: { cause: { status: 400 } },
+    });
+    if (result.ok) throw new Error('Expected a rejected creation');
+    expect(result.error.message).toContain('dataset dataset');
+    expect(result.error.message).toContain('Dataset metadata update rejected');
+    expect(result.error.message).toContain('Cleanup also failed');
+    expect(dataset?.id).toBe('dataset');
   });
 
   it('should paginate datasets and replace items with a single insertion request', async () => {

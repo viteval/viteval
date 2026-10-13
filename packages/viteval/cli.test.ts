@@ -64,10 +64,20 @@ describe('help', () => {
 describe('init', () => {
   beforeAll(async () => {
     await fs.mkdir(TEST_DIR, { recursive: true });
+    await fs.mkdir(path.join(TEST_DIR, 'node_modules'), { recursive: true });
+    await fs.symlink(
+      import.meta.dirname,
+      path.join(TEST_DIR, 'node_modules', 'viteval'),
+      'junction'
+    );
 
     await fs.writeFile(
       path.join(TEST_DIR, 'package.json'),
-      JSON.stringify({ name: 'test-project', version: '1.0.0' }, null, 2)
+      JSON.stringify(
+        { name: 'test-project', version: '1.0.0', type: 'module' },
+        null,
+        2
+      )
     );
   });
 
@@ -76,7 +86,15 @@ describe('init', () => {
   });
 
   afterEach(async () => {
-    await fs.rm(path.join(TEST_DIR, 'vitest.config.ts'), { force: true });
+    for (const extension of ['ts', 'mts', 'js', 'mjs', 'cts', 'cjs']) {
+      await fs.rm(path.join(TEST_DIR, `vitest.config.${extension}`), {
+        force: true,
+      });
+    }
+    await fs.writeFile(
+      path.join(TEST_DIR, 'package.json'),
+      JSON.stringify({ name: 'test-project', version: '1.0.0', type: 'module' })
+    );
     await fs.rm(path.join(TEST_DIR, 'viteval.setup.ts'), { force: true });
     await fs.rm(path.join(TEST_DIR, '.env'), { force: true });
     await fs.rm(path.join(TEST_DIR, '.viteval'), {
@@ -94,6 +112,17 @@ describe('init', () => {
       .then(() => true)
       .catch(() => false);
     expect(configExists).toBe(true);
+    expect(
+      await fs.readFile(path.join(TEST_DIR, 'vitest.config.ts'), 'utf8')
+    ).toBe(
+      await fs.readFile(
+        path.join(
+          import.meta.dirname,
+          '../cli/src/templates/vitest.config.ts.template'
+        ),
+        'utf8'
+      )
+    );
 
     const dotDirExists = await fs
       .access(path.join(TEST_DIR, '.viteval'))
@@ -107,6 +136,51 @@ describe('init', () => {
       .catch(() => false);
     expect(gitkeepExists).toBe(true);
   });
+
+  it.each(
+    ['module', 'commonjs'].flatMap((moduleType) =>
+      ['relative', 'absolute'].map((kind) => ({ moduleType, kind }))
+    )
+  )(
+    'should create and load a URL-safe $kind env-file path in a $moduleType project',
+    async ({ kind, moduleType }) => {
+      await fs.writeFile(
+        path.join(TEST_DIR, 'package.json'),
+        JSON.stringify({
+          name: 'test-project',
+          version: '1.0.0',
+          type: moduleType,
+        })
+      );
+      const relative = 'config/env %#.fixture';
+      const destination = path.join(TEST_DIR, relative);
+      const selected = kind === 'absolute' ? destination : relative;
+      const initialized = runCli({
+        args: ['init', '--create-env-file', '--env-file-path', selected],
+        cwd: TEST_DIR,
+      });
+      expect(
+        initialized.status,
+        `${initialized.stdout}${initialized.stderr}`
+      ).toBe(0);
+      await fs.writeFile(destination, 'VITEVAL_ENV_FIXTURE="loaded"\n');
+      const evaluation = path.join(TEST_DIR, 'src', 'env.eval.ts');
+      await fs.writeFile(
+        evaluation,
+        "import { evaluate, scorers } from 'viteval';\nevaluate('env file', { data: [{ input: 'loaded', expected: 'loaded' }], task: () => process.env.VITEVAL_ENV_FIXTURE, scorers: [scorers.exactMatch()] });\n"
+      );
+      try {
+        const result = runCli({
+          args: ['run', 'src/env.eval.ts'],
+          cwd: TEST_DIR,
+        });
+        expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+      } finally {
+        await fs.rm(destination, { force: true });
+        await fs.rm(evaluation, { force: true });
+      }
+    }
+  );
 
   it('should create .env and viteval.setup.ts when env file is enabled', async () => {
     const result = runCli({ args: ['init', '--env-file'], cwd: TEST_DIR });
@@ -157,7 +231,7 @@ describe('init', () => {
       const result = runCli({ args: ['init', '--no-env-file'], cwd: project });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       const config = await fs.readFile(
-        path.join(project, 'vitest.config.ts'),
+        path.join(project, 'vitest.config.mts'),
         'utf8'
       );
       expect(config).toContain("from 'viteval/reporters'");
@@ -167,14 +241,22 @@ describe('init', () => {
     }
   });
 
-  it('should preserve existing configuration on repeated initialization', async () => {
-    const configPath = path.join(TEST_DIR, 'vitest.config.ts');
-    const existingConfig = 'export default { test: { retry: 2 } };\n';
-    await fs.writeFile(configPath, existingConfig);
-    const result = runCli({ args: ['init', '--no-env-file'], cwd: TEST_DIR });
-    expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
-    expect(await fs.readFile(configPath, 'utf8')).toBe(existingConfig);
-  });
+  it.each(['ts', 'mts', 'js', 'mjs', 'cts', 'cjs'])(
+    'should preserve existing .%s configuration on repeated initialization',
+    async (extension) => {
+      const configPath = path.join(TEST_DIR, `vitest.config.${extension}`);
+      const existingConfig = 'export default { test: { retry: 2 } };\n';
+      await fs.writeFile(configPath, existingConfig);
+      const result = runCli({ args: ['init', '--no-env-file'], cwd: TEST_DIR });
+      expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+      expect(await fs.readFile(configPath, 'utf8')).toBe(existingConfig);
+      expect(
+        (await fs.readdir(TEST_DIR)).filter((name) =>
+          name.startsWith('vitest.config.')
+        )
+      ).toEqual([`vitest.config.${extension}`]);
+    }
+  );
 
   it('should reject unknown initialization flags', () => {
     const result = runCli({
@@ -224,7 +306,7 @@ describe('data', () => {
     await fs.rm(DATA_TEST_DIR, { force: true, recursive: true });
   });
 
-  it('writes datasets under the selected Vitest root', async () => {
+  it('should write datasets under the selected Vitest root', async () => {
     const result = runCli({
       args: ['data', '--root', DATA_TEST_DIR, '--overwrite'],
     });
@@ -239,7 +321,7 @@ describe('data', () => {
     expect(dataset.data).toEqual([{ expected: 'answer', input: 'question' }]);
   });
 
-  it('rejects an unknown Vitest project', () => {
+  it('should reject an unknown Vitest project', () => {
     const result = runCli({
       args: ['data', '--root', DATA_TEST_DIR, '--project', 'missing'],
     });
@@ -756,7 +838,7 @@ describe('run', () => {
   afterAll(async () => {
     await fs.rm(RUN_TEST_DIR, { force: true, recursive: true });
   });
-  it('delegates filters and options to the native Vitest CLI', () => {
+  it('should delegate filters and options to the native Vitest CLI', () => {
     const result = runCli({
       args: [
         'run',
@@ -874,7 +956,7 @@ describe('ui', () => {
 });
 
 function runCli({ args, cwd }: { args: string[]; cwd?: string }) {
-  return spawnSync(
+  const result = spawnSync(
     CLI_BINARY ?? process.execPath,
     CLI_BINARY ? args : [CLI_DIST, ...args],
     {
@@ -883,4 +965,10 @@ function runCli({ args, cwd }: { args: string[]; cwd?: string }) {
       timeout: 10_000,
     }
   );
+  if (result.error)
+    throw new Error(
+      `CLI could not complete: ${result.error.message}\n${result.stdout ?? ''}${result.stderr ?? ''}`,
+      { cause: result.error }
+    );
+  return result;
 }

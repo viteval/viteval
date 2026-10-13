@@ -1,7 +1,9 @@
 import path from 'node:path';
-import { createFile } from '@viteval/internal';
+import { pathToFileURL } from 'node:url';
+import { readFile } from 'node:fs/promises';
+import { createFile, fileExists } from '@viteval/internal';
 import { command } from 'maltty';
-import { isErr } from 'massaman/control';
+import { attemptAsync, isErr, ok } from 'massaman/control';
 import { INIT_ARGS } from '#/lib/command-options';
 import { hasPackageJson } from '#/lib/utils';
 import { createFileFromTemplate } from '#/templates';
@@ -10,6 +12,7 @@ export const initCommand = command({
   description: 'Initialize a new project',
   options: {
     'env-file': {
+      alias: 'create-env-file',
       description: 'Create .env file',
       type: 'boolean',
     },
@@ -34,6 +37,29 @@ export const initCommand = command({
         'Package.json does not exist in the current directory. Viteval needs to run in a project directory.'
       );
     }
+    const manifest = await attemptAsync(async (): Promise<unknown> =>
+      JSON.parse(await readFile(path.join(cwd, 'package.json'), 'utf8'))
+    );
+    if (!manifest.ok)
+      fail(`Failed to read package.json: ${manifest.error.message}`);
+    const isEsm =
+      typeof manifest.value === 'object' &&
+      manifest.value !== null &&
+      'type' in manifest.value &&
+      manifest.value.type === 'module';
+    const configName = isEsm ? 'vitest.config.ts' : 'vitest.config.mts';
+    let hasConfig = false;
+    for (const extension of ['ts', 'mts', 'js', 'mjs', 'cts', 'cjs']) {
+      const exists = await fileExists(
+        path.join(cwd, `vitest.config.${extension}`)
+      );
+      if (!exists.ok)
+        fail(`Failed to inspect Vitest configuration: ${exists.error.message}`);
+      if (exists.value) {
+        hasConfig = true;
+        break;
+      }
+    }
 
     logger.step('Initializing project...');
 
@@ -46,13 +72,17 @@ export const initCommand = command({
           })
         : false);
 
-    const envFilePath = args['env-file-path'];
+    const envFilePath = path.resolve(cwd, args['env-file-path']);
+    const envReference = path.isAbsolute(args['env-file-path'])
+      ? pathToFileURL(envFilePath).href
+      : path
+          .relative(cwd, envFilePath)
+          .split(path.sep)
+          .map(encodeURIComponent)
+          .join('/');
 
     if (useEnv) {
-      const result = await createFile(
-        path.join(cwd, envFilePath),
-        'OPENAI_API_KEY=""\n'
-      );
+      const result = await createFile(envFilePath, 'OPENAI_API_KEY=""\n');
 
       if (isErr(result)) {
         fail(`Failed to create .env file: ${result.error.message}`);
@@ -63,7 +93,7 @@ export const initCommand = command({
     }
 
     const envContent = useEnv
-      ? `import { existsSync } from 'node:fs';\nimport { loadEnvFile } from 'node:process';\n\nconst envFile = new URL(${JSON.stringify(envFilePath)}, import.meta.url);\nif (existsSync(envFile)) {\n  loadEnvFile(envFile);\n}\n`
+      ? `import { existsSync } from 'node:fs';\nimport { loadEnvFile } from 'node:process';\n\nconst envFile = new URL(${JSON.stringify(envReference)}, import.meta.url);\nif (existsSync(envFile)) {\n  loadEnvFile(envFile);\n}\n`
       : '';
     const setupContent = `${envContent}import { fileURLToPath } from 'node:url';\nimport { createJsonProvider, initializeProvider } from 'viteval/provider';\n\nconst provider = createJsonProvider({ root: fileURLToPath(new URL('.', import.meta.url)) });\nconst initialized = await initializeProvider({ datasets: provider });\nif (!initialized.ok) throw initialized.error;\n`;
     const setupResult = await createFile(
@@ -77,12 +107,14 @@ export const initCommand = command({
       logger.info('viteval.setup.ts file already exists, skipping...');
     }
 
-    const configResult = await createFileFromTemplate(
-      path.join(cwd, 'vitest.config.ts'),
-      'vitest.config.ts'
-    );
+    const configResult = hasConfig
+      ? ok(false)
+      : await createFileFromTemplate(
+          path.join(cwd, configName),
+          'vitest.config.ts'
+        );
     if (isErr(configResult)) {
-      fail(`Failed to create vitest.config.ts: ${configResult.error.message}`);
+      fail(`Failed to create ${configName}: ${configResult.error.message}`);
     }
     if (!configResult.value) {
       logger.note(
