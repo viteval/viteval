@@ -10,6 +10,36 @@ afterEach(() => {
 });
 
 describe('useSettings', () => {
+  it('should apply identical validation to persisted and imported settings', () => {
+    const incoming = JSON.stringify({
+      pageSize: 'abc',
+      autoRefreshInterval: -5,
+      chartMaxDataPoints: 100,
+      timestampFormat: 'invalid',
+      showLineNumbers: 'false',
+      expandJsonByDefault: true,
+      unknown: 'discard',
+    });
+    localStorage.setItem('viteval:settings', incoming);
+    const hook = renderHook(useSettings);
+    const expected = {
+      ...hook.result.current.defaults,
+      chartMaxDataPoints: 100,
+      expandJsonByDefault: true,
+    };
+    expect(hook.result.current.settings).toEqual(expected);
+    act(() => {
+      expect(hook.result.current.importSettings(incoming)).toEqual({
+        ok: true,
+      });
+    });
+    expect(hook.result.current.settings).toEqual(expected);
+    expect(JSON.parse(hook.result.current.exportSettings())).toEqual(expected);
+    act(() => hook.result.current.updateSetting('pageSize', 50));
+    expect(
+      JSON.parse(localStorage.getItem('viteval:settings') ?? '{}')
+    ).toEqual({ ...expected, pageSize: 50 });
+  });
   it('should render default settings during SSR without accessing localStorage', () => {
     function Settings() {
       const { settings } = useSettings();

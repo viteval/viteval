@@ -1,4 +1,4 @@
-import { isJSON } from '@/lib/utils';
+import { attempt } from 'massaman/control';
 
 export type ValueKind = 'object' | 'text' | 'markdown' | 'code' | 'primitive';
 
@@ -42,7 +42,12 @@ export function detectValueKind(value: unknown): ValueKind {
   }
 
   if (typeof value === 'string') {
-    if (isJSON(value)) {
+    const parsed = attempt((): unknown => JSON.parse(value));
+    if (
+      parsed.ok &&
+      typeof parsed.value === 'object' &&
+      parsed.value !== null
+    ) {
       return 'object';
     }
 
