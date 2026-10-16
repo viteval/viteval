@@ -1,5 +1,67 @@
 # @viteval/cli
 
+## 1.0.0-rc.1
+
+### Minor Changes
+
+- a1627e4: Use maltty for project commands, terminal prompts, logging, and dataset progress.
+  Add an optional compiled command shell while preserving native Vitest execution
+  and CLI exit codes.
+- a1627e4: Complete the local-first v1 workflow with JSON provider storage, atomic writes,
+  native-worker dataset generation, execution diagnostics, optional SQLite and
+  Braintrust persistence, dashboard validation, and isolated packed-package checks.
+
+  JSON is now the default native provider. SQLite requires an explicit database
+  option. Tasks receive input and extra fields; expected answers are reserved for
+  scorers. All packages require Node 26 or newer.
+
+  Preserve renamed JSON datasets when names are reused, serialize concurrent
+  namespace changes, and retain authoritative outcomes in dashboard projections.
+  Dashboard reads preserve dataset identifiers and extra fields, expose skipped
+  counts, and report tag-storage failures. Add repeatable browser verification and
+  merged native-worker coverage reporting.
+
+  Discover default, named, and inline datasets in dataset and evaluation modules
+  without executing evaluation tasks or scorers. Deduplicate aliases and shared
+  re-exports, reject duplicate names, and report module import failures before
+  publishing their datasets.
+
+### Patch Changes
+
+- 77730d8: Initialize dataset discovery before user setup modules so setup-imported inline
+  datasets are generated once without collecting evaluation work. Preserve
+  Braintrust dataset metadata through the SDK's supported update operation.
+- 92023da: Delegate configuration, discovery, execution, and reporting to Vitest 5's public APIs.
+
+  - **BREAKING**: Replace `viteval.config.ts` and the `eval` configuration block with native `vitest.config.ts` and `test` options.
+  - **BREAKING**: Remove the custom runner, plugin, runtime bootstrap, virtual config module, `createRun()` lifecycle, and `@viteval/core/runner` and `@viteval/core/plugin` exports.
+  - **BREAKING**: Delegate evaluation CLI parsing and lifecycle to Vitest, replace `Eval.timeout` with native `Eval.testOptions`, and remove `createDefaultReporter()` in favor of Vitest's built-in default reporter.
+  - **BREAKING**: Rewrite `JsonReporter` with Vitest's granular lifecycle hooks. Custom reporters extending the old `onFinished(files)` API must migrate.
+  - Execute evaluations through Vitest's native `start()` API.
+  - Transport structured eval results as typed Vitest custom artifacts.
+  - Initialize non-serializable models and providers through native Vitest setup files.
+  - Add a native custom reporter that uses evaluation terminology throughout.
+  - Add test annotations (`context.annotate`) for inline score reporting.
+  - Eliminate all `DangerouslyAllowAny` and `as any` casts from the core package.
+
+- Updated dependencies [7cda487]
+- Updated dependencies [b5f66c0]
+- Updated dependencies [7f3ba21]
+- Updated dependencies [a4d1952]
+- Updated dependencies [d7e3780]
+- Updated dependencies [32037fc]
+- Updated dependencies [d7e3780]
+- Updated dependencies [81e6d77]
+- Updated dependencies [878f3d5]
+- Updated dependencies [f862d31]
+- Updated dependencies [de505ac]
+- Updated dependencies [e8837f8]
+- Updated dependencies [a1627e4]
+- Updated dependencies [92023da]
+  - @viteval/core@1.0.0-rc.1
+  - @viteval/ui@1.0.0-rc.1
+  - @viteval/internal@1.0.0-rc.1
+
 ## 1.0.0-rc.0
 
 ### Patch Changes
