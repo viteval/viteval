@@ -1,5 +1,25 @@
 # @viteval/providers
 
+## 1.0.0-rc.2
+
+### Patch Changes
+
+- 5c6ab66: Normalize dataset discovery identifiers across platforms and align generated env
+  paths and configuration templates, including ESM-compatible configs for CommonJS
+  projects. Isolate Langfuse run history by decoded run
+  identity and supported API filters, resolve one SDK/exporter host, roll back
+  failed Braintrust dataset creation when possible, and stabilize VoltOps dataset
+  item hashes. Diagnose incomplete VoltOps upload versions and document snapshot
+  retention and legacy database tagging capability limits.
+- d72a370: Ship the reviewed v1 RC fixes for legacy JSON dataset identities and lock recovery,
+  native reporter timing, setup-file generation, hosted provider failure handling,
+  dashboard value rendering, and dataset API validation. Preserve the complete
+  navigation regression checks on coverage-instrumented CI runners.
+- Updated dependencies [1f761f4]
+- Updated dependencies [d72a370]
+  - @viteval/core@1.0.0-rc.2
+  - @viteval/internal@1.0.0-rc.2
+
 ## 1.0.0-rc.1
 
 ### Major Changes
