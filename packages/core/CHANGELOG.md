@@ -1,5 +1,19 @@
 # @viteval/core
 
+## 1.0.0-rc.2
+
+### Patch Changes
+
+- 1f761f4: Preserve legacy raw dataset filenames, including spaces and percent characters,
+  across CRUD operations without overwriting encoded-name collisions. Report suite
+  timings from native case diagnostics and return malformed judge prompts as error
+  Results. Resolve coverage blob paths correctly in checkouts with spaces.
+- d72a370: Ship the reviewed v1 RC fixes for legacy JSON dataset identities and lock recovery,
+  native reporter timing, setup-file generation, hosted provider failure handling,
+  dashboard value rendering, and dataset API validation. Preserve the complete
+  navigation regression checks on coverage-instrumented CI runners.
+- @viteval/internal@1.0.0-rc.2
+
 ## 1.0.0-rc.1
 
 ### Major Changes

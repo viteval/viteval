@@ -1,5 +1,25 @@
 # @viteval/ui
 
+## 1.0.0-rc.2
+
+### Patch Changes
+
+- d72a370: Ship the reviewed v1 RC fixes for legacy JSON dataset identities and lock recovery,
+  native reporter timing, setup-file generation, hosted provider failure handling,
+  dashboard value rendering, and dataset API validation. Preserve the complete
+  navigation regression checks on coverage-instrumented CI runners.
+- 29ac481: Preserve nested table controls, render grouped-column rows with correct spans,
+  and confine truncation to data tables. Correct cross-platform file detection,
+  unknown provider badges, JSON scalar rendering, selected object fields, calendar
+  opening months, and validation of persisted UI settings.
+- 6c995f6: Keep copied and hand-edited dataset files addressable by their filenames while
+  preserving canonical provider IDs. Validate tag and tagging POST bodies before
+  calling storage, and resolve the UI test alias through platform-safe file URLs.
+- Updated dependencies [1f761f4]
+- Updated dependencies [d72a370]
+  - @viteval/core@1.0.0-rc.2
+  - @viteval/internal@1.0.0-rc.2
+
 ## 1.0.0-rc.1
 
 ### Major Changes
