@@ -1,12 +1,7 @@
-'use client';
-
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import type { LucideIcon } from 'lucide-react';
+import { Link, useLocation } from '@tanstack/react-router';
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -14,25 +9,26 @@ import {
 
 interface NavItem {
   title: string;
-  href: string;
-  icon: LucideIcon;
+  href: '/' | '/datasets' | '/results' | '/suites' | '/settings';
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 export function NavMain({ items }: { items: NavItem[] }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Navigation</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href)}
+                isActive={
+                  pathname === item.href || pathname.startsWith(`${item.href}/`)
+                }
               >
-                <Link href={item.href}>
+                <Link to={item.href}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
