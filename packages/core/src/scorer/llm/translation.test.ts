@@ -11,9 +11,9 @@ import { translation } from './translation';
 describe('translation', () => {
   it('should call runJudge with translation prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'Y',
-      rationale: 'Translations match',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'Y', rationale: 'Translations match', score: 1 },
     });
 
     const scorer = translation();
@@ -42,9 +42,9 @@ describe('translation', () => {
 
   it('should default language to Unknown when not provided', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'N',
-      rationale: 'Different meaning',
-      score: 0,
+      error: null,
+      ok: true,
+      value: { choice: 'N', rationale: 'Different meaning', score: 0 },
     });
 
     const scorer = translation();

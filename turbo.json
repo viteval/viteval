@@ -1,0 +1,64 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "ui": "tui",
+  "globalDependencies": ["**/.env.*local"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "interactive": true,
+      "passThroughEnv": ["VITEVAL_ROOT_PATH"]
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "viteval#test": {
+      "dependsOn": ["build"]
+    },
+    "types": {
+      "dependsOn": ["^build", "^types"]
+    },
+    "@viteval/ui#types": {
+      "dependsOn": ["build"]
+    },
+    "@viteval/ui#test": {
+      "dependsOn": ["build"]
+    },
+    "@viteval/providers#prisma:generate": {
+      "inputs": ["prisma/schema.prisma", "package.json"],
+      "outputs": ["src/generated/prisma/**"]
+    },
+    "@viteval/providers#build": {
+      "dependsOn": ["^build", "prisma:generate"],
+      "outputs": ["dist/**"]
+    },
+    "@viteval/providers#types": {
+      "dependsOn": ["^build", "^types", "prisma:generate"]
+    },
+    "@viteval/providers#test": {
+      "dependsOn": ["^build", "prisma:generate"]
+    },
+    "@viteval/ui#build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        "src/routeTree.gen.ts",
+        "production-server.mjs",
+        "production-server.mjs.map",
+        "production-server.d.mts",
+        "production-server.d.mts.map",
+        "server.mjs",
+        "server.mjs.map",
+        "server.d.mts",
+        "server.d.mts.map"
+      ]
+    },
+    "@apps/website#build": {
+      "outputs": [".vitepress/dist/**"]
+    }
+  }
+}

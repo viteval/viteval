@@ -1,4 +1,5 @@
 import type { LanguageModel } from 'ai';
+import { isErr } from 'massaman/control';
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { runJudge } from './judge';
@@ -62,9 +63,18 @@ export function createJudgeScorer(
           },
           { expected, input, output, ...extra }
         );
+        if (isErr(result)) {
+          return {
+            metadata: { error: result.error.message },
+            score: null,
+          };
+        }
         return {
-          metadata: { choice: result.choice, rationale: result.rationale },
-          score: result.score,
+          metadata: {
+            choice: result.value.choice,
+            rationale: result.value.rationale,
+          },
+          score: result.value.score,
         };
       },
     });

@@ -11,9 +11,9 @@ import { answerRelevancy } from './answer-relevancy';
 describe('answerRelevancy', () => {
   it('should call runJudge with relevancy prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'A',
-      rationale: 'Highly relevant',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'A', rationale: 'Highly relevant', score: 1 },
     });
 
     const scorer = answerRelevancy();

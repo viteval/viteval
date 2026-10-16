@@ -11,9 +11,9 @@ import { factuality } from './factuality';
 describe('factuality', () => {
   it('should call runJudge with factuality prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'C',
-      rationale: 'Answers match',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'C', rationale: 'Answers match', score: 1 },
     });
 
     const scorer = factuality();

@@ -21,7 +21,7 @@
     "**/templates/**",
     "logs",
     "tmp",
-    ".nx",
+    ".turbo",
     "pnpm-*",
     "original/**",
     "**/*.gen.ts",
