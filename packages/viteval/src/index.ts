@@ -15,10 +15,12 @@ export type {
   CreateProviderParams,
 } from '@viteval/core';
 export {
+  createJsonProvider,
   createProvider,
   createScorer,
   evaluate,
   initializeModel,
+  initializeProvider,
   scorers,
   wrapScorer,
 } from '@viteval/core';

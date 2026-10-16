@@ -1,66 +1,50 @@
 import { createVitevalServer } from '@viteval/ui';
-import consola from 'consola';
+import { command } from 'maltty';
 import open from 'open';
-import type { CommandModule } from 'yargs';
+import { UI_ARGS, UI_OPTIONS } from '#/lib/command-options';
 
-export const uiCommand: CommandModule<unknown, UIOptions> = {
-  builder: (yargs) =>
-    yargs
-      .option('port', {
-        alias: 'p',
-        describe: 'Port to run the UI server on',
-        type: 'number',
-      })
-      .option('open', {
-        alias: 'o',
-        default: false,
-        describe: 'Open the UI in the browser',
-        type: 'boolean',
-      })
-      .option('debug', {
-        alias: 'd',
-        default: false,
-        describe: 'Enable debug mode',
-        type: 'boolean',
-      }),
-  command: 'ui [options]',
-  describe: 'Start the UI server to view evaluation results',
-  handler: async (argv) => {
+export const uiCommand = command({
+  description: 'Start the UI server to view evaluation results',
+  options: UI_OPTIONS,
+  handler: async ({ args, log }) => {
+    const argv = UI_ARGS.parse(args);
+    const server = createVitevalServer({
+      debug: argv.debug || process.env.VITEVAL_DEBUG_MODE === 'true',
+      port: argv.port,
+      root: argv.root,
+    });
+    const shutdown = async () => {
+      log.info('Shutting down...');
+      await server.shutdown();
+      log.newline();
+      process.exit(0);
+    };
+
+    process.once('SIGINT', shutdown);
+    process.once('SIGTERM', shutdown);
+
     try {
-      const server = createVitevalServer({
-        debug: argv.debug || process.env.VITEVAL_DEBUG_MODE === 'true',
-        port: argv.port,
-      });
-
       const port = await server.start();
       const url = `http://localhost:${port}`;
 
       if (argv.open) {
-        consola.info('Opening the browser...');
+        log.info('Opening the browser...');
         await open(url);
       }
 
-      consola.success(`View the results at ${url}`);
+      log.success(`View the results at ${url}`);
 
-      // Keep the process running
-      process.on('SIGINT', async () => {
-        consola.info('Shutting down...');
-        consola.log('');
-        process.exit(0);
-      });
-
-      // Keep the process alive
-      await new Promise(() => {});
+      await server.waitForExit();
     } catch (error) {
-      consola.error('Failed to start:', error);
-      consola.log('');
-      process.exit(1);
+      await server.shutdown();
+      log.error(
+        `Failed to start: ${error instanceof Error ? error.message : String(error)}`
+      );
+      log.newline();
+      process.exitCode = 1;
+    } finally {
+      process.removeListener('SIGINT', shutdown);
+      process.removeListener('SIGTERM', shutdown);
     }
   },
-};
-
-interface UIOptions {
-  port?: number;
-  open?: boolean;
-  debug?: boolean;
-}
+});
