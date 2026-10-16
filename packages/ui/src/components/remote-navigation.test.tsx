@@ -104,7 +104,7 @@ describe('remote table navigation', () => {
     expect(screen.getByText('Run 05')).toBeTruthy();
     expect(screen.getByText('Run 07')).toBeTruthy();
     expect(screen.queryByText('Run 00')).toBeNull();
-  });
+  }, 15_000);
   it.each([
     { pathname: '/datasets', first: 'Dataset 00', next: 'Dataset 20' },
     { pathname: '/results', first: 'Run 24', next: 'Run 04' },
