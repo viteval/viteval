@@ -1,185 +1,107 @@
-# `defineConfig()`
+# Configuration
 
-Viteval provides flexible configuration options to customize evaluation behavior, performance, and output.
+Viteval uses Vitest's configuration directly. There is no separate Viteval configuration schema or runtime configuration layer.
 
 ## Import
 
 ```ts
 import { defineConfig } from 'viteval/config';
+import { JsonReporter } from 'viteval/reporters';
 ```
 
 ## Configuration File
 
-Create a `viteval.config.ts` file in your project root:
+Create a `vitest.config.ts` file in your project root:
 
 ```ts
-// viteval.config.ts
 import { defineConfig } from 'viteval/config';
 
+import { JsonReporter } from 'viteval/reporters';
+
 export default defineConfig({
-  reporter: 'default',
-  eval: {
+  test: {
     include: ['src/**/*.eval.ts'],
+    reporters: [
+      'default',
+      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
+    ],
     setupFiles: ['./viteval.setup.ts'],
-    timeout: 100000, // 100 seconds (default)
+    testTimeout: 100_000,
   },
 });
 ```
 
-## Configuration Options
+`defineConfig` is Vitest's `defineConfig`, re-exported for convenience. All [Vitest configuration options](https://vitest.dev/config/) are supported.
 
-### Provider Configuration
+## Models And Providers
 
-#### `provider`
-
-Configure API providers for LLM access:
+Initialize non-serializable models and Viteval providers in a setup file. Vitest executes setup files in each worker before collecting evaluations.
 
 ```ts
-export default defineConfig({
-  provider: {
-    openai: {
-      apiKey: process.env.OPENAI_API_KEY,
-      project: 'my-project',
-      organization: 'my-org',
-    },
-  },
+import { fileURLToPath } from 'node:url';
+import { openai } from '@ai-sdk/openai';
+import { initializeModel } from 'viteval';
+import { createJsonProvider, initializeProvider } from 'viteval/provider';
+
+initializeModel({
+  language: openai('gpt-4.1-mini'),
+  embedding: openai.embedding('text-embedding-3-small'),
 });
+const providerResult = await initializeProvider({
+  datasets: createJsonProvider({
+    root: fileURLToPath(new URL('.', import.meta.url)),
+  }),
+});
+if (!providerResult.ok) throw providerResult.error;
 ```
 
-Or provide a client directly:
+`initializeModel()` is synchronous and configures the model used by LLM-based
+scorers. Deterministic scorers need no model. See [Providers](/guide/providers)
+for SQLite and Braintrust setup.
 
-```ts
-import { OpenAI } from 'openai';
+## Evaluation Files
 
-export default defineConfig({
-  provider: {
-    openai: {
-      client: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
-    },
-  },
-});
-```
-
-### Evaluation Configuration
-
-#### `eval.include`
-
-- **Type:** `string[]`
-- **Default:** `undefined`
-
-Glob patterns to include evaluation files:
+Use Vitest's `test.include` and `test.exclude` options:
 
 ```ts
 export default defineConfig({
-  eval: {
-    include: ['src/**/*.eval.ts', 'tests/**/*.eval.ts'],
-  },
-});
-```
-
-#### `eval.exclude`
-
-- **Type:** `string[]`
-- **Default:** `undefined`
-
-Glob patterns to exclude:
-
-```ts
-export default defineConfig({
-  eval: {
+  test: {
+    include: ['src/**/*.eval.ts', 'evaluations/**/*.ts'],
     exclude: ['**/*.draft.eval.ts', 'src/experimental/**'],
   },
 });
 ```
 
-#### `eval.setupFiles`
+## Timeouts
 
-- **Type:** `string[]`
-- **Default:** `undefined`
-
-Setup files to run before evaluations:
+Set the default with Vitest's `test.testTimeout`. Pass native `testOptions` to override it for one evaluation suite.
 
 ```ts
 export default defineConfig({
-  eval: {
-    setupFiles: ['./viteval.setup.ts'],
+  test: {
+    testTimeout: 300_000,
   },
 });
 ```
 
-#### `eval.timeout`
-
-- **Type:** `number`
-- **Default:** `100000` (100 seconds)
-
-Timeout for individual evaluations (in milliseconds):
-
 ```ts
-export default defineConfig({
-  eval: {
-    timeout: 300000, // 5 minutes
-  },
+evaluate('slow evaluation', {
+  data,
+  scorers,
+  task,
+  testOptions: { timeout: 600_000 },
 });
 ```
 
-### Server Configuration
+## Vite Options
 
-#### `server.sourcemap`
-
-- **Type:** `boolean | 'inline'`
-- **Default:** `undefined`
-
-Configure sourcemap generation:
+Because this is a native Vitest config, Vite options such as aliases and server settings remain available at the top level:
 
 ```ts
 export default defineConfig({
-  server: {
-    sourcemap: true,
-  },
-});
-```
-
-#### `server.deps`
-
-Configure dependency handling:
-
-```ts
-export default defineConfig({
-  server: {
-    deps: {
-      inline: ['some-package'],
-      external: ['external-package'],
-    },
-  },
-});
-```
-
-### Dependencies Configuration
-
-#### `deps.interopDefault`
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to use the interopDefault plugin:
-
-```ts
-export default defineConfig({
-  deps: {
-    interopDefault: false,
-  },
-});
-```
-
-#### `deps.optimizer`
-
-Configure dependency optimization:
-
-```ts
-export default defineConfig({
-  deps: {
-    optimizer: {
-      include: ['some-package'],
+  resolve: {
+    alias: {
+      '#': new URL('./src', import.meta.url).pathname,
     },
   },
 });

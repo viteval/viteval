@@ -11,9 +11,9 @@ import { createScorer } from 'viteval';
 ## Signature
 
 ```ts
-function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
-  config: ScorerConfig<OUTPUT, EXTRA>
-): Scorer<OUTPUT, EXTRA>;
+function createScorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra>(
+  config: ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+): Scorer<OUTPUT, EXPECTED, EXTRA>;
 ```
 
 ## Parameters
@@ -27,10 +27,10 @@ function createScorer<OUTPUT, EXTRA extends Extra = Extra>(
 ## ScorerConfig
 
 ```ts
-interface ScorerConfig<OUTPUT, EXTRA extends Extra = Extra> {
+interface ScorerConfig<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra> {
   name: string;
   score: (
-    args: ScorerArgs<OUTPUT, EXTRA>
+    args: ScorerArgs<OUTPUT, EXPECTED, EXTRA>
   ) => Omit<Score, 'name'> | Promise<Omit<Score, 'name'>>;
 }
 ```
@@ -43,9 +43,9 @@ Unique identifier for the scorer.
 **Required**: Yes
 
 ```ts
-createScorer({
+createScorer<string>({
   name: 'exact-match',
-  // ...
+  score: ({ output, expected }) => ({ score: output === expected ? 1 : 0 }),
 });
 ```
 
@@ -59,13 +59,10 @@ Function that calculates the score for an output.
 The function receives `ScorerArgs` and should return a `Score` object (without the name, as it's automatically added):
 
 ```ts
-type ScorerArgs<OUTPUT, EXTRA extends Extra> = TF.Merge<
-  EXTRA,
-  {
-    output: OUTPUT;
-    expected: OUTPUT;
-  }
->;
+type ScorerArgs<OUTPUT, EXPECTED, EXTRA extends Extra> = EXTRA & {
+  output: OUTPUT;
+  expected: EXPECTED;
+};
 
 interface Score {
   score: number | null;
@@ -73,7 +70,9 @@ interface Score {
 }
 ```
 
-The function should return a score between 0 and 1, where:
+Use normalized scores between 0 and 1 for the usual mean/median gates. V1 accepts
+any finite score; null counts as zero. Non-finite scores and scorer exceptions
+fail the case. Typical normalized scores mean:
 
 - `1.0` = Perfect score
 - `0.0` = Complete failure
@@ -84,7 +83,7 @@ The function should return a score between 0 and 1, where:
 Returns a `Scorer<OUTPUT, EXTRA>` function that can be used in evaluations:
 
 ```ts
-type Scorer<OUTPUT, EXTRA extends Extra = Extra> = (
-  args: ScorerArgs<OUTPUT, EXTRA>
+type Scorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra> = (
+  args: ScorerArgs<OUTPUT, EXPECTED, EXTRA>
 ) => Score | Promise<Score>;
 ```

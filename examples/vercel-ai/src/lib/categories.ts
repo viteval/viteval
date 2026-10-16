@@ -35,13 +35,10 @@ export function getCategoryDescription(category: Category) {
 }
 
 /**
- * Assert that a category is valid.
- * @param category - The category to assert.
+ * Check whether a category is valid.
+ * @param category - The category to check.
+ * @returns Whether the value is a category.
  */
-export function assertCategory(
-  category: unknown
-): asserts category is Category {
-  if (!categories.some((c) => c.name === category)) {
-    throw new Error(`Invalid category: ${category}`);
-  }
+export function isCategory(category: unknown): category is Category {
+  return categories.some((candidate) => candidate.name === category);
 }
