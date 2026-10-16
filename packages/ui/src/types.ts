@@ -1,70 +1,29 @@
-/* oxlint-disable no-explicit-any -- UI display types where any is intentional */
+import type { JsonEvalResults, JsonEvalSuite } from '@viteval/core/reporters';
 
-export interface Score {
-  name: string;
-  score: number;
-}
+export type Score = Omit<
+  JsonEvalSuite['evalResults'][number]['scores'][number],
+  'score'
+> & { score: number };
+export type EvalResult = Omit<
+  JsonEvalSuite['evalResults'][number],
+  'scores'
+> & { scores: Score[] };
 
-export interface EvalResult {
-  name: string;
-  sum: number;
-  median: number;
-  mean: number;
-  threshold: number;
-  aggregation: string;
-  scores: Score[];
-  input?: any;
-  expected?: any;
-  output?: any;
-  metadata?: Record<string, any>;
-}
+export type EvalStatus = 'passed' | 'failed' | 'running';
 
-export interface EvalSuite {
-  name: string;
-  status: string;
-  startTime: number;
-  endTime: number;
-  duration: number;
+export type EvalSuite = Omit<JsonEvalSuite, 'status' | 'evalResults'> & {
+  status: EvalStatus;
   evalResults: EvalResult[];
-  summary: {
-    meanScore: number;
-    medianScore: number;
-    sumScore: number;
-    passedCount: number;
-    totalCount: number;
-  };
-}
-
-export interface EvalResults {
-  status: 'running' | 'finished';
-  success: boolean;
-  numTotalEvalSuites: number;
-  numPassedEvalSuites: number;
-  numFailedEvalSuites: number;
-  numTotalEvals: number;
-  numPassedEvals: number;
-  numFailedEvals: number;
-  startTime: number;
-  endTime: number;
-  duration: number;
+};
+export type EvalResults = Omit<JsonEvalResults, 'evalResults'> & {
   evalResults: EvalSuite[];
-}
-
-export interface SingleEvalResult {
-  name: string;
-  sum: number;
-  median: number;
-  mean: number;
-  threshold: number;
-  aggregation: string;
-  scores: Score[];
-}
+};
 
 export interface ResultFile {
   id: string;
+  runId: string;
   name: string;
   path: string;
-  timestamp: string;
   size: number;
   summary: {
     status?: 'running' | 'finished';
@@ -78,33 +37,77 @@ export interface ResultFile {
     duration: number;
     startTime: number;
     endTime: number;
+    suiteNames: string[];
+    suiteIds: string[];
   } | null;
 }
 
 export interface DatasetSummary {
   id: string;
   name: string;
-  path: string;
+  path?: string;
   description?: string;
   itemCount: number;
   createdAt?: string;
-  storage: string;
+  source: string;
+}
+
+export interface EvalSchema {
+  id: string;
+  name: string;
+  path: string;
+  content: string;
+}
+
+export interface SuiteSummary {
+  name: string;
+  slug: string;
+  filepath?: string;
+  runCount: number;
+  latestStatus: EvalStatus;
+  latestRunTimestamp: string;
+  latestDuration: number;
+  latestMeanScore: number;
+  latestPassedCount: number;
+  latestTotalCount: number;
 }
 
 export interface DatasetItem {
   id: string;
   name?: string;
-  input: any;
-  expected?: any;
-  metadata?: Record<string, any>;
+  input: unknown;
+  expected?: unknown;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DatasetFile {
   id: string;
   name: string;
-  path: string;
+  path?: string;
   description?: string;
   createdAt?: string;
-  storage: string;
+  source: string;
   data: DatasetItem[];
+}
+
+export type TagEntityType =
+  | 'eval_run'
+  | 'eval_result'
+  | 'dataset'
+  | 'dataset_item';
+
+export interface Tag {
+  id: string;
+  name: string;
+  color?: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface Tagging {
+  id: string;
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+  createdAt: string;
 }
