@@ -1,11 +1,12 @@
 import { createId } from '@paralleldrive/cuid2';
-import { withResult } from '@viteval/internal';
+import { attemptAsync } from 'massaman/control';
 import type {
   DatasetProvider,
   StoredDataItem,
   StoredDataset,
 } from '@viteval/core';
-import type { PrismaClient } from '@prisma/client';
+import { serializeJson } from '@viteval/internal';
+import type { PrismaClient } from '#/generated/prisma/client';
 
 /**
  * Create dataset operations backed by Prisma.
@@ -15,8 +16,30 @@ import type { PrismaClient } from '@prisma/client';
  */
 export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
   return {
+    replaceItems: (params) =>
+      attemptAsync(async () => {
+        await prisma.$transaction(async (tx) => {
+          await tx.datasetItem.deleteMany({
+            where: { datasetId: params.datasetId },
+          });
+          await tx.datasetItem.createMany({
+            data: params.items.map((item, ordinal) => ({
+              id: createId(),
+              datasetId: params.datasetId,
+              input: serializeJson(item.input ?? null),
+              expected: serializeJson(item.expected ?? null),
+              extra: serializeJson(item.extra ?? {}),
+              ordinal,
+            })),
+          });
+          await tx.dataset.update({
+            where: { id: params.datasetId },
+            data: { version: { increment: 1 } },
+          });
+        });
+      }),
     addItems: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         await prisma.$transaction(async (tx) => {
           const maxOrdinal = await tx.datasetItem
             .findFirst({
@@ -29,10 +52,10 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
           await tx.datasetItem.createMany({
             data: params.items.map((item, i) => ({
               datasetId: params.datasetId,
-              expected: JSON.stringify(item.expected),
-              extra: JSON.stringify(item.extra ?? {}),
+              expected: serializeJson(item.expected ?? null),
+              extra: serializeJson(item.extra ?? {}),
               id: createId(),
-              input: JSON.stringify(item.input),
+              input: serializeJson(item.input ?? null),
               ordinal: maxOrdinal + 1 + i,
             })),
           });
@@ -45,7 +68,7 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       }),
 
     create: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const dataset = await prisma.dataset.create({
           data: {
             description: params.description,
@@ -53,15 +76,15 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
             items: params.items
               ? {
                   create: params.items.map((item, i) => ({
-                    expected: JSON.stringify(item.expected),
-                    extra: JSON.stringify(item.extra ?? {}),
+                    expected: serializeJson(item.expected ?? null),
+                    extra: serializeJson(item.extra ?? {}),
                     id: createId(),
-                    input: JSON.stringify(item.input),
+                    input: serializeJson(item.input ?? null),
                     ordinal: i,
                   })),
                 }
               : undefined,
-            metadata: JSON.stringify(params.metadata ?? {}),
+            metadata: serializeJson(params.metadata ?? {}),
             name: params.name,
           },
           include: { _count: { select: { items: true } } },
@@ -71,12 +94,12 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       }),
 
     delete: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         await prisma.dataset.delete({ where: { id: params.id } });
       }),
 
     get: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const where = params.id
           ? { id: params.id }
           : params.name
@@ -96,7 +119,7 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       }),
 
     getItems: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const items = await prisma.datasetItem.findMany({
           orderBy: { ordinal: 'asc' },
           skip: params.offset,
@@ -108,7 +131,7 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       }),
 
     list: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const datasets = await prisma.dataset.findMany({
           include: { _count: { select: { items: true } } },
           orderBy: { updatedAt: 'desc' },
@@ -120,12 +143,12 @@ export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
       }),
 
     update: (params) =>
-      withResult(async () => {
+      attemptAsync(async () => {
         const dataset = await prisma.dataset.update({
           data: {
             description: params.description,
             metadata: params.metadata
-              ? JSON.stringify(params.metadata)
+              ? serializeJson(params.metadata)
               : undefined,
             name: params.name,
           },

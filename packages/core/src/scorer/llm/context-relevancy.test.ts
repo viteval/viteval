@@ -11,9 +11,9 @@ import { contextRelevancy } from './context-relevancy';
 describe('contextRelevancy', () => {
   it('should call runJudge with relevancy prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'A',
-      rationale: 'Highly relevant context',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'A', rationale: 'Highly relevant context', score: 1 },
     });
 
     const scorer = contextRelevancy();

@@ -1,20 +1,19 @@
-import type { ServerType } from '@hono/node-server';
+import type { ChildProcess } from 'node:child_process';
+import { fork } from 'node:child_process';
 import path from 'node:path';
-import { Hono } from 'hono';
-import { serve } from '@hono/node-server';
-import { serveStatic } from '@hono/node-server/serve-static';
-import { findUp } from 'find-up';
 import getPort from 'get-port';
+
+const DEFAULT_PORT = 6274;
 
 export interface CreateVitevalServerOptions {
   /**
-   * A custom root path to serve the UI from, otherwise will look for the `viteval.config.ts` file or `.viteval` directory
+   * Root path containing the `.viteval` directory.
    * @default process.cwd()
    */
   root?: string;
   /**
    * A custom port to listen on
-   * @default 3000
+   * @default 6274
    */
   port?: number;
   /**
@@ -28,7 +27,7 @@ export interface CreateVitevalServerOptions {
  * Creates a Viteval server
  *
  * ```ts
- * const server = createVitevalServer({ port: 3000 });
+ * const server = createVitevalServer({ port: 6274 });
  * await server.start();
  * ```
  *
@@ -36,7 +35,9 @@ export interface CreateVitevalServerOptions {
  * @returns The Viteval server
  */
 export function createVitevalServer(options?: CreateVitevalServerOptions) {
-  let server: ServerType | undefined;
+  let child: ChildProcess | undefined;
+  let exit: Promise<void> | undefined;
+  let stopping = false;
 
   return {
     /**
@@ -44,70 +45,117 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
      * @returns The port the server is listening on
      */
     async start(): Promise<number> {
-      const root = await findRoot(options?.root);
-      process.env.VITEVAL_ROOT_PATH = root;
-      process.env.VITEVAL_DEBUG_MODE = options?.debug ? 'true' : 'false';
-
-      const port = await getPort({ port: options?.port ?? 3000 });
-      const standaloneDir = path.join(
-        import.meta.dirname,
-        'dist',
-        '.next',
-        'standalone'
-      );
-
-      const app = new Hono();
-
-      app.use(
-        '/*',
-        serveStatic({
-          root: path.join(
-            import.meta.dirname,
-            'dist',
-            '.next',
-            'standalone',
-            'public'
-          ),
-        })
-      );
-
-      app.use(
-        '/_next/static/*',
-        serveStatic({
-          rewriteRequestPath: (p: string) => p.replace('/_next/static', ''),
-          root: path.join(import.meta.dirname, 'dist', '.next', 'static'),
-        })
-      );
-
-      // Import and use the Next.js standalone server handler
-      const nextHandler = await import(path.join(standaloneDir, 'server.js'));
-      app.all('*', async (c) => {
-        const url = new URL(c.req.url);
-        url.port = String(port);
-        const request = new Request(url.toString(), {
-          method: c.req.method,
-          headers: c.req.raw.headers,
-          body:
-            c.req.method !== 'GET' && c.req.method !== 'HEAD'
-              ? c.req.raw.body
-              : undefined,
-          // @ts-expect-error - Node.js specific option for request body handling
-          duplex: 'half',
-        });
-        const response = await nextHandler.default(request);
-        return response;
+      if (child) throw new Error('Viteval UI server is already running');
+      stopping = false;
+      const root = path.resolve(options?.root ?? process.cwd());
+      const port = await getPort({
+        port: [
+          options?.port ?? DEFAULT_PORT,
+          DEFAULT_PORT,
+          DEFAULT_PORT + 1,
+          DEFAULT_PORT + 2,
+        ],
       });
 
-      return new Promise((resolve) => {
-        server = serve(
-          {
-            fetch: app.fetch,
-            port,
+      const serverScript = path.join(
+        import.meta.dirname,
+        'production-server.mjs'
+      );
+
+      return new Promise((resolve, reject) => {
+        child = fork(serverScript, {
+          cwd: root,
+          env: {
+            ...process.env,
+            HOSTNAME: 'localhost',
+            NODE_ENV: 'production',
+            PORT: String(port),
+            VITEVAL_DEBUG_MODE: options?.debug ? 'true' : 'false',
+            VITEVAL_ROOT_PATH: root,
           },
-          () => {
-            resolve(port);
+          stdio: 'pipe',
+        });
+        const runningChild = child;
+        exit = new Promise<void>((resolveExit, rejectExit) => {
+          runningChild.once('error', rejectExit);
+          runningChild.once('exit', (code, signal) => {
+            if (stopping) resolveExit();
+            else
+              rejectExit(
+                new Error(
+                  `Viteval UI server exited unexpectedly (code=${code ?? 'null'}, signal=${signal ?? 'null'})`
+                )
+              );
+          });
+        });
+        // Startup may fail before the caller can subscribe through waitForExit().
+        void exit.catch(() => {});
+
+        let settled = false;
+        let stdout = '';
+        const readinessTimer = setTimeout(() => {
+          if (settled) {
+            return;
           }
-        );
+          finish(
+            new Error('viteval UI server did not become ready within 10s')
+          );
+          child?.kill();
+        }, 10_000);
+
+        const finish = (value: number | Error) => {
+          if (settled) {
+            return;
+          }
+          settled = true;
+          clearTimeout(readinessTimer);
+          if (value instanceof Error) {
+            reject(value);
+          } else {
+            resolve(value);
+          }
+        };
+
+        child.on('error', finish);
+        child.on('message', (message) => {
+          if (
+            typeof message === 'object' &&
+            message !== null &&
+            'type' in message &&
+            message.type === 'ready'
+          ) {
+            finish(port);
+          }
+        });
+        child.on('exit', (code, signal) => {
+          child = undefined;
+          if (settled) {
+            return;
+          }
+          finish(
+            new Error(
+              `viteval UI server exited before ready (code=${code ?? 'null'}, signal=${signal ?? 'null'})`
+            )
+          );
+        });
+
+        child.stderr?.on('data', (data: Buffer) => {
+          const msg = data.toString();
+          if (options?.debug) {
+            process.stderr.write(msg);
+          }
+        });
+
+        child.stdout?.on('data', (data: Buffer) => {
+          const msg = data.toString();
+          stdout = `${stdout}${msg}`.slice(-1024);
+          if (options?.debug) {
+            process.stdout.write(msg);
+          }
+          if (stdout.includes('Ready') || stdout.includes('started server')) {
+            finish(port);
+          }
+        });
       });
     },
     /**
@@ -119,33 +167,34 @@ export function createVitevalServer(options?: CreateVitevalServerOptions) {
       return await this.start();
     },
     /**
+     * Wait for shutdown and surface unexpected child-process exits.
+     * @returns Resolves for requested shutdown, rejects for server failure.
+     * @example await server.waitForExit();
+     */
+    async waitForExit(): Promise<void> {
+      if (!exit) throw new Error('Viteval UI server has not been started');
+      await exit;
+    },
+    /**
      * Shuts down the Viteval server
      */
     async shutdown(): Promise<void> {
+      stopping = true;
       return new Promise((resolve) => {
-        if (server) {
-          server.close(() => {
-            process.env.VITEVAL_ROOT_PATH = undefined;
-            process.env.VITEVAL_DEBUG_MODE = undefined;
-            resolve();
-          });
-        } else {
+        if (
+          !child ||
+          child.pid === undefined ||
+          child.exitCode !== null ||
+          child.signalCode !== null
+        ) {
+          child = undefined;
           resolve();
+          return;
         }
+
+        child.once('exit', () => resolve());
+        child.kill();
       });
     },
   };
-}
-
-async function findRoot(root: string = process.cwd()) {
-  const configFile = await findUp(
-    [
-      ...['ts', 'js', 'mts', 'mjs'].map((ext) => `viteval.config.${ext}`),
-      '.viteval',
-    ],
-    {
-      cwd: root,
-    }
-  );
-  return configFile ? path.dirname(configFile) : root;
 }

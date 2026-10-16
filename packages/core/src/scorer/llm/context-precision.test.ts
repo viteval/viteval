@@ -11,9 +11,9 @@ import { contextPrecision } from './context-precision';
 describe('contextPrecision', () => {
   it('should call runJudge with precision prompt and return score', async () => {
     vi.mocked(runJudge).mockResolvedValueOnce({
-      choice: 'A',
-      rationale: 'Highly precise context',
-      score: 1,
+      error: null,
+      ok: true,
+      value: { choice: 'A', rationale: 'Highly precise context', score: 1 },
     });
 
     const scorer = contextPrecision();

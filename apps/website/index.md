@@ -34,17 +34,13 @@ features:
 ```ts
 import { evaluate, scorers } from 'viteval';
 
-evaluate('Color detection', {
-  data: async () => [
-    { input: 'What color is the sky?', expected: 'Blue' },
-    { input: 'What color is grass?', expected: 'Green' },
+evaluate('Uppercase', {
+  data: [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
   ],
-  task: async (input) => {
-    const result = await generateText(input);
-    return result.text;
-  },
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
 });
 ```
 

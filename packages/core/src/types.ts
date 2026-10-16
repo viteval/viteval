@@ -1,8 +1,11 @@
+import type { TestOptions } from 'vitest';
+import type { Result } from 'massaman/control';
+
 /**
- * Merge two types, with the second type overriding the first.
- * Simplified alternative to type-fest's Merge for TS6 compatibility.
+ * Combine extra fields with the required task/scorer fields.
+ * Reserved fields must agree with the evaluation's inferred types.
  */
-type Merge<A, B> = Omit<A, keyof B> & B;
+type Merge<A, B> = A & B;
 
 /**
  * A score object, contains the name of the scorer, the score and any additional metadata.
@@ -169,7 +172,7 @@ export interface Dataset<
    *
    * @returns True if the dataset exists, false otherwise.
    */
-  exists(): Promise<boolean>;
+  exists(): Promise<Result<boolean>>;
   /**
    * Load the dataset from the storage (optionally create the dataset if it doesn't exist).
    *
@@ -177,9 +180,7 @@ export interface Dataset<
    * @param options.create - Whether to create the dataset if it doesn't exist.
    * @returns The dataset.
    */
-  load(options: { create: true }): Promise<DATA_ITEM[]>;
-  load(options: { create: false }): Promise<DATA_ITEM[] | null>;
-  load(options?: { create?: boolean }): Promise<DATA_ITEM[] | null>;
+  load(options?: { create?: boolean }): Promise<Result<DATA_ITEM[] | null>>;
   /**
    * Save the dataset to the storage if it doesn't exist (optionally overwrite the dataset if it already exists).
    *
@@ -187,7 +188,7 @@ export interface Dataset<
    * @param options.overwrite - Whether to overwrite the dataset if it already exists.
    * @returns The dataset.
    */
-  save(options?: { overwrite?: boolean }): Promise<void>;
+  save(options?: { overwrite?: boolean }): Promise<Result<void>>;
 }
 
 /**
@@ -226,18 +227,18 @@ export interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
    * @default 1.0
    */
   threshold?: number;
-  /**
-   * The timeout for the evaluation.
-   *
-   * @default 10000
-   */
-  timeout?: number;
+  /** Native Vitest options applied to every generated test case. */
+  testOptions?: TestOptions;
 }
 
 /**
  * A result object, contains the name of the evaluation, the sum, mean, median and threshold.
  */
 export interface EvalResult {
+  /** Stable Vitest case identity and final execution state. */
+  id?: string;
+  state?: 'passed' | 'failed' | 'skipped';
+  error?: string;
   /**
    * The name of the evaluation.
    */
@@ -314,15 +315,15 @@ export type InferDataExtra<DATA extends Data> = Omit<
 |------------------
 */
 
-type InferDataValue<
-  DATA extends Data,
-  KEY extends keyof DataItem,
-> = ExtractDataItem<DATA>[KEY];
+type InferDataValue<DATA extends Data, KEY extends keyof DataItem> =
+  ExtractDataItem<DATA> extends DataItem ? ExtractDataItem<DATA>[KEY] : never;
 
 type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
   ? DATA[number]
   : DATA extends DataGenerator<DataItem>
     ? Awaited<ReturnType<DATA>>[number]
     : DATA extends Dataset<DataGenerator<DataItem>>
-      ? Exclude<Awaited<ReturnType<DATA['load']>>, null>[number]
+      ? Exclude<ResultValue<Awaited<ReturnType<DATA['load']>>>, null>[number]
       : never;
+
+type ResultValue<VALUE> = VALUE extends Result<infer INNER> ? INNER : never;

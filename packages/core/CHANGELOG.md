@@ -1,5 +1,143 @@
 # @viteval/core
 
+## 1.0.0-rc.1
+
+### Major Changes
+
+- 7cda487: Convert all scorers to configurable factory functions
+
+  - **BREAKING**: All scorers are now factory functions that must be called: `scorers.exactMatch()` instead of `scorers.exactMatch`
+  - Deterministic scorers accept typed options: `exactMatch({ caseSensitive, trim })`, `levenshtein({ threshold })`, `numericDiff({ tolerance })`, `jsonDiff({ threshold })`, `listContains({ threshold })`
+  - LLM scorers accept per-scorer model overrides: `scorers.answerCorrectness({ model: openai('gpt-4o') })`
+  - `createJudgeScorer` now returns a factory `(options?) => Scorer` instead of a bare `Scorer`
+  - Update all examples to use factory call syntax
+
+  Closes #36
+
+- 81e6d77: Replace OpenAI SDK with Vercel AI SDK for provider-agnostic model support
+
+  - **BREAKING**: Remove `openai` dependency, add `ai` (Vercel AI SDK) as the provider abstraction
+  - **BREAKING**: `VitevalProviderConfig` now accepts `model` (LanguageModel) and optional `embeddingModel` (EmbeddingModel) instead of `openai` config
+  - **BREAKING**: Remove automatic `OPENAI_API_KEY` env var detection — users must explicitly configure a provider
+  - Replace `requireClient()` / `getClient()` with Result-returning `requireModel()` / `requireEmbeddingModel()`
+  - Rewrite `runJudge` to use `generateObject()` from AI SDK and return a `Result`
+  - Rewrite `getEmbedding` to use `embed()` from AI SDK and return a `Result`
+  - Convert `moderation` scorer from OpenAI moderation API to LLM judge (now provider-agnostic)
+  - Export Result-returning `initializeProvider()` from public API for setup file usage
+  - Users can now use any AI SDK-compatible provider: OpenAI, Anthropic, Google, Mistral, etc.
+
+- f862d31: Replace autoevals dependency with custom scorer implementations
+
+  - Remove `autoevals` third-party dependency
+  - Implement all 20 scorers in-house (deterministic, embedding, LLM-based)
+  - Add Result-returning `runJudge` and `getEmbedding` helpers for AI SDK models
+  - Add `isNumber` and `clamp` utilities to `@viteval/internal`
+  - Simplify provider initialization by removing autoevals init workaround
+
+- e8837f8: Add polymorphic tag/tagging system for human labeling
+
+  ### Core (`@viteval/core`)
+  - New `TagProvider` sub-interface with `list/create/update/delete` and `addTagging/removeTagging/listTaggings/listEntitiesForTag` ops
+  - New types: `StoredTag`, `StoredTagging`, `TagEntityType` (`'eval_run' | 'eval_result' | 'dataset' | 'dataset_item'`)
+  - `Provider.tags?: TagProvider` and `ProviderConfig` `{ tags? }` slot
+  - `getTagProvider()` / `requireTagProvider()` runtime accessors and `__viteval_tagProvider` global
+
+  ### Providers (`@viteval/providers`)
+  - `viteval` provider exposes a Prisma-backed `TagProvider` (SQLite default, Postgres optional)
+  - New `Tag` + `Tagging` Prisma models with polymorphic `(entityType, entityId)` reference and unique `(tagId, entityType, entityId)` constraint
+  - Raw-SQL `ensureSchema()` updated with matching `tags` + `taggings` table creates and indexes
+
+  ### UI (`@viteval/ui`)
+  - Tags stored in `.viteval/tags.json` + `.viteval/taggings.json` (FS-only for v1; provider DB sync deferred)
+  - New SDK resource `viteval.tags` mirroring the core `TagProvider` shape
+  - API routes: `GET/POST /api/tags`, `PATCH/DELETE /api/tags/[id]`, `POST/DELETE /api/taggings`, `POST /api/taggings/lookup`
+  - New components in `@/components/tag`: `TagChip`, `TagPicker`, `TagList`, `useTags` hook
+  - Tag editor on results detail and dataset detail pages
+  - "Tags" column added to results and datasets tables (display chips, batch-loaded once per render)
+
+  ### Breaking changes
+  - `EvalRun.tags` column dropped from Prisma schema. Existing runs lose their string-array tags; re-tag via the new system after upgrading
+  - `StoredEvalRun.tags`, `CreateEvalRunParams.tags`, `ListEvalRunsParams.tags` removed — apply tags via `TagProvider.addTagging({ entityType: 'eval_run', entityId })` instead
+  - `Braintrust` provider no longer writes/reads `_viteval_tags` metadata or filters by tags
+
+- a1627e4: Complete the local-first v1 workflow with JSON provider storage, atomic writes,
+  native-worker dataset generation, execution diagnostics, optional SQLite and
+  Braintrust persistence, dashboard validation, and isolated packed-package checks.
+
+  JSON is now the default native provider. SQLite requires an explicit database
+  option. Tasks receive input and extra fields; expected answers are reserved for
+  scorers. All packages require Node 26 or newer.
+
+  Preserve renamed JSON datasets when names are reused, serialize concurrent
+  namespace changes, and retain authoritative outcomes in dashboard projections.
+  Dashboard reads preserve dataset identifiers and extra fields, expose skipped
+  counts, and report tag-storage failures. Add repeatable browser verification and
+  merged native-worker coverage reporting.
+
+  Discover default, named, and inline datasets in dataset and evaluation modules
+  without executing evaluation tasks or scorers. Deduplicate aliases and shared
+  re-exports, reject duplicate names, and report module import failures before
+  publishing their datasets.
+
+- 92023da: Delegate configuration, discovery, execution, and reporting to Vitest 5's public APIs.
+
+  - **BREAKING**: Replace `viteval.config.ts` and the `eval` configuration block with native `vitest.config.ts` and `test` options.
+  - **BREAKING**: Remove the custom runner, plugin, runtime bootstrap, virtual config module, `createRun()` lifecycle, and `@viteval/core/runner` and `@viteval/core/plugin` exports.
+  - **BREAKING**: Delegate evaluation CLI parsing and lifecycle to Vitest, replace `Eval.timeout` with native `Eval.testOptions`, and remove `createDefaultReporter()` in favor of Vitest's built-in default reporter.
+  - **BREAKING**: Rewrite `JsonReporter` with Vitest's granular lifecycle hooks. Custom reporters extending the old `onFinished(files)` API must migrate.
+  - Execute evaluations through Vitest's native `start()` API.
+  - Transport structured eval results as typed Vitest custom artifacts.
+  - Initialize non-serializable models and providers through native Vitest setup files.
+  - Add a native custom reporter that uses evaluation terminology throughout.
+  - Add test annotations (`context.annotate`) for inline score reporting.
+  - Eliminate all `DangerouslyAllowAny` and `as any` casts from the core package.
+
+### Minor Changes
+
+- 7f3ba21: Decouple task return type from expected type in evaluations
+
+  - `Scorer`, `ScorerArgs`, and `createScorer` now accept separate `OUTPUT` and `EXPECTED` type parameters (defaults preserve backward compat)
+  - `Eval` and `evaluate()` infer `TASK_OUTPUT` from the task function independently of the data's expected type
+  - Scorers receive `output: TASK_OUTPUT` and `expected: EXPECTED` as distinct types
+  - Add `wrapScorer()` utility to adapt existing scorers for mismatched types via `output`/`expected` mapping functions
+  - Fix prebuilt scorer return types for the new type parameter ordering
+
+  Closes #110
+
+- 878f3d5: Add provider abstraction for datasets and eval runs with built-in Braintrust support
+
+  - Add `Provider`, `DatasetProvider`, and `EvalProvider` interfaces to `@viteval/core`
+  - Add `@viteval/providers` package with scoped provider implementations
+  - Built-in `viteval()` provider using SQLite (default) or PostgreSQL via Prisma
+  - Built-in `braintrust()` provider using `@braintrust/api` (optional peer dep)
+  - Auto-inject default SQLite provider in `defineConfig()` when no provider is specified
+  - Support composable providers (mix different providers for datasets vs evals)
+  - Auto-persist eval results when a provider is configured
+  - Add `addResults` batch method on `EvalProvider` for providers supporting bulk insert
+
+- de505ac: Add `sampleItems` utility for generating N dataset items from a single factory function
+
+  - `sampleItems({ item, count })` returns a `Result<DataGenerator>` so invalid counts are represented without throwing
+  - Items are generated sequentially to respect rate limits on LLM calls
+  - Validates that `count >= 1`
+
+  Closes #38
+
+### Patch Changes
+
+- a4d1952: Preserve native Vitest hook failures and skipped cases in provider run outcomes,
+  case diagnostics, and JSON reports. Keep multi-project collection errors attached
+  to their own project and preserve omitted fields in partial tag updates.
+- d7e3780: Persist undefined JSON dataset inputs and expected values as null so successful
+  writes remain readable across creation, appends, and replacement. Preserve
+  dataset filenames containing `.json` when listing them in the dashboard.
+- d7e3780: Exclude skipped native evaluation cases from provider score summaries while
+  preserving their recorded outcomes and total counts. Read scorer configuration
+  from an executed case when the first native case is skipped.
+- Updated dependencies [f862d31]
+- Updated dependencies [a1627e4]
+  - @viteval/internal@1.0.0-rc.1
+
 ## 1.0.0-rc.0
 
 ### Patch Changes

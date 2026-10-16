@@ -29,20 +29,16 @@ export interface ModelConfigFull {
  * ```ts
  * import { openai } from '@ai-sdk/openai';
  *
- * defineConfig({
- *   model: openai('gpt-4o'),
- * });
+ * await initializeModel(openai('gpt-4o'));
  * ```
  *
  * @example Full config
  * ```ts
  * import { openai } from '@ai-sdk/openai';
  *
- * defineConfig({
- *   model: {
- *     language: openai('gpt-4o'),
- *     embedding: openai.embedding('text-embedding-3-small'),
- *   },
+ * await initializeModel({
+ *   language: openai('gpt-4o'),
+ *   embedding: openai.embedding('text-embedding-3-small'),
  * });
  * ```
  */

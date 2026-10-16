@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to Viteval! This guide will help you get up and running with the next generation LLM evaluation framework.
+Run a passing evaluation, save its JSON report, and inspect it locally. Requires Node >=26.
 
 ## What is Viteval?
 
@@ -49,31 +49,21 @@ yarn viteval init
 
 :::
 
-This will create a `viteval.config.ts` && `viteval.setup.ts` (so you can configure your environment variables) file in your project root.
+This creates `vitest.config.ts`, `viteval.setup.ts`, and a passing `src/viteval.eval.ts` example. The setup file binds JSON dataset storage to the project root. In noninteractive environments, initialization skips the env-file prompt; use `--env-file` to create it explicitly.
 
 ## Your First Evaluation
 
-Let's create a simple evaluation to test color detection. Create a file called `color.eval.ts`:
+The generated `src/viteval.eval.ts` needs no API key:
 
 ```ts
 import { evaluate, scorers } from 'viteval';
-import { generateText } from 'ai'; // or your preferred LLM library
-
-evaluate('Color detection', {
-  data: async () => [
-    { input: 'What color is the sky?', expected: 'Blue' },
-    { input: 'What color is grass?', expected: 'Green' },
-    { input: 'What color is snow?', expected: 'White' },
+evaluate('Uppercase', {
+  data: [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
   ],
-  task: async (input) => {
-    const result = await generateText({
-      model: 'gpt-4', // Configure your model here
-      prompt: input,
-    });
-    return result.text;
-  },
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
 });
 ```
 
@@ -82,42 +72,37 @@ evaluate('Color detection', {
 Run your evaluation using the Viteval CLI:
 
 ```bash
-npx viteval
+pnpm exec viteval run
 ```
 
 This will:
 
-1. Discover all `*.eval.ts` files in your project
+1. Discover the files matched by your native Vitest configuration
 2. Execute each evaluation
 3. Display results with scoring details
 4. Exit with a non-zero code if any evaluation fails
 
 ### Understanding the Results
 
-Viteval will output something like:
+Vitest reports two passing cases. The JSON reporter saves inputs, outputs, scores,
+and execution diagnostics under `.viteval/results`. Inspect them with:
 
-```
-✓ Color detection (3/3 passed)
-  ✓ What color is the sky? → Blue (score: 1.0)
-  ✓ What color is grass? → Green (score: 1.0)
-  ✓ What color is snow? → White (score: 1.0)
-
-Evaluations: 1 passed, 0 failed
+```bash
+pnpm exec viteval ui
 ```
 
 ## Your First Dataset
 
-Now that you've run your first evaluation, let's create a dataset, that you can use in the evaluation.
+Create `src/uppercase.dataset.ts`:
 
 ```ts
 import { defineDataset } from 'viteval/dataset';
 
 export default defineDataset({
-  name: 'color-dataset',
+  name: 'uppercase',
   data: async () => [
-    { input: 'What color is the sky?', expected: 'Blue' },
-    { input: 'What color is grass?', expected: 'Green' },
-    { input: 'What color is snow?', expected: 'White' },
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
   ],
 });
 ```
@@ -127,19 +112,13 @@ export default defineDataset({
 You can then use the dataset in the evaluation by importing it and passing it to the `data` option.
 
 ```ts
-import dataset from './color.dataset';
+import { evaluate, scorers } from 'viteval';
+import dataset from './uppercase.dataset';
 
-evaluate('Color detection', {
+evaluate('Uppercase dataset', {
   data: dataset,
-  task: async (input) => {
-    const result = await generateText({
-      model: 'gpt-4', // Configure your model here
-      prompt: input,
-    });
-    return result.text;
-  },
-  scorers: [scorers.levenshtein],
-  threshold: 0.8,
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
 });
 ```
 
@@ -148,10 +127,48 @@ evaluate('Color detection', {
 Now you can run the evaluation again, and it will use the dataset.
 
 ```bash
-npx viteval
+pnpm exec viteval data
+pnpm exec viteval run
 ```
 
-If you configured the dataset to be stored locally, it will be stored in the `./viteval/datasets` directory relative to the config file.
+If you configured the dataset to be stored locally, it will be stored in the `./.viteval/datasets` directory relative to the project root.
+
+## Evaluate a model
+
+Install an AI client and configure its credentials in your environment:
+
+```bash
+pnpm add ai @ai-sdk/openai
+```
+
+Create `src/colors.eval.ts`:
+
+```ts
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
+import { evaluate, scorers } from 'viteval';
+
+evaluate('Color answers', {
+  data: [
+    {
+      input: 'What color is the sky on a clear day? Reply with one word.',
+      expected: 'Blue',
+    },
+  ],
+  task: async ({ input }) => {
+    const result = await generateText({
+      model: openai('gpt-4.1-mini'),
+      prompt: input,
+    });
+    return result.text;
+  },
+  scorers: [scorers.levenshtein()],
+  threshold: 0.8,
+});
+```
+
+This example makes a real model request and requires `OPENAI_API_KEY`. Built-in
+LLM judges also require `initializeModel()` in worker setup. See [Configuration](/api/configuration).
 
 ## Next Steps
 

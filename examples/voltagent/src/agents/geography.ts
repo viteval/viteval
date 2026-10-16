@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai';
 import { Agent } from '@voltagent/core';
 
 export interface GeographyInput {
@@ -35,6 +34,6 @@ Return your response in the following JSON format:
   "coordinates": "approximate coordinates if applicable",
   "confidence": 0.95
 }`,
-  model: openai('gpt-4o-mini'),
+  model: 'openai/gpt-4o-mini',
   name: 'geography-agent',
 });
