@@ -1,5 +1,14 @@
 # viteval
 
+## 1.0.0-rc.3
+
+### Patch Changes
+
+- 2340b27: Verify tokenless trusted publishing and installed registry packages across the aligned RC release.
+- Updated dependencies [2340b27]
+  - @viteval/cli@1.0.0-rc.3
+  - @viteval/core@1.0.0-rc.3
+
 ## 1.0.0-rc.2
 
 ### Patch Changes
