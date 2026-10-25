@@ -13,6 +13,8 @@ import path from 'node:path';
 
 const repository = path.resolve(import.meta.dirname, '..');
 const packages = ['internal', 'core', 'providers', 'ui', 'cli', 'viteval'];
+const fromRegistry = process.argv.includes('--registry');
+const source = fromRegistry ? 'Registry' : 'Packed';
 const pnpmPath = process.env.npm_execpath;
 if (!pnpmPath) throw new Error('Run this check with pnpm validate:consumer');
 const temporary = await mkdtemp(path.join(tmpdir(), 'viteval-consumer-'));
@@ -40,9 +42,13 @@ try {
         'utf8'
       )
     );
-    const tarball = path.join(temporary, 'packages', `${name}.tgz`);
-    pnpm(['--filter', manifest.name, 'pack', '--out', tarball]);
-    packed[manifest.name] = `file:${tarball}`;
+    if (fromRegistry) {
+      packed[manifest.name] = manifest.version;
+    } else {
+      const tarball = path.join(temporary, 'packages', `${name}.tgz`);
+      pnpm(['--filter', manifest.name, 'pack', '--out', tarball]);
+      packed[manifest.name] = `file:${tarball}`;
+    }
   }
   const project = path.join(temporary, 'consumer');
   await mkdir(project);
@@ -80,7 +86,7 @@ try {
     `packages: []\noverrides:\n${overrides}\n${workspace.slice(allowBuildsIndex)}`
   );
   process.stdout.write(
-    'Installing packed packages in an isolated consumer...\n'
+    `Installing ${source.toLowerCase()} packages in an isolated consumer...\n`
   );
   pnpm(['install', '--no-frozen-lockfile'], project);
   const cli = path.join(project, 'node_modules', 'viteval', 'cli.mjs');
@@ -345,7 +351,7 @@ try {
     await exited;
   }
   process.stdout.write(
-    'Packed consumer passed: init, evals, JSON datasets, named/inline eval-file discovery, optional provider imports/missing-SDK diagnostics, opt-in SQLite, UI SSR/deep links, Vite JS/CSS assets, and API/404 behavior.\n'
+    `${source} consumer passed: init, evals, JSON datasets, named/inline eval-file discovery, optional provider imports/missing-SDK diagnostics, opt-in SQLite, UI SSR/deep links, Vite JS/CSS assets, and API/404 behavior.\n`
   );
 } finally {
   ui?.kill('SIGTERM');
