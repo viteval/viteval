@@ -1,5 +1,11 @@
 # @viteval/internal
 
+## 1.0.0-rc.3
+
+### Patch Changes
+
+- 2340b27: Verify tokenless trusted publishing and installed registry packages across the aligned RC release.
+
 ## 1.0.0-rc.2
 
 No changes in this release.
