@@ -41,8 +41,8 @@
 
 .vv-feature-detail {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: start;
   gap: clamp(32px, 5vw, 72px);
   padding: var(--vv-section-space) var(--vv-section-inset);
   border-top: 1px solid var(--cp-c-border);
@@ -74,8 +74,9 @@
   font-size: 0.875em;
 }
 
-.vv-feature-detail__copy pre {
-  margin-block: 28px;
+.vv-feature-detail > pre {
+  min-width: 0;
+  margin: 0;
   border: 1px solid var(--cp-c-border);
   border-radius: var(--viteval-panel-radius);
   padding: 24px;
@@ -95,20 +96,15 @@
   font: 12px / 1.5 var(--cp-ff-mono);
 }
 
-.vv-feature-detail > .vv-scene {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  height: 300px;
-}
-
 @media (max-width: 900px) {
   .vv-feature-detail {
     grid-template-columns: minmax(0, 1fr);
     gap: 40px;
   }
-
-  .vv-feature-detail > .vv-scene {
-    height: 248px;
-  }
+}
+.vv-features-page .vv-eyebrow {
+  color: var(--cp-c-text-3);
+  font: 11px var(--cp-ff-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
