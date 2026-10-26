@@ -4,9 +4,11 @@ title: Features
 description: Native Vitest workflows, built-in scoring, local results, and evaluations on your own infrastructure.
 ---
 
-import { FeatureMotion, FeaturesPage } from '#docs/features-page';
+import { FeatureHero, FeatureMotion, FeaturesPage } from '#docs/features-page';
 
 <FeaturesPage>
+
+<FeatureHero />
 
 <nav className="vv-features-page__nav" aria-label="Feature sections">
   <a href="#familiar-tooling">Vitest-native</a>
@@ -18,7 +20,7 @@ import { FeatureMotion, FeaturesPage } from '#docs/features-page';
 <section className="vv-feature-detail" id="familiar-tooling" aria-labelledby="feature-tooling-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">01 / Familiar tooling</p>
+<p className="vv-eyebrow">Familiar tooling</p>
 <h2 id="feature-tooling-title">
   {'Built on Vitest.'}
   <br />
@@ -42,7 +44,7 @@ application functions into an evaluation, then score their answers.
 <section className="vv-feature-detail" id="built-in-defaults" aria-labelledby="feature-scoring-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">02 / Your criteria</p>
+<p className="vv-eyebrow">Your criteria</p>
 <h2 id="feature-scoring-title">
   {'Start with a scorer.'}
   <br />
@@ -66,7 +68,7 @@ or LLM judges for free-form responses, or define a scorer for your own criteria.
 <section className="vv-feature-detail" id="local-first" aria-labelledby="feature-local-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">03 / Local by default</p>
+<p className="vv-eyebrow">Local by default</p>
 <h2 id="feature-local-title">
   {'Your first run.'}
   <br />
@@ -90,7 +92,7 @@ to inspect inputs, reference answers, outputs, and individual scores.
 <section className="vv-feature-detail" id="run-anywhere" aria-labelledby="feature-runners-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">04 / Run on your infrastructure</p>
+<p className="vv-eyebrow">Run on your infrastructure</p>
 <h2 id="feature-runners-title">
   {'Same evals.'}
   <br />

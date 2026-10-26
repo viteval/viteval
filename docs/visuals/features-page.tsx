@@ -17,10 +17,7 @@ import './features-page.css';
 export function FeaturesPage({ children }: { children: ReactNode }) {
   return (
     <PageRail>
-      <main className="vv-features-page">
-        <FeatureHero />
-        {children}
-      </main>
+      <main className="vv-features-page">{children}</main>
       <CTA
         title="Put your agent to the test."
         subtitle="Open source. No hosted account required."
@@ -248,18 +245,25 @@ export function FeatureMotion({
   );
 }
 
-function FeatureHero() {
+/**
+ * Pairs feature benefits with a large terminal-output illustration.
+ * @returns The split features hero.
+ * @example
+ * <FeatureHero />
+ */
+export function FeatureHero() {
   return (
     <header className="vv-feature-hero">
       <div className="vv-feature-hero__copy">
         <p className="vv-eyebrow">Why Viteval</p>
         <h1>
-          Evals belong
+          Know what got better.
           <br />
-          <span>beside your tests.</span>
+          <span>See what broke.</span>
         </h1>
         <p className="vv-feature-hero__description">
-          Keep your Vitest workflow. Add the checks your AI needs.
+          Run your prompts and agents against real cases. Score the answers and
+          catch regressions before you ship.
         </p>
         <div className="vv-feature-hero__actions">
           <a
@@ -274,50 +278,14 @@ function FeatureHero() {
         </div>
       </div>
       <div className="vv-feature-hero__visual">
-        <div className="vv-feature-hero__marks" aria-hidden="true">
-          <img src="/assets/viteval-flask.svg" width="42" height="42" alt="" />
-          <span>+</span>
-          <img src="/assets/vitest-mark.svg" width="42" height="40" alt="" />
-        </div>
-        <figure
-          className="vv-feature-preview"
-          aria-label="Illustrative evaluation run with three passing cases"
-        >
-          <figcaption>
-            <span className="vv-feature-preview__dots" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-            <span>knowledge.eval.ts</span>
-            <span className="vv-feature-preview__example">Example run</span>
-          </figcaption>
-          <div className="vv-feature-preview__body">
-            <p className="vv-feature-preview__command">
-              <span>❯</span> pnpm exec viteval run
-            </p>
-            <p className="vv-feature-preview__heading">
-              <b>RUN</b> Viteval <span>/ powered by Vitest</span>
-            </p>
-            <div className="vv-feature-preview__results">
-              {['Workspace invites', 'API rate limits', 'Retention policy'].map(
-                (name, index) => (
-                  <div key={name} style={{ animationDelay: `${index * 0.5}s` }}>
-                    <span className="vv-feature-preview__check">✓</span>
-                    <span>{name}</span>
-                    <span>passed</span>
-                  </div>
-                )
-              )}
-            </div>
-            <div className="vv-feature-preview__summary">
-              <span>Cases</span>
-              <strong>3 passed</strong>
-              <span>(3)</span>
-            </div>
-            <div className="vv-feature-preview__saved">↳ .viteval/results/</div>
-          </div>
-        </figure>
+        <img
+          className="vv-feature-hero__terminal"
+          src="/assets/viteval-hero-run.svg"
+          width="1000"
+          height="680"
+          alt="Illustrative Viteval terminal output with passing evaluations and a run summary"
+          fetchPriority="high"
+        />
       </div>
     </header>
   );
