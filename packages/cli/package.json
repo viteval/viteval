@@ -33,7 +33,7 @@
     "maltty": "1.0.0-rc.4",
     "massaman": "^0.5.2",
     "open": "^11.0.4",
-    "react": "^19.3.1",
+    "react": "^19.3.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
