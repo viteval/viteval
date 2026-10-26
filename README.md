@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://viteval.dev">
-<img src="./.github/assets/viteval-icon.png" height="200">
+<img src="./public/assets/viteval-flask.svg" alt="Viteval flask" height="160">
 </a>
 </p>
 
@@ -8,35 +8,34 @@
 Viteval
 </h1>
 <p align="center">
-Next generation LLM evaluation framework powered by Vitest.
-<p>
+TypeScript-native evals, powered by Vitest.
+</p>
 <p align="center">
-  <a href="https://www.npmjs.com/package/viteval"><img src="https://img.shields.io/npm/v/viteval?color=BE54F5&label="></a>
-<p>
+  <a href="https://www.npmjs.com/package/viteval"><img alt="Viteval release candidate" src="https://img.shields.io/npm/v/viteval/rc?color=168DFA&label="></a>
+</p>
 
 <p align="center">
- <a href="https://viteval.dev">Documentation</a> | <a href="https://viteval.dev/guide/getting-started ">Getting Started</a> | <a href="https://viteval.dev/examples">Examples</a>
+  <a href="https://viteval.dev">Documentation</a> | <a href="https://viteval.dev/guide/getting-started">Getting started</a> | <a href="https://viteval.dev/examples">Examples</a> | <a href="https://viteval.dev/brand">Brand & assets</a>
 </p>
 <br>
 <br>
 
 > [!WARNING]
-> This branch is under active development for **v1**. Expect breaking changes.
-> For the latest stable release (v0), see the [`v0` branch](https://github.com/viteval/viteval/tree/v0).
+> V1 is a release candidate. Install `viteval@rc`; untagged installs resolve to v0.
+> V0 support ends when v1 launches. The [`v0` branch](https://github.com/viteval/viteval/tree/v0) contains the stable release.
 
 ## Features
 
 - Native Vitest configuration, execution, watch mode, retries, and CI exit codes.
 - Typed tasks, reusable datasets, built-in scorers, and custom scoring functions.
-- JSON storage by default, with atomic writes and a local results dashboard.
-- TanStack Start dashboard with server-rendered pages and bundled Vite assets.
+- JSON storage by default, with atomic writes. Inspect saved results locally with `viteval ui`.
 - Optional SQLite, Braintrust, Langfuse, and hosted VoltOps providers for datasets and evaluation results, plus S3/GCS dataset storage. Backend SDKs and database drivers are opt-in.
-- Maltty project commands and an optional compiled command shell.
+- CLI commands for project setup, dataset generation, and the dashboard.
 
 ## Installation
 
 ```bash
-pnpm add -D viteval
+pnpm add -D viteval@rc
 pnpm exec viteval init --no-env-file
 pnpm exec viteval run
 pnpm exec viteval ui
@@ -48,7 +47,7 @@ under `.viteval/results`.
 
 ## Usage
 
-You can use `viteval` to evaluate your LLM and add tests in your CI in one single file.
+Define an evaluation in `src/uppercase.eval.ts`. This example runs without a model or API key:
 
 ```ts
 import { evaluate, scorers } from 'viteval';
@@ -63,7 +62,7 @@ evaluate('Uppercase', {
 });
 ```
 
-Now you can run the eval by running:
+Run it locally or in CI:
 
 ```bash
 pnpm exec viteval run
@@ -79,6 +78,8 @@ errors fail the case and remain inspectable in the JSON report.
 pnpm validate
 pnpm validate:consumer
 pnpm --filter @viteval/cli test:binary
+pnpm docs:types
+pnpm docs:build
 ```
 
 The consumer check installs packed packages outside the workspace and verifies

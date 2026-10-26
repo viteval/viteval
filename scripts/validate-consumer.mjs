@@ -75,15 +75,12 @@ try {
   const overrides = Object.entries(packed)
     .map(([name, file]) => `  ${JSON.stringify(name)}: ${JSON.stringify(file)}`)
     .join('\n');
-  const allowBuildsIndex = workspace.indexOf('allowBuilds:');
-  assert.notEqual(
-    allowBuildsIndex,
-    -1,
-    'pnpm-workspace.yaml must declare allowBuilds'
-  );
+  // Copy only build permissions, not repository-only settings such as patches.
+  const allowBuilds = workspace.match(/^allowBuilds:\n(?:[ \t]+.*\n?)*/m)?.[0];
+  assert.ok(allowBuilds, 'pnpm-workspace.yaml must declare allowBuilds');
   await writeFile(
     path.join(project, 'pnpm-workspace.yaml'),
-    `packages: []\noverrides:\n${overrides}\n${workspace.slice(allowBuildsIndex)}`
+    `packages: []\noverrides:\n${overrides}\n${allowBuilds}`
   );
   process.stdout.write(
     `Installing ${source.toLowerCase()} packages in an isolated consumer...\n`

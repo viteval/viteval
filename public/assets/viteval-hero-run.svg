@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="680" viewBox="0 0 1000 680" fill="none">
+  <title>Captured order extraction evaluation output</title>
+  <desc>Re-typeset from a local viteval run with Vitest 5.0.3 and the verbose reporter. Three cases pass; total duration 355ms. The project path is omitted.</desc>
+  <rect x="1.5" y="1.5" width="997" height="677" rx="12" fill="#0B1016" stroke="#293644" stroke-width="3"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#F8FAFC">
+    <rect x="38" y="42" width="64" height="34" rx="4" fill="#A3E635"/>
+    <text x="70" y="67" fill="#172009" text-anchor="middle">RUN</text>
+    <text x="120" y="67">v5.0.3</text>
+    <text x="38" y="120">src/order-extraction.eval.ts &gt; Order extraction</text>
+    <text x="38" y="180"><tspan fill="#A3E635">✓</tspan> Where is order ORD-1042? <tspan fill="#93A4B6">5ms</tspan></text>
+    <text x="68" y="216" fill="#93A4B6">↳ ExactMatch: 1</text>
+    <text x="38" y="280"><tspan fill="#A3E635">✓</tspan> Please cancel ord-2087. <tspan fill="#93A4B6">1ms</tspan></text>
+    <text x="68" y="316" fill="#93A4B6">↳ ExactMatch: 1</text>
+    <text x="38" y="380"><tspan fill="#A3E635">✓</tspan> How do I update my address? <tspan fill="#93A4B6">1ms</tspan></text>
+    <text x="68" y="416" fill="#93A4B6">↳ ExactMatch: 1</text>
+    <text x="38" y="500">Test Files <tspan fill="#A3E635">1 passed</tspan> <tspan fill="#93A4B6">(1)</tspan></text>
+    <text x="38" y="545">     Tests <tspan fill="#A3E635">3 passed</tspan> <tspan fill="#93A4B6">(3)</tspan></text>
+    <text x="38" y="590">  Duration 355ms</text>
+  </g>
+</svg>

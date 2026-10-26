@@ -56,9 +56,6 @@
         "server.d.mts",
         "server.d.mts.map"
       ]
-    },
-    "@apps/website#build": {
-      "outputs": [".vitepress/dist/**"]
     }
   }
 }

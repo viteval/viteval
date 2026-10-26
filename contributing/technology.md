@@ -14,7 +14,7 @@ Technologies and dependencies used in the Viteval codebase.
 | TypeScript | ~7.0.x  | Type-safe JavaScript             |
 | Vitest     | ^5.0.x  | Test runner (evals run as tests) |
 | pnpm       | 12.x    | Package manager                  |
-| Turborepo  | ^2.10.x | Monorepo task orchestration      |
+| Turborepo  | ^2.11.x | Monorepo task orchestration      |
 
 ## Build Tools
 
@@ -22,14 +22,14 @@ Technologies and dependencies used in the Viteval codebase.
 | ------ | ------- | ----------------------------------- |
 | tsdown | ^0.23.x | TypeScript bundler (Rolldown-based) |
 | SWC    | ~1.16.x | Fast TypeScript compilation         |
-| Vite   | ^8.2.x  | Development server and bundling     |
+| Vite   | ^8.3.x  | Development server and bundling     |
 
 ## Code Quality
 
 | Tool       | Version | Purpose       |
 | ---------- | ------- | ------------- |
-| oxlint     | ^1.82.x | Linting       |
-| oxfmt      | ^0.67.x | Formatting    |
+| oxlint     | ^1.87.x | Linting       |
+| oxfmt      | ^0.72.x | Formatting    |
 | TypeScript | ~7.0.x  | Type checking |
 
 ## Key Dependencies
@@ -52,12 +52,12 @@ Technologies and dependencies used in the Viteval codebase.
 
 ### @viteval/cli
 
-| Dependency | Purpose                       |
-| ---------- | ----------------------------- |
-| `yargs`    | Command-line argument parsing |
-| `consola`  | CLI output                    |
-| `c12`      | Configuration loading         |
-| `find-up`  | Config file discovery         |
+| Dependency | Purpose                                  |
+| ---------- | ---------------------------------------- |
+| `maltty`   | Command definitions and argument parsing |
+| `consola`  | CLI output                               |
+| `glob`     | Dataset file discovery                   |
+| `ink`      | Interactive terminal UI                  |
 
 ### @viteval/ui
 
@@ -75,6 +75,12 @@ Technologies and dependencies used in the Viteval codebase.
 The UI build ships `dist/client`, `dist/server`, and the public `server.mjs` /
 `server.d.mts` launcher. Turbo caches these outputs. Generated route types must
 be available before UI typechecking, including when restoring a cached build.
+
+## Documentation
+
+The public documentation uses Ciderpress from the repository root. Content lives
+in `docs/`, static assets in `public/`, and generated build output in
+`.ciderpress/dist/`. GitHub Pages deploys that static output to `viteval.dev`.
 
 ## Oxc Configuration
 

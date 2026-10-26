@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1192" height="216" viewBox="240 340 1192 216" role="img" aria-labelledby="title">
+  <title id="title">Viteval</title>
+  <g fill="#F8FAFC">
+    <path d="M249 383h62l26 83 29-83h60l-61 148h-60Z"/>
+    <path d="M426 383h54v148h-54Z"/>
+    <path d="M488 383h128v43h-38v105h-54V426h-36Z"/>
+    <path d="M624 383h116l7 41h-69v13h61v37h-61v14h73v43H624Z"/>
+  </g>
+  <g fill="#168DFA">
+    <path d="M746 383h61l26 83 29-83h60l-61 148h-59Z"/>
+    <path fill-rule="evenodd" d="M936 383h66l51 148h-57l-7-23h-46l-8 23h-54Zm31 49-12 38h23Z"/>
+    <path d="M1053 383h51v105h62v43h-113Z"/>
+    <path fill-rule="evenodd" d="M1274 348h48c7 0 12 6 12 13s-5 12-10 12v26c31 12 51 39 51 72 0 43-35 77-77 77s-77-34-77-77c0-33 20-60 50-72v-26c-5 0-9-5-9-12s5-13 12-13Zm13 25v32c0 5-2 7-7 9-26 8-43 31-43 57 0 34 27 61 61 61s61-27 61-61c0-26-17-49-43-57-5-2-7-4-7-9v-32Z"/>
+  </g>
+  <path fill="#12D9E9" d="M1238 458c18-11 29-13 43-6 20 10 27 18 46 13 18-5 21-12 29-9 2 5 3 10 3 15 0 34-27 61-61 61s-61-27-61-61c0-5 0-9 1-13Z"/>
+  <path fill="#0BB5F0" d="M1240 488c20-4 45-1 65-21 15-2 33 3 52-7 1 4 2 7 2 11 0 34-27 61-61 61-28 0-51-18-58-44Z"/>
+  <g fill="none" stroke="#F8FAFC" stroke-width="30" stroke-linecap="round">
+    <path d="M1213 391c-38 41-38 98 0 138"/>
+    <path d="M1381 391c38 41 38 98 0 138"/>
+  </g>
+</svg>

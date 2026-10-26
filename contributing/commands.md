@@ -36,7 +36,7 @@ pnpm build
 pnpm dev
 ```
 
-Turbo uses its interactive terminal UI by default. Use `pnpm dev:website` for the
+Turbo uses its interactive terminal UI by default. Use `pnpm docs:dev` for the
 docs site or `pnpm dev:ui examples/basic` for the dashboard pointed at an example.
 Select a task in the TUI to inspect its logs and interact with its process.
 
@@ -118,7 +118,7 @@ and UI commands require a project installation of `viteval` and Node >=26 on PAT
 ### Code Quality
 
 ```bash
-# Check linting
+# Check linting and formatting
 pnpm check
 
 # Fix linting issues
@@ -147,15 +147,25 @@ pnpm version
 pnpm publish
 ```
 
-### Website
+### Documentation
 
 ```bash
 # Build website
-pnpm build:website
+pnpm docs:build
+
+# Check documentation components
+pnpm docs:types
+
+# Check documentation configuration and content
+pnpm docs:check
 
 # Run website dev server
-pnpm dev:website
+pnpm docs:dev
 ```
+
+`docs:build` builds the site with Ciderpress and tests the GitHub star-count
+behavior. `pnpm validate` checks packages, linting, and
+formatting; run the docs commands separately when changing the site.
 
 ## Troubleshooting
 

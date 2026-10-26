@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="176" viewBox="0 0 480 176" fill="none">
+  <rect width="480" height="176" fill="#0B1016"/>
+  <g stroke="#737373" stroke-width="2">
+    <rect x="24" y="40" width="104" height="70" rx="4"/>
+    <path d="M16 120h120M151 80h30m-8-8 8 8-8 8M299 80h30m-8-8 8 8-8 8"/>
+    <rect x="198" y="40" width="84" height="82" rx="4"/>
+    <path d="M213 61h54M213 81h54M213 101h54"/>
+    <rect x="348" y="40" width="104" height="82" rx="4"/>
+  </g>
+  <g stroke="#a3e635" stroke-width="3"><path d="m61 78 10 10 20-22m298 12 10 10 20-22"/></g>
+  <g font-family="ui-monospace,monospace" font-size="13" text-anchor="middle">
+    <text x="76" y="150" fill="#f5f5f5">Laptop</text>
+    <text x="240" y="150" fill="#168DFA">CI</text>
+    <text x="400" y="150" fill="#f5f5f5">Your runner</text>
+  </g>
+</svg>

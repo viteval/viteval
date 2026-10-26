@@ -1,0 +1,108 @@
+---
+pageType: custom
+title: Features
+description: Native Vitest workflows, built-in scoring, local results, and evaluations on your own infrastructure.
+---
+
+import { FeatureHero, FeatureMotion, FeaturesPage } from '#docs/features-page';
+
+<FeaturesPage>
+
+<FeatureHero />
+
+<nav className="vv-features-page__nav" aria-label="Feature sections">
+  <a href="#familiar-tooling">Vitest-native</a>
+  <a href="#built-in-defaults">Scoring</a>
+  <a href="#local-first">Local results</a>
+  <a href="#run-anywhere">Your infrastructure</a>
+</nav>
+
+<section className="vv-feature-detail" id="familiar-tooling" aria-labelledby="feature-tooling-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">Familiar tooling</p>
+<h2 id="feature-tooling-title">{'Use your Vitest configuration'}</h2>
+
+Keep native configuration, watch mode, retries, and CI exit codes. Import your
+application functions into an evaluation, then score their answers.
+
+<a className="vv-feature-detail__link" href="/guide/getting-started">
+  {'Write an eval '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
+
+<FeatureMotion kind="tooling" />
+
+</section>
+
+<section className="vv-feature-detail" id="built-in-defaults" aria-labelledby="feature-scoring-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">Your criteria</p>
+<h2 id="feature-scoring-title">
+  {'Score exact answers and free-form responses'}
+</h2>
+
+Use deterministic checks for exact answers and structured output. Add embeddings
+or LLM judges for free-form responses, or define a scorer for your own criteria.
+
+<a className="vv-feature-detail__link" href="/api/scorers">
+  {'Choose a scorer '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
+
+<FeatureMotion kind="scoring" />
+
+</section>
+
+<section className="vv-feature-detail" id="local-first" aria-labelledby="feature-local-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">Local by default</p>
+<h2 id="feature-local-title">{'Inspect results locally'}</h2>
+
+Start with JSON datasets and results in your project. Open the local dashboard
+to inspect inputs, reference answers, outputs, and individual scores.
+
+<a className="vv-feature-detail__link" href="/guide/cli#view-results">
+  {'Open the dashboard '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
+
+<FeatureMotion kind="local" />
+
+</section>
+
+<section className="vv-feature-detail" id="run-anywhere" aria-labelledby="feature-runners-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">Run on your infrastructure</p>
+<h2 id="feature-runners-title">{'Run evaluations in CI'}</h2>
+
+Run the same evaluations on your laptop, in CI, or on a runner you control.
+Return a nonzero exit code when a case fails its scoring threshold.
+
+<div className="vv-feature-detail__links">
+  <a className="vv-feature-detail__link" href="/guide/advanced/ci">
+    {'Set up CI '}
+    <span aria-hidden="true">→</span>
+  </a>
+  <a className="vv-feature-detail__link" href="/guide/providers">
+    {'Choose providers '}
+    <span aria-hidden="true">→</span>
+  </a>
+</div>
+
+</div>
+
+<FeatureMotion kind="runners" />
+
+</section>
+
+</FeaturesPage>

@@ -1,0 +1,63 @@
+---
+pageType: custom
+title: Viteval
+description: Evaluate prompts and agents against reference cases in TypeScript.
+---
+
+import { LandingPage } from '#docs/landing-page';
+
+<LandingPage>
+
+<div>
+
+```ts
+import { evaluate, scorers } from 'viteval';
+import { orderMessages } from './order-extraction.dataset';
+
+evaluate('Order extraction', {
+  data: orderMessages,
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
+  scorers: [scorers.exactMatch()],
+});
+```
+
+</div>
+
+<div>
+
+```ts
+import { defineDataset } from 'viteval/dataset';
+
+export const orderMessages = defineDataset({
+  name: 'order-extraction',
+  data: async () => [
+    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
+});
+```
+
+</div>
+
+<div>
+
+```ts
+import { defineConfig } from 'viteval/config';
+import { JsonReporter } from 'viteval/reporters';
+
+export default defineConfig({
+  test: {
+    include: ['src/**/*.eval.ts'],
+    setupFiles: ['./viteval.setup.ts'],
+    reporters: [
+      'default',
+      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
+    ],
+  },
+});
+```
+
+</div>
+
+</LandingPage>

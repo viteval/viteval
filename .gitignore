@@ -133,11 +133,8 @@ dist
 **/.viteval/viteval.db
 **/.viteval/viteval.db-journal
 
-# vitepress build output
-**/.vitepress/dist
-
-# vitepress cache directory
-**/.vitepress/cache
+# Ciderpress generated content, assets, and build output
+.ciderpress/
 
 # Docusaurus cache and generated files
 .docusaurus
