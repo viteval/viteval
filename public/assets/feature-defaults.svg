@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="176" viewBox="0 0 480 176" fill="none">
+  <rect width="480" height="176" fill="#0B1016"/>
+  <g font-family="ui-monospace,monospace" font-size="14">
+    <text x="28" y="38" fill="#949494" font-size="12">CHOOSE YOUR CRITERIA</text>
+    <text x="28" y="75" fill="#f5f5f5">exactMatch</text>
+    <text x="28" y="107" fill="#f5f5f5">answerSimilarity</text>
+    <text x="28" y="139" fill="#f5f5f5">yourScorer</text>
+    <text x="340" y="75" fill="#a3e635">1.00</text>
+    <text x="340" y="107" fill="#168DFA">0.92</text>
+    <text x="340" y="139" fill="#12D9E9">0.85</text>
+  </g>
+  <g stroke="#404040" stroke-width="6"><path d="M226 70h92M226 102h92M226 134h92"/></g>
+  <path d="M226 70h92" stroke="#a3e635" stroke-width="6"/>
+  <path d="M226 102h85" stroke="#168DFA" stroke-width="6"/>
+  <path d="M226 134h78" stroke="#12D9E9" stroke-width="6"/>
+  <path d="m406 68 7 7 12-14m-19 39 7 7 12-14m-19 39 7 7 12-14" stroke="#a3e635" stroke-width="2"/>
+</svg>

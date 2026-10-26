@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="216" viewBox="1190 340 216 216" role="img" aria-labelledby="title desc">
+  <title id="title">Viteval flask icon — review draft</title>
+  <desc id="desc">Round blue flask with a short neck and a visible cyan liquid wave. Hand-built vector paths; not yet approved for production.</desc>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="348" x2="0" y2="548" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0087ff"/>
+      <stop offset="1" stop-color="#007cff"/>
+    </linearGradient>
+    <linearGradient id="liquid" x1="0" y1="450" x2="0" y2="532" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00f0ff"/>
+      <stop offset="1" stop-color="#00d2f0"/>
+    </linearGradient>
+    <linearGradient id="liquid-depth" x1="0" y1="464" x2="0" y2="532" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00bdf4"/>
+      <stop offset="1" stop-color="#00a7f7"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#blue)" fill-rule="evenodd" d="M1274 348h48c7 0 12 6 12 13s-5 12-10 12v26c31 12 51 39 51 72 0 43-35 77-77 77s-77-34-77-77c0-33 20-60 50-72v-26c-5 0-9-5-9-12s5-13 12-13Zm13 25v32c0 5-2 7-7 9-26 8-43 31-43 57 0 34 27 61 61 61s61-27 61-61c0-26-17-49-43-57-5-2-7-4-7-9v-32Z"/>
+  <path fill="url(#liquid)" d="M1238 458c18-11 29-13 43-6 20 10 27 18 46 13 18-5 21-12 29-9 2 5 3 10 3 15 0 34-27 61-61 61s-61-27-61-61c0-5 0-9 1-13Z"/>
+  <path fill="url(#liquid-depth)" d="M1240 488c20-4 45-1 65-21 15-2 33 3 52-7 1 4 2 7 2 11 0 34-27 61-61 61-28 0-51-18-58-44Z"/>
+</svg>

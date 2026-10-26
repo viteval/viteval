@@ -2,7 +2,6 @@ packages:
   - 'packages/*'
   - 'tools/*'
   - 'examples/*'
-  - 'apps/*'
 minimumReleaseAge: 0
 allowBuilds:
   '@prisma/engines': true
@@ -12,3 +11,5 @@ allowBuilds:
   prisma: true
   protobufjs: true
   workerd: true
+patchedDependencies:
+  '@ciderpress/cli@1.0.0-rc.17': scripts/patches/@ciderpress__cli@1.0.0-rc.17.patch

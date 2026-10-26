@@ -7,7 +7,8 @@ High-level overview of the Viteval monorepo.
 ```
 viteval/
 ├── packages/       # Core packages
-├── apps/           # Applications (website)
+├── docs/           # Public v1 documentation
+├── public/         # Documentation assets
 ├── examples/       # Example projects
 ├── tools/          # Generator templates
 ├── turbo/          # Turborepo generator configuration
@@ -27,11 +28,23 @@ viteval/
 
 See [Architecture](./architecture.md) for how packages work together.
 
-## Apps
+## Documentation
 
-| App       | Purpose                        |
-| --------- | ------------------------------ |
-| `website` | Documentation site (Vitepress) |
+`ciderpress.config.ts` at the repository root defines the public site using
+Markdown under `docs/` and static assets under `public/`. Ciderpress generates
+`.ciderpress/`; no separate website workspace or legacy archive is maintained.
+The `contributing/` directory remains internal contributor documentation.
+
+The homepage is a custom React composition mounted by `docs/index.mdx`.
+Edit `docs/visuals/landing-page.tsx` for section order and content,
+`feature-panels.tsx` for feature copy, and `feature-scenes.tsx` for animated
+artwork. The feature boxes inherit the page surface; color belongs in the
+artwork, not separate card backgrounds. The `#docs/*` package import keeps
+component imports stable when Ciderpress syncs Markdown into its generated tree.
+
+`scripts/patches/@ciderpress__cli@1.0.0-rc.17.patch` fixes the CLI's explicit-home
+check to recognize both `index.md` and `index.mdx`. Remove the package patch
+once an upstream release includes that fix.
 
 ## Tools
 

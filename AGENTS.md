@@ -31,11 +31,15 @@ viteval/
 │   ├── internal/   # Shared utils (not published)
 │   ├── ui/         # React dashboard
 │   └── viteval/    # Public entry point (re-exports core + cli)
-├── apps/website/   # Docs site (Vitepress)
+├── docs/           # Public v1 documentation (Ciderpress)
+├── public/         # Documentation assets
 ├── examples/       # Example projects
 ├── turbo/          # Turborepo generators (pnpm gen)
 └── contributing/   # Contributor documentation
 ```
+
+The root `ciderpress.config.ts` defines the docs site. Use `pnpm docs:dev` and
+`pnpm docs:build`; `.ciderpress/` is generated and must not be committed.
 
 ## Imports & Modules
 

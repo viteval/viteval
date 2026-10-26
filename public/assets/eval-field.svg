@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" fill="none">
+  <defs>
+    <radialGradient id="violet">
+      <stop stop-color="#168DFA" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#0B1016" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gold">
+      <stop stop-color="#12D9E9" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#12D9E9" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fade" x2="0" y2="1">
+      <stop stop-color="#0B1016" stop-opacity="0"/>
+      <stop offset=".76" stop-color="#0B1016" stop-opacity=".1"/>
+      <stop offset="1" stop-color="#0B1016"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#0875D9"/>
+      <stop offset=".5" stop-color="#168DFA"/>
+      <stop offset="1" stop-color="#12D9E9"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" stroke="#47A6FC" stroke-opacity=".12"/>
+      <circle cx="0" cy="0" r="1" fill="#168DFA" fill-opacity=".3"/>
+    </pattern>
+    <pattern id="micro" width="12" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r=".6" fill="#47A6FC" fill-opacity=".16"/>
+    </pattern>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <path id="contour" d="M-240 615C-110 600-80 360 40 350S190 545 300 495 370 190 490 165 640 355 745 280 800 80 940 125"/>
+    <path id="orbit" d="M985 365C1080 245 1200 195 1335 235S1540 385 1675 245"/>
+  </defs>
+  <style>
+    .trace { stroke-dasharray: 1400; animation: trace 3.8s ease-out both; }
+    .samples { animation: samples 2.4s ease-out both; }
+    @keyframes trace { from { stroke-dashoffset: 1400; opacity: 0; } to { stroke-dashoffset: 0; opacity: 1; } }
+    @keyframes samples { from { opacity: 0; } to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .trace, .samples { animation: none; } }
+  </style>
+  <path fill="#0B1016" d="M0 0h1600v1100H0z"/>
+  <ellipse cx="170" cy="430" rx="650" ry="550" fill="url(#violet)"/>
+  <ellipse cx="1450" cy="400" rx="650" ry="600" fill="url(#violet)"/>
+  <ellipse cx="1310" cy="280" rx="330" ry="350" fill="url(#gold)"/>
+  <path fill="url(#micro)" d="M0 0h1600v1100H0z"/>
+  <path fill="url(#grid)" d="M0 0h1600v940H0z"/>
+  <g stroke="#168DFA" stroke-width="1" opacity=".38" transform="translate(-135 140) scale(.72 1)">
+    <use href="#contour" transform="translate(0 -110)"/>
+    <use href="#contour" transform="translate(0 -88)"/>
+    <use href="#contour" transform="translate(0 -66)"/>
+    <use href="#contour" transform="translate(0 -44)"/>
+    <use href="#contour" transform="translate(0 -22)"/>
+    <use href="#contour" stroke="#47A6FC" stroke-width="2"/>
+    <use href="#contour" transform="translate(0 22)"/>
+    <use href="#contour" transform="translate(0 44)"/>
+    <use href="#contour" transform="translate(0 66)"/>
+    <use href="#contour" transform="translate(0 88)"/>
+    <use href="#contour" transform="translate(0 110)"/>
+    <use href="#contour" transform="translate(0 132)"/>
+    <use href="#contour" transform="translate(0 154)"/>
+    <use href="#contour" transform="translate(0 176)"/>
+    <use href="#contour" transform="translate(0 198)"/>
+    <use href="#contour" transform="translate(0 220)"/>
+  </g>
+  <g stroke="#168DFA" stroke-width="1" opacity=".5" transform="translate(0 30)">
+    <use href="#orbit" transform="translate(0 -110)"/>
+    <use href="#orbit" transform="translate(0 -88)"/>
+    <use href="#orbit" transform="translate(0 -66)"/>
+    <use href="#orbit" transform="translate(0 -44)"/>
+    <use href="#orbit" transform="translate(0 -22)"/>
+    <use href="#orbit" stroke="#47A6FC" stroke-width="2"/>
+    <use href="#orbit" transform="translate(0 22)"/>
+    <use href="#orbit" transform="translate(0 44)"/>
+    <use href="#orbit" transform="translate(0 66)"/>
+    <use href="#orbit" transform="translate(0 88)"/>
+    <use href="#orbit" transform="translate(0 110)"/>
+    <use href="#orbit" transform="translate(0 132)"/>
+    <use href="#orbit" transform="translate(0 154)"/>
+    <use href="#orbit" transform="translate(0 176)"/>
+    <use href="#orbit" transform="translate(0 198)"/>
+    <use href="#orbit" transform="translate(0 220)"/>
+    <path d="M1060 290v330m55-375v310m55-337v315m55-320v325m55-315v330m55-310v330m55-300v330m55-285v330m55-285v330m55-295v330" stroke-opacity=".35"/>
+  </g>
+  <g stroke="#47A6FC" stroke-opacity=".25">
+    <path d="M52 80h140M52 80v150M1548 80h-140M1548 80v150M52 960h140M52 960V810M1548 960h-140M1548 960V810"/>
+    <path d="M80 420h320m800 0h320" stroke-dasharray="3 7"/>
+    <path d="M1280 110v610M80 720h1440" stroke-dasharray="2 10"/>
+    <circle cx="1280" cy="420" r="148" stroke-dasharray="1 8"/>
+    <circle cx="1280" cy="420" r="181" stroke-opacity=".25"/>
+  </g>
+  <path class="trace" d="M70 660 126 633 168 650 212 561 256 586 300 501 344 515 388 457" stroke="url(#signal)" stroke-width="2"/>
+  <path class="trace" d="m1200 520 40-45 40 16 40-88 40 23 40-109 40 18 44-64 44 13" stroke="url(#signal)" stroke-width="2"/>
+  <g class="samples" fill="#12D9E9">
+    <circle cx="212" cy="561" r="4"/><circle cx="300" cy="501" r="4"/>
+    <circle cx="1280" cy="491" r="4"/><circle cx="1400" cy="317" r="4"/>
+    <circle cx="1484" cy="271" r="4"/>
+    <g filter="url(#glow)">
+      <circle cx="212" cy="561" r="7"/><circle cx="1400" cy="317" r="7"/>
+    </g>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" letter-spacing="2" fill="#93A4B6" opacity=".8">
+    <text x="72" y="112">V / EVALUATION FIELD</text>
+    <text x="72" y="133" font-size="8" opacity=".6">INPUT → INFERENCE → EVIDENCE</text>
+    <text x="1310" y="112">FIG. 01 / SCORE SPACE</text>
+    <text x="84" y="410" fill="#12D9E9">τ / THRESHOLD</text>
+    <text x="1288" y="705">EXPECTED ↗</text>
+    <text x="72" y="930">DETERMINISTIC WHERE IT COUNTS.</text>
+    <text x="1300" y="930">MEASURE. COMPARE. REPEAT.</text>
+  </g>
+  <path fill="url(#fade)" d="M0 0h1600v1100H0z"/>
+</svg>

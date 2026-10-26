@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="216" viewBox="1190 340 216 216" role="img" aria-labelledby="title">
+  <title id="title">Loading</title>
+  <defs>
+    <clipPath id="liquid-clip"><circle cx="1298" cy="471" r="61"/></clipPath>
+  </defs>
+  <style>
+    .wave-front { animation: slosh 2.8s ease-in-out infinite; transform-origin: 1298px 471px; }
+    .wave-back { animation: slosh 3.6s ease-in-out infinite reverse; transform-origin: 1298px 471px; }
+    @keyframes slosh { 0%, 100% { transform: rotate(-6deg) translateY(1px); } 50% { transform: rotate(6deg) translateY(-1px); } }
+    @media (prefers-reduced-motion: reduce) { .wave-front, .wave-back { animation: none; } }
+  </style>
+  <path fill="#168DFA" fill-rule="evenodd" d="M1274 348h48c7 0 12 6 12 13s-5 12-10 12v26c31 12 51 39 51 72 0 43-35 77-77 77s-77-34-77-77c0-33 20-60 50-72v-26c-5 0-9-5-9-12s5-13 12-13Zm13 25v32c0 5-2 7-7 9-26 8-43 31-43 57 0 34 27 61 61 61s61-27 61-61c0-26-17-49-43-57-5-2-7-4-7-9v-32Z"/>
+  <g clip-path="url(#liquid-clip)">
+    <path class="wave-back" fill="#12D9E9" d="M1200 467c33 0 43-27 73-16s36 25 63 9 42-10 64-3v110h-200Z"/>
+    <path class="wave-front" fill="#0BB5F0" d="M1200 496c35-10 66-1 99-26s62 6 101-19v116h-200Z"/>
+  </g>
+</svg>
