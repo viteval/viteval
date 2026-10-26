@@ -101,7 +101,7 @@
   pointer-events: none;
 }
 
-.vv-motion svg {
+.vv-motion > svg {
   width: 100%;
   max-width: 400px;
   overflow: visible;
@@ -154,17 +154,33 @@
   animation-delay: -3.5s;
 }
 
-.vv-motion__gate {
-  fill: color-mix(in srgb, var(--cp-c-bg-alt) 88%, var(--vv-blue));
+.vv-motion__divider {
+  stroke: var(--cp-c-border);
+}
+
+.vv-motion__keyboard {
+  fill: var(--cp-c-bg);
+  stroke: var(--cp-c-border);
+}
+
+.vv-motion__screen {
+  fill: var(--cp-c-bg);
   stroke: var(--cp-c-brand-2);
 }
 
-.vv-motion__sample {
-  animation: vv-sample-pass 8s ease-in-out infinite;
+.vv-motion__camera {
+  fill: var(--cp-c-text-3);
 }
 
-.vv-motion__pages {
-  animation: vv-result-save 7s ease-in-out infinite;
+.vv-motion__check {
+  stroke: var(--vv-cyan);
+  stroke-width: 2;
+  stroke-dasharray: 20;
+  animation: vv-check-draw 7s ease-in-out infinite;
+}
+
+.vv-motion__saved {
+  animation: vv-local-save 7s ease-in-out infinite;
 }
 
 .vv-motion__signal {
@@ -193,38 +209,33 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-6px);
   }
 }
 
-@keyframes vv-sample-pass {
+@keyframes vv-check-draw {
   0%,
   10% {
-    transform: translate(0, 0);
-    opacity: 0;
+    stroke-dashoffset: 20;
   }
-  20% {
-    opacity: 1;
+  30%,
+  85% {
+    stroke-dashoffset: 0;
   }
-  75% {
-    opacity: 1;
-  }
-  90%,
   100% {
-    transform: translate(190px, -100px);
-    opacity: 0;
+    stroke-dashoffset: 20;
   }
 }
 
-@keyframes vv-result-save {
+@keyframes vv-local-save {
   0%,
   15%,
   100% {
-    transform: translateY(0);
+    opacity: 0;
   }
-  45%,
-  80% {
-    transform: translateY(30px);
+  30%,
+  85% {
+    opacity: 1;
   }
 }
 
