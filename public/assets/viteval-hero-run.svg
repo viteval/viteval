@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="680" viewBox="0 0 1000 680" fill="none">
   <title>Viteval evaluation output</title>
-  <rect x="1.5" y="1.5" width="997" height="677" rx="12" fill="#0B1016" stroke="#293744" stroke-width="3"/>
+  <rect x="1.5" y="1.5" width="997" height="677" rx="12" fill="#0B1016" stroke="#293644" stroke-width="3"/>
   <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#F8FAFC">
-    <g fill="#12D9E9">
+    <g fill="#A3E635">
       <text x="38" y="70">✓</text><text x="38" y="125">✓</text><text x="38" y="180">✓</text><text x="38" y="235">✓</text><text x="38" y="290">✓</text><text x="38" y="345">✓</text>
       <rect x="68" y="45" width="76" height="34" rx="4"/><rect x="68" y="100" width="76" height="34" rx="4"/><rect x="68" y="155" width="76" height="34" rx="4"/><rect x="68" y="210" width="76" height="34" rx="4"/><rect x="68" y="265" width="76" height="34" rx="4"/><rect x="68" y="320" width="76" height="34" rx="4"/>
     </g>
-    <g fill="#0B1016" text-anchor="middle">
+    <g fill="#172009" text-anchor="middle">
       <text x="106" y="69">eval</text><text x="106" y="124">eval</text><text x="106" y="179">eval</text><text x="106" y="234">eval</text><text x="106" y="289">eval</text><text x="106" y="344">eval</text>
     </g>
     <text x="162" y="70">agents/support/knowledge.eval.ts (3 cases) 2.4s</text>
@@ -15,14 +15,14 @@
     <text x="162" y="235">agents/search/citations.eval.ts (3 cases) 1.6s</text>
     <text x="162" y="290">agents/tools/selection.eval.ts (3 cases) 1.9s</text>
     <text x="162" y="345">agents/tools/arguments.eval.ts (3 cases) 1.4s</text>
-    <g fill="#8A97A5" text-anchor="end">
+    <g fill="#93A4B6" text-anchor="end">
       <text x="190" y="430">Eval files</text><text x="190" y="475">Cases</text><text x="190" y="520">Duration</text>
     </g>
-    <g fill="#12D9E9"><text x="214" y="430">6 passed</text><text x="214" y="475">18 passed</text></g>
-    <g fill="#657381"><text x="335" y="430">(6)</text><text x="348" y="475">(18)</text></g>
+    <g fill="#A3E635"><text x="214" y="430">6 passed</text><text x="214" y="475">18 passed</text></g>
+    <g fill="#93A4B6"><text x="335" y="430">(6)</text><text x="348" y="475">(18)</text></g>
     <text x="214" y="520">11.2s</text>
-    <rect x="38" y="586" width="77" height="34" rx="4" fill="#12D9E9"/>
-    <text x="76" y="611" fill="#0B1016" text-anchor="middle">PASS</text>
-    <text x="132" y="611" fill="#12D9E9">Waiting for file changes...</text>
+    <rect x="38" y="586" width="77" height="34" rx="4" fill="#A3E635"/>
+    <text x="76" y="611" fill="#172009" text-anchor="middle">PASS</text>
+    <text x="132" y="611" fill="#A3E635">Waiting for file changes...</text>
   </g>
 </svg>
