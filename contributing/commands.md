@@ -163,8 +163,8 @@ pnpm docs:check
 pnpm docs:dev
 ```
 
-`docs:build` also verifies production routes, links, assets, and the
-GitHub star-count behavior. `pnpm validate` checks packages, linting, and
+`docs:build` builds the site with Ciderpress and tests the GitHub star-count
+behavior. `pnpm validate` checks packages, linting, and
 formatting; run the docs commands separately when changing the site.
 
 ## Troubleshooting
