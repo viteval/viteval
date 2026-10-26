@@ -1,24 +1,37 @@
 /**
  * Floating evaluation and Vitest layers, drawn as a compact isometric stack.
+ * @param options - Whether to show the Viteval brand mark on the upper layer.
  * @returns Decorative artwork for the familiar-tooling feature.
  * @example
  * <ToolingScene />
  */
-export function ToolingScene() {
+export function ToolingScene({
+  brandMark = false,
+}: { brandMark?: boolean } = {}) {
   return (
     <div className="vv-scene vv-scene--tooling" aria-hidden="true">
       <div className="vv-stack">
         <div className="vv-stack__layer vv-stack__layer--base">
           <span className="vv-stack__label">VITEST</span>
-          <svg viewBox="0 0 64 64" fill="none">
-            <path d="m36 4-17 25h15l-7 22 26-30H37z" fill="#fcc82a" />
-            <path d="m7 36 16 16 32-32" stroke="#a3e635" strokeWidth="5" />
-          </svg>
+          <img src="/assets/vitest-mark.svg" width="58" height="56" alt="" />
         </div>
         <div className="vv-stack__guide" />
         <div className="vv-stack__layer vv-stack__layer--top">
-          <span className="vv-stack__label">AGENT.EVAL.TS</span>
-          <span className="vv-stack__code">{'{ ✓ }'}</span>
+          <span className="vv-stack__label">
+            {brandMark ? 'VITEVAL' : 'AGENT.EVAL.TS'}
+          </span>
+          <span className="vv-stack__code">
+            {brandMark ? (
+              <img
+                src="/assets/viteval-flask.svg"
+                width="64"
+                height="64"
+                alt=""
+              />
+            ) : (
+              '{ ✓ }'
+            )}
+          </span>
         </div>
       </div>
       <span className="vv-scene__caption">

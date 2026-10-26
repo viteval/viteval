@@ -8,21 +8,12 @@ import { FeatureMotion, FeaturesPage } from '#docs/features-page';
 
 <FeaturesPage>
 
-<header className="vv-features-page__intro">
-  <p className="vv-eyebrow">Why Viteval</p>
-  <h1>
-    {'Evals belong'}
-    <br />
-    {'beside your tests.'}
-  </h1>
-  <p>{'TypeScript-native evals, powered by Vitest.'}</p>
-  <nav aria-label="Feature sections">
-    <a href="#familiar-tooling">Vitest-native</a>
-    <a href="#built-in-defaults">Scoring</a>
-    <a href="#local-first">Local results</a>
-    <a href="#run-anywhere">Your infrastructure</a>
-  </nav>
-</header>
+<nav className="vv-features-page__nav" aria-label="Feature sections">
+  <a href="#familiar-tooling">Vitest-native</a>
+  <a href="#built-in-defaults">Scoring</a>
+  <a href="#local-first">Local results</a>
+  <a href="#run-anywhere">Your infrastructure</a>
+</nav>
 
 <section className="vv-feature-detail" id="familiar-tooling" aria-labelledby="feature-tooling-title">
 <div className="vv-feature-detail__copy">
@@ -37,8 +28,8 @@ import { FeatureMotion, FeaturesPage } from '#docs/features-page';
 Keep native configuration, watch mode, retries, and CI exit codes. Import your
 application functions into an evaluation, then score their answers.
 
-<a className="vv-feature-detail__link" href="/api/evaluate">
-  {'Explore the evaluation API '}
+<a className="vv-feature-detail__link" href="/guide/getting-started">
+  {'Write an eval '}
   <span aria-hidden="true">→</span>
 </a>
 
@@ -62,7 +53,7 @@ Use deterministic checks for exact answers and structured output. Add embeddings
 or LLM judges for free-form responses, or define a scorer for your own criteria.
 
 <a className="vv-feature-detail__link" href="/api/scorers">
-  {'Find your scorers '}
+  {'Choose a scorer '}
   <span aria-hidden="true">→</span>
 </a>
 
@@ -86,7 +77,7 @@ Start with JSON datasets and results in your project. Open the local dashboard
 to inspect inputs, reference answers, outputs, and individual scores.
 
 <a className="vv-feature-detail__link" href="/guide/cli#view-results">
-  {'Inspect your results '}
+  {'Open the dashboard '}
   <span aria-hidden="true">→</span>
 </a>
 
@@ -111,7 +102,7 @@ Catch regressions before they reach production.
 
 <div className="vv-feature-detail__links">
   <a className="vv-feature-detail__link" href="/guide/advanced/ci">
-    {'Run in CI '}
+    {'Set up CI '}
     <span aria-hidden="true">→</span>
   </a>
   <a className="vv-feature-detail__link" href="/guide/providers">

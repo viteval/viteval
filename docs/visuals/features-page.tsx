@@ -1,7 +1,10 @@
 import { CTA, PageRail } from '@ciderpress/ui/theme';
 import type { ReactNode } from 'react';
 
+import { ToolingScene } from './feature-scenes';
+
 import './hero-background.css';
+import './feature-panels.css';
 import './features-page.css';
 
 /**
@@ -14,15 +17,23 @@ import './features-page.css';
 export function FeaturesPage({ children }: { children: ReactNode }) {
   return (
     <PageRail>
-      <main className="vv-features-page">{children}</main>
+      <main className="vv-features-page">
+        <FeatureHero />
+        {children}
+      </main>
       <CTA
-        title="Run your first evaluation."
+        title="Put your agent to the test."
         subtitle="Open source. No hosted account required."
         actions={[
           {
             theme: 'brand',
-            text: 'Get started',
+            text: 'Write your first eval',
             link: '/guide/getting-started',
+          },
+          {
+            theme: 'alt',
+            text: 'See examples',
+            link: '/examples',
           },
         ]}
       />
@@ -31,7 +42,7 @@ export function FeaturesPage({ children }: { children: ReactNode }) {
 }
 
 /**
- * Displays a straight-on feature illustration with restrained motion.
+ * Displays a branded feature illustration with restrained motion.
  * @param props - The feature to illustrate.
  * @returns A decorative CSS animation with a reduced-motion fallback.
  * @example
@@ -42,6 +53,14 @@ export function FeatureMotion({
 }: {
   kind: 'tooling' | 'scoring' | 'local' | 'runners';
 }) {
+  if (kind === 'tooling') {
+    return (
+      <div className="vv-motion vv-motion--tooling">
+        <ToolingScene brandMark />
+      </div>
+    );
+  }
+
   const runnerIcons = {
     LAPTOP: (
       <>
@@ -92,62 +111,6 @@ export function FeatureMotion({
   };
 
   const artwork = {
-    tooling: (
-      <>
-        <g className="vv-motion__tile vv-motion__tile--tests">
-          <rect
-            className="vv-motion__edge"
-            x="70"
-            y="70"
-            width="116"
-            height="142"
-            rx="8"
-          />
-          <rect
-            className="vv-motion__surface"
-            x="70"
-            y="66"
-            width="116"
-            height="142"
-            rx="8"
-          />
-          <g transform="translate(96 115)">
-            <path d="m36 4-17 25h15l-7 22 26-30H37z" fill="#fcc82a" />
-            <path d="m7 36 16 16 32-32" stroke="#a3e635" strokeWidth="5" />
-          </g>
-          <text x="84" y="91">
-            TEST
-          </text>
-        </g>
-        <g className="vv-motion__tile vv-motion__tile--evals">
-          <rect
-            className="vv-motion__edge"
-            x="214"
-            y="70"
-            width="116"
-            height="142"
-            rx="8"
-          />
-          <rect
-            className="vv-motion__surface--blue"
-            x="214"
-            y="66"
-            width="116"
-            height="142"
-            rx="8"
-          />
-          <g transform="translate(240 115)">
-            <path
-              className="vv-motion__accent"
-              d="M12 2h28l12 12v44H12zM40 2v12h12M25 28l-7 7 7 7m14-14 7 7-7 7"
-            />
-          </g>
-          <text x="228" y="91">
-            EVAL
-          </text>
-        </g>
-      </>
-    ),
     scoring: (
       <>
         <g transform="translate(104 54)">
@@ -282,5 +245,80 @@ export function FeatureMotion({
         {artwork[kind]}
       </svg>
     </div>
+  );
+}
+
+function FeatureHero() {
+  return (
+    <header className="vv-feature-hero">
+      <div className="vv-feature-hero__copy">
+        <p className="vv-eyebrow">Why Viteval</p>
+        <h1>
+          Evals belong
+          <br />
+          <span>beside your tests.</span>
+        </h1>
+        <p className="vv-feature-hero__description">
+          Keep your Vitest workflow. Add the checks your AI needs.
+        </p>
+        <div className="vv-feature-hero__actions">
+          <a
+            className="cp-hero__btn cp-hero__btn--primary"
+            href="#familiar-tooling"
+          >
+            Explore features
+          </a>
+          <a className="cp-hero__btn" href="/examples">
+            See examples
+          </a>
+        </div>
+      </div>
+      <div className="vv-feature-hero__visual">
+        <div className="vv-feature-hero__marks" aria-hidden="true">
+          <img src="/assets/viteval-flask.svg" width="42" height="42" alt="" />
+          <span>+</span>
+          <img src="/assets/vitest-mark.svg" width="42" height="40" alt="" />
+        </div>
+        <figure
+          className="vv-feature-preview"
+          aria-label="Illustrative evaluation run with three passing cases"
+        >
+          <figcaption>
+            <span className="vv-feature-preview__dots" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span>knowledge.eval.ts</span>
+            <span className="vv-feature-preview__example">Example run</span>
+          </figcaption>
+          <div className="vv-feature-preview__body">
+            <p className="vv-feature-preview__command">
+              <span>❯</span> pnpm exec viteval run
+            </p>
+            <p className="vv-feature-preview__heading">
+              <b>RUN</b> Viteval <span>/ powered by Vitest</span>
+            </p>
+            <div className="vv-feature-preview__results">
+              {['Workspace invites', 'API rate limits', 'Retention policy'].map(
+                (name, index) => (
+                  <div key={name} style={{ animationDelay: `${index * 0.5}s` }}>
+                    <span className="vv-feature-preview__check">✓</span>
+                    <span>{name}</span>
+                    <span>passed</span>
+                  </div>
+                )
+              )}
+            </div>
+            <div className="vv-feature-preview__summary">
+              <span>Cases</span>
+              <strong>3 passed</strong>
+              <span>(3)</span>
+            </div>
+            <div className="vv-feature-preview__saved">↳ .viteval/results/</div>
+          </div>
+        </figure>
+      </div>
+    </header>
   );
 }

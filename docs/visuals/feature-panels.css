@@ -122,13 +122,13 @@
 }
 
 .vv-stack__layer--base {
-  border-bottom: 4px solid #a3e635;
+  border-bottom: 4px solid #22ff84;
   box-shadow: 0 8px 0 #293320;
 }
 
-.vv-stack__layer--base svg {
+.vv-stack__layer--base img {
   width: 58px;
-  height: 58px;
+  height: auto;
 }
 
 .vv-stack__layer--top {
