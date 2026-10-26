@@ -20,8 +20,8 @@ viteval run --reporter json
 ## Evaluation JSON
 
 Viteval's JSON reporter saves evaluation scores and artifacts. Vitest's built-in
-JSON reporter saves test results without those details. Configure both if you
-need both formats:
+JSON reporter saves test results without those details. Configure Viteval's
+reporter alongside the default console reporter to save evaluation details:
 
 ```ts
 import { JsonReporter } from 'viteval/reporters';

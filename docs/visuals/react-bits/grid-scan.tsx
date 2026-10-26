@@ -1156,7 +1156,6 @@ export const GridScan = ({
       [room, down, blur, composite].forEach((item) =>
         gl.deleteProgram(item.program)
       );
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [paused]);
 

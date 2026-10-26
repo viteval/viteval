@@ -10,5 +10,6 @@ Copyright © 2026 David Haz. See [LICENSE.md](./LICENSE.md) for the MIT +
 Commons Clause terms. These components are used only by the documentation site,
 not exported or distributed in Viteval's npm packages.
 
-Local changes: kebab-case imports, repository formatting, and a pause control.
+Local changes: kebab-case imports, repository formatting, a pause control, and
+effect cleanup that preserves the canvas context across pause/resume.
 Webcam and gyro features remain disabled in the integration.

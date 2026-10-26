@@ -1,9 +1,11 @@
 # Providers
 
 Viteval is open source and uses local JSON storage by default. You do not need a
-hosted evaluation account. Dataset files live under
-`.viteval/datasets`; reporter snapshots and provider runs live under
-`.viteval/results`. The dashboard reads the same formats.
+hosted evaluation account. With the default JSON provider, datasets live under
+`.viteval/datasets` and runs under `.viteval/results`. The JSON reporter also
+writes local snapshots for dashboard inspection. Configured hosted providers
+such as Braintrust, Langfuse, and VoltOps persist runs through their own services;
+they do not move those hosted runs into the local directory.
 
 `@viteval/providers` and every backend SDK/driver are opt-in. Importing a provider
 factory does not load its SDK. Install the packages for the backend you select;

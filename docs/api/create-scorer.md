@@ -95,8 +95,10 @@ type Scorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra> = (
 ```
 
 `createScorer()` supplies the configured name, overriding any name returned by
-the callback. `evaluate()` also passes the original input and additional case
-fields to each scorer. Task output and expected values may have different types:
+the callback. `evaluate()` passes additional case fields to each scorer. It also
+passes `input` at runtime, but the current `ScorerArgs` type does not infer its
+type separately. Declare `input` in `EXTRA` when using it in a typed custom
+scorer. Task output and expected values may have different types:
 
 ```ts
 const correctAnswer = createScorer<{ answer: string }, string>({

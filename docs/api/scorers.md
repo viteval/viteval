@@ -274,6 +274,7 @@ scorers.moderation();
 - Self-harm
 - Sexual content
 - Harassment
+- Dangerous or illegal activities
 
 **Example**:
 
@@ -380,24 +381,26 @@ scorers.listContains();
 
 ### `possible`
 
-Asks an LLM judge whether an answer is logically possible.
+Asks an LLM judge whether a response offers a solution (1) or declares the task
+impossible (0). It does not compare the response with `expected` or check whether
+the proposed solution is correct.
 
 ```ts
 scorers.possible();
 ```
 
 **Range**: 0.0 - 1.0  
-**Use cases**: Logical reasoning, plausibility checking
+**Use cases**: Detecting declarations of impossibility versus solution attempts
 
 **Example**:
 
 ```ts
-// Question: "How many wheels does a bicycle have?"
-// Output: "2"
-// Score: 1.0 (possible)
+// Input: "Write a haiku about rain."
+// Output: "Rain taps on the roof / Rivers gather in the street / Clouds drift into dusk"
+// Score: 1.0 (offers a solution)
 
-// Output: "7"
-// Score: 0.0 (not possible)
+// Output: "Writing a haiku about rain is impossible."
+// Score: 0.0 (declares the task impossible)
 ```
 
 ### `humor`

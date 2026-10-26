@@ -136,7 +136,6 @@ export function BrandPage() {
                 />
                 <button
                   type="button"
-                  aria-pressed={isPlaying}
                   onClick={() => setIsPlaying((current) => !current)}
                 >
                   {isPlaying ? 'Pause preview' : 'Play preview'}
