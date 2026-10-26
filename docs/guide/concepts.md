@@ -15,11 +15,11 @@ An evaluation defines:
 ```ts
 import { evaluate, scorers } from 'viteval';
 
-evaluate('Uppercase', {
-  data: [{ input: 'hello', expected: 'HELLO' }],
-  task: ({ input }) => input.toUpperCase(),
+evaluate('Order extraction', {
+  data: [{ input: 'Where is order ORD-1042?', expected: 'ORD-1042' }],
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
-  threshold: 0.9,
+  threshold: 1,
 });
 ```
 
@@ -30,12 +30,12 @@ evaluate('Uppercase', {
 Define cases inline for a small evaluation:
 
 ```ts
-evaluate('Simple eval', {
+evaluate('Order extraction', {
   data: async () => [
-    { input: 'Hello', expected: 'Hi there!' },
-    { input: 'Goodbye', expected: 'See you later!' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
   ],
-  task: ({ input }) => (input === 'Hello' ? 'Hi there!' : 'See you later!'),
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
 });
 ```
@@ -47,21 +47,17 @@ For reusable datasets, use `defineDataset()`:
 ```ts
 import { defineDataset } from 'viteval/dataset';
 
-const greetings = defineDataset({
-  name: 'greetings',
-  data: async () => {
-    // Generate or load data
-    return [
-      { input: 'Hello', expected: 'Hi there!' },
-      { input: 'Goodbye', expected: 'See you later!' },
-    ];
-  },
+const orderMessages = defineDataset({
+  name: 'order-extraction',
+  data: async () => [
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
 });
 
-// Use in evaluations
-evaluate('Greeting test', {
-  data: greetings,
-  task: ({ input }) => (input === 'Hello' ? 'Hi there!' : 'See you later!'),
+evaluate('Order extraction', {
+  data: orderMessages,
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
 });
 ```
@@ -80,45 +76,23 @@ Call your model or application code inside this function:
 
 ```ts
 import { openai } from '@ai-sdk/openai';
-import { generateText, Output } from 'ai';
-import { z } from 'zod';
+import { generateText } from 'ai';
 
-// Simple text generation
-task: async ({ input }) => {
+const extractOrderId = async ({ input }: { input: string }) => {
   const result = await generateText({
     model: openai('gpt-4.1-mini'),
+    system:
+      'Extract the ORD- order ID. Return only the uppercase ID, or an empty string if none is present.',
     prompt: input,
   });
-  return result.text;
-};
-
-// With system prompts
-task: async ({ input }) => {
-  const result = await generateText({
-    model: openai('gpt-4.1-mini'),
-    messages: [
-      { role: 'system', content: 'You are a helpful assistant.' },
-      { role: 'user', content: input },
-    ],
-  });
-  return result.text;
-};
-
-// Structured output
-task: async ({ input }) => {
-  const result = await generateText({
-    model: openai('gpt-4.1-mini'),
-    prompt: input,
-    output: Output.object({
-      schema: z.object({
-        answer: z.string(),
-        confidence: z.number(),
-      }),
-    }),
-  });
-  return JSON.stringify(result.output);
+  return result.text.trim();
 };
 ```
+
+Pass `extractOrderId` as the evaluation’s `task`. This requires `ai`,
+`@ai-sdk/openai`, and `OPENAI_API_KEY`. Expected values go to scorers, not to the
+task. For structured output, return the object and use `scorers.jsonDiff()`;
+see [Scorers](/api/scorers#jsondiff).
 
 ## Scorers
 
@@ -157,23 +131,17 @@ Use `createScorer()` for checks specific to your application:
 ```ts
 import { createScorer } from 'viteval';
 
-const lengthScorer = createScorer<string>({
-  name: 'length-check',
-  score: ({ output, expected }) => {
-    const outputLength = output.length;
-    const expectedLength = expected.length;
-    const diff = Math.abs(outputLength - expectedLength);
-    return {
-      score: Math.max(0, 1 - diff / Math.max(1, outputLength, expectedLength)),
-    };
-  },
+const orderIdScorer = createScorer<string>({
+  name: 'normalized-order-id',
+  score: ({ output, expected }) => ({
+    score: output.trim().toUpperCase() === expected ? 1 : 0,
+  }),
 });
 
-// Use in evaluations
-evaluate('Length test', {
-  data: [{ input: 'hello', expected: 'HELLO' }],
-  task: ({ input }) => input.toUpperCase(),
-  scorers: [lengthScorer],
+evaluate('Order extraction', {
+  data: [{ input: 'Please cancel ord-2087.', expected: 'ORD-2087' }],
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0] ?? '',
+  scorers: [orderIdScorer],
 });
 ```
 
@@ -183,9 +151,22 @@ Combine scorers to check different properties of the same output. This example
 uses LLM judges and embeddings, which require model setup and API credentials:
 
 ```ts
-evaluate('Answer quality', {
-  data: [{ input: 'What color is the sky?', expected: 'Blue' }],
-  task: () => 'Blue',
+evaluate('Support policy answers', {
+  data: [
+    {
+      input: 'Can I return an unopened item after 14 days?',
+      expected: 'Unopened items can be returned within 30 days of delivery.',
+    },
+  ],
+  task: async ({ input }) =>
+    (
+      await generateText({
+        model: openai('gpt-4.1-mini'),
+        system:
+          'Unopened items can be returned within 30 days of delivery. Answer using only this policy.',
+        prompt: input,
+      })
+    ).text,
   scorers: [
     scorers.factual(),
     scorers.answerSimilarity(),
@@ -200,11 +181,11 @@ evaluate('Answer quality', {
 Each case must meet the threshold to pass:
 
 ```ts
-evaluate('My test', {
-  data: [{ input: 'hello', expected: 'HELLO' }],
-  task: ({ input }) => input.toUpperCase(),
+evaluate('Order extraction', {
+  data: [{ input: 'Please cancel ord-2087.', expected: 'ORD-2087' }],
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
-  threshold: 0.8, // Require 80% average score across all scorers
+  threshold: 1,
 });
 ```
 

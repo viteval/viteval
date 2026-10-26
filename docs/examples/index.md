@@ -3,39 +3,49 @@
 These examples cover deterministic checks, generated datasets, and model-based
 scoring. The first two run without an API key.
 
-## Basic text evaluation
+## Extract order IDs
+
+Check a deterministic extractor against casing differences and a missing ID.
+Use these same cases when replacing the task with a model call.
 
 ```ts
 import { evaluate, scorers } from 'viteval';
 
-evaluate('Uppercase', {
+evaluate('Order extraction', {
   data: [
-    { input: 'hello', expected: 'HELLO' },
-    { input: 'world', expected: 'WORLD' },
+    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
   ],
-  task: ({ input }) => input.toUpperCase(),
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
 });
 ```
 
-## Custom dataset
+## Reusable dataset
+
+Generate valid IDs in both cases to check the normalization rule over more values.
+This adds coverage of the ID format, not the variety of real customer messages.
 
 ```ts
 import { defineDataset } from 'viteval/dataset';
 import { evaluate, scorers } from 'viteval';
 
-const mathDataset = defineDataset({
-  name: 'basic-math',
+const orderMessages = defineDataset({
+  name: 'order-id-casing',
   data: async () =>
-    Array.from({ length: 10 }, (_, index) => ({
-      input: { a: index, b: 2 },
-      expected: index + 2,
-    })),
+    Array.from({ length: 10 }, (_, index) => {
+      const id = `ORD-${1042 + index}`;
+      return {
+        input: `Please cancel ${index % 2 === 0 ? id : id.toLowerCase()}.`,
+        expected: id,
+      };
+    }),
 });
 
-evaluate('Math solver', {
-  data: mathDataset,
-  task: ({ input }) => input.a + input.b,
+evaluate('Order ID casing', {
+  data: orderMessages,
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
 });
 ```
@@ -65,10 +75,22 @@ import { evaluate, scorers } from 'viteval';
 
 const model = openai('gpt-4.1-mini');
 
-evaluate('Content quality', {
-  data: [{ input: 'What is the Sun?', expected: 'The Sun is a star.' }],
+evaluate('Support policy answers', {
+  data: [
+    {
+      input: 'Can I return an unopened item after 14 days?',
+      expected: 'Unopened items can be returned within 30 days of delivery.',
+    },
+  ],
   task: async ({ input }) =>
-    (await generateText({ model, prompt: input })).text,
+    (
+      await generateText({
+        model,
+        system:
+          'Answer using this policy: unopened items can be returned within 30 days of delivery. Return shipping is paid by the customer.',
+        prompt: input,
+      })
+    ).text,
   scorers: [
     scorers.factual(),
     scorers.answerSimilarity(),
@@ -79,7 +101,9 @@ evaluate('Content quality', {
 ```
 
 The threshold applies to the mean of the three scores. This example performs
-real generation, embedding, and judge requests.
+real generation, embedding, and judge requests. Judge scores vary by model and
+are not proof that an answer follows your policy. For exact extraction checks,
+use the [model-backed getting-started example](/guide/getting-started#evaluate-a-model).
 
 ## Runnable examples
 

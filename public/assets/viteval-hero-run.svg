@@ -1,28 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="680" viewBox="0 0 1000 680" fill="none">
-  <title>Viteval evaluation output</title>
+  <title>Captured order extraction evaluation output</title>
+  <desc>Re-typeset from a local viteval run with Vitest 5.0.3 and the verbose reporter. Three cases pass; total duration 355ms. The project path is omitted.</desc>
   <rect x="1.5" y="1.5" width="997" height="677" rx="12" fill="#0B1016" stroke="#293644" stroke-width="3"/>
   <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#F8FAFC">
-    <g fill="#A3E635">
-      <text x="38" y="70">✓</text><text x="38" y="125">✓</text><text x="38" y="180">✓</text><text x="38" y="235">✓</text><text x="38" y="290">✓</text><text x="38" y="345">✓</text>
-      <rect x="68" y="45" width="76" height="34" rx="4"/><rect x="68" y="100" width="76" height="34" rx="4"/><rect x="68" y="155" width="76" height="34" rx="4"/><rect x="68" y="210" width="76" height="34" rx="4"/><rect x="68" y="265" width="76" height="34" rx="4"/><rect x="68" y="320" width="76" height="34" rx="4"/>
-    </g>
-    <g fill="#172009" text-anchor="middle">
-      <text x="106" y="69">eval</text><text x="106" y="124">eval</text><text x="106" y="179">eval</text><text x="106" y="234">eval</text><text x="106" y="289">eval</text><text x="106" y="344">eval</text>
-    </g>
-    <text x="162" y="70">agents/support/knowledge.eval.ts (3 cases) 2.4s</text>
-    <text x="162" y="125">agents/support/routing.eval.ts (3 cases) 1.8s</text>
-    <text x="162" y="180">agents/search/retrieval.eval.ts (3 cases) 2.1s</text>
-    <text x="162" y="235">agents/search/citations.eval.ts (3 cases) 1.6s</text>
-    <text x="162" y="290">agents/tools/selection.eval.ts (3 cases) 1.9s</text>
-    <text x="162" y="345">agents/tools/arguments.eval.ts (3 cases) 1.4s</text>
-    <g fill="#93A4B6" text-anchor="end">
-      <text x="190" y="430">Eval files</text><text x="190" y="475">Cases</text><text x="190" y="520">Duration</text>
-    </g>
-    <g fill="#A3E635"><text x="214" y="430">6 passed</text><text x="214" y="475">18 passed</text></g>
-    <g fill="#93A4B6"><text x="335" y="430">(6)</text><text x="348" y="475">(18)</text></g>
-    <text x="214" y="520">11.2s</text>
-    <rect x="38" y="586" width="77" height="34" rx="4" fill="#A3E635"/>
-    <text x="76" y="611" fill="#172009" text-anchor="middle">PASS</text>
-    <text x="132" y="611" fill="#A3E635">Waiting for file changes...</text>
+    <rect x="38" y="42" width="64" height="34" rx="4" fill="#A3E635"/>
+    <text x="70" y="67" fill="#172009" text-anchor="middle">RUN</text>
+    <text x="120" y="67">v5.0.3</text>
+    <text x="38" y="120">src/order-extraction.eval.ts &gt; Order extraction</text>
+    <text x="38" y="180"><tspan fill="#A3E635">✓</tspan> Where is order ORD-1042? <tspan fill="#93A4B6">5ms</tspan></text>
+    <text x="68" y="216" fill="#93A4B6">↳ ExactMatch: 1</text>
+    <text x="38" y="280"><tspan fill="#A3E635">✓</tspan> Please cancel ord-2087. <tspan fill="#93A4B6">1ms</tspan></text>
+    <text x="68" y="316" fill="#93A4B6">↳ ExactMatch: 1</text>
+    <text x="38" y="380"><tspan fill="#A3E635">✓</tspan> How do I update my address? <tspan fill="#93A4B6">1ms</tspan></text>
+    <text x="68" y="416" fill="#93A4B6">↳ ExactMatch: 1</text>
+    <text x="38" y="500">Test Files <tspan fill="#A3E635">1 passed</tspan> <tspan fill="#93A4B6">(1)</tspan></text>
+    <text x="38" y="545">     Tests <tspan fill="#A3E635">3 passed</tspan> <tspan fill="#93A4B6">(3)</tspan></text>
+    <text x="38" y="590">  Duration 355ms</text>
   </g>
 </svg>

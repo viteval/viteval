@@ -81,11 +81,11 @@ export function LandingPage({ children }: { children: ReactNode }) {
         eyebrow={`v${pkg.version}`}
         title={
           <>
-            TypeScript-native evals,
-            <span className="cp-accent">powered by Vitest.</span>
+            Evaluate prompts and agents
+            <span className="cp-accent">in TypeScript.</span>
           </>
         }
-        tagline="LLM evaluations powered by Vitest. Familiar TypeScript APIs, built-in scorers, and local results. Run the same evaluations in CI or your own infrastructure."
+        tagline="Test extraction, routing, and generated answers against reference cases. Score each output, inspect failures locally, and fail CI when a case falls below your threshold. Built on Vitest."
         actions={[
           {
             theme: 'brand',
@@ -105,9 +105,7 @@ export function LandingPage({ children }: { children: ReactNode }) {
         aria-labelledby="vv-integrations-title"
       >
         <p className="vv-eyebrow">Integrations</p>
-        <h2 id="vv-integrations-title">
-          Local first. Connected when you need it.
-        </h2>
+        <h2 id="vv-integrations-title">Dataset and result storage</h2>
         <p>
           Keep results in local JSON, or connect your preferred storage and
           evaluation tools.
@@ -140,7 +138,7 @@ function HeroRun() {
       <figure
         key={replayCount}
         className="vv-hero-terminal"
-        aria-label="Example evaluation run: three cases passed"
+        aria-label="Order extraction evaluation: three cases passed"
       >
         <figcaption className="vv-hero-terminal__bar">
           <span className="vv-hero-terminal__dots" aria-hidden="true">
@@ -148,10 +146,7 @@ function HeroRun() {
             <i />
             <i />
           </span>
-          <span>~/my-agent</span>
-          <span className="vv-hero-terminal__example">
-            after the fix / example
-          </span>
+          <span>order-extraction.eval.ts</span>
         </figcaption>
         <div className="vv-hero-terminal__body">
           <div className="vv-hero-terminal__command">
@@ -162,18 +157,17 @@ function HeroRun() {
           </div>
           <div className="vv-hero-terminal__runner">
             <span className="vv-hero-terminal__badge">RUN</span>{' '}
-            <strong>Viteval</strong>{' '}
-            <span className="vv-hero-terminal__muted">/ powered by Vitest</span>
+            <strong>v5.0.3</strong>
           </div>
           <div className="vv-hero-terminal__file">
-            knowledge.eval.ts{' '}
-            <span className="vv-hero-terminal__muted">(3 cases)</span>
+            src/order-extraction.eval.ts{' '}
+            <span className="vv-hero-terminal__muted">/ Order extraction</span>
           </div>
           <div className="vv-hero-terminal__cases">
             {[
-              { name: 'workspace-invites', duration: '2.4s' },
-              { name: 'api-rate-limits', duration: '1.8s' },
-              { name: 'retention-policy', duration: '2.1s' },
+              { name: 'Where is order ORD-1042?', duration: '5ms' },
+              { name: 'Please cancel ord-2087.', duration: '1ms' },
+              { name: 'How do I update my address?', duration: '1ms' },
             ].map(({ name, duration }, index) => (
               <div
                 className="vv-hero-terminal__result"
@@ -181,29 +175,29 @@ function HeroRun() {
                 style={{ animationDelay: `${2300 + index * 450}ms` }}
               >
                 <span className="vv-hero-terminal__check">✓</span>
-                <span>Knowledge answers / {name}</span>
+                <span>{name}</span>
                 <span className="vv-hero-terminal__duration">{duration}</span>
               </div>
             ))}
           </div>
           <div className="vv-hero-terminal__summary">
             <div>
-              <span>Eval files</span>
+              <span>Test Files</span>
               <strong>1 passed</strong>
               <span className="vv-hero-terminal__muted">(1)</span>
             </div>
             <div>
-              <span>Cases</span>
+              <span>Tests</span>
               <strong>3 passed</strong>
               <span className="vv-hero-terminal__muted">(3)</span>
             </div>
             <div>
               <span>Scorer</span>
-              <span>factual · answerCorrectness · answerRelevancy</span>
+              <span>ExactMatch: 1 on each case</span>
             </div>
             <div>
               <span>Duration</span>
-              <span>6.3s</span>
+              <span>355ms</span>
             </div>
           </div>
         </div>

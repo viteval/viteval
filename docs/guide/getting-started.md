@@ -57,24 +57,26 @@ to create it explicitly, or `--no-env-file` to skip it locally.
 
 ## Your first evaluation
 
-The generated `src/viteval.eval.ts` needs no API key:
+Init generates a small uppercase-string smoke test. Replace its contents with
+this order-ID extraction check; it also needs no API key:
 
 ```ts
 import { evaluate, scorers } from 'viteval';
 
-evaluate('Uppercase', {
+evaluate('Order extraction', {
   data: [
-    { input: 'hello', expected: 'HELLO' },
-    { input: 'world', expected: 'WORLD' },
+    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
   ],
-  task: ({ input }) => input.toUpperCase(),
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
 });
 ```
 
 ### Running your evaluation
 
-Run the generated example:
+Run the evaluation:
 
 ```bash
 pnpm exec viteval run
@@ -89,25 +91,31 @@ The command:
 
 ### Understanding the results
 
-Vitest reports two passing cases. The JSON reporter saves inputs, outputs, scores,
+Vitest reports three passing cases. The JSON reporter saves inputs, outputs, scores,
 and execution diagnostics under `.viteval/results`. Inspect them with:
 
 ```bash
 pnpm exec viteval ui
 ```
 
+Remove the regular expression’s `i` flag and run again. The lowercase ID now
+produces an empty string, scores 0, and fails the default threshold of 1. Restore
+the flag before continuing. These cases check normalization and missing values;
+they do not establish extraction accuracy on arbitrary support messages.
+
 ## Your first dataset
 
-Create `src/uppercase.dataset.ts`:
+Create `src/order-extraction.dataset.ts`:
 
 ```ts
 import { defineDataset } from 'viteval/dataset';
 
 export default defineDataset({
-  name: 'uppercase',
+  name: 'order-extraction',
   data: async () => [
-    { input: 'hello', expected: 'HELLO' },
-    { input: 'world', expected: 'WORLD' },
+    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
   ],
 });
 ```
@@ -118,11 +126,11 @@ Import the dataset and pass it to `data`:
 
 ```ts
 import { evaluate, scorers } from 'viteval';
-import dataset from './uppercase.dataset';
+import dataset from './order-extraction.dataset';
 
-evaluate('Uppercase dataset', {
+evaluate('Order extraction', {
   data: dataset,
-  task: ({ input }) => input.toUpperCase(),
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
   scorers: [scorers.exactMatch()],
 });
 ```
@@ -147,33 +155,32 @@ Install an AI client and configure its credentials in your environment:
 pnpm add ai @ai-sdk/openai
 ```
 
-Create `src/colors.eval.ts`:
+Replace the deterministic task with a model call in `src/viteval.eval.ts`.
+Keep the same dataset so the two implementations face the same checks:
 
 ```ts
 import { openai } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 import { evaluate, scorers } from 'viteval';
+import dataset from './order-extraction.dataset';
 
-evaluate('Color answers', {
-  data: [
-    {
-      input: 'What color is the sky on a clear day? Reply with one word.',
-      expected: 'Blue',
-    },
-  ],
+evaluate('Model order extraction', {
+  data: dataset,
   task: async ({ input }) => {
     const result = await generateText({
       model: openai('gpt-4.1-mini'),
+      system:
+        'Extract the ORD- order ID. Return only the uppercase ID, or an empty string if none is present.',
       prompt: input,
     });
-    return result.text;
+    return result.text.trim();
   },
-  scorers: [scorers.levenshtein()],
-  threshold: 0.8,
+  scorers: [scorers.exactMatch()],
 });
 ```
 
-This example makes a real model request and requires `OPENAI_API_KEY`. Built-in
+This example makes three model requests and requires `OPENAI_API_KEY`. It is not
+guaranteed to pass: extra explanation or an invented ID fails exact matching. Built-in
 LLM judges also require `initializeModel()` in worker setup. See [Configuration](/api/configuration).
 
 ## Next steps

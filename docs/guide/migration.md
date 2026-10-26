@@ -26,12 +26,7 @@ export default defineConfig({
 });
 ```
 
-Initialize model and provider objects in worker setup modules. V1 uses Vitest
-custom artifacts for evaluation results instead of a custom runner, plugin, or
-task-metadata transport.
-
-Evaluations remain native Vitest suites and cases. A Viteval task marker and
-typed `viteval:eval-result` artifacts identify evaluation results for reporters.
+Initialize models and providers in the setup file registered with `setupFiles`.
 Vitest controls retries, hooks, reporters, and exit status.
 
 ## Tasks and scorers
@@ -68,8 +63,8 @@ An explicit static output filename is overwritten on each run.
 
 `viteval run` delegates evaluation flags and file filters to Vitest. Use
 `viteval run --help --expand-help` for native options and `viteval --help` for
-project commands. Init, data, and UI commands use maltty; `--cwd` selects
-the working directory.
+project commands. For init, data, and UI commands, `--cwd` selects the working
+directory.
 
 Replace the old output-path option with
 `new JsonReporter({ outputFile: '.viteval/results/latest.json' })` in the native
@@ -81,11 +76,5 @@ tasks and scorers. See [CLI datasets](./cli#datasets).
 
 ## Dashboard
 
-The UI now uses TanStack Start and TanStack Router with Vite builds instead of
-Next.js. Continue using `viteval ui`; result/dataset files and existing dashboard
-URLs do not need conversion. The published package includes both browser assets
-and the server bundle. The `createVitevalServer()` launcher API is preserved.
-
-For repository development, use `pnpm dev:ui examples/basic` on port 6274.
-Production output lives under `packages/ui/dist/client` and
-`packages/ui/dist/server`; Next.js standalone output is no longer used.
+Continue using `viteval ui`; result/dataset files and existing dashboard URLs
+do not need conversion. The `createVitevalServer()` launcher API is preserved.

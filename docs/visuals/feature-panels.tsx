@@ -14,14 +14,14 @@ const FEATURES = [
     id: 'familiar-tooling',
     title: 'Built on Vitest',
     description:
-      'Your application code, TypeScript, and Vitest configuration. Familiar test-like APIs, not a separate stack.',
+      'Import your application functions into evaluations. Use Vitest configuration, watch mode, retries, and CI exit codes.',
     Scene: ToolingScene,
   },
   {
     id: 'built-in-defaults',
-    title: 'Useful defaults, built in',
+    title: 'Built-in and custom scorers',
     description:
-      'Built-in scorers, reusable datasets, and a local dashboard. Start with the defaults, then add your own criteria.',
+      'Check exact answers and structured output, or use embeddings and LLM judges. Set a per-case threshold to fail regressions.',
     Scene: ScoringScene,
   },
   {

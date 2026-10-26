@@ -34,14 +34,10 @@ export function BrandPage() {
       <main className="vv-brand">
         <header className="vv-brand__intro">
           <p className="vv-eyebrow">Viteval / Brand & assets</p>
-          <h1>
-            A small flask.
-            <br />A clear identity.
-          </h1>
+          <h1>Brand assets</h1>
           <p>
-            Logos, icons, motion, and the visual foundations behind Viteval.
-            Download the artwork for your documentation, integrations, and
-            projects.
+            Download Viteval logos and icons for documentation, integrations,
+            and projects.
           </p>
           <nav aria-label="Brand sections">
             <a href="#logos">Logos</a>

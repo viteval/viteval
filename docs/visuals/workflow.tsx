@@ -8,17 +8,17 @@ const STEPS = [
     label: 'Write',
     title: 'Start with your application code.',
     description:
-      'Import your agent and a reusable dataset. Load cases from S3 through the dataset provider, then score the answers.',
-    link: '/guide/providers#s3-and-google-cloud-storage-datasets',
-    action: 'Configure S3 datasets',
-    filename: 'knowledge.eval.ts',
+      'Define support messages and expected order IDs. Check a deterministic extractor first, then run the same cases against a model.',
+    link: '/guide/getting-started',
+    action: 'Create an evaluation',
+    filename: 'order-extraction.eval.ts',
   },
   {
     id: 'run',
     label: 'Run',
-    title: 'Catch the regression.',
+    title: 'Check every case.',
     description:
-      'Let Vitest run the cases. See which answers pass your criteria—and which one needs a closer look.',
+      'Removing case-insensitive matching breaks the lowercase order ID. The case scores 0 and the command exits with a failure.',
     link: '/guide/advanced/ci',
     action: 'Run evaluations in CI',
     filename: 'pnpm exec viteval run',
@@ -31,14 +31,14 @@ const STEPS = [
       'Open saved JSON runs in the local dashboard. Trace a failed score back to its input, expected answer, and actual output.',
     link: '/guide/cli#view-results',
     action: 'Explore the local dashboard',
-    filename: 'Knowledge answers / retention-policy',
+    filename: 'Order extraction / Please cancel ord-2087.',
   },
 ] as const;
 
 const CODE_FILES = [
-  'knowledge.eval.ts',
-  'knowledge.dataset.ts',
-  'viteval.setup.ts',
+  'order-extraction.eval.ts',
+  'order-extraction.dataset.ts',
+  'vitest.config.ts',
 ] as const;
 
 /**
@@ -54,9 +54,9 @@ export function Workflow({ children }: { children: ReactNode }) {
   return (
     <section className="vv-workflow" aria-labelledby="vv-workflow-title">
       <header className="vv-workflow__heading">
-        <p className="vv-eyebrow">From your first case to your next fix</p>
-        <h2 id="vv-workflow-title">Write. Run. Inspect.</h2>
-        <p>One evaluation. The whole feedback loop.</p>
+        <p className="vv-eyebrow">Evaluation workflow</p>
+        <h2 id="vv-workflow-title">Evaluate order-ID extraction</h2>
+        <p>Check normalization and missing values without an API key.</p>
       </header>
       <div className="vv-workflow__layout">
         <ol className="vv-workflow__steps" aria-label="Evaluation workflow">
@@ -96,9 +96,6 @@ export function Workflow({ children }: { children: ReactNode }) {
                   {step.id === 'write' ? 'TS' : '❯'}
                 </span>
                 <span>{step.filename}</span>
-                <span className="vv-workflow__example">
-                  {step.id === 'write' ? 'example' : 'illustrative view'}
-                </span>
               </div>
               <div className="vv-workflow__canvas">
                 {step.id === 'write' && <WriteVisual>{children}</WriteVisual>}
@@ -108,8 +105,8 @@ export function Workflow({ children }: { children: ReactNode }) {
               <footer className="vv-workflow__panel-footer">
                 <span>
                   {step.id === 'inspect'
-                    ? 'Same case. Full context.'
-                    : 'knowledge.eval.ts'}
+                    ? 'Input, output, and score'
+                    : 'order-extraction.eval.ts'}
                 </span>
                 <a href={step.link}>
                   {step.action} <span aria-hidden="true">→</span>
@@ -164,39 +161,40 @@ function RunVisual() {
         <span>❯</span> pnpm exec viteval run
       </p>
       <p className="vv-workflow__run-heading">
-        <b>RUN</b> Viteval <span> / powered by Vitest</span>
+        <b>RUN</b> <span>v5.0.3</span>
       </p>
       <p>
-        knowledge.eval.ts <span className="vv-workflow__muted">(3 cases)</span>
+        src/order-extraction.eval.ts{' '}
+        <span className="vv-workflow__muted">(3 cases)</span>
       </p>
       <div className="vv-workflow__run-cases">
         <div>
           <span className="vv-workflow__green">✓</span>
-          <span>workspace-invites</span>
+          <span>Where is order ORD-1042?</span>
           <span>1.00</span>
         </div>
         <div>
           <span className="vv-workflow__green">✓</span>
-          <span>api-rate-limits</span>
-          <span>0.87</span>
+          <span>How do I update my address?</span>
+          <span>1.00</span>
         </div>
         <div className="vv-workflow__failed">
           <span>×</span>
-          <span>retention-policy</span>
-          <span>0.33</span>
+          <span>Please cancel ord-2087.</span>
+          <span>0.00</span>
         </div>
       </div>
       <div className="vv-workflow__failure">
         <span className="vv-workflow__muted">
-          retention-policy / Factuality
+          mean score 0 is below threshold 1
         </span>
         <div>
           <span>Expected</span>
-          <strong className="vv-workflow__green">30-day retention</strong>
+          <strong className="vv-workflow__green">ORD-2087</strong>
         </div>
         <div>
           <span>Received</span>
-          <strong className="vv-workflow__red">90-day retention</strong>
+          <strong className="vv-workflow__red">Empty string</strong>
         </div>
       </div>
       <p className="vv-workflow__run-summary">
@@ -212,43 +210,38 @@ function InspectVisual() {
   return (
     <div className="vv-workflow__inspect">
       <div className="vv-workflow__inspect-heading">
-        <span>Knowledge answers</span>
+        <span>Order extraction</span>
         <span className="vv-workflow__status">1 failed case</span>
       </div>
       <div className="vv-workflow__case-strip">
-        <span>✓ workspace-invites</span>
-        <span>✓ api-rate-limits</span>
-        <strong>× retention-policy</strong>
+        <span>✓ uppercase ID</span>
+        <span>✓ no ID</span>
+        <strong>× lowercase ID</strong>
       </div>
       <div className="vv-workflow__case-detail">
         <p className="vv-workflow__field-label">Input</p>
-        <p className="vv-workflow__input">How long are audit logs retained?</p>
+        <p className="vv-workflow__input">Please cancel ord-2087.</p>
         <div className="vv-workflow__comparison">
           <div>
             <span className="vv-workflow__field-label">Expected</span>
-            <strong className="vv-workflow__green">
-              30 days after creation.
-            </strong>
+            <strong className="vv-workflow__green">ORD-2087</strong>
           </div>
           <div>
             <span className="vv-workflow__field-label">Output</span>
-            <strong className="vv-workflow__red">
-              Logs are kept for 90 days.
-            </strong>
+            <strong className="vv-workflow__red">Empty string</strong>
           </div>
         </div>
         <div className="vv-workflow__score-detail">
-          <span>Factuality / LLM judge</span>
+          <span>ExactMatch</span>
           <span className="vv-workflow__score-track">
             <i />
           </span>
           <strong className="vv-workflow__red">0.00</strong>
         </div>
         <p className="vv-workflow__inspect-note">
-          The answer contradicts the reference policy. Inspect the retrieved
-          documents before changing the prompt. Factuality 0, AnswerCorrectness
-          0, AnswerRelevancy 1: mean 0.33, below the 0.85 threshold.
-          Illustrative judge scores, not a live run.
+          The case-sensitive pattern misses ord-2087 and returns an empty
+          string. Restore the regular expression’s i flag to match both cases.
+          This case-detail diagram summarizes the captured failure.
         </p>
       </div>
     </div>

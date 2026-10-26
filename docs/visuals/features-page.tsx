@@ -257,9 +257,9 @@ export function FeatureHero() {
       <div className="vv-feature-hero__copy">
         <p className="vv-eyebrow">Why Viteval</p>
         <h1>
-          Know what got better.
+          Test prompts and agents
           <br />
-          <span>See what broke.</span>
+          <span>against reference cases.</span>
         </h1>
         <p className="vv-feature-hero__description">
           Run your prompts and agents against real cases. Score the answers and
@@ -283,7 +283,7 @@ export function FeatureHero() {
           src="/assets/viteval-hero-run.svg"
           width="1000"
           height="680"
-          alt="Illustrative Viteval terminal output with passing evaluations and a run summary"
+          alt="Captured order extraction evaluation: three cases pass with ExactMatch scores of 1"
           fetchPriority="high"
         />
       </div>

@@ -1,7 +1,7 @@
 ---
 pageType: custom
 title: Viteval
-description: TypeScript-native evals, powered by Vitest.
+description: Evaluate prompts and agents against reference cases in TypeScript.
 ---
 
 import { LandingPage } from '#docs/landing-page';
@@ -12,23 +12,12 @@ import { LandingPage } from '#docs/landing-page';
 
 ```ts
 import { evaluate, scorers } from 'viteval';
-import { knowledgeQuestions } from './knowledge.dataset';
-import { retrieve, rerank, answer } from './knowledge-agent';
+import { orderMessages } from './order-extraction.dataset';
 
-evaluate('Knowledge answers', {
-  data: knowledgeQuestions,
-  task: async ({ input }) => {
-    const documents = await retrieve(input, { limit: 20 });
-    const context = await rerank({ query: input, documents, topK: 5 });
-    const response = await answer({ question: input, context });
-    return response.text;
-  },
-  scorers: [
-    scorers.factual(),
-    scorers.answerCorrectness(),
-    scorers.answerRelevancy(),
-  ],
-  threshold: 0.85,
+evaluate('Order extraction', {
+  data: orderMessages,
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
+  scorers: [scorers.exactMatch()],
 });
 ```
 
@@ -38,12 +27,14 @@ evaluate('Knowledge answers', {
 
 ```ts
 import { defineDataset } from 'viteval/dataset';
-import { curateKnowledgeCases } from './fixtures';
 
-export const knowledgeQuestions = defineDataset({
-  name: 'knowledge-answers',
-  description: 'Reviewed questions and reference answers',
-  data: curateKnowledgeCases,
+export const orderMessages = defineDataset({
+  name: 'order-extraction',
+  data: async () => [
+    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
 });
 ```
 
@@ -52,26 +43,18 @@ export const knowledgeQuestions = defineDataset({
 <div>
 
 ```ts
-import { afterAll } from 'vitest';
-import { openai } from '@ai-sdk/openai';
-import { s3 } from '@viteval/providers/s3';
-import { initializeModel } from 'viteval';
-import { initializeProvider } from 'viteval/provider';
+import { defineConfig } from 'viteval/config';
+import { JsonReporter } from 'viteval/reporters';
 
-initializeModel({ language: openai('gpt-4.1-mini') });
-
-const datasets = s3({
-  bucket: 'evaluation-data',
-  prefix: 'knowledge/datasets',
-  clientOptions: { region: 'us-east-1' },
-});
-
-const result = await initializeProvider({ datasets });
-if (!result.ok) throw result.error;
-
-afterAll(async () => {
-  const closed = await datasets.close();
-  if (!closed.ok) throw closed.error;
+export default defineConfig({
+  test: {
+    include: ['src/**/*.eval.ts'],
+    setupFiles: ['./viteval.setup.ts'],
+    reporters: [
+      'default',
+      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
+    ],
+  },
 });
 ```
 

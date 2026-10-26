@@ -42,8 +42,8 @@ export function ToolingScene({
 }
 
 /**
- * Shows illustrative scorer values with staggered progress and pass states.
- * @returns Decorative scoring preview, not measured product output.
+ * Shows scoring methods with staggered decorative tracks.
+ * @returns A diagram of deterministic, embedding, and custom scoring.
  * @example
  * <ScoringScene />
  */
@@ -53,24 +53,27 @@ export function ScoringScene() {
       <div className="vv-scoreboard">
         <div className="vv-scene__chrome">
           <span>scorers</span>
-          <span>example run</span>
+          <span>scoring methods</span>
         </div>
         {[
-          { name: 'exactMatch', value: '1.00', width: '100%', tone: 'green' },
+          {
+            name: 'exactMatch',
+            value: 'deterministic',
+            width: '100%',
+            tone: 'green',
+          },
           {
             name: 'answerSimilarity',
-            value: '0.92',
+            value: 'embeddings',
             width: '92%',
             tone: 'purple',
           },
-          { name: 'yourScorer', value: '0.85', width: '85%', tone: 'gold' },
+          { name: 'yourScorer', value: 'custom', width: '85%', tone: 'gold' },
         ].map(({ name, value, width, tone }) => (
           <div className={`vv-score vv-score--${tone}`} key={name}>
             <div className="vv-score__label">
               <span>{name}</span>
-              <span>
-                {value} <b>✓</b>
-              </span>
+              <span>{value}</span>
             </div>
             <div className="vv-score__track">
               <span style={{ width }} />
@@ -78,9 +81,7 @@ export function ScoringScene() {
           </div>
         ))}
       </div>
-      <span className="vv-scene__caption">
-        Your criteria. One clear result.
-      </span>
+      <span className="vv-scene__caption">Built-in and custom scorers</span>
     </div>
   );
 }
