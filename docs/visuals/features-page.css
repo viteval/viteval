@@ -1,0 +1,114 @@
+.vv-features-page__intro {
+  padding: var(--vv-section-space) var(--vv-section-inset);
+}
+
+.vv-features-page__intro h1 {
+  margin: 24px 0 32px;
+  font: 800 clamp(40px, 6vw, 72px) / 1.05 var(--cp-ff-display);
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.vv-features-page__intro > p:last-of-type {
+  max-width: 58ch;
+  color: var(--cp-c-text-2);
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+.vv-features-page__intro nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin-top: 40px;
+  font: 12px var(--cp-ff-mono);
+}
+
+.vv-features-page a {
+  color: var(--cp-c-brand-2);
+  text-decoration: none;
+  text-underline-offset: 5px;
+}
+
+.vv-features-page a:hover {
+  text-decoration: underline;
+}
+
+.vv-features-page a:focus-visible {
+  outline: 2px solid var(--vv-cyan);
+  outline-offset: 5px;
+}
+
+.vv-feature-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  padding: var(--vv-section-space) var(--vv-section-inset);
+  border-top: 1px solid var(--cp-c-border);
+  scroll-margin-top: 112px;
+}
+
+.vv-feature-detail__copy {
+  min-width: 0;
+}
+
+.vv-feature-detail h2 {
+  margin: 20px 0 24px;
+  font: 750 clamp(28px, 3.5vw, 42px) / 1.15 var(--cp-ff-display);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.vv-feature-detail__copy > p:not(.vv-eyebrow) {
+  max-width: 62ch;
+  margin-block: 24px;
+  color: var(--cp-c-text-2);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.vv-feature-detail__copy :not(pre) > code {
+  color: var(--cp-c-text-1);
+  font-family: var(--cp-ff-mono);
+  font-size: 0.875em;
+}
+
+.vv-feature-detail__copy pre {
+  margin-block: 28px;
+  border: 1px solid var(--cp-c-border);
+  border-radius: var(--viteval-panel-radius);
+  padding: 24px;
+  overflow-x: auto;
+  font: 12px / 1.85 var(--cp-ff-mono);
+}
+
+.vv-feature-detail__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+}
+
+.vv-feature-detail__link {
+  display: inline-block;
+  margin-top: 12px;
+  font: 12px / 1.5 var(--cp-ff-mono);
+}
+
+.vv-feature-detail > .vv-scene {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  height: 300px;
+}
+
+@media (max-width: 900px) {
+  .vv-feature-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .vv-feature-detail > .vv-scene {
+    height: 248px;
+  }
+}

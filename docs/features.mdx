@@ -1,0 +1,187 @@
+---
+pageType: custom
+title: Features
+description: Native Vitest workflows, built-in scoring, local results, and evaluations on your own infrastructure.
+---
+
+import { FeaturesPage } from '#docs/features-page';
+import {
+  LocalScene,
+  RunnersScene,
+  ScoringScene,
+  ToolingScene,
+} from '#docs/feature-scenes';
+
+<FeaturesPage>
+
+<header className="vv-features-page__intro">
+  <p className="vv-eyebrow">Why Viteval</p>
+  <h1>
+    {'Evals belong'}
+    <br />
+    {'beside your tests.'}
+  </h1>
+  <p>
+    {
+      'Your application code. Your criteria. Your infrastructure. Evaluate prompts, retrieval pipelines, and agents with the TypeScript workflow you already use.'
+    }
+  </p>
+  <nav aria-label="Feature sections">
+    <a href="#familiar-tooling">Vitest-native</a>
+    <a href="#built-in-defaults">Scoring</a>
+    <a href="#local-first">Local results</a>
+    <a href="#run-anywhere">Your infrastructure</a>
+  </nav>
+</header>
+
+<section className="vv-feature-detail" id="familiar-tooling" aria-labelledby="feature-tooling-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">01 / Familiar tooling</p>
+<h2 id="feature-tooling-title">
+  {'Built on Vitest.'}
+  <br />
+  {'Built around your code.'}
+</h2>
+
+Keep native configuration, watch mode, retries, and CI exit codes. Import your
+application functions into an evaluation, then score their answers.
+
+```ts
+import { evaluate, scorers } from 'viteval';
+import { knowledgeQuestions } from './knowledge.dataset';
+import { retrieve, answer } from './knowledge-agent';
+
+evaluate('Knowledge answers', {
+  data: knowledgeQuestions,
+  task: async ({ input }) => {
+    const context = await retrieve(input);
+    return (await answer({ question: input, context })).text;
+  },
+  scorers: [scorers.answerCorrectness(), scorers.answerRelevancy()],
+  threshold: 0.8,
+});
+```
+
+`retrieve` and `answer` are your application code. `knowledgeQuestions` is a
+reusable dataset. Configure a judge model in Vitest setup for these scorers.
+
+<a className="vv-feature-detail__link" href="/api/evaluate">
+  {'Explore the evaluation API '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
+<ToolingScene />
+</section>
+
+<section className="vv-feature-detail" id="built-in-defaults" aria-labelledby="feature-scoring-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">02 / Your criteria</p>
+<h2 id="feature-scoring-title">
+  {'Start with a scorer.'}
+  <br />
+  {'Make it your own.'}
+</h2>
+
+Use deterministic checks for exact answers and structured output. Add embeddings
+or LLM judges for free-form responses, or define a scorer for your own criteria.
+
+```ts
+import { createScorer } from 'viteval';
+
+const citesSources = createScorer<string>({
+  name: 'cites-sources',
+  score: ({ output }) => ({
+    score: /\[source:[^\]\n]+\]/.test(output) ? 1 : 0,
+  }),
+});
+```
+
+This checks citation format, not whether a source supports the answer. Combine
+it with correctness checks. Model-based scorers require a configured model and
+make real API requests.
+
+<a className="vv-feature-detail__link" href="/api/scorers">
+  {'Find your scorers '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
+<ScoringScene />
+</section>
+
+<section className="vv-feature-detail" id="local-first" aria-labelledby="feature-local-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">03 / Local by default</p>
+<h2 id="feature-local-title">
+  {'Your first run.'}
+  <br />
+  {'No hosted account.'}
+</h2>
+
+Start with JSON datasets and results in your project. Open the local dashboard
+to inspect inputs, reference answers, outputs, and individual scores.
+
+```bash
+pnpm exec viteval init --no-env-file
+pnpm exec viteval run
+pnpm exec viteval ui
+```
+
+The generated starter runs without an API key. Your own model-backed tasks and
+judges still send requests to the services you configure; local storage does
+not make those requests offline.
+
+<a className="vv-feature-detail__link" href="/guide/cli#view-results">
+  {'Inspect your results '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
+<LocalScene />
+</section>
+
+<section className="vv-feature-detail" id="run-anywhere" aria-labelledby="feature-runners-title">
+<div className="vv-feature-detail__copy">
+
+<p className="vv-eyebrow">04 / Run on your infrastructure</p>
+<h2 id="feature-runners-title">
+  {'Same evals.'}
+  <br />
+  {'Wherever you run.'}
+</h2>
+
+Iterate on your laptop, gate a pull request, or use a runner you control. A failed
+evaluation produces a nonzero exit code. Viteval requires Node 26 or later.
+
+```bash
+# Iterate locally.
+pnpm exec viteval run --watch
+
+# Run once in CI.
+pnpm exec viteval run
+```
+
+Keep JSON or SQLite storage local, or connect Braintrust, Langfuse, or VoltOps.
+Share datasets through S3 or Google Cloud Storage and choose result storage
+separately.
+
+<div className="vv-feature-detail__links">
+  <a className="vv-feature-detail__link" href="/guide/advanced/ci">
+    {'Run in CI '}
+    <span aria-hidden="true">→</span>
+  </a>
+  <a className="vv-feature-detail__link" href="/guide/providers">
+    {'Choose providers '}
+    <span aria-hidden="true">→</span>
+  </a>
+</div>
+
+</div>
+<RunnersScene />
+</section>
+
+</FeaturesPage>

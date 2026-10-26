@@ -196,7 +196,7 @@ export default defineConfig({
   },
   pages: [
     { title: 'Viteval', path: '/', include: 'docs/index.mdx' },
-    { title: 'Features', path: '/features', include: 'docs/features.md' },
+    { title: 'Features', path: '/features', include: 'docs/features.mdx' },
     { title: 'Brand & assets', path: '/brand', include: 'docs/brand.mdx' },
     {
       title: 'Guide',
