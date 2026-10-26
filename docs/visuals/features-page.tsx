@@ -31,7 +31,7 @@ export function FeaturesPage({ children }: { children: ReactNode }) {
 }
 
 /**
- * Displays an isometric feature illustration in the homepage's visual style.
+ * Displays a straight-on feature illustration with restrained motion.
  * @param props - The feature to illustrate.
  * @returns A decorative CSS animation with a reduced-motion fallback.
  * @example
@@ -42,47 +42,107 @@ export function FeatureMotion({
 }: {
   kind: 'tooling' | 'scoring' | 'local' | 'runners';
 }) {
+  const runnerIcons = {
+    LAPTOP: (
+      <>
+        <rect
+          className="vv-motion__screen"
+          x="10"
+          y="13"
+          width="44"
+          height="30"
+          rx="2"
+        />
+        <path className="vv-motion__accent" d="m22 24 5 4-5 4m11 0h8" />
+        <path className="vv-motion__divider" d="m10 43-5 7h54l-5-7M27 47h10" />
+      </>
+    ),
+    CI: (
+      <>
+        <rect
+          className="vv-motion__screen"
+          x="9"
+          y="10"
+          width="46"
+          height="42"
+          rx="3"
+        />
+        <path className="vv-motion__divider" d="M9 20h46" />
+        <path className="vv-motion__accent" d="m18 35 5 5 8-10m7 2h9m-9 7h6" />
+      </>
+    ),
+    PRIVATE: (
+      <>
+        {[12, 34].map((y) => (
+          <g key={y}>
+            <rect
+              className="vv-motion__screen"
+              x="10"
+              y={y}
+              width="44"
+              height="17"
+              rx="2"
+            />
+            <path className="vv-motion__accent" d={`M17 ${y + 8}h14`} />
+            <circle className="vv-motion__camera" cx="45" cy={y + 8} r="2" />
+          </g>
+        ))}
+      </>
+    ),
+  };
+
   const artwork = {
     tooling: (
       <>
-        <path
-          className="vv-motion__edge"
-          d="m74 156 126 67 126-67v14l-126 67-126-67z"
-        />
-        <path
-          className="vv-motion__surface"
-          d="m74 156 126-67 126 67-126 67z"
-        />
         <g className="vv-motion__tile vv-motion__tile--tests">
-          <path
+          <rect
             className="vv-motion__edge"
-            d="m90 117 73 39 60-32v10l-60 32-73-39z"
+            x="70"
+            y="70"
+            width="116"
+            height="142"
+            rx="8"
           />
-          <path className="vv-motion__surface" d="m90 117 60-32 73 39-60 32z" />
-          <g transform="matrix(.8 .43 -.8 .43 151 88)">
+          <rect
+            className="vv-motion__surface"
+            x="70"
+            y="66"
+            width="116"
+            height="142"
+            rx="8"
+          />
+          <g transform="translate(96 115)">
             <path d="m36 4-17 25h15l-7 22 26-30H37z" fill="#fcc82a" />
             <path d="m7 36 16 16 32-32" stroke="#a3e635" strokeWidth="5" />
           </g>
-          <text x="113" y="145" transform="rotate(28 113 145)">
+          <text x="84" y="91">
             TEST
           </text>
         </g>
         <g className="vv-motion__tile vv-motion__tile--evals">
-          <path
+          <rect
             className="vv-motion__edge"
-            d="m185 137 73 39 60-32v10l-60 32-73-39z"
+            x="214"
+            y="70"
+            width="116"
+            height="142"
+            rx="8"
           />
-          <path
-            className="vv-motion__surface vv-motion__surface--blue"
-            d="m185 137 60-32 73 39-60 32z"
+          <rect
+            className="vv-motion__surface--blue"
+            x="214"
+            y="66"
+            width="116"
+            height="142"
+            rx="8"
           />
-          <g transform="matrix(.75 .4 -.75 .4 246 109)">
+          <g transform="translate(240 115)">
             <path
               className="vv-motion__accent"
               d="M12 2h28l12 12v44H12zM40 2v12h12M25 28l-7 7 7 7m14-14 7 7-7 7"
             />
           </g>
-          <text x="210" y="164" transform="rotate(28 210 164)">
+          <text x="228" y="91">
             EVAL
           </text>
         </g>
@@ -90,7 +150,7 @@ export function FeatureMotion({
     ),
     scoring: (
       <>
-        <g transform="matrix(.95 .38 -.48 .72 147 45)">
+        <g transform="translate(104 54)">
           <rect
             className="vv-motion__edge"
             x="0"
@@ -133,51 +193,36 @@ export function FeatureMotion({
       </>
     ),
     local: (
-      <>
+      <g>
+        <path className="vv-motion__edge" d="M72 226h256v5l-8 4H80l-8-4z" />
+        <path className="vv-motion__surface" d="M100 182h200l28 44H72z" />
+        <path className="vv-motion__divider" d="M109 184h182" />
+        <path className="vv-motion__keyboard" d="M111 188h178l14 23H97z" />
         <path
-          className="vv-motion__edge"
-          d="m70 176 165 60 50-31v6l-50 31-165-60z"
+          className="vv-motion__divider"
+          d="M107 196h186M102 204h196m-177-16-9 23m29-23-7 23m27-23-4 23m25-23-1 23m23-23 1 23m21-23 4 23m17-23 7 23m13-23 9 23"
         />
-        <g transform="matrix(1 .36 -.9 .55 120 145)">
-          <rect className="vv-motion__surface" width="165" height="56" rx="3" />
+        <path
+          className="vv-motion__divider"
+          d="M179 216h42l3 7h-48zM183 226h34"
+        />
+        <g transform="translate(100 54)">
+          <rect className="vv-motion__edge" width="200" height="128" rx="6" />
           <rect
-            className="vv-motion__keyboard"
-            x="13"
-            y="6"
-            width="139"
-            height="24"
-            rx="2"
+            className="vv-motion__screen"
+            x="7"
+            y="8"
+            width="186"
+            height="111"
+            rx="3"
           />
-          <path
-            className="vv-motion__divider"
-            d="M14 14h137M14 22h137M29 6v24M47 6v24M65 6v24M83 6v24M101 6v24M119 6v24M137 6v24"
-          />
-          <rect
-            className="vv-motion__divider"
-            x="61"
-            y="35"
-            width="43"
-            height="15"
-            rx="2"
-          />
-        </g>
-        <g transform="matrix(1 .36 0 1 120 55)">
-          <rect
-            className="vv-motion__edge"
-            x="-3"
-            y="-3"
-            width="171"
-            height="96"
-            rx="6"
-          />
-          <rect className="vv-motion__screen" width="165" height="90" rx="4" />
-          <circle className="vv-motion__camera" cx="82" cy="4" r="1" />
+          <circle className="vv-motion__camera" cx="100" cy="4" r="1" />
           <svg
-            x="10"
-            y="12"
-            width="145"
-            height="68"
-            viewBox="0 0 145 68"
+            x="20"
+            y="26"
+            width="160"
+            height="80"
+            viewBox="0 0 160 80"
             overflow="hidden"
           >
             <text x="0" y="12">
@@ -195,44 +240,34 @@ export function FeatureMotion({
             </g>
           </svg>
         </g>
-      </>
+      </g>
     ),
     runners: (
       <>
         <path
-          className="vv-motion__surface"
-          d="m55 179 230-122 60 32v32L115 243l-60-32z"
+          className="vv-motion__rail"
+          d="M109 126h180q26 0 26 26v30q0 22-22 22H109q-24 0-24-24v-30q0-24 24-24z"
         />
-        <path
-          className="vv-motion__edge"
-          d="m55 179 60 32L345 89m-230 122v32"
-        />
-        <path className="vv-motion__rail" d="m78 202 244-130" />
         <path
           className="vv-motion__signal"
-          d="m78 202 244-130"
+          d="M109 126h180q26 0 26 26v30q0 22-22 22H109q-24 0-24-24v-30q0-24 24-24z"
           pathLength="100"
         />
-        {['CI', 'NODE', 'PRIVATE'].map((label, step) => (
+        {(['LAPTOP', 'CI', 'PRIVATE'] as const).map((label, step) => (
           <g
             className="vv-motion__machine"
             key={label}
-            transform={`translate(${step * 78} ${step * -41})`}
+            transform={`translate(${77 + step * 90} 96)`}
           >
-            <path
-              className="vv-motion__edge"
-              d="m89 139 25 13 25-13v40l-25 13-25-13z"
-            />
-            <path
+            <rect
               className="vv-motion__surface"
-              d="m89 139 25-13 25 13-25 13z"
+              width="64"
+              height="64"
+              rx="8"
             />
-            <path
-              className="vv-motion__accent"
-              d="m95 155 13 7m-13 1 13 7m-13 1 13 7"
-            />
-            <circle className="vv-motion__status" cx="126" cy="171" r="2" />
-            <text x="90" y="207" transform="rotate(28 90 207)">
+            {runnerIcons[label]}
+            <circle className="vv-motion__status" cx="32" cy="-12" r="3" />
+            <text x="32" y="84" textAnchor="middle">
               {label}
             </text>
           </g>
@@ -243,11 +278,7 @@ export function FeatureMotion({
 
   return (
     <div className={`vv-motion vv-motion--${kind}`} aria-hidden="true">
-      <svg viewBox="0 0 400 280" fill="none">
-        <path
-          className="vv-motion__ground"
-          d="m40 168 160 85 160-85M70 152l160 85M100 136l160 85M130 120l160 85M160 104l160 85M70 184l160-85M100 200l160-85M130 216l160-85M160 232l160-85"
-        />
+      <svg viewBox="45 25 310 240" fill="none">
         {artwork[kind]}
       </svg>
     </div>

@@ -103,7 +103,6 @@
 
 .vv-motion > svg {
   width: 100%;
-  max-width: 400px;
   overflow: visible;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -113,11 +112,6 @@
   fill: var(--cp-c-text-3);
   font: 9px var(--cp-ff-mono);
   letter-spacing: 0.08em;
-}
-
-.vv-motion__ground {
-  stroke: var(--cp-c-border);
-  opacity: 0.35;
 }
 
 .vv-motion__surface {
@@ -196,11 +190,11 @@
 }
 
 .vv-motion__machine:nth-of-type(2) .vv-motion__status {
-  animation-delay: 2s;
+  animation-delay: -4s;
 }
 
 .vv-motion__machine:nth-of-type(3) .vv-motion__status {
-  animation-delay: 4s;
+  animation-delay: -2s;
 }
 
 @keyframes vv-tile-hover {
