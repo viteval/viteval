@@ -41,8 +41,8 @@
 
 .vv-feature-detail {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
   gap: clamp(32px, 5vw, 72px);
   padding: var(--vv-section-space) var(--vv-section-inset);
   border-top: 1px solid var(--cp-c-border);
@@ -68,22 +68,6 @@
   line-height: 1.75;
 }
 
-.vv-feature-detail__copy :not(pre) > code {
-  color: var(--cp-c-text-1);
-  font-family: var(--cp-ff-mono);
-  font-size: 0.875em;
-}
-
-.vv-feature-detail > pre {
-  min-width: 0;
-  margin: 0;
-  border: 1px solid var(--cp-c-border);
-  border-radius: var(--viteval-panel-radius);
-  padding: 24px;
-  overflow-x: auto;
-  font: 12px / 1.85 var(--cp-ff-mono);
-}
-
 .vv-feature-detail__links {
   display: flex;
   flex-wrap: wrap;
@@ -107,4 +91,163 @@
   font: 11px var(--cp-ff-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.vv-motion {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 280px;
+  pointer-events: none;
+}
+
+.vv-motion svg {
+  width: 100%;
+  max-width: 400px;
+  overflow: visible;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.vv-motion text {
+  fill: var(--cp-c-text-3);
+  font: 9px var(--cp-ff-mono);
+  letter-spacing: 0.08em;
+}
+
+.vv-motion__ground {
+  stroke: var(--cp-c-border);
+  opacity: 0.35;
+}
+
+.vv-motion__surface {
+  fill: var(--cp-c-bg-alt);
+  stroke: var(--cp-c-border);
+}
+
+.vv-motion__edge {
+  fill: color-mix(in srgb, var(--cp-c-bg-alt) 88%, var(--cp-c-text-3));
+  stroke: var(--cp-c-border);
+}
+
+.vv-motion__surface--blue {
+  fill: color-mix(in srgb, var(--cp-c-bg-alt) 90%, var(--vv-blue));
+  stroke: var(--vv-blue);
+}
+
+.vv-motion__accent {
+  stroke: var(--vv-cyan);
+  stroke-width: 1.5;
+}
+
+.vv-motion__rail {
+  stroke: var(--cp-c-brand-2);
+  stroke-dasharray: 3 5;
+  opacity: 0.4;
+}
+
+.vv-motion__tile {
+  animation: vv-tile-hover 7s ease-in-out infinite;
+}
+
+.vv-motion__tile--evals {
+  animation-delay: -3.5s;
+}
+
+.vv-motion__gate {
+  fill: color-mix(in srgb, var(--cp-c-bg-alt) 88%, var(--vv-blue));
+  stroke: var(--cp-c-brand-2);
+}
+
+.vv-motion__sample {
+  animation: vv-sample-pass 8s ease-in-out infinite;
+}
+
+.vv-motion__pages {
+  animation: vv-result-save 7s ease-in-out infinite;
+}
+
+.vv-motion__signal {
+  stroke: var(--vv-cyan);
+  stroke-width: 2;
+  stroke-dasharray: 8 92;
+  animation: vv-run-signal 6s linear infinite;
+}
+
+.vv-motion__status {
+  fill: var(--vv-cyan);
+  animation: vv-machine-ready 6s ease-in-out infinite;
+}
+
+.vv-motion__machine:nth-of-type(2) .vv-motion__status {
+  animation-delay: 2s;
+}
+
+.vv-motion__machine:nth-of-type(3) .vv-motion__status {
+  animation-delay: 4s;
+}
+
+@keyframes vv-tile-hover {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes vv-sample-pass {
+  0%,
+  10% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  90%,
+  100% {
+    transform: translate(190px, -100px);
+    opacity: 0;
+  }
+}
+
+@keyframes vv-result-save {
+  0%,
+  15%,
+  100% {
+    transform: translateY(0);
+  }
+  45%,
+  80% {
+    transform: translateY(30px);
+  }
+}
+
+@keyframes vv-run-signal {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes vv-machine-ready {
+  0%,
+  40%,
+  100% {
+    opacity: 0.3;
+  }
+  15%,
+  25% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-motion * {
+    animation: none !important;
+  }
 }

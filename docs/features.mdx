@@ -4,7 +4,7 @@ title: Features
 description: Native Vitest workflows, built-in scoring, local results, and evaluations on your own infrastructure.
 ---
 
-import { FeaturesPage } from '#docs/features-page';
+import { FeatureMotion, FeaturesPage } from '#docs/features-page';
 
 <FeaturesPage>
 
@@ -15,11 +15,7 @@ import { FeaturesPage } from '#docs/features-page';
     <br />
     {'beside your tests.'}
   </h1>
-  <p>
-    {
-      'Your application code. Your criteria. Your infrastructure. Evaluate prompts, retrieval pipelines, and agents with the TypeScript workflow you already use.'
-    }
-  </p>
+  <p>{'TypeScript-native evals, powered by Vitest.'}</p>
   <nav aria-label="Feature sections">
     <a href="#familiar-tooling">Vitest-native</a>
     <a href="#built-in-defaults">Scoring</a>
@@ -41,9 +37,6 @@ import { FeaturesPage } from '#docs/features-page';
 Keep native configuration, watch mode, retries, and CI exit codes. Import your
 application functions into an evaluation, then score their answers.
 
-`retrieve` and `answer` are your application code. `knowledgeQuestions` is a
-reusable dataset. Configure a judge model in Vitest setup for these scorers.
-
 <a className="vv-feature-detail__link" href="/api/evaluate">
   {'Explore the evaluation API '}
   <span aria-hidden="true">→</span>
@@ -51,21 +44,7 @@ reusable dataset. Configure a judge model in Vitest setup for these scorers.
 
 </div>
 
-```ts
-import { evaluate, scorers } from 'viteval';
-import { knowledgeQuestions } from './knowledge.dataset';
-import { retrieve, answer } from './knowledge-agent';
-
-evaluate('Knowledge answers', {
-  data: knowledgeQuestions,
-  task: async ({ input }) => {
-    const context = await retrieve(input);
-    return (await answer({ question: input, context })).text;
-  },
-  scorers: [scorers.answerCorrectness(), scorers.answerRelevancy()],
-  threshold: 0.8,
-});
-```
+<FeatureMotion kind="tooling" />
 
 </section>
 
@@ -82,10 +61,6 @@ evaluate('Knowledge answers', {
 Use deterministic checks for exact answers and structured output. Add embeddings
 or LLM judges for free-form responses, or define a scorer for your own criteria.
 
-This checks citation format, not whether a source supports the answer. Combine
-it with correctness checks. Model-based scorers require a configured model and
-make real API requests.
-
 <a className="vv-feature-detail__link" href="/api/scorers">
   {'Find your scorers '}
   <span aria-hidden="true">→</span>
@@ -93,16 +68,7 @@ make real API requests.
 
 </div>
 
-```ts
-import { createScorer } from 'viteval';
-
-const citesSources = createScorer<string>({
-  name: 'cites-sources',
-  score: ({ output }) => ({
-    score: /\[source:[^\]\n]+\]/.test(output) ? 1 : 0,
-  }),
-});
-```
+<FeatureMotion kind="scoring" />
 
 </section>
 
@@ -119,10 +85,6 @@ const citesSources = createScorer<string>({
 Start with JSON datasets and results in your project. Open the local dashboard
 to inspect inputs, reference answers, outputs, and individual scores.
 
-The generated starter runs without an API key. Your own model-backed tasks and
-judges still send requests to the services you configure; local storage does
-not make those requests offline.
-
 <a className="vv-feature-detail__link" href="/guide/cli#view-results">
   {'Inspect your results '}
   <span aria-hidden="true">→</span>
@@ -130,11 +92,7 @@ not make those requests offline.
 
 </div>
 
-```bash
-pnpm exec viteval init --no-env-file
-pnpm exec viteval run
-pnpm exec viteval ui
-```
+<FeatureMotion kind="local" />
 
 </section>
 
@@ -148,12 +106,8 @@ pnpm exec viteval ui
   {'Wherever you run.'}
 </h2>
 
-Iterate on your laptop, gate a pull request, or use a runner you control. A failed
-evaluation produces a nonzero exit code. Viteval requires Node 26 or later.
-
-Keep JSON or SQLite storage local, or connect Braintrust, Langfuse, or VoltOps.
-Share datasets through S3 or Google Cloud Storage and choose result storage
-separately.
+Run the same evaluations on your laptop, in CI, or on a runner you control.
+Catch regressions before they reach production.
 
 <div className="vv-feature-detail__links">
   <a className="vv-feature-detail__link" href="/guide/advanced/ci">
@@ -168,13 +122,7 @@ separately.
 
 </div>
 
-```bash
-# Iterate locally.
-pnpm exec viteval run --watch
-
-# Run once in CI.
-pnpm exec viteval run
-```
+<FeatureMotion kind="runners" />
 
 </section>
 
