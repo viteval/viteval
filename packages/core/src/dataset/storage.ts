@@ -1,6 +1,7 @@
 import { type Result, err, isErr, ok } from 'massaman/control';
 import { getDatasetProvider } from '#/provider/client';
-import { createJsonProvider } from '#/provider/json';
+import { createJsonDatasets } from '#/provider/json-datasets';
+import { createJsonStore } from '#/provider/json-store';
 import type { DataItem, Extra } from '#/types';
 import type { DatasetProvider } from '#/provider/types';
 
@@ -24,10 +25,7 @@ export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
     provider =
       payload.provider ??
       getDatasetProvider() ??
-      createJsonProvider({ root }).datasets;
-  if (!provider) {
-    throw new Error('Dataset provider is unavailable');
-  }
+      createJsonDatasets(createJsonStore(root));
   return {
     /**
      * Check if the dataset exists in the storage

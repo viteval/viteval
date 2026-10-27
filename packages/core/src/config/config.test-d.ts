@@ -6,6 +6,12 @@ import { defineDataset } from '#/dataset';
 import { evaluate } from '#/evaluate';
 import { createScorer, scorers } from '#/scorer';
 
+interface SupportCase {
+  input: string;
+  expected: number;
+  reviewed: boolean;
+}
+
 describe('V1 configuration types', () => {
   it('should expose Viteval configuration instead of runner options', () => {
     expectTypeOf(
@@ -42,10 +48,7 @@ describe('V1 configuration types', () => {
       },
     });
     evaluate('saved', {
-      data: ({ json }) =>
-        json.dataset<{ input: string; expected: number; reviewed: boolean }>(
-          'support'
-        ),
+      data: ({ json }) => json.dataset<SupportCase>('support'),
       task: ({ input, reviewed }) => {
         expectTypeOf(input).toEqualTypeOf<string>();
         expectTypeOf(reviewed).toEqualTypeOf<boolean>();

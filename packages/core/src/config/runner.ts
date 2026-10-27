@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import type { ViteUserConfig } from 'vitest/config';
+import { configDefaults, type ViteUserConfig } from 'vitest/config';
 import type { VitevalConfig } from './types';
 
 /**
@@ -21,7 +21,20 @@ export function createRunnerConfig(options: {
           // Native runner configurations remain usable for integration tooling.
           if (options.configFile && !('__viteval' in raw)) return;
           const config = raw as ViteUserConfig & VitevalConfig;
-          const root = path.resolve(options.root, config.root ?? '.');
+          const root = path.resolve(
+            options.root,
+            config.test?.root ?? config.root ?? '.'
+          );
+          const retry = config.test?.retry ?? config.eval?.retries ?? 0;
+          const timeout =
+            config.test?.testTimeout ?? config.eval?.timeout ?? 60_000;
+          const defaults = {
+            // Native zero disables timeouts; leave case timeouts inherited in workers.
+            timeout: config.test?.testTimeout === 0 ? undefined : timeout,
+            concurrency:
+              config.test?.maxConcurrency ?? config.eval?.concurrency ?? 5,
+            retries: typeof retry === 'number' ? retry : (retry.count ?? 0),
+          };
           const setupFile = fileURLToPath(
             import.meta.resolve('@viteval/core/config/setup')
           );
@@ -29,15 +42,23 @@ export function createRunnerConfig(options: {
             root,
             resolve: { tsconfigPaths: true },
             test: {
+              root,
               include: config.eval?.include ?? ['**/*.eval.{ts,mts,js,mjs}'],
-              exclude: config.eval?.exclude,
-              testTimeout: config.eval?.timeout ?? 60_000,
-              maxConcurrency: config.eval?.concurrency ?? 5,
-              retry: config.eval?.retries ?? 0,
+              exclude: [
+                ...new Set([
+                  ...configDefaults.exclude,
+                  ...(config.eval?.exclude ?? []),
+                ]),
+              ],
+              testTimeout: timeout,
+              maxConcurrency: defaults.concurrency,
+              retry,
+              runner: path.join(path.dirname(setupFile), 'lifecycle.mjs'),
               setupFiles: [setupFile],
               provide: {
                 vitevalConfigFile: options.configFile,
                 vitevalProjectRoot: root,
+                vitevalEvalDefaults: defaults,
               },
             },
           };

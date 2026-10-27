@@ -1,8 +1,20 @@
 import { err, ok } from 'massaman/control';
-import { describe, expect, it, vi } from 'vitest';
+import { MockEmbeddingModelV4, MockLanguageModelV4 } from 'ai/test';
+import type { ModelProvider, VitevalConfig } from './types';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createProvider } from '#/provider/create';
 import { createJsonProvider } from '#/provider/json';
-import { createProjectRuntime } from './runtime';
+import {
+  closeProjectRuntime,
+  createProjectRuntime,
+  getProjectRuntime,
+  getRuntimeContext,
+  setProjectRuntime,
+} from './runtime';
+
+afterEach(async () => {
+  await closeProjectRuntime();
+});
 
 describe('createProjectRuntime', () => {
   it('should initialize used providers once and leave unused providers unopened', async () => {
@@ -74,7 +86,54 @@ describe('createProjectRuntime', () => {
     await expect(runtime.provider('json')).rejects.toThrow('bad credentials');
     await expect(runtime.provider('json')).rejects.toThrow('bad credentials');
     expect(initialize).toHaveBeenCalledTimes(1);
-    await expect(runtime.close()).rejects.toThrow(AggregateError);
+    await runtime.close();
+  });
+
+  it.each(['returned', 'thrown'] as const)(
+    'should close partially initialized resources after a %s initialization failure',
+    async (failure) => {
+      const close = vi.fn(async () => ok(undefined)),
+        runtime = createProjectRuntime({
+          providers: [
+            createProvider({
+              name: 'json',
+              close,
+              initialize: async () => {
+                if (failure === 'thrown') throw new Error('partial allocation');
+                return err('partial allocation');
+              },
+            }),
+          ],
+        });
+      const initialization = expect(runtime.provider('json')).rejects.toThrow(
+        'partial allocation'
+      );
+      await runtime.close();
+      await initialization;
+      expect(close).toHaveBeenCalledExactlyOnceWith();
+    }
+  );
+
+  it('should aggregate cleanup failures independently of initialization failures', async () => {
+    const runtime = createProjectRuntime({
+      providers: [
+        createProvider({
+          name: 'json',
+          initialize: async () => err('initialization failure'),
+          close: async () => err('cleanup failure'),
+        }),
+      ],
+    });
+    await expect(runtime.provider('json')).rejects.toThrow(
+      'initialization failure'
+    );
+    await expect(runtime.close()).rejects.toMatchObject({
+      errors: [
+        expect.objectContaining({
+          message: 'Failed to close provider "json": cleanup failure',
+        }),
+      ],
+    });
   });
 
   it('should inherit destinations, replace explicit selections, and disable empty selections', () => {
@@ -88,6 +147,9 @@ describe('createProjectRuntime', () => {
     expect(runtime.datasetNames([])).toEqual([]);
     expect(runtime.resultNames(['json', 'json'])).toEqual(['json']);
     expect(createProjectRuntime({ providers: [] }).resultNames()).toEqual([]);
+    expect(createProjectRuntime({ providers: [] }).datasetNames()).toEqual([]);
+    expect(createProjectRuntime({}).datasetNames()).toEqual(['json']);
+    expect(createProjectRuntime({}).resultNames()).toEqual(['json']);
   });
 
   it('should reject duplicate and reserved storage identities', () => {
@@ -117,4 +179,249 @@ describe('createProjectRuntime', () => {
   ])('should reject invalid evaluation defaults %j', (evalOptions) => {
     expect(() => createProjectRuntime({ eval: evalOptions })).toThrow();
   });
+
+  it('should accept valid evaluation limits', () => {
+    expect(() =>
+      createProjectRuntime({
+        eval: { concurrency: 1, retries: 0, timeout: 1, threshold: 0 },
+      })
+    ).not.toThrow();
+  });
+
+  it('should reject non-array destinations from untyped configurations', () => {
+    const runtime = createProjectRuntime({
+      eval: { results: false },
+    } as unknown as VitevalConfig);
+    expect(() => runtime.resultNames()).toThrow('must be an array');
+  });
+
+  it('should preserve symbol property reads on the runtime proxy', () => {
+    expect(
+      Reflect.get(createProjectRuntime({}).context, Symbol.iterator)
+    ).toBeUndefined();
+  });
+
+  it('should report unsupported datasets without attempting reads', async () => {
+    const runtime = createProjectRuntime({
+      providers: [createProvider({ name: 'json' })],
+    });
+    await expect(
+      runtime.context.json.dataset('missing').load()
+    ).rejects.toThrow('does not support datasets');
+    await runtime.close();
+  });
+
+  it.each(['missing', 'get-error', 'items-error', 'success'] as const)(
+    'should resolve provider datasets: %s',
+    async (behavior) => {
+      const json = createJsonProvider(),
+        dataset = {
+          id: 'dataset',
+          name: 'support',
+          description: '',
+          version: 1,
+          itemCount: 1,
+          metadata: {},
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        runtime = createProjectRuntime({
+          providers: [
+            createProvider({
+              name: 'json',
+              datasets: {
+                ...json.datasets!,
+                get: async () =>
+                  behavior === 'get-error'
+                    ? err('lookup failed')
+                    : ok(behavior === 'missing' ? null : dataset),
+                getItems: async () =>
+                  behavior === 'items-error'
+                    ? err('read failed')
+                    : ok([
+                        {
+                          id: 'item',
+                          datasetId: 'dataset',
+                          input: 'question',
+                          expected: 1,
+                          extra: { reviewed: true },
+                          ordinal: 0,
+                        },
+                      ]),
+              },
+            }),
+          ],
+        });
+      const reference = runtime.context.json.dataset('support');
+      expect(reference.name).toBe('support');
+      if (behavior === 'success') {
+        await expect(reference.load()).resolves.toEqual([
+          { input: 'question', expected: 1, reviewed: true },
+        ]);
+      } else {
+        const message = {
+          missing: 'not found',
+          'get-error': 'lookup failed',
+          'items-error': 'read failed',
+        }[behavior];
+        await expect(reference.load()).rejects.toThrow(message);
+      }
+      await runtime.close();
+    }
+  );
 });
+
+describe('worker runtime lifecycle', () => {
+  it('should share one active context and reject accidental replacement', async () => {
+    expect(getProjectRuntime()).toBeUndefined();
+    expect(getRuntimeContext().json.dataset('default').name).toBe('default');
+    const runtime = createProjectRuntime({});
+    setProjectRuntime(runtime);
+    expect(getRuntimeContext()).toBe(runtime.context);
+    expect(() => setProjectRuntime(createProjectRuntime({}))).toThrow(
+      'already active'
+    );
+    await closeProjectRuntime();
+    expect(getProjectRuntime()).toBeUndefined();
+    await closeProjectRuntime();
+  });
+
+  it('should release the active runtime even when cleanup fails', async () => {
+    const runtime = createProjectRuntime({
+      providers: [
+        createProvider({
+          name: 'json',
+          close: async () => {
+            throw new Error('close failed');
+          },
+        }),
+      ],
+    });
+    setProjectRuntime(runtime);
+    await runtime.provider('json');
+    await expect(closeProjectRuntime()).rejects.toThrow(AggregateError);
+    expect(getProjectRuntime()).toBeUndefined();
+  });
+});
+
+describe('model registry', () => {
+  it('should preserve dotted provider names while removing only the SDK API suffix', () => {
+    const language = new MockLanguageModelV4({
+        provider: 'company.gateway.responses',
+      }),
+      embedding = new MockEmbeddingModelV4({
+        provider: 'company.gateway.embedding',
+      }),
+      runtime = createProjectRuntime({
+        models: {
+          providers: [modelProvider({ language, embedding })],
+          defaults: {
+            language: 'company.gateway:chat',
+            embedding: 'company.gateway:embed',
+          },
+        },
+      });
+    expect(runtime.context.models.languageModel('company.gateway:chat')).toBe(
+      language
+    );
+    expect(runtime.context.models.embeddingModel('company.gateway:embed')).toBe(
+      embedding
+    );
+  });
+
+  it('should initialize the registry lazily when no model configuration exists', () => {
+    const runtime = createProjectRuntime({});
+    expect(() =>
+      runtime.context.models.languageModel('missing:model')
+    ).toThrow();
+    expect(() =>
+      runtime.context.models.embeddingModel('missing:model')
+    ).toThrow();
+  });
+
+  it('should accept bare provider identities', () => {
+    const language = new MockLanguageModelV4({ provider: 'bare' });
+    expect(
+      createProjectRuntime({
+        models: { providers: [modelProvider({ language })] },
+      }).context.models.languageModel('bare:model')
+    ).toBe(language);
+  });
+
+  it('should fall back to embedding-only provider identities', () => {
+    const embedding = new MockEmbeddingModelV4({
+        provider: 'vector.embedding',
+      }),
+      provider = modelProvider({ embedding });
+    expect(
+      createProjectRuntime({
+        models: { providers: [provider] },
+      }).context.models.embeddingModel('vector:embed')
+    ).toBe(embedding);
+  });
+
+  it('should reject duplicate model identities', () => {
+    const provider = modelProvider({
+      language: new MockLanguageModelV4({ provider: 'duplicate.chat' }),
+    });
+    expect(() =>
+      createProjectRuntime({ models: { providers: [provider, provider] } })
+    ).toThrow('Duplicate model provider');
+  });
+
+  it('should explain providers that reject the identity probe', () => {
+    expect(() =>
+      createProjectRuntime({ models: { providers: [modelProvider({})] } })
+    ).toThrow('Cannot determine AI SDK provider identity');
+    expect(() =>
+      createProjectRuntime({
+        models: {
+          providers: [{ ...modelProvider({}), embeddingModel: undefined }],
+        },
+      })
+    ).toThrow(AggregateError);
+  });
+
+  it('should reject empty provider identities', () => {
+    expect(() =>
+      createProjectRuntime({
+        models: {
+          providers: [
+            modelProvider({
+              language: new MockLanguageModelV4({ provider: '' }),
+              embedding: new MockEmbeddingModelV4({ provider: '' }),
+            }),
+          ],
+        },
+      })
+    ).toThrow(AggregateError);
+  });
+
+  it.each([':model', 'provider:', 'bare'])(
+    'should reject malformed model IDs %s',
+    (id) => {
+      expect(() =>
+        createProjectRuntime({}).context.models.languageModel(
+          id as `${string}:${string}`
+        )
+      ).toThrow('Invalid model ID');
+    }
+  );
+});
+
+function modelProvider(options: {
+  language?: MockLanguageModelV4;
+  embedding?: MockEmbeddingModelV4;
+}): ModelProvider {
+  return {
+    specificationVersion: 'v4',
+    languageModel() {
+      if (!options.language) throw new Error('No language model');
+      return options.language;
+    },
+    embeddingModel() {
+      if (!options.embedding) throw new Error('No embedding model');
+      return options.embedding;
+    },
+  };
+}

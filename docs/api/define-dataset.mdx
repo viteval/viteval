@@ -201,8 +201,8 @@ data: ({ langfuse }) => langfuse.dataset('reviewed-support');
 ```
 
 With `providers: []`, `load()` generates in memory and `save()` generates without
-writing. The legacy `storage` property remains supported for low-level consumers;
-prefer provider arrays in V1. See [Providers](/guide/providers) for serialization
+writing. The low-level `storage` property selects local or in-memory storage;
+use provider arrays for configured destinations. See [Providers](/guide/providers) for serialization
 and integration capability limits.
 
 ## CLI discovery

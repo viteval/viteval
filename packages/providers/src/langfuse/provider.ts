@@ -125,7 +125,6 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
     startTime?: Date;
     endTime?: Date;
   }) {
-    let ids: { traceId: string; observationId: string } | undefined;
     const operation = pending.then(async () => {
       const span = tracer.startSpan(
         params.name,
@@ -133,7 +132,7 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
         runtime.rootContext
       );
       const context = span.spanContext();
-      ids = { traceId: context.traceId, observationId: context.spanId };
+      const ids = { traceId: context.traceId, observationId: context.spanId };
       if ('langfuse.experiment.item.id' in params.attributes)
         span.setAttribute(
           'langfuse.experiment.item.root_observation_id',
@@ -153,14 +152,13 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
           else resolve();
         })
       );
+      return ids;
     });
     pending = operation.then(
       () => undefined,
       () => undefined
     );
-    await operation;
-    if (!ids) throw new Error('Langfuse did not create an observation');
-    return ids;
+    return operation;
   }
   async function observations(params: { name?: string; sessionId?: string }) {
     const records: Awaited<
@@ -230,8 +228,6 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
         if (!run || run.status !== 'running')
           throw new Error(`Run is missing or finalized: ${params.evalRunId}`);
         jsonValue(params);
-        if (params.scores.some((score) => !Number.isFinite(score.score)))
-          throw new Error('Langfuse scores must be finite');
         const id = randomUUID();
         const result: StoredEvalResult = {
           ...params,

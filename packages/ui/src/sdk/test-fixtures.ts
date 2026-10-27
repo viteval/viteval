@@ -52,9 +52,23 @@ export function reportFixture({
         medianScore: success ? 1 : 0,
         sumScore: success ? 1 : 0,
         passedCount: success ? 1 : 0,
+        failedCount: success ? 0 : 1,
+        skippedCount: 0,
         totalCount: 1,
       },
-      evalResults: [],
+      evalResults: [
+        {
+          id: `${id}:${suite.name}`,
+          name: 'accuracy case',
+          state: success ? 'passed' : 'failed',
+          aggregation: 'mean',
+          threshold: 0.5,
+          mean: success ? 1 : 0,
+          median: success ? 1 : 0,
+          sum: success ? 1 : 0,
+          scores: [{ name: 'accuracy', score: success ? 1 : 0 }],
+        },
+      ],
     })),
   };
 }
@@ -76,10 +90,14 @@ export async function writeListingFixtures(root: string) {
     await writeFile(
       path.join(root, '.viteval/datasets', `dataset-${index}.json`),
       JSON.stringify({
+        schemaVersion: 1,
         id: `dataset-${index}`,
         name: `Dataset ${String(index).padStart(2, '0')}`,
+        version: 1,
+        metadata: {},
         description: index === 24 ? 'unique remote description' : undefined,
         createdAt: new Date(Date.UTC(2026, 9, 1) + index * 1_000).toISOString(),
+        updatedAt: new Date(Date.UTC(2026, 9, 1) + index * 1_000).toISOString(),
         data: Array.from({ length: index + 1 }, () => ({
           input: index,
           expected: null,

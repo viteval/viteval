@@ -67,7 +67,7 @@ interface SuiteProjection {
   projectName?: string;
   name: string;
   moduleId: string;
-  evalResults: EvalResult[];
+  evalResults: (EvalResult & { id: string })[];
   hasFailed: boolean;
   startTime: number;
   endTime: number;
@@ -136,9 +136,9 @@ export default class JsonReporter implements Reporter {
       const projected = toJsonEvalSuite(suite, this.root);
       return {
         ...projected,
-        evalResults: projected.evalResults.map((result, index) => ({
+        evalResults: projected.evalResults.map((result) => ({
           ...result,
-          id: `${this.results.runId}:${result.id ?? index}`,
+          id: `${this.results.runId}:${result.id}`,
         })),
       };
     });
@@ -344,7 +344,10 @@ function createModuleProjection(testModule: TestModule): SuiteProjection {
   };
 }
 
-function toJsonEvalSuite(suite: SuiteProjection, root: string): JsonEvalSuite {
+function toJsonEvalSuite(
+  suite: SuiteProjection,
+  root: string
+): JsonEvalSuite & { evalResults: (EvalResult & { id: string })[] } {
   const endTime = Math.max(suite.endTime, suite.startTime);
   return {
     projectName: suite.projectName,

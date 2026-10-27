@@ -70,7 +70,7 @@ export type Task<INPUT, OUTPUT, EXTRA extends Extra> = (
 export type DataItem<
   INPUT = unknown,
   OUTPUT = unknown,
-  EXTRA extends Extra = Extra,
+  EXTRA extends Extra = Record<never, never>,
 > = Merge<
   EXTRA,
   {

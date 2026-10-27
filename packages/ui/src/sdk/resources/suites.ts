@@ -1,6 +1,5 @@
 import type { SuiteSummary } from '@/types';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
-import { slugify } from '@/lib/utils';
 import { suiteName } from '@/lib/suite-name';
 import { suiteId } from '@/lib/suite-id';
 import { sortItems } from '../sort';
@@ -81,9 +80,7 @@ export function createSuitesResource(fsHelper: FsHelper): SuitesResource {
       params: GetSuiteParams
     ): Promise<VitevalResponse<SuiteSummary | null>> {
       const all = await aggregateSuites();
-      const exact = all.find((s) => s.slug === params.slug);
-      const legacy = all.filter((s) => slugify(s.name) === params.slug);
-      const data = exact ?? (legacy.length === 1 ? legacy[0] : null);
+      const data = all.find((s) => s.slug === params.slug) ?? null;
       return { data };
     },
 

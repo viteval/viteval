@@ -8,6 +8,7 @@ import {
 /**
  * Create an answer similarity scorer using embedding cosine similarity.
  *
+ * @param options - Optional embedding model ID or direct SDK model override.
  * @returns A scorer that embeds both strings via the configured embedding model and computes cosine similarity.
  *
  * @example

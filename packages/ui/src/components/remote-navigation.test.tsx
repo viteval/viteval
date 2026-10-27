@@ -218,7 +218,16 @@ describe('remote table navigation', () => {
         '.viteval/datasets',
         `${encodeURIComponent(datasetId)}.json`
       ),
-      JSON.stringify({ id: datasetId, name: 'Encoded dataset', data: [] })
+      JSON.stringify({
+        schemaVersion: 1,
+        id: datasetId,
+        name: 'Encoded dataset',
+        version: 1,
+        metadata: {},
+        createdAt: '2026-10-01T00:00:00.000Z',
+        updatedAt: '2026-10-01T00:00:00.000Z',
+        data: [],
+      })
     );
     const { router } = await renderRemoteRouter('/datasets');
     fireEvent.click(screen.getByText('Encoded dataset'));

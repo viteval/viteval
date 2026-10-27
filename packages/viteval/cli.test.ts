@@ -57,6 +57,7 @@ describe('help', () => {
 
 describe('init', () => {
   beforeAll(async () => {
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
     await fs.mkdir(path.join(TEST_DIR, 'node_modules'), { recursive: true });
     await fs.symlink(
@@ -277,6 +278,7 @@ describe('init', () => {
 
 describe('data', () => {
   beforeAll(async () => {
+    await fs.rm(DATA_TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(DATA_TEST_DIR, { recursive: true });
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'vitest.config.ts'),
@@ -740,6 +742,13 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
     );
     await fs.mkdir(path.dirname(datasetPath), { recursive: true });
     const original = JSON.stringify({
+      schemaVersion: 1,
+      id: 'rooted',
+      name: 'rooted',
+      version: 1,
+      metadata: {},
+      createdAt: '2026-10-27T12:00:00.000Z',
+      updatedAt: '2026-10-27T12:00:00.000Z',
       data: [{ expected: 'answer', input: 'original' }],
     });
     await fs.writeFile(datasetPath, original);
@@ -819,6 +828,7 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
 
 describe('run', () => {
   beforeAll(async () => {
+    await fs.rm(RUN_TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(RUN_TEST_DIR, { recursive: true });
     await fs.writeFile(
       path.join(RUN_TEST_DIR, 'vitest.config.ts'),

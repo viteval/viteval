@@ -26,7 +26,7 @@
     "publish": "pnpm run build && pnpm changeset publish",
     "sp": "syncpack",
     "test": "turbo run test --filter='./packages/*'",
-    "test:coverage": "turbo run test --force --filter='./packages/*' -- --coverage && node scripts/merge-integration-coverage.mjs",
+    "test:coverage": "node --test scripts/project-source-coverage.test.mjs && turbo run test --force --filter='./packages/*' -- --coverage && node scripts/merge-integration-coverage.mjs",
     "types": "turbo run types",
     "validate": "pnpm check && turbo run types test build --filter='./packages/*'",
     "validate:consumer": "turbo run build --filter='./packages/*' --output-logs=errors-only && node scripts/validate-consumer.mjs",

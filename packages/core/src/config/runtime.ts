@@ -162,8 +162,10 @@ export function createProjectRuntime(config: VitevalConfig) {
       if (closed) return;
       closed = true;
       const results = await Promise.allSettled(
-        [...initialized.values()].map(async (pending) => {
-          const instance = await pending;
+        [...initialized.entries()].map(async ([name, pending]) => {
+          // Initialization can allocate resources before returning an error.
+          await Promise.allSettled([pending]);
+          const instance = byName.get(name)!;
           const result = await instance.close();
           if (isErr(result))
             throw new Error(
@@ -220,6 +222,21 @@ export function getProjectRuntime(): ProjectRuntime | undefined {
 }
 
 /**
+ * Close the active worker runtime even when collection or suite hooks fail.
+ * @returns A promise that settles after all attempted providers are closed.
+ * @example await closeProjectRuntime();
+ * @internal
+ */
+export async function closeProjectRuntime(): Promise<void> {
+  const runtime = getProjectRuntime();
+  try {
+    await runtime?.close();
+  } finally {
+    globalThis.__viteval_runtime = undefined;
+  }
+}
+
+/**
  * Install a runtime for a worker; replacing a live runtime is not allowed.
  * @param runtime - A newly created, worker-local runtime.
  * @returns Nothing.
@@ -244,6 +261,7 @@ export function getRuntimeContext(): RuntimeContext {
 function modelProviderName(provider: ModelProvider): string {
   // AI SDK model construction is local: no credentials or API call is needed.
   // The model's provider identifier is the SDK's public identity, not a JS function name.
+  // SDK API variants append one segment (for example, ".responses") to that identity.
   const errors: unknown[] = [];
   for (const create of [
     () => provider.languageModel('__viteval_identity__'),
@@ -251,7 +269,7 @@ function modelProviderName(provider: ModelProvider): string {
   ]) {
     try {
       const model = create(),
-        name = model?.provider.split('.')[0];
+        name = model?.provider.replace(/\.[^.]+$/, '');
       if (name) {
         return name;
       }
@@ -261,7 +279,7 @@ function modelProviderName(provider: ModelProvider): string {
   }
   throw new AggregateError(
     errors,
-    'Cannot determine AI SDK provider identity from its language or embedding model API'
+    'Cannot determine AI SDK provider identity from its language or embedding model API. Use a raw SDK provider that accepts arbitrary model IDs; finite customProvider catalogs cannot be identified automatically.'
   );
 }
 

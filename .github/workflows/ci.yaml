@@ -24,6 +24,18 @@ jobs:
       fail-fast: false
       matrix:
         command: [types, 'test:coverage', check, build]
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: viteval-test-only
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432/tcp
     permissions:
       contents: read
       pull-requests: write
@@ -61,6 +73,8 @@ jobs:
 
       - name: '🔄 Run: ${{ matrix.command }}'
         run: pnpm ${{ matrix.command }}
+        env:
+          VITEVAL_TEST_POSTGRES_URL: postgresql://postgres:viteval-test-only@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
 
       - name: Upload coverage reports
         if: ${{ matrix.command == 'test:coverage' && always() }}

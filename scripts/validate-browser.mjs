@@ -65,7 +65,7 @@ try {
 import { JsonReporter } from 'viteval/reporters';
 export default defineConfig({ test: {
   reporters: [new JsonReporter({ outputFile: '.viteval/results/smoke.json' })],
-  projects: ['alpha', 'beta'].map(name => ({ test: { name, include: ['src/**/*.eval.ts'], setupFiles: ['./viteval.setup.ts'] } })),
+  projects: ['alpha', 'beta'].map(name => ({ test: { name, include: ['src/**/*.eval.ts'] } })),
 } });`
   );
   await writeFile(
@@ -74,7 +74,11 @@ export default defineConfig({ test: {
 evaluate('failure diagnostics', { data: [{ input: 'broken task', expected: 'answer' }], task: () => { throw new Error('Browser smoke: task failed'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })] });
 evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'answer' }], task: () => { throw new Error('Must not execute'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })], skip: true });`
   );
-  runCli({ args: ['run', '--root', root], expectedStatus: 1 });
+  // Multi-project coverage intentionally uses the native integration, not init's V1 config.
+  runCli({
+    args: ['run', '--root', root, '--config', 'vitest.config.ts'],
+    expectedStatus: 1,
+  });
   const provider = createJsonProvider({ root }),
     dataset = await provider.datasets.create({
       items: [

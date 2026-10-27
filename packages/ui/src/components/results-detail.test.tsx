@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within, act } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+  act,
+  fireEvent,
+} from '@testing-library/react';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -9,13 +16,54 @@ import {
 } from '@tanstack/react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { EvalResults } from '@/types';
+import { suiteId } from '@/lib/suite-id';
+import { reportFixture } from '@/sdk/test-fixtures';
 import ResultsDetail from './ResultsDetail';
 
 afterEach(cleanup);
 
 describe('ResultsDetail', () => {
+  it('should expose provider execution diagnostics and leave cases with empty metadata unexpanded', async () => {
+    const report = reportFixture({ id: 'diagnostic', index: 1 });
+    const suite = report.evalResults[0];
+    const evaluation = suite.evalResults[0];
+    await renderResults({
+      ...report,
+      numTotalEvals: 2,
+      numFailedEvals: 2,
+      evalResults: [
+        {
+          ...suite,
+          summary: {
+            ...suite.summary,
+            failedCount: undefined,
+            skippedCount: undefined,
+            totalCount: 2,
+          },
+          evalResults: [
+            {
+              ...evaluation,
+              name: 'provider failure',
+              scores: [],
+              metadata: { executionError: 'Provider request failed' },
+            },
+            { ...evaluation, name: 'empty metadata', metadata: {} },
+          ],
+        },
+      ],
+    });
+    fireEvent.click(screen.getByRole('button', { name: /provider failure/ }));
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Provider request failed'
+    );
+    expect(screen.queryByRole('button', { name: /empty metadata/ })).toBeNull();
+    expect(
+      within(screen.getByRole('group', { name: 'Skipped' })).getByText('0')
+    ).toBeTruthy();
+  });
   it('should show skipped counts without misclassifying unexecuted cases as failures', async () => {
     const results: EvalResults = {
+      schemaVersion: 1,
       runId: 'skipped',
       runName: 'skipped',
       status: 'finished',
@@ -87,6 +135,10 @@ describe('ResultsDetail', () => {
             { name: 'second', score: 0.5 },
           ],
           state: 'passed' as const,
+          input: 'question',
+          expected: 'answer',
+          output: { text: 'answer' },
+          metadata: { note: 'case context' },
         },
         {
           id: 'failed-case',
@@ -98,6 +150,7 @@ describe('ResultsDetail', () => {
           sum: 1,
           scores: [{ name: 'exact', score: 1 }],
           state: 'failed' as const,
+          error: 'Execution hook failed',
         },
       ],
     };
@@ -131,14 +184,33 @@ describe('ResultsDetail', () => {
     ).toBeTruthy();
     expect(screen.getByRole('alert').textContent).toContain('Cleanup failed');
     expect(
-      screen
-        .getAllByRole('link', { name: 'View Eval' })[0]
-        ?.getAttribute('href')
-    ).toBe('/suites/accuracy-first');
-    for (const row of screen.getAllByRole('row', { name: /sum-case/ }))
+      decodeURIComponent(
+        screen
+          .getAllByRole('link', { name: 'View Eval' })[0]
+          ?.getAttribute('href') ?? ''
+      )
+    ).toBe(`/suites/${suiteId({ ...base, projectName: 'first' })}`);
+    for (const row of screen.getAllByRole('button', { name: /sum-case/ }))
       expect(within(row).getByText('Passed')).toBeTruthy();
-    for (const row of screen.getAllByRole('row', { name: /failed-case/ }))
+    fireEvent.click(screen.getAllByText('sum-case')[0]);
+    expect(screen.getByText('Input:')).toBeTruthy();
+    expect(screen.getByText('Expected:')).toBeTruthy();
+    expect(screen.getByText('Output:')).toBeTruthy();
+    expect(screen.getByText('Metadata:')).toBeTruthy();
+    expect(screen.getByText('Scores:')).toBeTruthy();
+    fireEvent.click(screen.getAllByText('failed-case')[0]);
+    expect(screen.getByText('Execution hook failed')).toBeTruthy();
+    for (const row of screen.getAllByRole('button', { name: /failed-case/ }))
       expect(within(row).getByText('Failed')).toBeTruthy();
+    fireEvent.pointerDown(
+      screen.getAllByRole('button', { name: 'Result' })[0],
+      { button: 0, ctrlKey: false }
+    );
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Asc' }));
+    expect(
+      screen.getAllByRole('button', { name: /sum-case|failed-case/ })[0]
+        .textContent
+    ).toContain('failed-case');
   });
 });
 

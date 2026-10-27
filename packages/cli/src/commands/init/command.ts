@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { createFile, fileExists } from '@viteval/internal';
 import { command } from 'maltty';
-import { attemptAsync, isErr, ok } from 'massaman/control';
+import { attemptAsync, isErr, ok, unwrap } from 'massaman/control';
 import { INIT_ARGS } from '#/lib/command-options';
 import { hasPackageJson } from '#/lib/utils';
 import { createFileFromTemplate } from '#/templates';
@@ -86,14 +86,12 @@ export const initCommand = command({
       ? `import { existsSync } from 'node:fs';\nimport { loadEnvFile } from 'node:process';\n\nconst envFile = new URL(${JSON.stringify(envReference)}, import.meta.url);\nif (existsSync(envFile)) {\n  loadEnvFile(envFile);\n}\n`
       : '';
     const { readTemplateContents } = await import('#/templates');
-    const template = await readTemplateContents('viteval.config.ts');
-    if (isErr(template) || template.value === null)
-      fail('Failed to read Viteval config template');
+    const template = unwrap(await readTemplateContents('viteval.config.ts'));
     const configResult = hasConfig
       ? ok(false)
       : await createFile(
           path.join(cwd, configName),
-          `${envContent}${template.value}`
+          `${envContent}${template}`
         );
     if (isErr(configResult)) {
       fail(`Failed to create ${configName}: ${configResult.error.message}`);

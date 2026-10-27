@@ -148,7 +148,10 @@ export function defineDataset<
         if (destinations.length && !selected.length) return;
         const data = await generate();
         const saved = await Promise.all(
-          selected.map((storage) => storage.save(data))
+          selected.map(async (storage) => {
+            const result = await attemptAsync(() => storage.save(data));
+            return isErr(result) ? result : result.value;
+          })
         );
         const failures = saved.filter(isErr);
         if (failures.length)

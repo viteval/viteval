@@ -36,6 +36,10 @@ import type {
   TaskArgs,
 } from '#/types';
 
+type NormalizedEvalResult = Omit<EvalResult, 'scores'> & {
+  scores: (EvalResult['scores'][number] & { score: number })[];
+};
+
 // The public entry point also runs in config modules, outside runner workers.
 const runner = process.env.VITEST_WORKER_ID
   ? await import('vitest')
@@ -122,12 +126,25 @@ export function evaluate<
     if (!persist || !suite) {
       return runSuite();
     }
-    await persist.create(suite);
+    const errors: unknown[] = [];
     try {
+      await persist.create(suite);
       await runSuite();
+    } catch (error) {
+      errors.push(error);
     } finally {
-      await persist.complete(suite, scope);
+      try {
+        await persist.complete(suite, scope);
+      } catch (error) {
+        errors.push(error);
+      }
     }
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1)
+      throw new AggregateError(
+        errors,
+        `Evaluation execution and persistence failed: ${errors.map(String).join('; ')}`
+      );
   });
   return describe(
     name,
@@ -193,14 +210,16 @@ export function evaluate<
           testName: formatTestName(dataItem),
         })),
         providers = await getResultDestinations(destinations);
-      let runIds: string[] = [];
-      const recorded = new Map<string, EvalResult>();
+      const runIds = new Map<number, string>();
+      const creationErrors: string[] = [];
+      const recorded = new Map<string, NormalizedEvalResult>();
       if (providers.length) {
         persist = {
           async complete(suite, scope) {
-            if (!runIds.length) return;
+            if (!runIds.size) return;
             const suiteErrors = [
               ...new Set([
+                ...creationErrors,
                 ...(suite.result?.errors?.map((error) => error.message) ?? []),
                 ...(scope.result?.errors?.map((error) => error.message) ?? []),
               ]),
@@ -229,7 +248,7 @@ export function evaluate<
               ];
               const diagnostic = errors.join('\n');
               const previous = recorded.get(task.id);
-              const result: EvalResult = previous ?? {
+              const result: NormalizedEvalResult = previous ?? {
                 name: cases[index].testName,
                 input: safeJson(cases[index].dataItem.input),
                 expected: safeJson(cases[index].dataItem.expected),
@@ -260,7 +279,7 @@ export function evaluate<
                 output: result.output ?? null,
                 scores: result.scores.map((score) => ({
                   ...score,
-                  score: score.score ?? 0,
+                  score: score.score,
                 })),
                 meanScore: result.mean,
                 medianScore: result.median,
@@ -281,16 +300,17 @@ export function evaluate<
             );
             const passed = suiteErrors.length === 0 && failedCount === 0;
             await writeDestinations(
-              providers.map((provider, index) => async () => {
+              [...runIds].map(([index, runId]) => async () => {
+                const provider = providers[index];
                 for (const result of results) {
                   const saved = await provider.addResult({
                     ...result,
-                    evalRunId: runIds[index],
+                    evalRunId: runId,
                   });
                   if (isErr(saved)) return saved;
                 }
                 return provider.complete({
-                  id: runIds[index],
+                  id: runId,
                   status: passed ? 'completed' : 'failed',
                   summary: {
                     meanScore: getMeanScore(
@@ -319,10 +339,10 @@ export function evaluate<
             );
           },
           async create(suite) {
-            const created = await writeDestinations(
-              providers.map(
-                (provider) => () =>
-                  provider.create({
+            await writeDestinations(
+              providers.map((provider, index) => async () => {
+                const created = await attemptAsync(async () => {
+                  const result = await provider.create({
                     name,
                     metadata: {
                       filepath: suite.file.filepath,
@@ -334,10 +354,15 @@ export function evaluate<
                       scorerNames: scorers.map((scorer) => scorer.name),
                       timeout: testOptions?.timeout,
                     },
-                  })
-              )
+                  });
+                  if (isErr(result)) throw result.error;
+                  return result.value;
+                });
+                if (created.ok) runIds.set(index, created.value.id);
+                else creationErrors.push(created.error.message);
+                return created;
+              })
             );
-            runIds = created.map((run) => run.id);
           },
         };
       }
@@ -357,9 +382,10 @@ export function evaluate<
         ) => {
           const { input, expected, ...metadata } = dataItem;
           let finished = false,
-            result: EvalResult | undefined,
-            hasArtifact = false;
-          const failureResult = (error: unknown): EvalResult => ({
+            result: NormalizedEvalResult,
+            hasArtifact = false,
+            release: (() => void) | undefined = undefined;
+          const failureResult = (error: unknown): NormalizedEvalResult => ({
             aggregation,
             expected: safeJson(expected),
             input: safeJson(input),
@@ -377,6 +403,7 @@ export function evaluate<
           });
           onTestFinished(async () => {
             finished = true;
+            release?.();
             if (!hasArtifact) {
               result = failureResult(
                 currentTask.result?.errors
@@ -388,11 +415,9 @@ export function evaluate<
                 type: EVAL_RESULT_ARTIFACT_TYPE,
               });
             }
-            if (result) {
-              recorded.set(currentTask.id, result);
-            }
+            recorded.set(currentTask.id, result);
           });
-          const release = await acquireCase();
+          release = await acquireCase();
           if (finished) {
             release();
             return;
@@ -510,7 +535,11 @@ async function formatData(data: Data): Promise<Result<DataItem[]>> {
   }
 
   if (isDataset(data)) {
-    const loaded = await data.load({ create: true });
+    const resolved = await attemptAsync(async () =>
+      data.load({ create: true })
+    );
+    if (isErr(resolved)) return resolved;
+    const loaded = resolved.value;
     if (Array.isArray(loaded)) {
       return ok(loaded);
     }
@@ -555,7 +584,10 @@ function createCaseLimiter(concurrency: number) {
     } else {
       active++;
     }
+    let released = false;
     return () => {
+      if (released) return;
+      released = true;
       const next = waiting.shift();
       if (next) {
         next();
@@ -573,7 +605,9 @@ function taskArgs<DATA extends Data>(
     InferDataExtra<DATA>
   >
 ): TaskArgs<InferDataInput<DATA>, InferDataExtra<DATA>>;
-function taskArgs(item: DataItem): TaskArgs<unknown, Record<string, unknown>> {
+function taskArgs(
+  item: DataItem & { output?: unknown }
+): TaskArgs<unknown, Record<string, unknown>> {
   const { expected: _expected, output: _output, ...args } = item;
   return args;
 }

@@ -45,15 +45,13 @@ and unsupported JSON values fail explicitly.
 JSON is the default provider. Explicitly use `viteval({ database: 'sqlite' })`
 for the optional database provider. See [Providers](./providers).
 
-Legacy database run tags are a breaking storage change: v1 uses separate `tags`
-and `taggings` tables and does not automatically copy `eval_runs.tags` values.
-Back up the database and export those tag associations before upgrading, then
-reapply them through the v1 tag provider. Initialization does not drop the legacy
-column, but the v1 provider does not expose its values. PostgreSQL remains experimental.
+V1 uses separate `tags` and `taggings` tables. It does not import pre-V1
+`eval_runs.tags` values. Back up earlier databases and export tag associations
+before upgrading, then reapply them through the V1 tag provider.
 
 Reports carry `schemaVersion: 1`, run identity, final Vitest case state, and
-execution diagnostics. The dashboard accepts legacy files that match the
-supported structure and reports malformed or incompatible files as warnings.
+execution diagnostics. Only V1 files are supported; the dashboard reports
+malformed or incompatible files as warnings.
 The JSON provider preserves run history under `.viteval/results` without a
 separate output filename or reporter.
 
@@ -76,5 +74,6 @@ tasks and scorers. See [CLI datasets](./cli#datasets).
 
 ## Dashboard
 
-Continue using `viteval ui`; result/dataset files and existing dashboard URLs
-do not need conversion. The `createVitevalServer()` launcher API is preserved.
+Use `viteval ui` to inspect V1 results and datasets. Pre-V1 files are not read
+through compatibility fallbacks. The `createVitevalServer()` launcher API is
+available for programmatic integrations.

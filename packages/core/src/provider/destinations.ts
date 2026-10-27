@@ -21,8 +21,8 @@ export async function getResultDestinations(
         'Result destinations require a Viteval project configuration'
       );
     }
-    const legacy = getEvalProvider();
-    return names ? [] : legacy ? [legacy] : [];
+    const provider = getEvalProvider();
+    return names ? [] : provider ? [provider] : [];
   }
   return Promise.all(
     runtime.resultNames(names).map(async (name) => {

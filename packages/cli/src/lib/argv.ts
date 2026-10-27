@@ -10,7 +10,10 @@ export function parseInvocation(tokens: readonly string[]) {
   const cwd =
     inline?.slice('--cwd='.length) ??
     (cwdIndex === -1 ? undefined : tokens[cwdIndex + 1]);
-  if (cwdIndex !== -1 && (!cwd || cwd.startsWith('-')))
+  if (
+    (cwdIndex !== -1 || inline !== undefined) &&
+    (!cwd || cwd.startsWith('-'))
+  )
     throw new Error('--cwd requires a directory');
   const args = tokens.filter(
     (token, index) =>

@@ -80,8 +80,8 @@ export function ListFilter({ config }: ListFilterProps) {
     void navigate({ href: pathname, replace: true, resetScroll: false });
   }, [navigate, pathname]);
 
-  const fromDate = from ? new Date(from) : undefined;
-  const toDate = to ? new Date(to) : undefined;
+  const fromDate = parseDate(from);
+  const toDate = parseDate(to);
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
@@ -152,4 +152,10 @@ export function ListFilter({ config }: ListFilterProps) {
       )}
     </div>
   );
+}
+
+function parseDate(value: string): Date | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
 }

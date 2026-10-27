@@ -6,7 +6,7 @@ import type {
   TagEntityType,
   TagProvider,
 } from '@viteval/core';
-import type { PrismaClient } from '#/generated/prisma/client';
+import type { DatabaseClient } from './db';
 
 /**
  * Create tag operations backed by Prisma.
@@ -20,7 +20,7 @@ import type { PrismaClient } from '#/generated/prisma/client';
  * await tagOps.create({ name: 'false-negative', color: 'red' });
  * ```
  */
-export function createTagOps(prisma: PrismaClient): TagProvider {
+export function createTagOps(prisma: DatabaseClient): TagProvider {
   return {
     addTagging: (params) =>
       attemptAsync(async () => {

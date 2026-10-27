@@ -14,7 +14,7 @@ import { useCallback } from 'react';
 import { getStatusBadge } from '@/lib/badges';
 import { isEvalPassed } from '@/lib/eval-status';
 import { suiteName } from '@/lib/suite-name';
-import { slugify } from '@/lib/utils';
+import { suiteId } from '@/lib/suite-id';
 import type { EvalResult, EvalResults, EvalSuite, Score } from '@/types';
 import { Duration, PassRate, ScoreBadge } from '@/components/display';
 import ScoresRenderer from './ScoresRenderer';
@@ -181,10 +181,7 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
         <div className="flex items-center gap-2">
           {getStatusBadge(suite.status)}
           <Button variant="outline" size="sm" asChild>
-            <Link
-              to="/suites/$slug"
-              params={{ slug: slugify(suiteName(suite)) }}
-            >
+            <Link to="/suites/$slug" params={{ slug: suiteId(suite) }}>
               View Eval
             </Link>
           </Button>
@@ -258,6 +255,7 @@ function SuiteSection({ suite }: { suite: EvalSuite }) {
         columns={evalColumns}
         data={suite.evalResults}
         getRowCanExpand={(row) =>
+          Boolean(row.original.error) ||
           row.original.input !== undefined ||
           row.original.expected !== undefined ||
           row.original.output !== undefined ||

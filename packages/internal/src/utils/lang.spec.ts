@@ -364,6 +364,9 @@ describe('isArray', () => {
 });
 
 describe('isPromise', () => {
+  it('should reject objects without a then property', () => {
+    expect(isPromise({})).toBe(false);
+  });
   it('should return true for promises', () => {
     expect(isPromise(Promise.resolve('hello'))).toBe(true);
   });

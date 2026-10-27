@@ -1,11 +1,19 @@
 import { aroundAll, inject } from 'vitest';
-import { createProjectRuntime, setProjectRuntime } from './runtime';
-import type { VitevalConfig } from './types';
+import {
+  closeProjectRuntime,
+  createProjectRuntime,
+  setProjectRuntime,
+} from './runtime';
+import type { EvalOptions, VitevalConfig } from './types';
 
 declare module 'vitest' {
   interface ProvidedContext {
     vitevalConfigFile: string | undefined;
     vitevalProjectRoot: string;
+    vitevalEvalDefaults: Pick<
+      EvalOptions,
+      'timeout' | 'concurrency' | 'retries'
+    >;
   }
 }
 
@@ -15,6 +23,10 @@ const configFile = inject('vitevalConfigFile'),
     : { default: {} },
   runtime = createProjectRuntime({
     ...loaded.default,
+    eval: {
+      ...loaded.default.eval,
+      ...inject('vitevalEvalDefaults'),
+    },
     root: inject('vitevalProjectRoot'),
   });
 setProjectRuntime(runtime);
@@ -24,10 +36,6 @@ aroundAll(async (runSuite) => {
   try {
     await runSuite();
   } finally {
-    try {
-      await runtime.close();
-    } finally {
-      globalThis.__viteval_runtime = undefined;
-    }
+    await closeProjectRuntime();
   }
 });

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { LangfuseClient } from '@langfuse/client';
 import { attemptAsync, err } from 'massaman/control';
 import type {
@@ -12,6 +13,9 @@ interface AddParams {
   datasetName: string;
   items: NonNullable<CreateDatasetParams['items']>;
 }
+
+const INITIAL_UPLOAD = '__viteval_initial_upload';
+const UPLOAD = '__viteval_upload';
 
 /** Create dataset operations using the current Langfuse SDK.
  * @param client - Initialized project SDK.
@@ -48,7 +52,36 @@ export function createLangfuseDatasets(
         metadata: jsonValue(item.extra ?? {}),
       });
   }
-  async function activeItems(params: { datasetName: string; stopAt?: number }) {
+  async function journal(params: {
+    datasetName: string;
+    id: string;
+    state: 'pending' | 'complete';
+  }) {
+    await client.api.datasetItems.create({
+      datasetName: params.datasetName,
+      id: params.id,
+      status: 'ARCHIVED',
+      input: null,
+      expectedOutput: null,
+      metadata: {
+        [UPLOAD]: { schemaVersion: 1, id: params.id, state: params.state },
+      },
+    });
+  }
+  async function upload(params: AddParams & { id: string }) {
+    await journal({
+      datasetName: params.datasetName,
+      id: params.id,
+      state: 'pending',
+    });
+    await add(params);
+    await journal({
+      datasetName: params.datasetName,
+      id: params.id,
+      state: 'complete',
+    });
+  }
+  async function activeItems(dataset: Dataset) {
     const items: Awaited<
       ReturnType<LangfuseClient['api']['datasetItems']['list']>
     >['data'] = [];
@@ -56,18 +89,38 @@ export function createLangfuseDatasets(
     let totalPages = 1;
     do {
       const response = await client.api.datasetItems.list({
-        datasetName: params.datasetName,
+        datasetName: dataset.name,
         page,
         limit: 100,
       });
-      items.push(...response.data.filter((item) => item.status === 'ACTIVE'));
+      items.push(...response.data);
       totalPages = response.meta.totalPages;
       page += 1;
-    } while (
-      page <= totalPages &&
-      (params.stopAt === undefined || items.length < params.stopAt)
-    );
-    return items;
+    } while (page <= totalPages);
+    const metadata = recordMetadata(dataset.metadata);
+    const initial = metadata[INITIAL_UPLOAD];
+    if (
+      initial !== undefined &&
+      (typeof initial !== 'string' ||
+        !items.some(
+          (item) =>
+            item.id === initial && UPLOAD in recordMetadata(item.metadata)
+        ))
+    )
+      throw incomplete(dataset);
+    for (const item of items) {
+      const metadata = recordMetadata(item.metadata);
+      if (!(UPLOAD in metadata)) continue;
+      const marker = requireRecord(metadata[UPLOAD]);
+      if (
+        marker.schemaVersion !== 1 ||
+        marker.id !== item.id ||
+        marker.state !== 'complete' ||
+        item.status !== 'ARCHIVED'
+      )
+        throw incomplete(dataset);
+    }
+    return items.filter((item) => item.status === 'ACTIVE');
   }
   async function mapped(dataset: Dataset): Promise<StoredDataset> {
     return {
@@ -75,11 +128,12 @@ export function createLangfuseDatasets(
       name: dataset.name,
       description: dataset.description ?? undefined,
       version: 1,
-      itemCount: (await activeItems({ datasetName: dataset.name })).length,
-      metadata:
-        dataset.metadata === null || dataset.metadata === undefined
-          ? {}
-          : requireRecord(dataset.metadata),
+      itemCount: (await activeItems(dataset)).length,
+      metadata: Object.fromEntries(
+        Object.entries(recordMetadata(dataset.metadata)).filter(
+          ([key]) => key !== INITIAL_UPLOAD
+        )
+      ),
       createdAt: new Date(dataset.createdAt),
       updatedAt: new Date(dataset.updatedAt),
     };
@@ -90,12 +144,39 @@ export function createLangfuseDatasets(
         if (!params.name.trim())
           throw new Error('Dataset name must not be empty');
         jsonValue(params);
+        validateItems(params.items ?? []);
+        if (params.metadata && INITIAL_UPLOAD in params.metadata)
+          throw new Error(
+            `Dataset metadata key ${INITIAL_UPLOAD} is reserved by Viteval`
+          );
+        const existing = (await all()).find(
+          (dataset) => dataset.name === params.name
+        );
+        if (existing) {
+          await mapped(existing);
+          throw new Error(`Langfuse dataset already exists: ${params.name}`);
+        }
+        const uploadId = `viteval-upload-${randomUUID()}`;
         const dataset = await client.api.datasets.create({
           name: params.name,
           description: params.description,
-          metadata: jsonValue(params.metadata ?? {}),
+          metadata: jsonValue({
+            ...params.metadata,
+            [INITIAL_UPLOAD]: uploadId,
+          }),
         });
-        await add({ datasetName: dataset.name, items: params.items ?? [] });
+        try {
+          await upload({
+            datasetName: dataset.name,
+            items: params.items ?? [],
+            id: uploadId,
+          });
+        } catch (error) {
+          throw new Error(
+            `Langfuse dataset ${dataset.id} (${dataset.name}) may be incomplete after upload failure: ${error instanceof Error ? error.message : String(error)}. Inspect and remove the incomplete dataset in Langfuse before retrying creation; dataset existence does not confirm a complete upload.`,
+            { cause: error }
+          );
+        }
         return mapped(dataset);
       }),
     get: (params) =>
@@ -131,23 +212,20 @@ export function createLangfuseDatasets(
         )
       ),
     addItems: (params) =>
-      attemptAsync(async () =>
-        add({
-          datasetName: (await byId(params.datasetId)).name,
+      attemptAsync(async () => {
+        validateItems(params.items);
+        const dataset = await byId(params.datasetId);
+        await activeItems(dataset);
+        await upload({
+          datasetName: dataset.name,
           items: params.items,
-        })
-      ),
+          id: `viteval-upload-${randomUUID()}`,
+        });
+      }),
     getItems: (params) =>
       attemptAsync(async () => {
         const dataset = await byId(params.datasetId);
-        if (params.limit === 0) return [];
-        const items = await activeItems({
-          datasetName: dataset.name,
-          stopAt:
-            params.limit === undefined
-              ? undefined
-              : (params.offset ?? 0) + params.limit,
-        });
+        const items = await activeItems(dataset);
         return items
           .map((item, ordinal) => ({
             id: item.id,
@@ -174,4 +252,23 @@ export function createLangfuseDatasets(
         )
       ),
   };
+}
+
+function incomplete(dataset: Dataset): Error {
+  return new Error(
+    `Langfuse dataset ${dataset.id} (${dataset.name}) has an incomplete Viteval upload. Inspect and remove the incomplete dataset in Langfuse before retrying creation; no cases from it can be reused.`
+  );
+}
+
+function recordMetadata(value: unknown): Record<string, unknown> {
+  return value === null || value === undefined ? {} : requireRecord(value);
+}
+
+function validateItems(items: NonNullable<CreateDatasetParams['items']>): void {
+  for (const item of items) {
+    if (item.extra && UPLOAD in item.extra)
+      throw new Error(
+        `Dataset item metadata key ${UPLOAD} is reserved by Viteval`
+      );
+  }
 }

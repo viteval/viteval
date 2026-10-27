@@ -18,21 +18,14 @@ const TAGGING_SCHEMA = z.object({
   entityId: z.string(),
   createdAt: z.coerce.date(),
 });
-const TAGS_FILE_SCHEMA = z
-  .union([
-    z.array(TAG_SCHEMA),
-    z.object({ schemaVersion: z.literal(1), tags: z.array(TAG_SCHEMA) }),
-  ])
-  .transform((value) => (Array.isArray(value) ? value : value.tags));
-const TAGGINGS_FILE_SCHEMA = z
-  .union([
-    z.array(TAGGING_SCHEMA),
-    z.object({
-      schemaVersion: z.literal(1),
-      taggings: z.array(TAGGING_SCHEMA),
-    }),
-  ])
-  .transform((value) => (Array.isArray(value) ? value : value.taggings));
+const TAGS_FILE_SCHEMA = z.object({
+  schemaVersion: z.literal(1),
+  tags: z.array(TAG_SCHEMA),
+});
+const TAGGINGS_FILE_SCHEMA = z.object({
+  schemaVersion: z.literal(1),
+  taggings: z.array(TAGGING_SCHEMA),
+});
 
 /**
  * Create tagging operations over JSON storage.
@@ -42,9 +35,9 @@ const TAGGINGS_FILE_SCHEMA = z
  */
 export function createJsonTags(store: JsonStore): TagProvider {
   const tags = async () =>
-    (await store.read('tags.json', TAGS_FILE_SCHEMA)) ?? [];
+    (await store.read('tags.json', TAGS_FILE_SCHEMA))?.tags ?? [];
   const taggings = async () =>
-    (await store.read('taggings.json', TAGGINGS_FILE_SCHEMA)) ?? [];
+    (await store.read('taggings.json', TAGGINGS_FILE_SCHEMA))?.taggings ?? [];
   return {
     list: (params) =>
       attemptAsync(async () =>

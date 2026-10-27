@@ -41,6 +41,22 @@ viteval run chat.eval.ts summarization.eval.ts
 
 Evaluation commands use Vitest's CLI directly. File arguments are path filters, not globs. Native options such as `--watch`, `--project`, `--retry`, `--testTimeout`, `--reporter`, and `--coverage` work unchanged.
 
+List evaluations without running their tasks or scorers:
+
+```bash
+viteval list
+viteval list --json
+viteval list --filesOnly
+```
+
+Collection still imports evaluation modules and runs setup code. Keep paid calls
+inside evaluation tasks or scorers, not at module scope. Other native subcommands,
+including `bench`, retain their Vitest behavior.
+
+Timeout, retry, and concurrency settings resolve in this order: per-evaluation
+options, CLI flags, project `eval` defaults, framework defaults. `--root` overrides
+the configured project root for both discovery and saved results.
+
 ### Datasets
 
 Generate saved datasets from TypeScript modules:

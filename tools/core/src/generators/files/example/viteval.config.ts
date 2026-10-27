@@ -2,7 +2,7 @@ import { defineConfig } from 'viteval/config';
 import { JsonReporter } from 'viteval/reporters';
 
 export default defineConfig({
-  test: {
+  eval: {
     include: ['src/**/*.eval.ts'],
     reporters: [
       'default',

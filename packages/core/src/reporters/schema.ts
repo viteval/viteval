@@ -6,7 +6,7 @@ const score = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 export const EVAL_RESULTS_SCHEMA = z.object({
-  schemaVersion: z.literal(1).optional(),
+  schemaVersion: z.literal(1),
   errors: z.array(z.string()).optional(),
   runId: z.string(),
   runName: z.string(),
@@ -43,8 +43,8 @@ export const EVAL_RESULTS_SCHEMA = z.object({
       }),
       evalResults: z.array(
         z.object({
-          id: z.string().optional(),
-          state: z.enum(['passed', 'failed', 'skipped']).optional(),
+          id: z.string(),
+          state: z.enum(['passed', 'failed', 'skipped']),
           error: z.string().optional(),
           name: z.string(),
           mean: z.number().finite(),

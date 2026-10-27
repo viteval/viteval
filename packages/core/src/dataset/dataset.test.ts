@@ -2,6 +2,13 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { err } from 'massaman/control';
+import {
+  closeProjectRuntime,
+  createProjectRuntime,
+  setProjectRuntime,
+} from '#/config/runtime';
+import { createProvider } from '#/provider/create';
 import { createJsonProvider } from '#/provider/json';
 import { defineDataset } from './dataset';
 
@@ -15,11 +22,56 @@ describe('dataset functionality', () => {
     }).datasets;
   });
   afterEach(async () => {
+    await closeProjectRuntime();
     globalThis.__viteval_datasetProvider = undefined;
     await rm(root, { recursive: true, force: true });
   });
 
   describe('defineDataset', () => {
+    it('should aggregate rejected and returned destination failures after all writes finish', async () => {
+      let completed = false;
+      const first = createJsonProvider({ root });
+      const second = createJsonProvider({ root });
+      setProjectRuntime(
+        createProjectRuntime({
+          providers: [
+            createProvider({
+              name: 'json',
+              datasets: {
+                ...first.datasets!,
+                create: async () => {
+                  throw new Error('rejected upload');
+                },
+              },
+            }),
+            createProvider({
+              name: 'datasetMirror',
+              datasets: {
+                ...second.datasets!,
+                create: async () => {
+                  await new Promise((resolve) => setTimeout(resolve, 5));
+                  completed = true;
+                  return err('returned upload failure');
+                },
+              },
+            }),
+          ],
+          dataset: { providers: ['json', 'datasetMirror'] },
+        })
+      );
+      const result = await defineDataset({
+        name: 'aggregate-failures',
+        data: [{ input: 'question', expected: 'answer' }],
+      }).save();
+      expect(completed).toBe(true);
+      expect(result).toMatchObject({ ok: false });
+      if (result.ok) throw new Error('Expected destination failures');
+      expect(result.error).toBeInstanceOf(AggregateError);
+      expect(result.error.message).toContain('aggregate-failures');
+      expect(result.error.message).toContain('rejected upload');
+      expect(result.error.message).toContain('returned upload failure');
+    });
+
     it('should create dataset with static data generator', async () => {
       const mockData = [
         { expected: 'result1', input: 'test1' },
@@ -53,8 +105,14 @@ describe('dataset functionality', () => {
       await writeFile(
         path.join(root, '.viteval', 'datasets', 'existing-dataset.json'),
         JSON.stringify({
+          schemaVersion: 1,
+          id: 'existing-dataset',
+          name: 'existing-dataset',
+          version: 1,
+          metadata: {},
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           data: existingData,
-          timestamp: new Date().toISOString(),
         })
       );
 
@@ -116,5 +174,35 @@ describe('dataset functionality', () => {
         value: [{ input: 'original' }],
       });
     });
+
+    it.each([
+      { data: [{ input: 'old', expected: 'data' }] },
+      {
+        data: [{ input: 'old', expected: 'data' }],
+        timestamp: '2026-10-26T12:00:00.000Z',
+      },
+    ])(
+      'should return an error for unversioned dataset files without overwriting them',
+      async (document) => {
+        const directory = path.join(root, '.viteval', 'datasets');
+        await mkdir(directory, { recursive: true });
+        const filename = path.join(directory, 'unversioned.json');
+        const serialized = JSON.stringify(document);
+        await writeFile(filename, serialized);
+        const dataset = defineDataset({
+          name: 'unversioned',
+          data: () => {
+            throw new Error('must not generate');
+          },
+        });
+        expect(await dataset.load({ create: true })).toMatchObject({
+          ok: false,
+        });
+        expect(await dataset.save({ overwrite: true })).toMatchObject({
+          ok: false,
+        });
+        expect(await readFile(filename, 'utf8')).toBe(serialized);
+      }
+    );
   });
 });

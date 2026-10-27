@@ -48,7 +48,7 @@
     "dev": "tsdown --watch",
     "test": "vitest run --typecheck",
     "types": "tsc --noEmit",
-    "prisma:generate": "prisma7 generate"
+    "prisma:generate": "prisma7 generate --schema prisma/schema.prisma && prisma7 generate --schema prisma/postgres.prisma"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.3.0",

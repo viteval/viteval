@@ -9,5 +9,13 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    coverage: {
+      include: ['src/**/*.ts', 'cli.mjs'],
+      exclude: ['**/*.test.*', '**/*.d.ts'],
+      reporter: ['text', 'json', 'json-summary', 'html'],
+    },
+    reporters: process.argv.includes('--coverage')
+      ? ['default', ['blob', { outputFile: 'coverage/unit.blob.json' }]]
+      : ['default'],
   },
 });

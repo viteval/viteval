@@ -45,7 +45,7 @@ if (invocation.isProjectCommand || invocation.isRootHelp) {
   if (invocation.cwd !== undefined) {
     process.chdir(invocation.cwd);
   }
-  const { createCLI, parseCLI, startVitest } = await import('vitest/node');
+  const { createCLI } = await import('vitest/node');
   if (
     invocation.args.some((arg) =>
       ['--help', '-h', '--version', '-v'].includes(arg)
@@ -53,18 +53,24 @@ if (invocation.isProjectCommand || invocation.isRootHelp) {
   ) {
     createCLI().parse([...process.argv.slice(0, 2), ...invocation.args]);
   } else {
-    const { createRunnerConfig } = await import('@viteval/core/config'),
-      { resolveProjectConfig } = await import('#/lib/config'),
-      parsed = parseCLI(['vitest', ...invocation.args]),
-      project = resolveProjectConfig(parsed.options);
-    await startVitest(
-      parsed.filter,
-      {
-        ...parsed.options,
-        config: project.configFile ?? false,
-        root: project.root,
-      },
-      createRunnerConfig(project)
-    );
+    const { resolveProjectConfig } = await import('#/lib/config'),
+      { createCliRunnerConfig } = await import('#/lib/runner-config'),
+      nativeCli = createCLI(),
+      parsed = nativeCli.parse(
+        [...process.argv.slice(0, 2), ...invocation.args],
+        { run: false }
+      ),
+      project = resolveProjectConfig(parsed.options),
+      runnerConfig = createCliRunnerConfig(project);
+    nativeCli.options = {
+      ...nativeCli.options,
+      ...(nativeCli.matchedCommandName === 'list'
+        ? { staticParse: parsed.options.staticParse ?? false }
+        : {}),
+      ...(parsed.options.root !== undefined ? { root: project.root } : {}),
+      config: runnerConfig.configFile,
+    };
+    // Watch mode returns after its first run; keep the wrapper until process exit.
+    await nativeCli.runMatchedCommand();
   }
 }

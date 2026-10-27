@@ -41,7 +41,7 @@ replacement is atomic. Per-evaluation `results` replaces the configured array;
 
 The old `--outputPath` flag is not part of V1. Native `--outputFile` only applies
 to runner reporters, not evaluation storage. The low-level `JsonReporter` export
-remains available for native runner tooling and legacy integrations; do not add
+remains available for native runner integrations; do not add
 it alongside JSON provider persistence unless you intentionally want two reports.
 
 Reports include `schemaVersion: 1`, passed/failed/skipped counts, project names,

@@ -35,14 +35,17 @@ export function createBraintrustClient(
       );
     }
     const mod = importResult.value;
-    const BraintrustClient = (mod.default ?? mod) as new (
-      opts: ConstructorParameters<typeof Braintrust>[0]
-    ) => Braintrust;
+    const BraintrustClient = mod.default;
 
-    client = new BraintrustClient({
-      apiKey: options.apiKey,
-      baseURL: options.baseUrl,
-    });
+    const created = await attemptAsync(
+      async () =>
+        new BraintrustClient({
+          apiKey: options.apiKey,
+          baseURL: options.baseUrl,
+        })
+    );
+    if (!created.ok) return created;
+    client = created.value;
 
     return ok(client);
   };

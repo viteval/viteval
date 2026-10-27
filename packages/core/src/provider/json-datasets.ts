@@ -1,8 +1,20 @@
 import { randomUUID } from 'node:crypto';
 import { attemptAsync } from 'massaman/control';
-import { DATASET_FILE_SCHEMA, type DatasetFile } from '#/dataset/file';
+import type { z } from 'zod';
+import { DATASET_FILE_SCHEMA } from '#/dataset/file';
 import type { JsonStore } from './json-store';
 import type { DatasetProvider, StoredDataset } from './types';
+
+const STORAGE_DATASET_SCHEMA = DATASET_FILE_SCHEMA.required({
+  schemaVersion: true,
+  id: true,
+  name: true,
+  version: true,
+  metadata: true,
+  createdAt: true,
+  updatedAt: true,
+});
+type StorageDataset = z.infer<typeof STORAGE_DATASET_SCHEMA>;
 
 /**
  * Create dataset operations over JSON storage.
@@ -18,20 +30,14 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
       files.map(async (name) => {
         const record = await store.read(
           `datasets/${name}`,
-          DATASET_FILE_SCHEMA
+          STORAGE_DATASET_SCHEMA
         );
         if (!record) throw new Error(`Dataset disappeared: ${name}`);
         return {
-          id: record.id ?? name.slice(0, -5),
-          filename: `datasets/${name}`,
+          id: record.id,
           record,
         };
       })
-    );
-  }
-  async function filename(id: string) {
-    return (
-      (await list()).find((dataset) => dataset.id === id)?.filename ?? file(id)
     );
   }
   return {
@@ -41,21 +47,13 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
           if (!params.name.trim())
             throw new Error('Dataset name must not be empty');
           const datasets = await list();
-          if (
-            datasets.some(
-              ({ record, id }) => (record.name ?? id) === params.name
-            )
-          )
+          if (datasets.some(({ record }) => record.name === params.name))
             throw new Error(`Dataset already exists: ${params.name}`);
-          const id = datasets.some(
-            (dataset) =>
-              dataset.id === params.name ||
-              dataset.filename === file(params.name)
-          )
+          const id = datasets.some((dataset) => dataset.id === params.name)
             ? `${params.name}-${randomUUID()}`
             : params.name;
           const now = new Date().toISOString();
-          const record: DatasetFile = {
+          const record: StorageDataset = {
             schemaVersion: 1,
             id,
             name: params.name,
@@ -81,9 +79,7 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
         const found =
           params.id !== undefined
             ? (await list()).find((dataset) => dataset.id === params.id)
-            : (await list()).find(
-                ({ record, id }) => (record.name ?? id) === params.name
-              );
+            : (await list()).find(({ record }) => record.name === params.name);
         return found?.record ? toDataset(found.id, found.record) : null;
       }),
     list: (params) =>
@@ -100,19 +96,19 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
     update: (params) =>
       attemptAsync(() =>
         store.update('datasets', async () =>
-          store.update(await filename(params.id), async () => {
+          store.update(file(params.id), async () => {
             if (params.name !== undefined && !params.name.trim())
               throw new Error('Dataset name must not be empty');
             const current = await store.read(
-              await filename(params.id),
-              DATASET_FILE_SCHEMA
+              file(params.id),
+              STORAGE_DATASET_SCHEMA
             );
             if (!current) throw new Error(`Dataset not found: ${params.id}`);
             if (
               params.name &&
               (await list()).some(
                 ({ id, record }) =>
-                  id !== params.id && (record.name ?? id) === params.name
+                  id !== params.id && record.name === params.name
               )
             )
               throw new Error(`Dataset already exists: ${params.name}`);
@@ -122,24 +118,22 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
               description: params.description ?? current.description,
               metadata: params.metadata ?? current.metadata,
               updatedAt: new Date().toISOString(),
-              version: (current.version ?? 1) + 1,
+              version: current.version + 1,
             };
-            await store.write(await filename(params.id), next);
+            await store.write(file(params.id), next);
             return toDataset(params.id, next);
           })
         )
       ),
     delete: (params) =>
       attemptAsync(async () =>
-        store.update(await filename(params.id), async () =>
-          store.remove(await filename(params.id))
-        )
+        store.update(file(params.id), async () => store.remove(file(params.id)))
       ),
     getItems: (params) =>
       attemptAsync(async () => {
         const record = await store.read(
-          await filename(params.datasetId),
-          DATASET_FILE_SCHEMA
+          file(params.datasetId),
+          STORAGE_DATASET_SCHEMA
         );
         if (!record) throw new Error(`Dataset not found: ${params.datasetId}`);
         return record.data
@@ -160,14 +154,14 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
       }),
     replaceItems: (params) =>
       attemptAsync(async () =>
-        store.update(await filename(params.datasetId), async () => {
+        store.update(file(params.datasetId), async () => {
           const current = await store.read(
-            await filename(params.datasetId),
-            DATASET_FILE_SCHEMA
+            file(params.datasetId),
+            STORAGE_DATASET_SCHEMA
           );
           if (!current)
             throw new Error(`Dataset not found: ${params.datasetId}`);
-          await store.write(await filename(params.datasetId), {
+          await store.write(file(params.datasetId), {
             ...current,
             data: params.items.map(({ input, expected, extra }) => ({
               ...extra,
@@ -175,20 +169,20 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
               expected: expected ?? null,
             })),
             updatedAt: new Date().toISOString(),
-            version: (current.version ?? 1) + 1,
+            version: current.version + 1,
           });
         })
       ),
     addItems: (params) =>
       attemptAsync(async () =>
-        store.update(await filename(params.datasetId), async () => {
+        store.update(file(params.datasetId), async () => {
           const current = await store.read(
-            await filename(params.datasetId),
-            DATASET_FILE_SCHEMA
+            file(params.datasetId),
+            STORAGE_DATASET_SCHEMA
           );
           if (!current)
             throw new Error(`Dataset not found: ${params.datasetId}`);
-          await store.write(await filename(params.datasetId), {
+          await store.write(file(params.datasetId), {
             ...current,
             data: [
               ...current.data,
@@ -199,22 +193,22 @@ export function createJsonDatasets(store: JsonStore): DatasetProvider {
               })),
             ],
             updatedAt: new Date().toISOString(),
-            version: (current.version ?? 1) + 1,
+            version: current.version + 1,
           });
         })
       ),
   };
 }
 
-function toDataset(id: string, record: DatasetFile): StoredDataset {
+function toDataset(id: string, record: StorageDataset): StoredDataset {
   return {
     id,
-    name: record.name ?? id,
+    name: record.name,
     description: record.description,
-    version: record.version ?? 1,
+    version: record.version,
     itemCount: record.data.length,
-    metadata: record.metadata ?? {},
-    createdAt: new Date(record.createdAt ?? record.timestamp ?? 0),
-    updatedAt: new Date(record.updatedAt ?? record.timestamp ?? 0),
+    metadata: record.metadata,
+    createdAt: new Date(record.createdAt),
+    updatedAt: new Date(record.updatedAt),
   };
 }

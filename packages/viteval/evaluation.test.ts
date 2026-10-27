@@ -493,16 +493,16 @@ export default defineConfig({ test: { reporters: [new JsonReporter({ outputFile:
 
 async function run(body: string, setup = '', configuration = CONFIG) {
   if (inject('integrationCoverage')) {
+    configuration = configuration.replace(
+      /test:\s*\{/g,
+      `resolve: { alias: { '#': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/src'))} } }, test: {`
+    );
     const id = ++invocation,
       coverage = {
         allowExternal: true,
         enabled: true,
-        exclude: ['**/node_modules/**', '**/*.test.*'],
+        exclude: ['**/node_modules/**', '**/*.test.*', '**/.test-*/**'],
         excludeAfterRemap: true,
-        include: [
-          path.resolve(import.meta.dirname, '../core/dist/**/*.mjs'),
-          path.resolve(import.meta.dirname, '../core/src/**/*.ts'),
-        ],
         provider: 'v8',
         reportOnFailure: true,
         reporter: ['json'],
@@ -533,7 +533,8 @@ async function run(body: string, setup = '', configuration = CONFIG) {
   await writeFile(path.join(ROOT, 'setup.ts'), setup);
   await writeFile(
     path.join(ROOT, 'contract.eval.ts'),
-    `import { evaluate, createScorer } from 'viteval';
+    `import { evaluate } from ${JSON.stringify(inject('integrationCoverage') ? path.resolve(import.meta.dirname, '../core/src/evaluate/evaluate.ts') : 'viteval')};
+import { createScorer } from 'viteval';
 const score = (value) => createScorer({ name: 'score-' + value, score: () => ({ score: value }) });
 ${body}`
   );

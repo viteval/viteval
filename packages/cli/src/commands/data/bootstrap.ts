@@ -60,6 +60,7 @@ export function instrumentDatasetModule({
   const finish = `\nglobalThis.__viteval_datasetDiscovery?.finishModule?.(${JSON.stringify(file)}, ${checkpoint});\n`;
   if (code.startsWith('#!')) {
     const lineEnd = code.indexOf('\n');
+    if (lineEnd === -1) return `${code}\n${start}${finish}`;
     return `${code.slice(0, lineEnd + 1)}${start}${code.slice(lineEnd + 1)}${finish}`;
   }
   return `${start}${code}${finish}`;

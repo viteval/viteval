@@ -80,8 +80,8 @@ export default defineConfig({
 ```
 
 The default JSON root follows the selected project. Explicit provider roots are
-owned by their factory options. JSON operations also read legacy reporter snapshots,
-which are finalized history.
+owned by their factory options. JSON operations read both V1 provider records and
+V1 reporter snapshots. Both require `schemaVersion: 1`.
 
 ## SQLite
 
@@ -112,10 +112,33 @@ export default defineConfig({
 
 Evaluation suites persist their final case outcomes to the configured evaluation
 provider. Keep JSON selected to inspect a local copy in the
-dashboard. SQLite schema/client assets are included in the package; consumers
+dashboard. SQLite and PostgreSQL client assets are included in the package; consumers
 do not run Prisma generation. `viteval()` with no database option returns JSON.
 
-The PostgreSQL option is experimental and is not covered by v1 provider tests.
+## PostgreSQL
+
+Install the PostgreSQL driver and adapter instead of the SQLite dependencies:
+
+```bash
+pnpm add -D @viteval/providers@rc @prisma/client @prisma/adapter-pg pg
+```
+
+```ts
+import { defineConfig } from 'viteval';
+import { viteval } from '@viteval/providers';
+
+export default defineConfig({
+  providers: [
+    viteval({ database: 'postgres', url: process.env.DATABASE_URL! }),
+  ],
+  dataset: { providers: ['viteval'] },
+  eval: { results: ['viteval'] },
+});
+```
+
+The provider creates its tables on initialization. Use a database user permitted
+to create those tables. PostgreSQL contract tests exercise persistence, rollback,
+reconnects, cascades, and concurrent initialization against a real server.
 
 ## Braintrust
 
@@ -318,12 +341,12 @@ referenced by the current catalog. No automatic garbage collection is performed.
 
 ## Serialization and failures
 
-VoltOps dataset creation and `addItems` upload versions through multiple requests.
-They are not failure-safe: a failed item upload can leave an incomplete latest
-version that subsequent reads return. Errors include the dataset and version IDs;
-inspect and repair that version in the VoltOps console before retrying. Previous
-versions are retained remotely. The SDK does not expose transactional publication
-or version deletion, so atomic replacement remains unsupported.
+Langfuse and VoltOps upload datasets through multiple requests and persist upload
+journals remotely. Fresh provider instances reject incomplete managed uploads
+rather than returning partial data. Errors identify the affected dataset or
+version; inspect and repair it in the provider console before retrying. Previous
+VoltOps versions are retained remotely. These checks do not roll back successful
+remote writes or guarantee atomic replacement.
 
 Braintrust creation attempts to delete a newly created dataset if its metadata
 or initial item write fails. If cleanup is also rejected, the error retains the

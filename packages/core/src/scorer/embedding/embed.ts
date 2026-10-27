@@ -15,6 +15,7 @@ export interface EmbeddingScorerOptions {
  * Get an embedding vector for the given text using the configured embedding model.
  *
  * @param text - The text to embed.
+ * @param options - Optional embedding model ID or direct SDK model override.
  * @returns The embedding vector or the error that prevented generation.
  *
  * @example
@@ -49,7 +50,9 @@ export async function getEmbedding(
  *
  * @param output - The output string to embed.
  * @param expected - The expected string to embed.
+ * @param options - Optional embedding model ID or direct SDK model override.
  * @returns Score and similarity metadata.
+ * @example await computeEmbeddingSimilarity('answer', 'reference');
  */
 export async function computeEmbeddingSimilarity(
   output: unknown,
@@ -63,6 +66,15 @@ export async function computeEmbeddingSimilarity(
     expectedStr = String(expected);
 
   if (outputStr === expectedStr) {
+    if (options?.model !== undefined) {
+      const model = resolveEmbeddingModel(options.model);
+      if (isErr(model)) {
+        return {
+          metadata: { error: model.error.message, similarity: 0 },
+          score: null,
+        };
+      }
+    }
     return { metadata: { similarity: 1 }, score: 1 };
   }
 
@@ -70,12 +82,15 @@ export async function computeEmbeddingSimilarity(
     getEmbedding(outputStr, options),
     getEmbedding(expectedStr, options),
   ]);
-  if (isErr(outputResult) || isErr(expectedResult)) {
-    const error = isErr(outputResult)
-      ? outputResult.error
-      : expectedResult.error;
+  if (isErr(outputResult)) {
     return {
-      metadata: { error: error?.message ?? 'Embedding failed', similarity: 0 },
+      metadata: { error: outputResult.error.message, similarity: 0 },
+      score: null,
+    };
+  }
+  if (isErr(expectedResult)) {
+    return {
+      metadata: { error: expectedResult.error.message, similarity: 0 },
       score: null,
     };
   }

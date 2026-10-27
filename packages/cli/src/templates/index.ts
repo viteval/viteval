@@ -1,5 +1,5 @@
 import { createFile } from '@viteval/internal';
-import { err, isErr, ok, type Result } from 'massaman/control';
+import { ok, type Result } from 'massaman/control';
 
 const TEMPLATES = {
   'viteval.config.ts': `import { defineConfig } from 'viteval/config';
@@ -40,14 +40,7 @@ export async function createFileFromTemplate(
   filePath: string,
   template: TemplateName
 ) {
-  const content = await readTemplateContents(template);
-  if (isErr(content)) {
-    return content;
-  }
-  if (content.value === null) {
-    return err('Template not found');
-  }
-  return await createFile(filePath, content.value);
+  return await createFile(filePath, TEMPLATES[template]);
 }
 
 /**

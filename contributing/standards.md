@@ -132,9 +132,10 @@ Detailed TypeScript and development standards for viteval. For the quick version
 
 ### Coverage Targets
 
-- Critical paths (auth, scoring): aim for 100%
-- Business logic: 80%+
-- Utilities: 70%+
+- Core, CLI, providers, internal utilities, and public package: 100% statements, branches, functions, and lines per handwritten production file.
+- UI coverage is report-only.
+- Include CLI and evaluation-worker execution in the merged repository report.
+- See [Testing](./testing.md#production-coverage) for scope and instrumentation.
 
 ### Anti-Patterns
 

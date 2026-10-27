@@ -17,6 +17,7 @@ export default defineConfig({
   dts: { generator: 'tsgo' },
   entry: {
     'config/index': 'src/config/index.ts',
+    'config/lifecycle': 'src/config/lifecycle.ts',
     'config/setup': 'src/config/setup.ts',
     'dataset/index': 'src/dataset/index.ts',
     'main/index': 'src/index.ts',

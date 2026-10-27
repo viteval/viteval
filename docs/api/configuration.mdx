@@ -46,7 +46,8 @@ integrations lazily and closes them after evaluation persistence.
 <FieldGroup title="Project">
   <Field name="root" type="string">
     Project root, relative to the config's directory. Defaults to the config
-    directory, or the CLI root without a config.
+    directory, or the CLI root without a config. An explicit <code>--root</code>
+    overrides this setting for both file discovery and worker persistence.
   </Field>
   <Field name="providers" type="Provider[]">
     Available storage integrations. Omitted registers local JSON; an explicit
@@ -74,6 +75,12 @@ TypeScript path aliases are read from the project's `tsconfig.json`; there is no
 public Vite `resolve` block.
 
 ## Evaluation defaults
+
+Per-evaluation options override CLI flags; CLI flags override project defaults.
+The native <code>--testTimeout</code>, <code>--retry</code>, and
+
+<code>--maxConcurrency</code> flags apply to Viteval cases as well as the
+runner.
 
 <FieldGroup title="eval">
   <Field name="include" type="string[]">

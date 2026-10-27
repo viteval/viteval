@@ -64,7 +64,7 @@ export const dataCommand = command({
       const vitest = await createVitest(
         {
           config: selectedConfig.configFile ?? false,
-          root: selectedConfig.root,
+          root: argv.root ? selectedConfig.root : undefined,
           run: true,
           watch: false,
           testNamePattern: '^viteval dataset: ',
@@ -72,12 +72,12 @@ export const dataCommand = command({
         },
         {
           plugins: [
-            ...(runnerConfig.plugins ?? []),
+            runnerConfig.plugins,
             {
               name: 'viteval-dataset-discovery',
               enforce: 'post',
               transform(code, id) {
-                const file = normalizeDatasetPath(id.split('?')[0] ?? '');
+                const file = normalizeDatasetPath(id.split('?')[0]);
                 if (!file || !matchedFiles.has(file)) return;
                 return {
                   code: instrumentDatasetModule({ code, file, checkpoint }),

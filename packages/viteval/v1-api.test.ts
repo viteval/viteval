@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
+import { createCoverageArguments } from './coverage-fixture';
 
 const ROOT = path.join(import.meta.dirname, '.test-v1-api'),
   CLI = path.resolve(import.meta.dirname, '../cli/cli.mjs');
@@ -144,6 +145,7 @@ async function fixture(options: {
   dataset?: string;
 }) {
   const root = path.join(ROOT, String(sequence++));
+  await rm(root, { recursive: true, force: true });
   await mkdir(root, { recursive: true });
   await writeFile(path.join(root, 'viteval.config.ts'), options.config);
   await writeFile(path.join(root, 'support.eval.ts'), options.evaluation);
@@ -154,9 +156,16 @@ async function fixture(options: {
 }
 
 function run(root: string, command: string[]) {
+  const binary = process.env.VITEVAL_TEST_BINARY;
+  const args = [
+    ...command,
+    ...(command[0] === 'run' ? createCoverageArguments() : []),
+    '--root',
+    root,
+  ];
   const result = spawnSync(
-    process.execPath,
-    [CLI, ...command, '--root', root],
+    binary ?? process.execPath,
+    binary ? args : [CLI, ...args],
     {
       cwd: root,
       encoding: 'utf8',

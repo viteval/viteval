@@ -55,8 +55,13 @@ describe('production dashboard regressions', () => {
           `${encodeURIComponent(encodedId)}.json`
         ),
         JSON.stringify({
+          schemaVersion: 1,
           id: encodedId,
           name: 'Encoded dataset',
+          version: 1,
+          metadata: {},
+          createdAt: '2026-10-01T00:00:00.000Z',
+          updatedAt: '2026-10-01T00:00:00.000Z',
           data: [{ input: 'question', expected: null }],
         })
       );
