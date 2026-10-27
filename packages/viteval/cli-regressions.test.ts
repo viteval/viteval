@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { API } from 'typescript/unstable/sync';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createCoverageArguments } from './coverage-fixture';
 
@@ -16,6 +17,80 @@ afterEach(async () => {
 });
 
 describe('native CLI regressions', () => {
+  it('should typecheck and run the generated V1 example without setup or reporters', async () => {
+    const root = await createProject();
+    const templates = path.resolve(
+      import.meta.dirname,
+      '../../tools/core/src/generators/files/example'
+    );
+    for (const entry of await fs.readdir(templates)) {
+      if (entry.endsWith('.template')) continue;
+      await fs.cp(path.join(templates, entry), path.join(root, entry), {
+        recursive: true,
+      });
+    }
+    const files = await fs.readdir(root);
+    expect(files).not.toContain('vitest.config.ts');
+    expect(files).not.toContain('viteval.setup.ts');
+    expect(files).not.toContain('.env.example');
+    const config = await fs.readFile(
+      path.join(root, 'viteval.config.ts'),
+      'utf8'
+    );
+    expect(config).not.toMatch(/setupFiles|reporters|vitest\/config/);
+    const api = new API({ cwd: root });
+    try {
+      using snapshot = api.updateSnapshot({
+        openProjects: [path.join(root, 'tsconfig.spec.json')],
+      });
+      const project = snapshot.getProject(
+        path.join(root, 'tsconfig.spec.json')
+      );
+      expect(project).toBeDefined();
+      if (!project)
+        throw new Error('Generated TypeScript project could not be loaded');
+      const diagnostics = [
+        ...project.program.getConfigFileParsingDiagnostics(),
+        ...project.program.getSyntacticDiagnostics(),
+        ...project.program.getGlobalDiagnostics(),
+        ...project.program.getProgramDiagnostics(),
+        ...project.program.getSemanticDiagnostics(),
+      ];
+      expect(diagnostics).toEqual([]);
+    } finally {
+      api.close();
+    }
+
+    const generated = runCli({ root, args: ['data'] });
+    expect(generated.status, generated.output).toBe(0);
+    const dataset = JSON.parse(
+      await fs.readFile(
+        path.join(root, '.viteval/datasets/example.json'),
+        'utf8'
+      )
+    );
+    expect(dataset).toMatchObject({
+      schemaVersion: 1,
+      data: [
+        { input: 'hello', expected: 'HELLO' },
+        { input: 'world', expected: 'WORLD' },
+        { input: 'viteval', expected: 'VITEVAL' },
+      ],
+    });
+    const evaluated = runCli({ root, args: ['run'] });
+    expect(evaluated.status, evaluated.output).toBe(0);
+    const reports = await fs.readdir(path.join(root, '.viteval/results'));
+    expect(reports).toHaveLength(1);
+    expect(
+      JSON.parse(
+        await fs.readFile(
+          path.join(root, '.viteval/results', reports[0]!),
+          'utf8'
+        )
+      )
+    ).toMatchObject({ schemaVersion: 1, success: true, numPassedEvals: 3 });
+  }, 30_000);
+
   it.each([['--json'], ['--filesOnly']])(
     'should list evaluations without invoking paid tasks or scorers: %j',
     async (...options) => {

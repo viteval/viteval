@@ -1,8 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "rootDir": "."
   },
-  "include": ["src/**/*", "vitest.config.ts", "viteval.setup.ts"],
+  "include": ["src/**/*", "viteval.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

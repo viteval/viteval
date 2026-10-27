@@ -56,7 +56,6 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         templateFiles: [
           `${EXAMPLE_TEMPLATES}/**/*`,
           `!${EXAMPLE_TEMPLATES}/*.template`,
-          `!${EXAMPLE_TEMPLATES}/.env.example`,
         ],
         type: 'addMany',
       },
@@ -68,11 +67,6 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         path: 'examples/{{name}}/README.md',
         templateFile: `${EXAMPLE_TEMPLATES}/README.md.template`,
-        type: 'add',
-      },
-      {
-        path: 'examples/{{name}}/.env.example',
-        templateFile: `${EXAMPLE_TEMPLATES}/.env.example`,
         type: 'add',
       },
     ],
