@@ -3,6 +3,13 @@ export { createProvider } from './create';
 export { createJsonProvider } from './json';
 export { getDatasetProvider } from './client';
 export type {
+  ProviderRegistry,
+  DatasetProviderName,
+  ResultProviderName,
+  DatasetReference,
+  DatasetHandle,
+} from './registry';
+export type {
   Provider,
   ProviderConfig,
   DatasetProvider,

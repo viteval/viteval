@@ -1,9 +1,11 @@
-import type { LanguageModel } from 'ai';
 import { generateObject } from 'ai';
-import { attemptAsync, err, isErr, ok, type Result } from 'massaman/control';
+import { type Result, attemptAsync, err, isErr, ok } from 'massaman/control';
 import Mustache from 'mustache';
 import { z } from 'zod';
-import { requireModel } from '#/model/client';
+import {
+  type LanguageModelSelection,
+  resolveLanguageModel,
+} from '#/model/client';
 
 /**
  * Configuration for an LLM-as-judge evaluation.
@@ -16,7 +18,7 @@ export interface JudgeConfig {
   /** Whether to use chain-of-thought reasoning */
   useCoT?: boolean;
   /** Model override for this judge evaluation */
-  model?: LanguageModel;
+  model?: LanguageModelSelection;
 }
 
 /**
@@ -53,46 +55,45 @@ export async function runJudge(
   config: JudgeConfig,
   variables: Record<string, unknown>
 ): Promise<Result<JudgeResult>> {
-  const modelResult = config.model ? ok(config.model) : requireModel();
+  const modelResult = resolveLanguageModel(config.model);
   if (isErr(modelResult)) {
     return modelResult;
   }
 
-  const choices = Object.keys(config.choiceScores);
-  const choicesStr = choices.map((c) => `"${c}"`).join(', ');
-
-  const systemSuffix = config.useCoT
-    ? `Answer with your reasoning in a step-by-step manner, then select one of the following choices: ${choicesStr}.`
-    : `Select one of the following choices: ${choicesStr}.`;
-
-  const schema = config.useCoT
-    ? z.object({
-        choice: z
-          .enum(choices as [string, ...string[]])
-          .describe('The selected choice.'),
-        reasons: z.string().describe('Step-by-step reasoning for the choice.'),
-      })
-    : z.object({
-        choice: z
-          .enum(choices as [string, ...string[]])
-          .describe('The selected choice.'),
+  const choices = Object.keys(config.choiceScores),
+    choicesStr = choices.map((c) => `"${c}"`).join(', '),
+    systemSuffix = config.useCoT
+      ? `Answer with your reasoning in a step-by-step manner, then select one of the following choices: ${choicesStr}.`
+      : `Select one of the following choices: ${choicesStr}.`,
+    schema = config.useCoT
+      ? z.object({
+          choice: z
+            .enum(choices as [string, ...string[]])
+            .describe('The selected choice.'),
+          reasons: z
+            .string()
+            .describe('Step-by-step reasoning for the choice.'),
+        })
+      : z.object({
+          choice: z
+            .enum(choices as [string, ...string[]])
+            .describe('The selected choice.'),
+        }),
+    generationResult = await attemptAsync(() => {
+      const renderedPrompt = Mustache.render(config.prompt, variables);
+      return generateObject({
+        model: modelResult.value,
+        prompt: `${renderedPrompt}\n\n${systemSuffix}`,
+        schema,
+        temperature: 0,
       });
-
-  const generationResult = await attemptAsync(() => {
-    const renderedPrompt = Mustache.render(config.prompt, variables);
-    return generateObject({
-      model: modelResult.value,
-      prompt: `${renderedPrompt}\n\n${systemSuffix}`,
-      schema,
-      temperature: 0,
     });
-  });
   if (isErr(generationResult)) {
     return generationResult;
   }
 
-  const { object } = generationResult.value;
-  const score = config.choiceScores[object.choice];
+  const { object } = generationResult.value,
+    score = config.choiceScores[object.choice];
   if (score === undefined) {
     return err(`Unknown choice "${object.choice}" returned by LLM judge.`);
   }

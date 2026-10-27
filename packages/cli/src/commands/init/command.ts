@@ -10,18 +10,6 @@ import { createFileFromTemplate } from '#/templates';
 
 export const initCommand = command({
   description: 'Initialize a new project',
-  options: {
-    'env-file': {
-      alias: 'create-env-file',
-      description: 'Create .env file',
-      type: 'boolean',
-    },
-    'env-file-path': {
-      default: '.env',
-      description: 'Path to .env file',
-      type: 'string',
-    },
-  },
   handler: async ({ args: rawArgs, log: logger, prompts, fail }) => {
     const args = INIT_ARGS.parse(rawArgs);
     const cwd = process.cwd().replace(/\\/g, '/');
@@ -47,14 +35,16 @@ export const initCommand = command({
       manifest.value !== null &&
       'type' in manifest.value &&
       manifest.value.type === 'module';
-    const configName = isEsm ? 'vitest.config.ts' : 'vitest.config.mts';
+    const configName = isEsm ? 'viteval.config.ts' : 'viteval.config.mts';
     let hasConfig = false;
     for (const extension of ['ts', 'mts', 'js', 'mjs', 'cts', 'cjs']) {
       const exists = await fileExists(
-        path.join(cwd, `vitest.config.${extension}`)
+        path.join(cwd, `viteval.config.${extension}`)
       );
       if (!exists.ok)
-        fail(`Failed to inspect Vitest configuration: ${exists.error.message}`);
+        fail(
+          `Failed to inspect Viteval configuration: ${exists.error.message}`
+        );
       if (exists.value) {
         hasConfig = true;
         break;
@@ -95,31 +85,23 @@ export const initCommand = command({
     const envContent = useEnv
       ? `import { existsSync } from 'node:fs';\nimport { loadEnvFile } from 'node:process';\n\nconst envFile = new URL(${JSON.stringify(envReference)}, import.meta.url);\nif (existsSync(envFile)) {\n  loadEnvFile(envFile);\n}\n`
       : '';
-    const setupContent = `${envContent}import { fileURLToPath } from 'node:url';\nimport { createJsonProvider, initializeProvider } from 'viteval/provider';\n\nconst provider = createJsonProvider({ root: fileURLToPath(new URL('.', import.meta.url)) });\nconst initialized = await initializeProvider({ datasets: provider });\nif (!initialized.ok) throw initialized.error;\n`;
-    const setupResult = await createFile(
-      path.join(cwd, 'viteval.setup.ts'),
-      setupContent
-    );
-    if (isErr(setupResult)) {
-      fail(`Failed to create viteval.setup.ts: ${setupResult.error.message}`);
-    }
-    if (!setupResult.value) {
-      logger.info('viteval.setup.ts file already exists, skipping...');
-    }
-
+    const { readTemplateContents } = await import('#/templates');
+    const template = await readTemplateContents('viteval.config.ts');
+    if (isErr(template) || template.value === null)
+      fail('Failed to read Viteval config template');
     const configResult = hasConfig
       ? ok(false)
-      : await createFileFromTemplate(
+      : await createFile(
           path.join(cwd, configName),
-          'vitest.config.ts'
+          `${envContent}${template.value}`
         );
     if (isErr(configResult)) {
       fail(`Failed to create ${configName}: ${configResult.error.message}`);
     }
     if (!configResult.value) {
       logger.note(
-        'Include src/**/*.eval.ts, add viteval.setup.ts to setupFiles, and configure JsonReporter from viteval/reporters in your existing Vitest config.',
-        'Existing Vitest configuration'
+        'Keep your existing viteval.config file. Configure evaluation defaults under eval and storage integrations under providers.',
+        'Existing Viteval configuration'
       );
     }
 
@@ -142,5 +124,17 @@ export const initCommand = command({
     logger.info(
       'Run your evaluation with viteval run. Inspect saved results with viteval ui.'
     );
+  },
+  options: {
+    'env-file': {
+      alias: 'create-env-file',
+      description: 'Create .env file',
+      type: 'boolean',
+    },
+    'env-file-path': {
+      default: '.env',
+      description: 'Path to .env file',
+      type: 'string',
+    },
   },
 });

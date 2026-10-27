@@ -14,16 +14,17 @@ viteval init --create-env-file --env-file-path .env.local
 ```
 
 Initialization preserves existing configuration. In noninteractive environments,
-it creates the configuration and setup module without prompting. Pass `--env-file`
+it creates the configuration without prompting. Pass `--env-file`
 to create an environment file explicitly.
 
 Use its `--create-env-file` alias when selecting a custom path to avoid Node's
 runtime `--env-file` option. Absolute and relative paths target the same file
-when created and loaded by the generated setup module.
+when created and loaded by the generated config.
 
-Init writes `vitest.config.ts` for ESM projects and `vitest.config.mts` for
+Init writes `viteval.config.ts` for ESM projects and `viteval.config.mts` for
 CommonJS projects, so the generated configuration can import the ESM-only Viteval
-entry points. Existing Vitest configuration files in either format are preserved.
+entry points. Existing Viteval configuration files in either format are preserved.
+Relative `--config` paths resolve against `--root` when supplied.
 
 ### Run evaluations
 
@@ -79,14 +80,14 @@ evaluate('uppercase', {
 });
 ```
 
-Generation imports these modules in the selected Vitest worker, with its setup
-files and configured provider. It does not execute evaluation tasks or scorers.
+Generation imports these modules in a worker with the selected Viteval config
+and registered providers. It does not execute evaluation tasks or scorers.
 Module-level code still runs on import; keep expensive calls inside dataset
 generators or evaluation tasks. Native setup hooks remain active.
 
 Aliases and re-exports of the same dataset generate it once. Distinct dataset
 objects with the same name fail instead of overwriting each other. Existing
-datasets are preserved unless `--overwrite` is passed. Memory datasets run their
+datasets are preserved unless `--overwrite` is passed. Datasets with `providers: []` run their
 generator without writing a persisted file. Modules that fail during import do
 not publish their datasets.
 

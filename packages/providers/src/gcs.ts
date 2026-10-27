@@ -1,6 +1,12 @@
 import type { StorageOptions } from '@google-cloud/storage';
 import { attemptAsync } from 'massaman/control';
 import type { Provider } from '@viteval/core';
+
+declare module '@viteval/core' {
+  interface ProviderRegistry {
+    gcs: { datasets: true };
+  }
+}
 import {
   createObjectDatasetProvider,
   type ObjectDatasetOptions,
@@ -20,7 +26,6 @@ export interface GcsProviderOptions extends ObjectDatasetOptions {
 export function gcs(options: GcsProviderOptions): Provider {
   return createObjectDatasetProvider({
     ...options,
-    name: 'gcs',
     connect: async () => {
       if (!options.bucket?.trim()) throw new Error('GCS bucket is required');
       const imported = await attemptAsync(
@@ -102,6 +107,7 @@ export function gcs(options: GcsProviderOptions): Provider {
         close: async () => {},
       };
     },
+    name: 'gcs',
   });
 }
 

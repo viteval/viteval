@@ -1,7 +1,10 @@
 # `defineDataset()`
 
-`defineDataset()` wraps a case generator in a reusable dataset. Pass the dataset
-to `evaluate()` or save it with `viteval data`.
+import { Field, FieldGroup } from '@theme';
+
+`defineDataset()` defines how cases are generated and where to save them, including
+hosted integrations such as Langfuse. Run generation with `viteval data`; importing
+a definition does not generate cases or write to providers.
 
 ## Import
 
@@ -12,29 +15,38 @@ import { defineDataset } from 'viteval/dataset';
 ## Signature
 
 ```ts
-function defineDataset<DATA_FUNC extends DataGenerator>(
+function defineDataset<DATA_FUNC extends DatasetData>(
   config: DatasetConfig<DATA_FUNC>
 ): Dataset<DATA_FUNC>;
 ```
 
 ## Parameters
 
-### `config`
-
-- **Type**: `DatasetConfig<DATA_FUNC>`
-- **Required**: Yes
-- **Description**: Configuration object for the dataset
+<FieldGroup title="Configuration">
+  <Field name="name" type="string" required>
+    Unique dataset name.
+  </Field>
+  <Field name="description" type="string">
+    Description saved with the dataset.
+  </Field>
+  <Field
+    name="data"
+    type="DataItem[] | (context) => DataItem[] | Promise<DataItem[]>"
+    required
+  >
+    Cases or generator using typed integration/model dependencies.
+  </Field>
+  <Field name="providers" type="DatasetProviderName[]">
+    Dataset-write destinations. Omitted inherits config; an explicit array
+    replaces it; an empty array generates without saving.
+  </Field>
+</FieldGroup>
 
 ## DatasetConfig
 
 ```ts
-interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
-  /**
-   * The storage type of the dataset.
-   *
-   * @default 'local'
-   */
-  storage?: DatasetStorage;
+interface DatasetConfig<DATA extends DatasetData = DatasetData> {
+  providers?: readonly DatasetProviderName[];
   /**
    * The name of the dataset.
    */
@@ -66,9 +78,10 @@ defineDataset({
 
 ### `data`
 
-Function that generates or loads the dataset.
+Cases, or a function that generates cases once per generation operation. A callback
+can access direct dataset handles and the model registry.
 
-**Type**: `() => Promise<DataItem<INPUT, OUTPUT, EXTRA>[]>`  
+**Type**: `DatasetData`
 **Required**: Yes
 
 ```ts
@@ -101,20 +114,24 @@ data: async () => {
 };
 ```
 
-### `storage` (optional)
-
-Choose persisted storage or regenerate cases in memory on each load.
-
-**Type**: `DatasetStorage`  
-**Default**: `'local'`
+### `providers` (optional)
 
 ```ts
-// Use the configured dataset provider (JSON by default).
-storage: 'local';
-
-// Memory storage (not persisted)
-storage: 'memory';
+defineDataset({
+  name: 'reviewed-support',
+  providers: ['json', 'langfuse'],
+  data: async ({ langfuse }) => {
+    const cases = await langfuse.dataset('support-cases').load();
+    return cases.filter((item) => item.reviewed === true);
+  },
+});
 ```
+
+The generator runs once and the same cases are sent to every selected destination.
+Without `--overwrite`, existing destinations are preserved and only missing ones
+are populated. Overwrite requires replacement support; Langfuse and VoltOps do not
+support atomic replacement. Cross-provider saves are not transactional: successful
+writes remain if another provider fails.
 
 ### `description` (optional)
 
@@ -153,7 +170,7 @@ type Extra = Record<string, unknown>;
 Returns a `Dataset<DATA_FUNC>` object:
 
 ```ts
-interface Dataset<DATA_FUNC extends DataGenerator> {
+interface Dataset<DATA_FUNC extends DatasetData> {
   name: string;
   storage: 'local' | 'memory';
   description?: string;
@@ -175,15 +192,18 @@ if (!loaded.ok) throw loaded.error;
 const cases = loaded.value;
 ```
 
-Local storage uses the configured dataset provider, falling back to JSON under
-the current working directory. Generated setup binds that directory to the
-selected project. Memory datasets regenerate on load and do not persist. See
-[Providers](/guide/providers) for optional backends and serialization rules.
+With one destination, `load({ create: true })` and passing the definition to
+`evaluate()` retain load-or-generate behavior. Multiple destinations are ambiguous
+for reading; select a source explicitly:
 
-`storage: 'local'` is the persisted-storage mode, not a guarantee of local files.
-With an S3 dataset provider configured, the same dataset reads and writes S3.
-`evaluate()` loads the saved dataset by name and generates it only when missing.
-Use `viteval data --overwrite` to replace saved cases after changing the generator.
+```ts
+data: ({ langfuse }) => langfuse.dataset('reviewed-support');
+```
+
+With `providers: []`, `load()` generates in memory and `save()` generates without
+writing. The legacy `storage` property remains supported for low-level consumers;
+prefer provider arrays in V1. See [Providers](/guide/providers) for serialization
+and integration capability limits.
 
 ## CLI discovery
 

@@ -1,7 +1,7 @@
 # Reporters
 
-Use Vitest reporters for test results and Viteval's JSON reporter for evaluation
-inputs, outputs, and scores.
+Use result providers for evaluation inputs, outputs, and scores. Runner reporters
+are an optional console/CI concern, not a persistence requirement.
 
 ## Vitest reporters
 
@@ -19,43 +19,30 @@ viteval run --reporter json
 
 ## Evaluation JSON
 
-Viteval's JSON reporter saves evaluation scores and artifacts. Vitest's built-in
-JSON reporter saves test results without those details. Configure Viteval's
-reporter alongside the default console reporter to save evaluation details:
+Select JSON in `viteval.config.ts` to save dashboard-readable evaluation details:
 
 ```ts
-import { JsonReporter } from 'viteval/reporters';
 import { defineConfig } from 'viteval/config';
 
 export default defineConfig({
-  test: {
-    reporters: [
-      'default',
-      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
-    ],
-  },
+  eval: { results: ['json'] },
 });
 ```
 
-Viteval's reporter implements Vitest's `Reporter` interface. It reads evaluation
-artifacts and records the final case states reported by Vitest.
+JSON is registered by default. When supplying an explicit `providers` array,
+include `createJsonProvider()` to make it available. Add hosted provider names to
+`results` to publish the same outcomes without rerunning tasks.
 
 ## Run history and failures
 
-`<id>`, `<run>`, and `<timestamp>` placeholders use the current run identity.
-Watch reruns receive new identities. Static output filenames are
-overwritten. JSON file replacement is atomic.
+JSON provider runs have distinct identities under `.viteval/results`; file
+replacement is atomic. Per-evaluation `results` replaces the configured array;
+`results: []` disables persistence. Persistence failures fail the run.
 
-For a stable destination, configure the evaluation reporter in `vitest.config.ts`:
-
-```ts
-new JsonReporter({ outputFile: '.viteval/results/latest.json' });
-```
-
-The old `--outputPath` flag is not part of v1. Native Vitest's `--outputFile` applies
-to its built-in reporters; use the reporter constructor above for Viteval's
-evaluation JSON. With `new JsonReporter()` and no output file, the completed
-evaluation report is written to stdout.
+The old `--outputPath` flag is not part of V1. Native `--outputFile` only applies
+to runner reporters, not evaluation storage. The low-level `JsonReporter` export
+remains available for native runner tooling and legacy integrations; do not add
+it alongside JSON provider persistence unless you intentionally want two reports.
 
 Reports include `schemaVersion: 1`, passed/failed/skipped counts, project names,
 case IDs and final states, execution errors, and suite summaries. The suite

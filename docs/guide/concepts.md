@@ -64,7 +64,8 @@ evaluate('Order extraction', {
 
 ### Remote datasets
 
-Initialize a dataset provider in native Vitest setup to use SQLite or Braintrust.
+Register SQLite or Braintrust in `providers` and select dataset-write destinations
+with `dataset.providers`. Evaluation data callbacks select read sources independently.
 S3, Google Cloud Storage, Langfuse, and VoltOps are also supported within their
 documented capabilities. The `defineDataset()` API stays the same. See
 [Providers](./providers).

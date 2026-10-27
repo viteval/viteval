@@ -99,6 +99,10 @@ evaluation records its structured result as a custom Vitest artifact, which repo
 consume from the reported test case. This keeps evaluation data on Vitest's supported
 worker-to-main-process transport instead of mutating internal task metadata.
 
-Viteval uses native `vitest.config.ts` files. Non-serializable model and provider
-instances initialize in Vitest `setupFiles`, inside each worker. Viteval does not
-provide a custom runner, plugin, virtual config module, default reporter, or task transport.
+Viteval owns `viteval.config.ts`. The CLI translates its `eval` options at the
+runner boundary; an internal setup entry loads worker-local model/storage instances.
+Used storage integrations initialize lazily and close after result persistence.
+Destination arrays select independent dataset and result writers. JSON persistence
+produces dashboard-readable snapshots without requiring a reporter. Native runner
+configuration and low-level initialization remain available for integration tooling,
+not as the normal public flow. No custom task transport is used.

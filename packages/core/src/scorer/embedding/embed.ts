@@ -1,8 +1,15 @@
 import { embed } from 'ai';
-import { attemptAsync, isErr, type Result } from 'massaman/control';
+import { type Result, attemptAsync, isErr } from 'massaman/control';
 import { clamp } from '@viteval/internal';
 import cosineSimilarity from 'compute-cosine-similarity';
-import { requireEmbeddingModel } from '#/model/client';
+import {
+  type EmbeddingModelSelection,
+  resolveEmbeddingModel,
+} from '#/model/client';
+
+export interface EmbeddingScorerOptions {
+  model?: EmbeddingModelSelection;
+}
 
 /**
  * Get an embedding vector for the given text using the configured embedding model.
@@ -18,8 +25,11 @@ import { requireEmbeddingModel } from '#/model/client';
  * }
  * ```
  */
-export async function getEmbedding(text: string): Promise<Result<number[]>> {
-  const modelResult = requireEmbeddingModel();
+export async function getEmbedding(
+  text: string,
+  options?: EmbeddingScorerOptions
+): Promise<Result<number[]>> {
+  const modelResult = resolveEmbeddingModel(options?.model);
   if (isErr(modelResult)) {
     return modelResult;
   }
@@ -43,21 +53,22 @@ export async function getEmbedding(text: string): Promise<Result<number[]>> {
  */
 export async function computeEmbeddingSimilarity(
   output: unknown,
-  expected: unknown
+  expected: unknown,
+  options?: EmbeddingScorerOptions
 ): Promise<{
   score: number | null;
   metadata: { similarity: number; error?: string };
 }> {
-  const outputStr = String(output);
-  const expectedStr = String(expected);
+  const outputStr = String(output),
+    expectedStr = String(expected);
 
   if (outputStr === expectedStr) {
     return { metadata: { similarity: 1 }, score: 1 };
   }
 
   const [outputResult, expectedResult] = await Promise.all([
-    getEmbedding(outputStr),
-    getEmbedding(expectedStr),
+    getEmbedding(outputStr, options),
+    getEmbedding(expectedStr, options),
   ]);
   if (isErr(outputResult) || isErr(expectedResult)) {
     const error = isErr(outputResult)
@@ -70,8 +81,8 @@ export async function computeEmbeddingSimilarity(
   }
 
   const similarity =
-    cosineSimilarity(outputResult.value, expectedResult.value) ?? 0;
-  const score = clamp(similarity, 0, 1);
+      cosineSimilarity(outputResult.value, expectedResult.value) ?? 0,
+    score = clamp(similarity, 0, 1);
 
   return { metadata: { similarity }, score };
 }

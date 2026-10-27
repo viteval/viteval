@@ -53,20 +53,24 @@ evaluate('Order ID casing', {
 ## Multiple scorers
 
 Install `ai` and `@ai-sdk/openai`, and provide `OPENAI_API_KEY` in the environment.
-Initialize the judge and embedding models in the setup file registered by your
-Vitest configuration:
+Register the SDK provider and judge/embedding defaults in Viteval configuration:
 
-```ts [viteval.setup.ts]
+```ts [viteval.config.ts]
 import { openai } from '@ai-sdk/openai';
-import { initializeModel } from 'viteval';
+import { defineConfig } from 'viteval';
 
-initializeModel({
-  language: openai('gpt-4.1-mini'),
-  embedding: openai.embedding('text-embedding-3-small'),
+export default defineConfig({
+  models: {
+    providers: [openai],
+    defaults: {
+      language: 'openai:gpt-4.1-mini',
+      embedding: 'openai:text-embedding-3-small',
+    },
+  },
 });
 ```
 
-Keep any existing provider initialization in that setup file. Then add the eval:
+Then add the eval:
 
 ```ts
 import { openai } from '@ai-sdk/openai';
@@ -108,7 +112,7 @@ use the [model-backed getting-started example](/guide/getting-started#evaluate-a
 ## Runnable examples
 
 The [repository examples](https://github.com/viteval/viteval/tree/main/examples)
-include project configuration and setup files:
+include project configuration and environment loading:
 
 - [Basic Evaluation](https://github.com/viteval/viteval/tree/main/examples/basic): deterministic evaluations without API keys.
 - [Vercel AI SDK](https://github.com/viteval/viteval/tree/main/examples/vercel-ai): model-backed evaluations with the AI SDK.

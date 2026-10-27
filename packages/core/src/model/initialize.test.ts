@@ -23,45 +23,47 @@ describe('initializeModel', () => {
   it('should return actionable errors before models are configured', async () => {
     expect(getModel()).toBeNull();
     expect(getEmbeddingModel()).toBeNull();
-    const language = requireModel();
-    const embedding = requireEmbeddingModel();
+    const language = requireModel(),
+      embedding = requireEmbeddingModel();
     expect(language.ok).toBe(false);
     expect(embedding.ok).toBe(false);
-    if (!language.ok)
-      expect(language.error.message).toContain('Vitest setup file');
-    if (!embedding.ok)
+    if (!language.ok) {
+      expect(language.error.message).toContain('models.defaults.language');
+    }
+    if (!embedding.ok) {
       expect(embedding.error.message).toContain(
         'Embedding model not configured'
       );
+    }
     expect(
       await runJudge(
-        { prompt: '{{output}}', choiceScores: { Yes: 1, No: 0 } },
+        { choiceScores: { No: 0, Yes: 1 }, prompt: '{{output}}' },
         { output: 'answer' }
       )
     ).toMatchObject({ ok: false });
     expect(
       await computeEmbeddingSimilarity('answer', 'different')
     ).toMatchObject({
-      score: null,
       metadata: {
-        similarity: 0,
         error: expect.stringContaining('Embedding model not configured'),
+        similarity: 0,
       },
+      score: null,
     });
   });
 
   it('should retain the first language model and backfill embedding configuration', () => {
-    const language = createLanguageModel();
-    const other = createLanguageModel();
-    const embedding = new MockEmbeddingModelV4();
+    const language = createLanguageModel(),
+      other = createLanguageModel(),
+      embedding = new MockEmbeddingModelV4();
     initializeModel(language);
-    initializeModel({ language: other, embedding });
+    initializeModel({ embedding, language: other });
     expect(requireModel()).toMatchObject({ ok: true, value: language });
     expect(requireEmbeddingModel()).toMatchObject({
       ok: true,
       value: embedding,
     });
-    initializeModel({ language: other, embedding: new MockEmbeddingModelV4() });
+    initializeModel({ embedding: new MockEmbeddingModelV4(), language: other });
     expect(getEmbeddingModel()).toBe(embedding);
   });
 
@@ -71,26 +73,26 @@ describe('initializeModel', () => {
     expect(
       await runJudge(
         {
+          choiceScores: { No: 0, Yes: 1 },
           prompt: 'Does {{output}} answer {{input}}?',
-          choiceScores: { Yes: 1, No: 0 },
           useCoT: true,
         },
         { input: 'question', output: 'answer' }
       )
     ).toMatchObject({
       ok: true,
-      value: { score: 1, choice: 'Yes', rationale: 'The answer matches.' },
+      value: { choice: 'Yes', rationale: 'The answer matches.', score: 1 },
     });
     expect(language.doGenerateCalls[0].prompt).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          role: 'user',
           content: expect.arrayContaining([
             expect.objectContaining({
               type: 'text',
               text: expect.stringContaining('Does answer answer question?'),
             }),
           ]),
+          role: 'user',
         }),
       ])
     );
@@ -100,9 +102,9 @@ describe('initializeModel', () => {
     expect(
       await runJudge(
         {
+          choiceScores: { No: 0, Yes: 1 },
           model: createLanguageModel(),
           prompt: '{{output}}',
-          choiceScores: { Yes: 1, No: 0 },
         },
         { output: 'answer' }
       )
@@ -119,11 +121,13 @@ describe('initializeModel', () => {
       })
     );
     const result = await runJudge(
-      { prompt: '{{output}}', choiceScores: { Yes: 1, No: 0 } },
+      { choiceScores: { No: 0, Yes: 1 }, prompt: '{{output}}' },
       { output: 'answer' }
     );
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.message).toBe('model unavailable');
+    if (!result.ok) {
+      expect(result.error.message).toBe('model unavailable');
+    }
   });
 
   it('should compute similarity using the configured embedding model', async () => {
@@ -135,10 +139,10 @@ describe('initializeModel', () => {
         warnings: [],
       }),
     });
-    initializeModel({ language: createLanguageModel(), embedding });
+    initializeModel({ embedding, language: createLanguageModel() });
     expect(await computeEmbeddingSimilarity('north', 'east')).toMatchObject({
-      score: 0,
       metadata: { similarity: 0 },
+      score: 0,
     });
     expect(embedding.doEmbedCalls.flatMap((call) => call.values)).toEqual([
       'north',
@@ -152,22 +156,22 @@ function createLanguageModel() {
     doGenerate: async () => ({
       content: [
         {
-          type: 'text',
           text: JSON.stringify({
             choice: 'Yes',
             reasons: 'The answer matches.',
           }),
+          type: 'text',
         },
       ],
-      finishReason: { unified: 'stop', raw: undefined },
+      finishReason: { raw: undefined, unified: 'stop' },
       usage: {
         inputTokens: {
-          total: 10,
-          noCache: 10,
           cacheRead: undefined,
           cacheWrite: undefined,
+          noCache: 10,
+          total: 10,
         },
-        outputTokens: { total: 10, text: 10, reasoning: undefined },
+        outputTokens: { reasoning: undefined, text: 10, total: 10 },
       },
       warnings: [],
     }),

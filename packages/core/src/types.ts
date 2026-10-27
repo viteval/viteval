@@ -1,5 +1,10 @@
-import type { TestOptions } from 'vitest';
 import type { Result } from 'massaman/control';
+import type { EvalOptions } from '#/config/types';
+import type { RuntimeContext } from '#/config/runtime';
+import type {
+  DatasetProviderName,
+  DatasetReference,
+} from '#/provider/registry';
 
 /**
  * Combine extra fields with the required task/scorer fields.
@@ -86,6 +91,14 @@ export type Extra = Record<string, unknown>;
 export type DataGenerator<DATA_ITEM extends DataItem = DataItem> =
   () => Promise<DATA_ITEM[]>;
 
+export type DatasetData<ITEM extends DataItem = DataItem> =
+  | ITEM[]
+  | ((context: RuntimeContext) => ITEM[] | Promise<ITEM[]>);
+
+export type DataSource<ITEM extends DataItem = DataItem> = (
+  context: RuntimeContext
+) => ITEM[] | DatasetReference<ITEM> | Promise<ITEM[] | DatasetReference<ITEM>>;
+
 /**
  * Parameters for the `sampleItems` utility.
  */
@@ -101,8 +114,9 @@ export interface SampleItemsParams<DATA_ITEM extends DataItem> {
  */
 export type Data<DATA_ITEM extends DataItem = DataItem> =
   | DATA_ITEM[]
-  | DataGenerator<DATA_ITEM>
-  | Dataset<DataGenerator<DATA_ITEM>>;
+  | DataSource<DATA_ITEM>
+  | Dataset<DatasetData<DATA_ITEM>>
+  | DatasetReference<DATA_ITEM>;
 
 // TODO: Add support for remote storage i.e. S3, Braintrust, etc.
 export type DatasetStorage = 'local' | 'memory';
@@ -110,7 +124,9 @@ export type DatasetStorage = 'local' | 'memory';
 /**
  * A dataset configuration.
  */
-export interface DatasetConfig<DATA extends DataGenerator = DataGenerator> {
+export interface DatasetConfig<DATA extends DatasetData = DatasetData> {
+  /** Dataset-write destinations. Omitted inherits dataset.providers; [] only generates. */
+  providers?: readonly DatasetProviderName[];
   /**
    * The storage type of the dataset.
    *
@@ -148,7 +164,7 @@ export type DatasetGenerator<DATA_FUNC extends DataGenerator> = (
  * A dataset, contains the name, storage and data generator.
  */
 export interface Dataset<
-  DATA_FUNC extends DataGenerator,
+  DATA_FUNC extends DatasetData,
   DATA_ITEM extends DataItem = DataItem<
     InferDataInput<DATA_FUNC>,
     InferDataOutput<DATA_FUNC>,
@@ -198,7 +214,12 @@ export interface Dataset<
  * @typeParam TASK_OUTPUT - The return type of the task function. Defaults to the expected type from the data,
  *   but can differ when the task produces a different shape than what is stored in `expected`.
  */
-export interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
+export interface Eval<
+  DATA extends Data,
+  TASK_OUTPUT = InferDataOutput<DATA>,
+> extends EvalOptions {
+  /** Skip case execution while retaining the suite in reports. */
+  skip?: boolean;
   /**
    * The description of the evaluation.
    */
@@ -210,11 +231,19 @@ export interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
   /**
    * The task to evaluate.
    */
-  task: Task<InferDataInput<DATA>, TASK_OUTPUT, InferDataExtra<DATA>>;
+  task: Task<
+    InferDataInput<NoInfer<DATA>>,
+    TASK_OUTPUT,
+    InferDataExtra<NoInfer<DATA>>
+  >;
   /**
    * The scorers to use for the evaluation.
    */
-  scorers: Scorer<TASK_OUTPUT, InferDataOutput<DATA>, InferDataExtra<DATA>>[];
+  scorers: Scorer<
+    TASK_OUTPUT,
+    InferDataOutput<NoInfer<DATA>>,
+    InferDataExtra<NoInfer<DATA>>
+  >[];
   /**
    * The aggregation type for the evaluation.
    *
@@ -227,8 +256,6 @@ export interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
    * @default 1.0
    */
   threshold?: number;
-  /** Native Vitest options applied to every generated test case. */
-  testOptions?: TestOptions;
 }
 
 /**
@@ -320,10 +347,18 @@ type InferDataValue<DATA extends Data, KEY extends keyof DataItem> =
 
 type ExtractDataItem<DATA extends Data> = DATA extends DataItem[]
   ? DATA[number]
-  : DATA extends DataGenerator<DataItem>
-    ? Awaited<ReturnType<DATA>>[number]
-    : DATA extends Dataset<DataGenerator<DataItem>>
+  : DATA extends DataSource<DataItem>
+    ? DataValueItem<Awaited<ReturnType<DATA>>>
+    : DATA extends Dataset<DatasetData<DataItem>>
       ? Exclude<ResultValue<Awaited<ReturnType<DATA['load']>>>, null>[number]
-      : never;
+      : DATA extends DatasetReference<infer ITEM>
+        ? ITEM
+        : never;
 
 type ResultValue<VALUE> = VALUE extends Result<infer INNER> ? INNER : never;
+
+type DataValueItem<VALUE> = VALUE extends DataItem[]
+  ? VALUE[number]
+  : VALUE extends DatasetReference<infer ITEM>
+    ? ITEM
+    : never;

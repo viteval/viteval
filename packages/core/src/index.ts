@@ -1,4 +1,20 @@
 export { evaluate } from './evaluate';
+export { defineConfig } from './config';
+export { defineDataset, sampleItems } from './dataset';
+export type {
+  VitevalConfig,
+  EvalOptions,
+  ModelId,
+  ModelProvider,
+} from './config/types';
+export type { RuntimeContext } from './config/runtime';
+export type {
+  ProviderRegistry,
+  DatasetProviderName,
+  ResultProviderName,
+  DatasetReference,
+  DatasetHandle,
+} from './provider/registry';
 export { initializeModel } from './model';
 export {
   createJsonProvider,
@@ -12,6 +28,8 @@ export type {
   Dataset,
   DatasetConfig,
   DatasetStorage,
+  DatasetData,
+  DataSource,
   Score,
   Scorer,
   ScorerAggregationType,

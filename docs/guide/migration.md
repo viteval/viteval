@@ -1,33 +1,31 @@
 # Migrate to v1
 
-V1 requires Node >=26 and uses native Vitest 5 configuration.
+V1 requires Node >=26. Vitest 5 runs evaluations internally; Viteval owns configuration.
 
 ## Configuration
 
-Replace the old `viteval.config.ts` configuration layer with `vitest.config.ts`.
-Move evaluation settings into Vitest's `test` object:
+Use `viteval.config.ts` and move evaluation settings into `eval`:
 
 ```ts
 import { defineConfig } from 'viteval/config';
-import { JsonReporter } from 'viteval/reporters';
 
 export default defineConfig({
-  test: {
+  eval: {
     include: ['src/**/*.eval.ts'],
-    setupFiles: ['./viteval.setup.ts'],
-    testTimeout: 100_000,
-    reporters: [
-      'default',
-      new JsonReporter({
-        outputFile: '.viteval/results/<id>.json',
-      }),
-    ],
+    timeout: 100_000,
+    results: ['json'],
   },
 });
 ```
 
-Initialize models and providers in the setup file registered with `setupFiles`.
-Vitest controls retries, hooks, reporters, and exit status.
+Register raw AI SDK providers under `models.providers` and storage integrations
+under `providers`. Select judge/embedding defaults with `models.defaults` using
+`provider:model-id` strings. No setup file or initialization call is required.
+
+For earlier release candidates, replace `test.testTimeout`, `test.maxConcurrency`,
+and `test.retry` with `eval.timeout`, `eval.concurrency`, and `eval.retries`.
+Replace evaluation `testOptions` with direct `timeout`, `concurrency`, `retries`,
+and `skip` options. See [Configuration](/api/configuration).
 
 ## Tasks and scorers
 
@@ -56,8 +54,8 @@ column, but the v1 provider does not expose its values. PostgreSQL remains exper
 Reports carry `schemaVersion: 1`, run identity, final Vitest case state, and
 execution diagnostics. The dashboard accepts legacy files that match the
 supported structure and reports malformed or incompatible files as warnings.
-Use `<id>` or `<run>` in the output filename to preserve watch-run history.
-An explicit static output filename is overwritten on each run.
+The JSON provider preserves run history under `.viteval/results` without a
+separate output filename or reporter.
 
 ## CLI
 
@@ -66,9 +64,11 @@ An explicit static output filename is overwritten on each run.
 project commands. For init, data, and UI commands, `--cwd` selects the working
 directory.
 
-Replace the old output-path option with
-`new JsonReporter({ outputFile: '.viteval/results/latest.json' })` in the native
-config. Omitting `outputFile` writes the completed evaluation JSON to stdout.
+Replace output-path/reporter configuration with `eval.results: ['json']`.
+Destination arrays replace inherited selections; `[]` disables persistence.
+Dataset generation destinations use `dataset.providers` or per-definition
+`providers`. Evaluations select existing read sources independently through
+callbacks such as `data: ({ langfuse }) => langfuse.dataset('support')`.
 
 `viteval data` now scans dataset and eval modules. Default exports, named exports,
 and inline `defineDataset()` calls are supported; generation skips evaluation

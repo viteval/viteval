@@ -13,7 +13,9 @@ import { createScorer } from 'viteval';
 
 ```ts
 function createScorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra>(
-  config: ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+  config:
+    | ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+    | ((context: RuntimeContext) => ScorerConfig<OUTPUT, EXPECTED, EXTRA>)
 ): Scorer<OUTPUT, EXPECTED, EXTRA>;
 ```
 
@@ -26,6 +28,23 @@ function createScorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra>(
 - **Description**: Configuration object for the scorer
 
 ## ScorerConfig
+
+A dependency factory receives the worker's registered model registry and storage
+handles. It runs when scoring or reading scorer metadata, not when its module is imported:
+
+```ts
+const judge = createScorer<string>(({ models }) => ({
+  name: 'custom-judge',
+  score: async ({ output, expected }) => {
+    const model = models.languageModel('openai:gpt-4.1-mini');
+    return scoreAnswer({ model, output, expected });
+  },
+}));
+```
+
+Use a factory to resolve dependencies, not to initialize external resources per
+case. Viteval owns registered storage lifecycle; it does not close arbitrary SDK
+models created by application code.
 
 ```ts
 interface ScorerConfig<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra> {

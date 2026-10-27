@@ -13,6 +13,10 @@
   "main": "dist/main/index.mjs",
   "types": "dist/main/index.d.mts",
   "exports": {
+    "./config/setup": {
+      "types": "./dist/config/setup.d.mts",
+      "import": "./dist/config/setup.mjs"
+    },
     "./provider": {
       "types": "./dist/provider/index.d.mts",
       "import": "./dist/provider/index.mjs"

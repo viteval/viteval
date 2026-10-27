@@ -2,6 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { createScorer } from './custom';
 
 describe('createScorer', () => {
+  it('should preserve a dependency factory scorer name in metadata and scores', async () => {
+    const scorer = createScorer(({ json }) => ({
+      name: 'context-scorer',
+      score: () => ({ score: typeof json.dataset === 'function' ? 1 : 0 }),
+    }));
+    expect(scorer.name).toBe('context-scorer');
+    expect(await scorer({ output: 'answer' })).toMatchObject({
+      name: 'context-scorer',
+      score: 1,
+    });
+  });
+
   it('should create a basic scorer with synchronous score function', async () => {
     const scorer = createScorer({
       name: 'exact-match',

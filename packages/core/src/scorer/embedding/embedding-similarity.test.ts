@@ -91,6 +91,10 @@ describe('EmbeddingSimilarity', () => {
       output: 'hello',
     });
 
-    expect(computeEmbeddingSimilarity).toHaveBeenCalledWith('hello', 'world');
+    expect(computeEmbeddingSimilarity).toHaveBeenCalledWith(
+      'hello',
+      'world',
+      undefined
+    );
   });
 });

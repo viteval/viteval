@@ -1,5 +1,6 @@
 import type * as TF from 'type-fest';
 import type { Extra, Score, Scorer, ScorerArgs } from '#/types';
+import { type RuntimeContext, getRuntimeContext } from '#/config/runtime';
 
 /**
  * A scorer config for creating a custom scorer.
@@ -32,21 +33,27 @@ export function createScorer<
   EXPECTED = OUTPUT,
   EXTRA extends Extra = Extra,
 >(
-  config: ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+  config:
+    | ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+    | ((context: RuntimeContext) => ScorerConfig<OUTPUT, EXPECTED, EXTRA>)
 ): Scorer<OUTPUT, EXPECTED, EXTRA> {
   return Object.defineProperty(
     async (args: ScorerArgs<OUTPUT, EXPECTED, EXTRA>) => {
-      const result = await config.score(args);
+      const resolved =
+          typeof config === 'function' ? config(getRuntimeContext()) : config,
+        result = await resolved.score(args);
       return {
         metadata: result.metadata,
-        name: config.name,
+        name: resolved.name,
         score: result.score,
       };
     },
     'name',
     {
-      value: config.name,
-      writable: false,
+      get: () =>
+        typeof config === 'function'
+          ? config(getRuntimeContext()).name
+          : config.name,
     }
   );
 }

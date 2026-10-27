@@ -11,7 +11,7 @@ Run a passing evaluation, save its JSON report, and inspect it locally. Requires
 Viteval runs LLM evaluations as Vitest tests. Each evaluation combines test cases,
 a task function, and scorers. You can:
 
-- Run evaluations with native Vitest configuration and CLI options
+- Run evaluations with Viteval configuration and familiar CLI options
 - Store datasets as JSON or use an optional provider
 - Use built-in scorers or write your own
 - Fail a CI job when an evaluation fails
@@ -46,12 +46,11 @@ pnpm exec viteval init
 yarn viteval init
 ```
 
-This creates `vitest.config.ts` for ESM projects (`vitest.config.mts` for CommonJS),
-`viteval.setup.ts`, and a passing `src/viteval.eval.ts` example. Existing
-configuration is preserved; if you already have a Vitest config, follow the
-printed instructions to register the setup file and reporter.
+This creates `viteval.config.ts` for ESM projects (`viteval.config.mts` for CommonJS)
+and a passing `src/viteval.eval.ts` example. Existing Viteval configuration is
+preserved. JSON storage is registered directly in config; no setup file is needed.
 
-The setup file binds JSON dataset storage to the project root. In noninteractive
+In noninteractive
 environments, initialization skips the env-file prompt; use `--create-env-file`
 to create it explicitly, or `--no-env-file` to skip it locally.
 
@@ -84,7 +83,7 @@ pnpm exec viteval run
 
 The command:
 
-1. Discovers the files matched by your native Vitest configuration
+1. Discovers the files matched by `eval.include` in your Viteval configuration
 2. Executes each evaluation
 3. Displays Vitest test results
 4. Exits with a non-zero code if any evaluation fails
@@ -144,7 +143,7 @@ pnpm exec viteval data
 pnpm exec viteval run
 ```
 
-With the generated JSON provider setup, local datasets live in `.viteval/datasets`
+With the generated JSON provider configuration, local datasets live in `.viteval/datasets`
 under the project root.
 
 ## Evaluate a model
@@ -181,7 +180,7 @@ evaluate('Model order extraction', {
 
 This example makes three model requests and requires `OPENAI_API_KEY`. It is not
 guaranteed to pass: extra explanation or an invented ID fails exact matching. Built-in
-LLM judges also require `initializeModel()` in worker setup. See [Configuration](/api/configuration).
+LLM judges require `models.providers` and a language default in config. See [Configuration](/api/configuration).
 
 ## Next steps
 

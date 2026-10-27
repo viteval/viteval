@@ -1,6 +1,9 @@
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
-import { computeEmbeddingSimilarity } from './embed';
+import {
+  type EmbeddingScorerOptions,
+  computeEmbeddingSimilarity,
+} from './embed';
 
 /**
  * Create an answer similarity scorer using embedding cosine similarity.
@@ -14,10 +17,10 @@ import { computeEmbeddingSimilarity } from './embed';
  * scorers: [scorers.answerSimilarity()]
  * ```
  */
-export function answerSimilarity(): Scorer {
+export function answerSimilarity(options?: EmbeddingScorerOptions): Scorer {
   return createScorer({
     name: 'AnswerSimilarity',
     score: ({ output, expected }) =>
-      computeEmbeddingSimilarity(output, expected),
+      computeEmbeddingSimilarity(output, expected, options),
   });
 }

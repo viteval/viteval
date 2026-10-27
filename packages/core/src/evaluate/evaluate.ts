@@ -1,24 +1,20 @@
 import { randomUUID } from 'node:crypto';
 import { serializeJson } from '@viteval/internal';
 import {
+  type Result,
   attempt,
   attemptAsync,
   err,
   isErr,
   ok,
-  type Result,
 } from 'massaman/control';
 import { match } from 'massaman/match';
+import type { RunnerTestSuite as Suite, TestContext } from 'vitest';
 import {
-  aroundAll,
-  assert,
-  describe,
-  recordArtifact,
-  test,
-  type TestContext,
-  type RunnerTestSuite as Suite,
-} from 'vitest';
-import { getEvalProvider } from '#/provider/client';
+  getResultDestinations,
+  writeDestinations,
+} from '#/provider/destinations';
+import { getProjectRuntime, getRuntimeContext } from '#/config/runtime';
 import type { AddEvalResultParams } from '#/provider/types';
 import { EVAL_RESULT_ARTIFACT_TYPE } from '#/evaluate/artifact';
 import { resolve } from '#/internals/utils';
@@ -33,12 +29,17 @@ import type {
   DataItem,
   Dataset,
   Eval,
+  EvalResult,
+  InferDataExtra,
+  InferDataInput,
   InferDataOutput,
   TaskArgs,
-  InferDataInput,
-  InferDataExtra,
-  EvalResult,
 } from '#/types';
+
+// The public entry point also runs in config modules, outside runner workers.
+const runner = process.env.VITEST_WORKER_ID
+  ? await import('vitest')
+  : undefined;
 
 /**
  * Evaluate an LLM model, task, workflow or other related system.
@@ -68,17 +69,34 @@ import type {
 export function evaluate<
   DATA extends Data,
   TASK_OUTPUT = InferDataOutput<DATA>,
->(
-  name: string,
-  {
-    data,
-    aggregation = 'mean',
-    task,
-    scorers,
-    threshold = 1,
-    testOptions,
-  }: Eval<DATA, TASK_OUTPUT>
-) {
+>(name: string, options: Eval<DATA, TASK_OUTPUT>) {
+  if (!runner) {
+    throw new Error(
+      'evaluate() must run in an evaluation module through viteval run'
+    );
+  }
+  const assert: typeof runner.assert = runner.assert;
+  const { aroundAll, describe, recordArtifact, test } = runner,
+    defaults = getProjectRuntime()?.config.eval,
+    {
+      data,
+      aggregation = 'mean',
+      task,
+      scorers,
+      threshold = 1,
+      timeout,
+      concurrency = 5,
+      retries,
+      results: destinations,
+      skip,
+    } = { ...defaults, ...options },
+    testOptions = {
+      concurrent: concurrency > 1,
+      retry: retries,
+      skip,
+      timeout,
+    },
+    acquireCase = createCaseLimiter(concurrency);
   if (globalThis.__viteval_datasetDiscovery) {
     globalThis.__viteval_datasetDiscovery.register(data);
     return describe.skip(name, () => {});
@@ -101,7 +119,9 @@ export function evaluate<
       (task): task is Suite =>
         task.type === 'suite' && task.meta.vitevalEvaluationId === evaluationId
     );
-    if (!persist || !suite) return runSuite();
+    if (!persist || !suite) {
+      return runSuite();
+    }
     await persist.create(suite);
     try {
       await runSuite();
@@ -113,7 +133,16 @@ export function evaluate<
     name,
     { meta: { vitevalEvaluationId: evaluationId } },
     async () => {
-      if (!Number.isFinite(threshold) || scorers.length === 0) {
+      if (
+        !Number.isFinite(threshold) ||
+        scorers.length === 0 ||
+        !Number.isSafeInteger(concurrency) ||
+        concurrency < 1 ||
+        (timeout !== undefined &&
+          (!Number.isFinite(timeout) || timeout <= 0)) ||
+        (retries !== undefined &&
+          (!Number.isSafeInteger(retries) || retries < 0))
+      ) {
         test(
           'validates evaluation configuration',
           { meta: { viteval: true } },
@@ -125,6 +154,20 @@ export function evaluate<
             assert(
               scorers.length > 0,
               'Evaluation requires at least one scorer'
+            );
+            assert(
+              Number.isSafeInteger(concurrency) && concurrency > 0,
+              'Evaluation concurrency must be a positive integer'
+            );
+            assert(
+              timeout === undefined ||
+                (Number.isFinite(timeout) && timeout > 0),
+              'Evaluation timeout must be positive'
+            );
+            assert(
+              retries === undefined ||
+                (Number.isSafeInteger(retries) && retries >= 0),
+              'Evaluation retries must be a non-negative integer'
             );
           }
         );
@@ -146,34 +189,16 @@ export function evaluate<
       }
 
       const cases = formattedData.value.map((dataItem) => ({
-        dataItem,
-        testName: formatTestName(dataItem),
-      }));
-
-      const provider = getEvalProvider();
-      let runId: string | undefined;
+          dataItem,
+          testName: formatTestName(dataItem),
+        })),
+        providers = await getResultDestinations(destinations);
+      let runIds: string[] = [];
       const recorded = new Map<string, EvalResult>();
-      if (provider) {
+      if (providers.length) {
         persist = {
-          async create(suite) {
-            const created = await provider.create({
-              name,
-              metadata: {
-                filepath: suite.file.filepath,
-                projectName: suite.file.projectName,
-              },
-              config: {
-                aggregation,
-                threshold,
-                scorerNames: scorers.map((scorer) => scorer.name),
-                timeout: testOptions?.timeout,
-              },
-            });
-            if (isErr(created)) throw created.error;
-            runId = created.value.id;
-          },
           async complete(suite, scope) {
-            if (!runId) return;
+            if (!runIds.length) return;
             const suiteErrors = [
               ...new Set([
                 ...(suite.result?.errors?.map((error) => error.message) ?? []),
@@ -229,7 +254,7 @@ export function evaluate<
                 });
               }
               results.push({
-                evalRunId: runId!,
+                evalRunId: '',
                 input: result.input ?? null,
                 expected: result.expected ?? null,
                 output: result.output ?? null,
@@ -245,10 +270,6 @@ export function evaluate<
                 duration: task.result?.duration,
               });
             }
-            for (const result of results) {
-              const saved = await provider.addResult(result);
-              if (isErr(saved)) throw saved.error;
-            }
             const passedCount = results.filter(
               (result) => result.passed
             ).length;
@@ -259,33 +280,64 @@ export function evaluate<
               (result) => result.metadata?.state !== 'skipped'
             );
             const passed = suiteErrors.length === 0 && failedCount === 0;
-            const completed = await provider.complete({
-              id: runId,
-              status: passed ? 'completed' : 'failed',
-              summary: {
-                meanScore: getMeanScore(
-                  scored.map((result) => ({
-                    name: '',
-                    score: result.meanScore,
-                  }))
-                ),
-                medianScore: getMedianScore(
-                  scored.map((result) => ({
-                    name: '',
-                    score: result.medianScore,
-                  }))
-                ),
-                sumScore: scored.reduce(
-                  (sum, result) => sum + result.sumScore,
-                  0
-                ),
-                passedCount,
-                failedCount,
-                totalCount: results.length,
-                passed,
-              },
-            });
-            if (isErr(completed)) throw completed.error;
+            await writeDestinations(
+              providers.map((provider, index) => async () => {
+                for (const result of results) {
+                  const saved = await provider.addResult({
+                    ...result,
+                    evalRunId: runIds[index],
+                  });
+                  if (isErr(saved)) return saved;
+                }
+                return provider.complete({
+                  id: runIds[index],
+                  status: passed ? 'completed' : 'failed',
+                  summary: {
+                    meanScore: getMeanScore(
+                      scored.map((result) => ({
+                        name: '',
+                        score: result.meanScore,
+                      }))
+                    ),
+                    medianScore: getMedianScore(
+                      scored.map((result) => ({
+                        name: '',
+                        score: result.medianScore,
+                      }))
+                    ),
+                    sumScore: scored.reduce(
+                      (sum, result) => sum + result.sumScore,
+                      0
+                    ),
+                    passedCount,
+                    failedCount,
+                    totalCount: results.length,
+                    passed,
+                  },
+                });
+              })
+            );
+          },
+          async create(suite) {
+            const created = await writeDestinations(
+              providers.map(
+                (provider) => () =>
+                  provider.create({
+                    name,
+                    metadata: {
+                      filepath: suite.file.filepath,
+                      projectName: suite.file.projectName,
+                    },
+                    config: {
+                      aggregation,
+                      threshold,
+                      scorerNames: scorers.map((scorer) => scorer.name),
+                      timeout: testOptions?.timeout,
+                    },
+                  })
+              )
+            );
+            runIds = created.map((run) => run.id);
           },
         };
       }
@@ -295,7 +347,6 @@ export function evaluate<
         {
           ...testOptions,
           meta: {
-            ...testOptions?.meta,
             viteval: true,
             vitevalEvaluationId: evaluationId,
           },
@@ -305,24 +356,24 @@ export function evaluate<
           { task: currentTask, annotate, onTestFinished }
         ) => {
           const { input, expected, ...metadata } = dataItem;
-          let finished = false;
-          let result: EvalResult | undefined;
-          let hasArtifact = false;
+          let finished = false,
+            result: EvalResult | undefined,
+            hasArtifact = false;
           const failureResult = (error: unknown): EvalResult => ({
-            name: testName,
-            input: safeJson(input),
-            expected: safeJson(expected),
-            output: null,
             aggregation,
-            threshold,
+            expected: safeJson(expected),
+            input: safeJson(input),
             mean: 0,
             median: 0,
-            sum: 0,
-            scores: [],
             metadata: {
               executionError:
                 error instanceof Error ? error.message : String(error),
             },
+            name: testName,
+            output: null,
+            scores: [],
+            sum: 0,
+            threshold,
           });
           onTestFinished(async () => {
             finished = true;
@@ -333,17 +384,26 @@ export function evaluate<
                   .join('\n') ?? 'Evaluation did not complete'
               );
               await recordArtifact(currentTask, {
-                type: EVAL_RESULT_ARTIFACT_TYPE,
                 result,
+                type: EVAL_RESULT_ARTIFACT_TYPE,
               });
             }
-            if (result) recorded.set(currentTask.id, result);
+            if (result) {
+              recorded.set(currentTask.id, result);
+            }
           });
+          const release = await acquireCase();
+          if (finished) {
+            release();
+            return;
+          }
           try {
             serializeJson(dataItem);
-            const args = taskArgs<DATA>(dataItem);
-            const taskResult = await task(args);
-            if (finished) return;
+            const args = taskArgs<DATA>(dataItem),
+              taskResult = await task(args);
+            if (finished) {
+              return;
+            }
             serializeJson({ output: taskResult });
             const scores = await Promise.all(
               scorers.map((scorer) =>
@@ -356,7 +416,9 @@ export function evaluate<
                 )
               )
             );
-            if (finished) return;
+            if (finished) {
+              return;
+            }
             const scoresWithName = scores.map((score, scorerIndex) => {
               const value = score.score ?? 0;
               assert(
@@ -370,26 +432,27 @@ export function evaluate<
               };
             });
             result = {
-              name: testName,
-              input,
-              expected,
-              output: taskResult,
               aggregation,
-              threshold,
+              expected,
+              input,
               mean: getMeanScore(scoresWithName),
               median: getMedianScore(scoresWithName),
-              sum: getSumScore(scoresWithName),
-              scores: scoresWithName,
               metadata,
+              name: testName,
+              output: taskResult,
+              scores: scoresWithName,
+              sum: getSumScore(scoresWithName),
+              threshold,
             };
             serializeJson(result);
             await recordArtifact(currentTask, {
-              type: EVAL_RESULT_ARTIFACT_TYPE,
               result,
+              type: EVAL_RESULT_ARTIFACT_TYPE,
             });
             hasArtifact = true;
-            for (const score of scoresWithName)
+            for (const score of scoresWithName) {
               await annotate(`${score.name}: ${score.score}`);
+            }
             const aggregateScore = match(aggregation)
               .with('mean', () => result!.mean)
               .with('median', () => result!.median)
@@ -400,15 +463,19 @@ export function evaluate<
               `${aggregation} score ${aggregateScore} is below threshold ${threshold}`
             );
           } catch (error) {
-            if (finished) return;
+            if (finished) {
+              return;
+            }
             if (!hasArtifact) {
               result = failureResult(error);
               await recordArtifact(currentTask, {
-                type: EVAL_RESULT_ARTIFACT_TYPE,
                 result,
+                type: EVAL_RESULT_ARTIFACT_TYPE,
               });
             }
             throw error;
+          } finally {
+            release();
           }
         }
       );
@@ -435,12 +502,21 @@ async function formatData<DATA extends Data>(
 >;
 async function formatData(data: Data): Promise<Result<DataItem[]>> {
   if (typeof data === 'function') {
-    return await attemptAsync(data);
+    const resolved = await attemptAsync(async () => data(getRuntimeContext()));
+    if (isErr(resolved)) {
+      return resolved;
+    }
+    return formatData(resolved.value);
   }
 
   if (isDataset(data)) {
     const loaded = await data.load({ create: true });
-    if (isErr(loaded)) return loaded;
+    if (Array.isArray(loaded)) {
+      return ok(loaded);
+    }
+    if (isErr(loaded)) {
+      return loaded;
+    }
     return loaded.value === null
       ? err('Dataset returned no data')
       : ok(loaded.value);
@@ -451,7 +527,9 @@ async function formatData(data: Data): Promise<Result<DataItem[]>> {
 
 function isDataset(
   data: Data<DataItem>
-): data is Dataset<DataGenerator<DataItem>> {
+): data is
+  | Dataset<DataGenerator<DataItem>>
+  | import('#/provider/registry').DatasetReference {
   return (
     typeof data === 'object' &&
     data !== null &&
@@ -466,6 +544,26 @@ function safeJson(value: unknown): unknown {
   } catch {
     return null;
   }
+}
+
+function createCaseLimiter(concurrency: number) {
+  let active = 0;
+  const waiting: (() => void)[] = [];
+  return async () => {
+    if (active >= concurrency) {
+      await new Promise<void>((resolve) => waiting.push(resolve));
+    } else {
+      active++;
+    }
+    return () => {
+      const next = waiting.shift();
+      if (next) {
+        next();
+      } else {
+        active--;
+      }
+    };
+  };
 }
 
 function taskArgs<DATA extends Data>(

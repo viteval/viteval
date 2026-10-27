@@ -1,9 +1,10 @@
-import { attemptAsync, isErr, ok, type Result } from 'massaman/control';
+import { attemptAsync, isErr } from 'massaman/control';
+import { getProjectRuntime, getRuntimeContext } from '#/config/runtime';
 import type {
-  DataGenerator,
   DataItem,
   Dataset,
   DatasetConfig,
+  DatasetData,
   Extra,
   InferDataExtra,
   InferDataInput,
@@ -43,7 +44,7 @@ import { createDatasetStorage } from './storage';
  * @returns The dataset.
  */
 export function defineDataset<
-  DATA_FUNC extends DataGenerator,
+  DATA_FUNC extends DatasetData,
   INPUT = InferDataInput<DATA_FUNC>,
   OUTPUT = InferDataOutput<DATA_FUNC>,
   EXTRA extends Extra = InferDataExtra<DATA_FUNC>,
@@ -54,79 +55,110 @@ export function defineDataset<
   >,
 >(config: DatasetConfig<DATA_FUNC>): Dataset<DATA_FUNC, DATA_ITEM> {
   const finalStorage = config.storage ?? 'local';
-  const dataset: Dataset<DATA_FUNC, DATA_ITEM> = {
-    name: config.name,
-    description: config.description,
-    storage: finalStorage,
-    async exists() {
-      if (finalStorage === 'memory') {
-        return ok(false);
+  async function storages() {
+    if (finalStorage === 'memory') {
+      return [];
+    }
+    const runtime = getProjectRuntime();
+    if (!runtime) {
+      if (config.providers?.length) {
+        throw new Error(
+          'Dataset destinations require a Viteval project configuration'
+        );
       }
-
-      const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
-        description: config.description,
-        name: config.name,
-        root: process.cwd(),
-        storage: finalStorage,
+      return config.providers
+        ? []
+        : [
+            createDatasetStorage<INPUT, OUTPUT, EXTRA>({
+              description: config.description,
+              name: config.name,
+              root: process.cwd(),
+              storage: 'local',
+            }),
+          ];
+    }
+    return Promise.all(
+      runtime.datasetNames(config.providers).map(async (name) => {
+        const provider = await runtime.provider(name);
+        if (!provider.datasets) {
+          throw new Error(`Provider "${name}" does not support datasets`);
+        }
+        return createDatasetStorage<INPUT, OUTPUT, EXTRA>({
+          description: config.description,
+          name: config.name,
+          provider: provider.datasets,
+          root: runtime.config.root ?? process.cwd(),
+          storage: 'local',
+        });
+      })
+    );
+  }
+  async function generate(): Promise<DATA_ITEM[]> {
+    const data =
+      typeof config.data === 'function'
+        ? await config.data(getRuntimeContext())
+        : config.data;
+    // The declaration's generator/array establishes this dataset's item shape.
+    return data as DATA_ITEM[];
+  }
+  const dataset: Dataset<DATA_FUNC, DATA_ITEM> = {
+    description: config.description,
+    async exists() {
+      return attemptAsync(async () => {
+        const destinations = await storages();
+        if (!destinations.length) return false;
+        const results = await Promise.all(
+          destinations.map((storage) => storage.exists())
+        );
+        const failed = results.find(isErr);
+        if (failed) throw failed.error;
+        return results.every((result) => result.ok && result.value);
       });
-      return await storage.exists();
     },
     async load(options) {
-      if (finalStorage === 'memory') {
-        return await attemptAsync(
-          async () => (await config.data()) as DATA_ITEM[]
-        );
-      }
-
-      const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
-        description: config.description,
-        name: config.name,
-        root: process.cwd(),
-        storage: finalStorage,
+      return attemptAsync(async () => {
+        const destinations = await storages();
+        if (!destinations.length) return generate();
+        if (destinations.length > 1)
+          throw new Error(
+            `Dataset "${config.name}" has multiple destinations. Select a read source with data: ({ json }) => json.dataset('${config.name}')`
+          );
+        const loaded = await destinations[0].load();
+        if (isErr(loaded)) throw loaded.error;
+        if (loaded.value || !options?.create)
+          return loaded.value as DATA_ITEM[] | null;
+        const data = await generate();
+        const saved = await destinations[0].save(data);
+        if (isErr(saved)) throw saved.error;
+        return data;
       });
-      const result = (await storage.load()) as Result<DATA_ITEM[] | null>;
-      if (isErr(result)) {
-        return result;
-      }
-
-      if (options?.create === true && !result.value) {
-        const generated = await attemptAsync(
-          async () => (await config.data()) as DATA_ITEM[]
-        );
-        if (isErr(generated)) {
-          return generated;
-        }
-        const saved = await storage.save(generated.value);
-        return isErr(saved) ? saved : generated;
-      }
-
-      return result;
     },
+    name: config.name,
     async save(options) {
-      if (finalStorage === 'memory') {
-        return ok(undefined);
-      }
-
-      const storage = createDatasetStorage<INPUT, OUTPUT, EXTRA>({
-        description: config.description,
-        name: config.name,
-        root: process.cwd(),
-        storage: finalStorage,
+      return attemptAsync(async () => {
+        const destinations = await storages();
+        const missing = await Promise.all(
+          destinations.map(async (storage) => {
+            const exists = await storage.exists();
+            if (isErr(exists)) throw exists.error;
+            return options?.overwrite || !exists.value ? storage : null;
+          })
+        );
+        const selected = missing.filter((storage) => storage !== null);
+        if (destinations.length && !selected.length) return;
+        const data = await generate();
+        const saved = await Promise.all(
+          selected.map((storage) => storage.save(data))
+        );
+        const failures = saved.filter(isErr);
+        if (failures.length)
+          throw new AggregateError(
+            failures.map((result) => result.error),
+            `Failed to save dataset "${config.name}": ${failures.map((result) => result.error.message).join('; ')}`
+          );
       });
-
-      const exists = await storage.exists();
-      if (isErr(exists)) {
-        return exists;
-      }
-      if (options?.overwrite !== true && exists.value) {
-        return ok(undefined);
-      }
-
-      const data = await attemptAsync(
-        async () => (await config.data()) as DATA_ITEM[]
-      );
-      return isErr(data) ? data : await storage.save(data.value);
     },
+    storage: finalStorage,
   };
   globalThis.__viteval_datasetDiscovery?.register(dataset);
   return dataset;

@@ -1,0 +1,142 @@
+# Configuration
+
+import { Field, FieldGroup } from '@theme';
+
+Create `viteval.config.ts` with Viteval's own settings. No worker setup file,
+manual initialization, or Vitest configuration is required.
+
+```ts
+import { openai } from '@ai-sdk/openai';
+import { braintrust } from '@viteval/providers/braintrust';
+import { createJsonProvider, defineConfig } from 'viteval';
+
+export default defineConfig({
+  eval: {
+    include: ['src/**/*.eval.ts'],
+    exclude: ['**/*.draft.eval.ts'],
+    timeout: 60_000,
+    concurrency: 5,
+    retries: 2,
+    threshold: 0.8,
+    aggregation: 'mean',
+    results: ['json', 'braintrust'],
+  },
+  dataset: { providers: ['json'] },
+  models: {
+    providers: [openai],
+    defaults: {
+      language: 'openai:gpt-4.1-mini',
+      embedding: 'openai:text-embedding-3-small',
+    },
+  },
+  providers: [
+    createJsonProvider({ root: import.meta.dirname }),
+    braintrust({ project: 'support', apiKey: process.env.BRAINTRUST_API_KEY }),
+  ],
+});
+```
+
+`defineConfig` is also exported from `viteval/config`. Config modules may run in
+the coordinating process and again in workers. Do not make model calls, generate
+datasets, or open resources at module scope. Viteval initializes selected storage
+integrations lazily and closes them after evaluation persistence.
+
+## Project settings
+
+<FieldGroup title="Project">
+  <Field name="root" type="string">
+    Project root, relative to the config's directory. Defaults to the config
+    directory, or the CLI root without a config.
+  </Field>
+  <Field name="providers" type="Provider[]">
+    Available storage integrations. Omitted registers local JSON; an explicit
+    array replaces that default. Duplicate identities are errors. Use separate
+    configs for separate projects.
+  </Field>
+  <Field name="models.providers" type="ModelProvider[]">
+    Unmodified AI SDK provider objects, not instantiated models. One instance
+    per provider identity. No Viteval SDK wrappers are needed.
+  </Field>
+  <Field name="models.defaults.language" type="provider:model-id">
+    Default language model for judges. Tasks still choose their own application
+    model.
+  </Field>
+  <Field name="models.defaults.embedding" type="provider:model-id">
+    Default embedding model for similarity scorers.
+  </Field>
+  <Field name="dataset.providers" type="DatasetProviderName[]">
+    Default dataset-write destinations. Defaults to JSON when registered;
+    otherwise no persistence.
+  </Field>
+</FieldGroup>
+
+TypeScript path aliases are read from the project's `tsconfig.json`; there is no
+public Vite `resolve` block.
+
+## Evaluation defaults
+
+<FieldGroup title="eval">
+  <Field name="include" type="string[]">
+    Evaluation patterns. Defaults to <code>**/*.eval.{'{ts,mts,js,mjs}'}</code>.
+  </Field>
+  <Field name="exclude" type="string[]">
+    Additional evaluation exclusions. Dependency and Git directories remain
+    excluded by the runner.
+  </Field>
+  <Field name="timeout" type="number" defaultValue="60000">
+    Positive per-case timeout in milliseconds, including task execution and
+    scoring.
+  </Field>
+  <Field name="concurrency" type="number" defaultValue="5">
+    Positive case concurrency limit within each worker. Evaluations can lower
+    their own limit; the worker limit remains the ceiling.
+  </Field>
+  <Field name="retries" type="number" defaultValue="0">
+    Additional attempts after a failed case. This reruns the task and scorers,
+    not result uploads.
+  </Field>
+  <Field name="threshold" type="number" defaultValue="1">
+    Finite per-case aggregation threshold.
+  </Field>
+  <Field
+    name="aggregation"
+    type="'mean' | 'median' | 'sum'"
+    defaultValue="mean"
+  >
+    Combines each case's scorer results.
+  </Field>
+  <Field name="results" type="ResultProviderName[]">
+    Result-write destinations. Defaults to JSON when registered; otherwise no
+    persistence. Registration alone never enables hosted uploads.
+  </Field>
+</FieldGroup>
+
+## Destination inheritance
+
+An evaluation's `results` and a dataset definition's `providers` follow the same
+rules: omitted inherits the corresponding config array, an explicit array replaces
+it, and `[]` disables persistence. There are no boolean or map variants.
+
+Dataset sources and result destinations are independent. A dataset can be generated
+to Langfuse, read from Langfuse, and evaluated with results saved only to JSON.
+
+## Model resolution and validation
+
+Model references use `provider:model-id`, resolved through AI SDK's provider
+registry. Viteval determines the provider identity from locally constructed SDK
+models; it does not guess import-variable names or contact the service during
+configuration. Providers must support constructing a language or embedding model
+without a network request.
+
+TypeScript checks the namespaced string shape, not an exhaustive remote model
+catalog. Raw SDK imports do not register global Viteval model types. The registry
+checks active provider registration and delegates model-kind/ID validation to the
+SDK; some SDKs defer unknown-ID errors until the actual API call. No credentials
+or remote catalog lookup is required just to load config.
+
+Direct SDK model instances remain supported on scorers. Deterministic scorers
+need no model configuration.
+
+Storage integration imports contribute typed names and dataset handles. Type
+visibility does not prove an integration is active in the selected config;
+registration and capabilities are also checked at runtime.

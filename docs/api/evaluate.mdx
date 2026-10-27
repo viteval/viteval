@@ -1,5 +1,7 @@
 # `evaluate()`
 
+import { Field, FieldGroup } from '@theme';
+
 `evaluate()` creates a Vitest suite with a test for each case. It runs your task,
 scores the output, and checks the threshold.
 
@@ -20,24 +22,24 @@ function evaluate<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>>(
     task,
     scorers,
     threshold = 1.0,
-    testOptions,
+    timeout,
+    concurrency,
+    retries,
+    results,
   }: Eval<DATA, TASK_OUTPUT>
 );
 ```
 
 ## Parameters
 
-### `name`
-
-- **Type**: `string`
-- **Required**: Yes
-- **Description**: The suite name shown in results
-
-### `options`
-
-- **Type**: `Eval<DATA, TASK_OUTPUT>`
-- **Required**: Yes
-- **Description**: Configuration object for the evaluation
+<FieldGroup title="Parameters">
+  <Field name="name" type="string" required>
+    The suite name shown in results.
+  </Field>
+  <Field name="options" type="Eval<DATA, TASK_OUTPUT>" required>
+    Cases, task, scorers, and optional overrides.
+  </Field>
+</FieldGroup>
 
 ## Eval interface
 
@@ -71,22 +73,27 @@ interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
    * @default 1.0
    */
   threshold?: number;
-  /** Native Vitest options applied to every generated test case. */
-  testOptions?: TestOptions;
+  timeout?: number;
+  concurrency?: number;
+  retries?: number;
+  results?: readonly ResultProviderName[];
+  skip?: boolean;
 }
 ```
 
 ### `data`
 
-Provide cases as an array, a generator function, or a dataset.
+Provide cases as an array, a typed dependency callback, a dataset reference, or a
+single-source dataset definition. Empty datasets fail explicitly.
 
 **Type**: `Data<DATA_ITEM>`
 
 ```ts
 type Data<DATA_ITEM extends DataItem> =
   | DATA_ITEM[]
-  | DataGenerator<DATA_ITEM>
-  | Dataset<DataGenerator<DATA_ITEM>>;
+  | DataSource<DATA_ITEM>
+  | Dataset<DatasetData<DATA_ITEM>>
+  | DatasetReference<DATA_ITEM>;
 ```
 
 ```ts
@@ -107,6 +114,17 @@ data: async () => {
 // From dataset
 data: mathDataset;
 ```
+
+Read an existing dataset without generating or overwriting it:
+
+```ts
+data: ({ langfuse }) => langfuse.dataset('support-cases');
+```
+
+Remote records have unknown input/expected types by default. Use
+`langfuse.dataset<SupportCase>('support-cases')` when your application owns that
+case contract. This type parameter does not validate remote records. Data callbacks
+run during collection, before tasks; keep expensive generation in `defineDataset()`.
 
 ### `task`
 
@@ -202,21 +220,42 @@ threshold: 0.6;
 threshold: 1.0;
 ```
 
-### `testOptions` (optional)
+### Execution and result options
 
-Native [Vitest test options](https://vitest.dev/api/test.html#test-options) applied
-to every generated test case. Set timeouts, retries, repeats, concurrency, or
-tags here.
-
-**Type**: `TestOptions`
+<FieldGroup title="Overrides">
+  <Field name="timeout" type="number">
+    Positive per-case timeout in milliseconds; inherits config.
+  </Field>
+  <Field name="concurrency" type="number">
+    Positive limit on executing cases in this evaluation. The configured worker
+    limit remains the ceiling; queued cases count toward their timeout.
+  </Field>
+  <Field name="retries" type="number">
+    Non-negative additional attempts for failed cases; inherits config.
+  </Field>
+  <Field name="results" type="ResultProviderName[]">
+    Replaces inherited result destinations. An empty array disables persistence.
+    All selected providers receive the same completed outcomes without rerunning
+    tasks.
+  </Field>
+  <Field name="skip" type="boolean" defaultValue="false">
+    Skip all cases, retaining skipped outcomes in reports.
+  </Field>
+</FieldGroup>
 
 ```ts
-// Set a timeout and retry transient model failures.
-testOptions: { timeout: 60_000, retry: 2 };
-
-// Disable the timeout.
-testOptions: { timeout: 0 };
+evaluate('Support answers', {
+  data: ({ langfuse }) => langfuse.dataset('support-cases'),
+  task: ({ input }) => answerQuestion(input),
+  scorers: [scorers.factual()],
+  timeout: 120_000,
+  retries: 1,
+  results: ['json'],
+});
 ```
+
+Persistence failures fail the run. Fan-out is not transactional: successfully
+published destinations are not rolled back when another destination fails.
 
 ### `aggregation` (optional)
 

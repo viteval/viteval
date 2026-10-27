@@ -35,8 +35,7 @@ on:
       - 'datasets/**'
       - '**/*.eval.ts'
       - '**/*.dataset.ts'
-      - 'vitest.config.*'
-      - 'viteval.setup.*'
+      - 'viteval.config.*'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/evaluate.yml'
@@ -49,8 +48,7 @@ on:
       - 'datasets/**'
       - '**/*.eval.ts'
       - '**/*.dataset.ts'
-      - 'vitest.config.*'
-      - 'viteval.setup.*'
+      - 'viteval.config.*'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/evaluate.yml'
@@ -79,7 +77,7 @@ jobs:
 
 ## Preserve reports
 
-Configure `JsonReporter` to write `.viteval/results/<id>.json`, then upload the
+Select `eval.results: ['json']` in config, then upload the
 files even when a score or execution failure makes the evaluation step fail:
 
 ```yaml
