@@ -67,7 +67,7 @@
 .vv-feature-detail__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px 32px;
+  gap: 12px;
 }
 
 .vv-feature-detail__link {
