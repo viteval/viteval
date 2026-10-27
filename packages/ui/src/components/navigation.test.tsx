@@ -110,21 +110,53 @@ describe('component navigation', () => {
         names.some((expected) => expected === name)
       );
     }
-    if (query === '') {
-      for (const name of ['Status', 'Duration', 'Passed', 'Failed', 'Total']) {
-        fireEvent.pointerDown(screen.getByRole('button', { name }), {
-          button: 0,
-          ctrlKey: false,
-        });
-        fireEvent.click(screen.getByRole('menuitem', { name: 'Asc' }));
-        fireEvent.pointerDown(screen.getByRole('button', { name }), {
-          button: 0,
-          ctrlKey: false,
-        });
-        fireEvent.click(screen.getByRole('menuitem', { name: 'Desc' }));
-      }
-    }
   });
+
+  it.each(['Status', 'Duration', 'Passed', 'Failed', 'Total'])(
+    'should sort local results by %s in both directions',
+    async (name) => {
+      stubTags();
+      await renderNavigation({
+        component: (
+          <ResultsList
+            results={[1, 2].map((value) => ({
+              id: `sort-${value}`,
+              runId: `sort-${value}`,
+              name: `Run ${value}`,
+              path: '',
+              size: 1,
+              summary: {
+                status: 'finished',
+                success: value === 1,
+                numTotalEvalSuites: value,
+                numPassedEvalSuites: value,
+                numFailedEvalSuites: 0,
+                numTotalEvals: value,
+                numPassedEvals: value,
+                numFailedEvals: value - 1,
+                duration: value,
+                startTime: value,
+                endTime: value,
+                suiteNames: [],
+                suiteIds: [],
+              },
+            }))}
+          />
+        ),
+        initialEntry: '/results',
+      });
+      fireEvent.pointerDown(screen.getByRole('button', { name }), {
+        button: 0,
+        ctrlKey: false,
+      });
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Asc' }));
+      fireEvent.pointerDown(screen.getByRole('button', { name }), {
+        button: 0,
+        ctrlKey: false,
+      });
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Desc' }));
+    }
+  );
 
   it.each([
     ['q=alpha', ['Alpha']],
