@@ -5,7 +5,7 @@ description: Define reusable evaluation cases, generate them on demand, and sele
 
 # `defineDataset()`
 
-import { Field, FieldGroup } from '@theme';
+import { Field, FieldGroup, PackageManagerTabs } from '@theme';
 
 `defineDataset()` defines how cases are generated and where to save them, including
 hosted integrations such as Langfuse. Run generation with `viteval data`; importing
@@ -179,7 +179,19 @@ import semantics.
 
 The exported Zod schema validates V1 dataset files used by JSON storage, object
 storage snapshots, and the dashboard. It is available from `@viteval/core/dataset`,
-not re-exported by `viteval/dataset`:
+not re-exported by `viteval/dataset`. Install `@viteval/core` as a direct dependency
+before using this import (pnpm does not expose Viteval's transitive dependencies):
+
+<PackageManagerTabs
+  command={{
+    npm: 'npm install --save-dev @viteval/core@rc',
+    pnpm: 'pnpm add -D @viteval/core@rc',
+    yarn: 'yarn add --dev @viteval/core@rc',
+  }}
+/>
+
+Keep `@viteval/core` at the same version as your installed `viteval` package.
+Then validate the saved dataset:
 
 ```ts
 import { readFile } from 'node:fs/promises';

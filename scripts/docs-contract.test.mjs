@@ -116,7 +116,7 @@ test('reference and concept pages share their category templates', async () => {
     if (page.startsWith('docs/api/')) {
       assert.match(
         content,
-        /import \{ Field, FieldGroup \} from '@theme'/,
+        /import \{ Field, FieldGroup(?:, PackageManagerTabs)? \} from '@theme'/,
         page
       );
       assert.match(content, /<FieldGroup\b/, page);
@@ -132,6 +132,7 @@ test('restored dataset, migration, and storage docs retain examples and verifica
   assert.match(dataset, /## `DATASET_FILE_SCHEMA`/);
   assert.match(dataset, /from '@viteval\/core\/dataset'/);
   assert.match(dataset, /DATASET_FILE_SCHEMA\.safeParse/);
+  assert.match(dataset, /pnpm add -D @viteval\/core@rc/);
   assert.match(dataset, /Please cancel ord-2087\./);
   assert.match(dataset, /How do I update my address\?/);
   for (const name of ['migration', 'providers']) {
@@ -146,6 +147,34 @@ test('restored dataset, migration, and storage docs retain examples and verifica
     );
     assert.match(content, /pnpm exec viteval run/, name);
     assert.match(content, /## Verification\n[\s\S]*- \[ \]/, name);
+  }
+});
+
+test('configuration groups settings before examples and migration supports each package manager', async () => {
+  const configuration = await readFile(
+    new URL('../docs/api/configuration.mdx', import.meta.url),
+    'utf8'
+  );
+  assert.match(
+    configuration,
+    /## Project settings\n[\s\S]*## Evaluation defaults\n[\s\S]*## Example\n[\s\S]*## References\n/
+  );
+  const migration = await readFile(
+    new URL('../docs/guide/migration.mdx', import.meta.url),
+    'utf8'
+  );
+  for (const command of ['npx viteval', 'pnpm exec viteval', 'yarn viteval']) {
+    for (const argument of [
+      'run migration-check.eval.ts',
+      'data',
+      'run',
+      'ui',
+    ]) {
+      assert.ok(
+        migration.includes(`${command} ${argument}`),
+        `${command} ${argument}`
+      );
+    }
   }
 });
 

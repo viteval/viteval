@@ -3,7 +3,7 @@ title: Migrate to v1
 description: Update configuration, tasks, storage, and CLI commands, then verify the migration.
 ---
 
-import { Steps, Step } from '@theme';
+import { PackageManagerTabs, Steps, Step } from '@theme';
 
 # Migrate to v1
 
@@ -123,11 +123,17 @@ available for programmatic integrations.
 
 ```bash
 node --version
-pnpm exec viteval run migration-check.eval.ts
-pnpm exec viteval data
-pnpm exec viteval run
-pnpm exec viteval ui
 ```
+
+Use your project's package manager to run the verification commands:
+
+<PackageManagerTabs
+  command={{
+    npm: 'npx viteval run migration-check.eval.ts\nnpx viteval data\nnpx viteval run\nnpx viteval ui',
+    pnpm: 'pnpm exec viteval run migration-check.eval.ts\npnpm exec viteval data\npnpm exec viteval run\npnpm exec viteval ui',
+    yarn: 'yarn viteval run migration-check.eval.ts\nyarn viteval data\nyarn viteval run\nyarn viteval ui',
+  }}
+/>
 
 - [ ] Node reports version 26 or newer.
 - [ ] The migration check reports two passing cases with exact-match scores of 1.
@@ -146,7 +152,7 @@ in the selected backend instead of the local dashboard.
 ### No evaluations are found
 
 Confirm `eval.include` matches your `.eval.ts` files in the selected project root.
-Use `pnpm exec viteval run --help` for supported filters and options.
+Use `viteval run --help` through your package manager for supported filters and options.
 
 ### Old results do not appear
 
