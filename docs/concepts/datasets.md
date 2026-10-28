@@ -55,6 +55,8 @@ The data command discovers datasets in dataset and evaluation modules. It runs
 their generators, not evaluation tasks or scorers. Module-level code still runs
 during import, so keep expensive calls inside task functions.
 
-See [`data`](/cli/data) for discovery rules,
-[`defineDataset()`](/api/define-dataset) for the API, and
-[storage and results](/concepts/storage) for provider roles.
+## References
+
+- [`data`](/cli/data) for discovery rules
+- [`defineDataset()`](/api/define-dataset) for the API and file schema
+- [Storage and results](/concepts/storage) for provider roles

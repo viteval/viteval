@@ -1,8 +1,25 @@
+---
+title: Migrate to v1
+description: Update configuration, tasks, storage, and CLI commands, then verify the migration.
+---
+
+import { Steps, Step } from '@theme';
+
 # Migrate to v1
 
 V1 requires Node >=26. Vitest 5 runs evaluations internally; Viteval owns configuration.
 
-## Configuration
+## Prerequisites
+
+- Use Node >=26 and install `viteval@rc` in your project.
+- Back up pre-V1 databases and result files before changing storage.
+- Export any pre-V1 tag associations you need to retain.
+- Run commands from the project root containing `viteval.config.ts`.
+
+## Steps
+
+<Steps>
+<Step title="Move settings into Viteval configuration">
 
 Use `viteval.config.ts` and move evaluation settings into `eval`:
 
@@ -27,7 +44,8 @@ and `test.retry` with `eval.timeout`, `eval.concurrency`, and `eval.retries`.
 Replace evaluation `testOptions` with direct `timeout`, `concurrency`, `retries`,
 and `skip` options. See [Configuration](/api/configuration).
 
-## Tasks and scorers
+</Step>
+<Step title="Update tasks and scorers">
 
 Tasks receive an object: `task: ({ input, context }) => ...`. Expected answers
 are supplied to scorers, not to the task. Construct built-in scorers with factory
@@ -40,7 +58,24 @@ Thresholds apply per case to the selected `mean`, `median`, or `sum`. Null score
 count as zero. Empty datasets, empty scorer lists, non-finite thresholds/scores,
 and unsupported JSON values fail explicitly.
 
-## Storage and reports
+Create `src/migration-check.eval.ts` to check execution without a model or API key:
+
+```ts
+import { evaluate, scorers } from 'viteval';
+
+evaluate('Migration check', {
+  data: [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'world', expected: 'WORLD' },
+  ],
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
+  threshold: 1,
+});
+```
+
+</Step>
+<Step title="Select storage and report destinations">
 
 JSON is the default provider. Explicitly use `viteval({ database: 'sqlite' })`
 for the optional database provider. See [Providers](./providers).
@@ -55,12 +90,14 @@ malformed or incompatible files as warnings.
 The JSON provider preserves run history under `.viteval/results` without a
 separate output filename or reporter.
 
-## CLI
+</Step>
+<Step title="Replace runner CLI options">
 
 `viteval run` owns its options and file filters. Use `viteval run --help` for
 evaluation options and `viteval --help` for project commands. Replace native
 runner flags with `--timeout`, `--concurrency`, `--retries`, and `--name`.
-For init, data, and UI commands, `--cwd` selects the working directory.
+For data and UI commands, `--root` selects the project root. Run init from the
+target project's directory.
 
 Replace output-path/reporter configuration with `eval.results: ['json']`.
 Destination arrays replace inherited selections; `[]` disables persistence.
@@ -72,8 +109,59 @@ callbacks such as `data: ({ langfuse }) => langfuse.dataset('support')`.
 and inline `defineDataset()` calls are supported; generation skips evaluation
 tasks and scorers. See [CLI datasets](/cli/data).
 
-## Dashboard
+</Step>
+<Step title="Inspect V1 results in the dashboard">
 
 Use `viteval ui` to inspect V1 results and datasets. Pre-V1 files are not read
 through compatibility fallbacks. The `createVitevalServer()` launcher API is
 available for programmatic integrations.
+
+</Step>
+</Steps>
+
+## Verification
+
+```bash
+node --version
+pnpm exec viteval run migration-check.eval.ts
+pnpm exec viteval data
+pnpm exec viteval run
+pnpm exec viteval ui
+```
+
+- [ ] Node reports version 26 or newer.
+- [ ] The migration check reports two passing cases with exact-match scores of 1.
+- [ ] Dataset generation discovers the intended definitions without running tasks or scorers.
+- [ ] The full suite discovers your evaluation files and uses the intended model and storage providers.
+- [ ] New JSON reports contain `schemaVersion: 1` and appear in the dashboard with matching case outcomes.
+- [ ] Any exported tag associations have been reapplied through the V1 tag provider.
+
+Temporarily change `HELLO` to `GOODBYE` in the migration check. Confirm the command
+exits nonzero and the failed case appears in its saved report. Restore `HELLO`
+before continuing. If you deliberately disabled JSON persistence, verify results
+in the selected backend instead of the local dashboard.
+
+## Troubleshooting
+
+### No evaluations are found
+
+Confirm `eval.include` matches your `.eval.ts` files in the selected project root.
+Use `pnpm exec viteval run --help` for supported filters and options.
+
+### Old results do not appear
+
+The dashboard reads V1 JSON snapshots, not pre-V1 files or hosted results. Run
+the migrated suite with `eval.results: ['json']` and select the same dashboard root.
+
+### A provider is registered but receives no writes
+
+Select it in `eval.results` or `dataset.providers`. Registration alone does not
+enable hosted persistence; explicit destination arrays replace inherited values.
+
+## References
+
+- [Configuration](/api/configuration)
+- [Set up storage providers](/guide/providers)
+- [Inspect results](/guide/results)
+- [CLI datasets](/cli/data)
+- [Provider types](/api/storage/provider-types) for tag operations

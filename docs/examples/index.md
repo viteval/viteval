@@ -1,3 +1,8 @@
+---
+title: Examples
+description: Copy deterministic evaluations, reusable datasets, and model-backed scoring examples.
+---
+
 # Examples
 
 These examples cover deterministic checks, generated datasets, and model-based

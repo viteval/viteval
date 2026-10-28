@@ -55,6 +55,8 @@ Persist JSON-compatible values. Provider operations return Result values, and
 initialization or persistence failures fail the evaluation run. Backend
 capabilities differ, especially for updates, replacement, and historical reads.
 
-See [set up storage providers](/guide/providers) for backend setup and limitations,
-[inspect results](/guide/results) for the dashboard workflow, and
-[Configuration](/api/configuration) for destination selection.
+## References
+
+- [Set up storage providers](/guide/providers) for backend setup and limitations
+- [Inspect results](/guide/results) for the dashboard workflow
+- [Configuration](/api/configuration) for destination selection

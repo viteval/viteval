@@ -1,9 +1,16 @@
+---
+title: Configuration
+description: Reference project settings, evaluation defaults, storage destinations, and scorer models.
+---
+
 # Configuration
 
 import { Field, FieldGroup } from '@theme';
 
 Create `viteval.config.ts` with Viteval's own settings. No worker setup file,
 manual initialization, or Vitest configuration is required.
+
+## Example
 
 ```ts
 import { openai } from '@ai-sdk/openai';
@@ -146,3 +153,10 @@ need no model configuration.
 Storage integration imports contribute typed names and dataset handles. Type
 visibility does not prove an integration is active in the selected config;
 registration and capabilities are also checked at runtime.
+
+## References
+
+- [Getting started](/getting-started)
+- [Configure models](/guide/models)
+- [Set up storage providers](/guide/providers)
+- [`evaluate()`](/api/evaluate)

@@ -10,6 +10,45 @@ How we write documentation for this project.
 
 ## Document Types
 
+### Published site (`docs/`)
+
+Use the core templates below, rendered with Ciderpress built-ins. Match the
+structure of other pages of the same type; do not give each guide its own layout.
+
+- Every published page has frontmatter with `title` and `description`.
+- Standard pages have one H1 and a short opening description. Only the landing,
+  features, and brand pages use `pageType: custom` and custom layouts.
+- MDX guides import `Steps` and `Step` from `@theme`. Use one flat `<Steps>` group
+  under `## Steps`; each `<Step title="...">` starts with a verb. Ciderpress supplies
+  the numbering, so do not put numbers in step titles.
+- API references use `FieldGroup` and `Field` from `@theme` for option contracts.
+  Keep option names, types, required markers, and defaults consistent.
+- End standard guides, concepts, API references, and CLI references with
+  `## References` linking to related pages. Use site-absolute routes in `docs/`;
+  contributor docs keep relative file links.
+
+| Page type                                    | Required structure                                                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Guides (`docs/guide/*.mdx`, getting started) | Prerequisites → Steps → Verification → Troubleshooting → References                                                |
+| Function API references                      | Import → Signature → Parameters; include an Example and Return value (or Return value and errors), then References |
+| Configuration, provider, and scorer catalogs | Import when applicable, grouped settings or contracts, focused examples, References                                |
+| CLI references (`docs/cli/*.md`)             | Usage → Arguments (when applicable) → Options; include Examples, then References                                   |
+| Concepts (`docs/concepts/*.md`)              | Short definition, focused topic sections, minimal examples where useful, References                                |
+
+Extra reference sections may appear between required sections when the task
+needs them (for example, backend setup in the storage guide). Keep procedural
+instructions inside the numbered steps. Do not add empty sections just to match
+a template.
+
+Verification names the expected outcome, not just the command to run. Migration
+and storage guides use checklists for the checks spanning multiple systems.
+Troubleshooting describes current APIs; do not restore removed initialization,
+runner configuration, or reporter APIs from older docs.
+
+Run `pnpm docs:check`, `pnpm docs:build`, and `pnpm validate` after changes. The
+docs build runs `scripts/docs-contract.test.mjs` to check metadata, page templates,
+and removed-API regressions.
+
 ### Guides (`guides/*.md`)
 
 Step-by-step instructions for completing a task.

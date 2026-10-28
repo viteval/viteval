@@ -55,5 +55,7 @@ viteval data --overwrite
 viteval data --root ./app --config viteval.config.ts
 ```
 
-See [datasets](/concepts/datasets) for storage modes and
-[`defineDataset()`](/api/define-dataset) for the generator API.
+## References
+
+- [Datasets](/concepts/datasets) for storage modes
+- [`defineDataset()`](/api/define-dataset) for the generator API

@@ -46,4 +46,7 @@ viteval init --no-env-file
 viteval init --create-env-file --env-file-path .env.local
 ```
 
-For the installation and first-run walkthrough, see [Getting started](/getting-started).
+## References
+
+- [Getting started](/getting-started) for installation and the first run
+- [Configuration](/api/configuration) for generated settings
