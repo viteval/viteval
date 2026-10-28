@@ -15,12 +15,7 @@ export type {
   DatasetReference,
   DatasetHandle,
 } from './provider/registry';
-export { initializeModel } from './model';
-export {
-  createJsonProvider,
-  createProvider,
-  initializeProvider,
-} from './provider';
+export { createJsonProvider, createProvider } from './provider';
 export { createScorer, scorers, wrapScorer } from './scorer';
 export type {
   Data,
@@ -37,10 +32,8 @@ export type {
   Task,
   TaskArgs,
 } from './types';
-export type { ModelConfig } from './model';
 export type {
   Provider,
-  ProviderConfig,
   DatasetProvider,
   EvalProvider,
   TagProvider,

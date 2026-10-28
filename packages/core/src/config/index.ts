@@ -6,7 +6,6 @@ export type {
   ModelId,
   ModelProvider,
 } from './types';
-export { createRunnerConfig } from './runner';
 
 /**
  * Define a Viteval project. Clients initialize lazily inside each worker.

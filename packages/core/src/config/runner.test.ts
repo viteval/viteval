@@ -128,18 +128,20 @@ describe('createRunnerConfig', () => {
     ]);
   });
 
-  it('should leave explicitly selected native configurations unchanged', async () => {
-    const config = await resolveConfig(
-      { config: false },
-      {
-        ...createRunnerConfig({ configFile: '/native/config.ts', root: ROOT }),
-        root: ROOT,
-        test: { include: ['**/*.test.ts'], testTimeout: 450 },
-      }
-    );
-    expect(config.test.include).toEqual(['**/*.test.ts']);
-    expect(config.test.testTimeout).toBe(450);
-    expect(config.test.provide).not.toHaveProperty('vitevalEvalDefaults');
+  it('should reject explicitly selected native configurations', async () => {
+    await expect(
+      resolveConfig(
+        { config: false },
+        {
+          ...createRunnerConfig({
+            configFile: '/native/config.ts',
+            root: ROOT,
+          }),
+          root: ROOT,
+          test: { include: ['**/*.test.ts'], testTimeout: 450 },
+        }
+      )
+    ).rejects.toThrow('Expected a Viteval configuration');
   });
 
   it('should adapt explicitly selected Viteval configurations', async () => {

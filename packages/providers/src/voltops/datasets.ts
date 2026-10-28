@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import type { VoltOpsRestClient, EvalDatasetDetail } from '@voltagent/sdk';
+import type {
+  VoltOpsRestClient,
+  EvalDatasetDetail,
+  EvalDatasetItemSummary,
+} from '@voltagent/sdk';
 import { attemptAsync, err } from 'massaman/control';
 import type { DatasetProvider, StoredDataset } from '@viteval/core';
 import { serializeJson } from '@viteval/internal';
@@ -7,6 +11,16 @@ import { jsonValue, requireRecord } from '#/remote-record';
 
 const MANAGED_DESCRIPTION = 'viteval:dataset-upload:v1\n';
 const UPLOAD = '__viteval_upload';
+
+type HostedRow = EvalDatasetItemSummary;
+
+/** A user-authored case staged for upload; copied storage rows set `label` explicitly. */
+interface UploadRow {
+  input: unknown;
+  expected: unknown;
+  extra?: Record<string, unknown> | null;
+  label?: string | null;
+}
 
 /** Create hosted VoltOps dataset operations over its SDK and published upload routes.
  * @param client - Initialized hosted SDK.
@@ -38,16 +52,14 @@ export function createVoltOpsDatasets(
     if (!dataset) throw new Error(`VoltOps dataset not found: ${id}`);
     return dataset;
   }
-  async function items(dataset: EvalDatasetDetail) {
+  async function userRows(dataset: EvalDatasetDetail): Promise<HostedRow[]> {
     const managed = dataset.description?.startsWith(MANAGED_DESCRIPTION);
     const versionId = dataset.versions[0]?.id;
     if (!versionId) {
       if (managed) throw incomplete(dataset);
       return [];
     }
-    const records: Awaited<
-      ReturnType<VoltOpsRestClient['listDatasetItems']>
-    >['items'] = [];
+    const records: HostedRow[] = [];
     while (true) {
       const response = await client.listDatasetItems(dataset.id, versionId, {
         offset: records.length,
@@ -90,28 +102,31 @@ export function createVoltOpsDatasets(
       )
         throw incomplete(dataset);
     }
-    return records
-      .filter((item) => !item.extra || !(UPLOAD in item.extra))
-      .map((item, ordinal) => ({
-        id: item.id,
-        datasetId: dataset.id,
-        ordinal,
-        input: item.input,
-        expected: item.expected,
-        extra: {
-          ...item.extra,
-          ...(item.label ? { name: item.label } : {}),
-          datasetVersionId: versionId,
-        },
-      }));
+    return records.filter((item) => !item.extra || !(UPLOAD in item.extra));
+  }
+  async function items(dataset: EvalDatasetDetail) {
+    const versionId = dataset.versions[0]?.id;
+    return (await userRows(dataset)).map((item, ordinal) => ({
+      id: item.id,
+      datasetId: dataset.id,
+      ordinal,
+      input: item.input,
+      expected: item.expected,
+      // Conveniences fill absent keys and never overwrite stored user metadata.
+      extra: {
+        ...item.extra,
+        ...(item.label && item.extra?.name === undefined
+          ? { name: item.label }
+          : {}),
+        ...(item.extra?.datasetVersionId === undefined
+          ? { datasetVersionId: versionId }
+          : {}),
+      },
+    }));
   }
   async function upload(params: {
     datasetId: string;
-    items: {
-      input: unknown;
-      expected: unknown;
-      extra?: Record<string, unknown>;
-    }[];
+    items: UploadRow[];
     metadata?: Record<string, unknown>;
   }) {
     jsonValue(params);
@@ -141,8 +156,7 @@ export function createVoltOpsDatasets(
             input: item.input,
             expected: item.expected ?? null,
             extra: item.extra ?? null,
-            label:
-              typeof item.extra?.name === 'string' ? item.extra.name : null,
+            label: uploadLabel(item),
           },
         });
       await journal('complete');
@@ -233,10 +247,19 @@ export function createVoltOpsDatasets(
           throw new Error(
             'VoltOps cannot safely append to an unmanaged dataset; create a new Viteval dataset instead'
           );
-        const current = await items(dataset);
+        // Append must copy stored user metadata verbatim; read conveniences stay out of new versions.
+        const current = await userRows(dataset);
         await upload({
           datasetId: params.datasetId,
-          items: [...current, ...params.items],
+          items: [
+            ...current.map((item) => ({
+              input: item.input,
+              expected: item.expected,
+              extra: item.extra,
+              label: item.label ?? null,
+            })),
+            ...params.items,
+          ],
         });
       }),
     replaceItems: () =>
@@ -266,7 +289,12 @@ function incomplete(dataset: EvalDatasetDetail): Error {
   );
 }
 
-function validateItems(items: { extra?: Record<string, unknown> }[]): void {
+function uploadLabel(item: UploadRow): string | null {
+  if (item.label !== undefined) return item.label;
+  return typeof item.extra?.name === 'string' ? item.extra.name : null;
+}
+
+function validateItems(items: UploadRow[]): void {
   for (const item of items) {
     if (item.extra && UPLOAD in item.extra)
       throw new Error(

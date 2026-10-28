@@ -6,9 +6,41 @@ import { parseInvocation } from '#/lib/argv';
 const args = process.argv.slice(2),
   invocation = parseInvocation(args);
 
-if (invocation.isProjectCommand || invocation.isRootHelp) {
-  const { DATA_OPTIONS, DATA_POSITIONALS, UI_OPTIONS } =
-    await import('#/lib/command-options');
+if (invocation.isBare) {
+  if (invocation.cwd !== undefined) process.chdir(invocation.cwd);
+  const { runEvaluations } = await import('#/commands/run');
+  const { createLogger } = await import('#/lib/logger');
+  const logger = createLogger();
+  await runEvaluations({
+    argv: {},
+    filters: [],
+    log: logger,
+  });
+} else {
+  if (
+    ![
+      'run',
+      'list',
+      'init',
+      'data',
+      'ui',
+      '--help',
+      '-h',
+      '--version',
+      '-v',
+    ].includes(invocation.args[0])
+  ) {
+    process.argv = [...process.argv.slice(0, 2), 'run', ...args];
+  }
+  const {
+    DATA_OPTIONS,
+    DATA_POSITIONALS,
+    LIST_OPTIONS,
+    LIST_POSITIONALS,
+    RUN_OPTIONS,
+    RUN_POSITIONALS,
+    UI_OPTIONS,
+  } = await import('#/lib/command-options');
   await cli({
     commands: {
       data: command({
@@ -21,8 +53,23 @@ if (invocation.isProjectCommand || invocation.isRootHelp) {
         },
       }),
       init: initCommand,
+      list: command({
+        description: 'List evaluations without running tasks or scorers',
+        options: LIST_OPTIONS,
+        positionals: LIST_POSITIONALS,
+        handler: async (ctx) => {
+          const { listCommand } = await import('#/commands/list');
+          await listCommand.handler?.(ctx);
+        },
+      }),
       run: command({
         description: 'Run evaluations',
+        options: RUN_OPTIONS,
+        positionals: RUN_POSITIONALS,
+        handler: async (ctx) => {
+          const { runCommand } = await import('#/commands/run');
+          await runCommand.handler?.(ctx);
+        },
       }),
       ui: command({
         description: 'Start the UI server to view evaluation results',
@@ -36,41 +83,9 @@ if (invocation.isProjectCommand || invocation.isRootHelp) {
     description: 'LLM evaluations powered by Vitest',
     help: {
       footer: 'Evaluation options: viteval run --help',
-      order: ['run', 'init', 'data', 'ui'],
+      order: ['run', 'list', 'init', 'data', 'ui'],
     },
     name: 'viteval',
     version,
   });
-} else {
-  if (invocation.cwd !== undefined) {
-    process.chdir(invocation.cwd);
-  }
-  const { createCLI } = await import('vitest/node');
-  if (
-    invocation.args.some((arg) =>
-      ['--help', '-h', '--version', '-v'].includes(arg)
-    )
-  ) {
-    createCLI().parse([...process.argv.slice(0, 2), ...invocation.args]);
-  } else {
-    const { resolveProjectConfig } = await import('#/lib/config'),
-      { createCliRunnerConfig } = await import('#/lib/runner-config'),
-      nativeCli = createCLI(),
-      parsed = nativeCli.parse(
-        [...process.argv.slice(0, 2), ...invocation.args],
-        { run: false }
-      ),
-      project = resolveProjectConfig(parsed.options),
-      runnerConfig = createCliRunnerConfig(project);
-    nativeCli.options = {
-      ...nativeCli.options,
-      ...(nativeCli.matchedCommandName === 'list'
-        ? { staticParse: parsed.options.staticParse ?? false }
-        : {}),
-      ...(parsed.options.root !== undefined ? { root: project.root } : {}),
-      config: runnerConfig.configFile,
-    };
-    // Watch mode returns after its first run; keep the wrapper until process exit.
-    await nativeCli.runMatchedCommand();
-  }
 }

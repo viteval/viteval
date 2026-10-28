@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { type ProjectRuntime, createProjectRuntime } from '#/config/runtime';
 import { createScorer } from './custom';
+
+const runtimes: ProjectRuntime[] = [];
+
+afterEach(async () => {
+  globalThis.__viteval_runtime = undefined;
+  await Promise.all(runtimes.map((runtime) => runtime.close()));
+  runtimes.length = 0;
+});
 
 describe('createScorer', () => {
   it('should preserve a dependency factory scorer name in metadata and scores', async () => {
@@ -12,6 +21,56 @@ describe('createScorer', () => {
       name: 'context-scorer',
       score: 1,
     });
+  });
+
+  it('should resolve dependency factories lazily and only once', async () => {
+    let resolutions = 0;
+    const scorer = createScorer(() => {
+      resolutions++;
+      return {
+        name: 'lazy-scorer',
+        score: () => ({ score: 1 }),
+      };
+    });
+    expect(resolutions).toBe(0);
+    expect(scorer.name).toBe('lazy-scorer');
+    expect(scorer.name).toBe('lazy-scorer');
+    const first = await scorer({ output: 'answer' });
+    const second = await scorer({ output: 'answer' });
+    expect(resolutions).toBe(1);
+    expect(first.name).toBe(second.name);
+    expect(first.name).toBe(scorer.name);
+  });
+
+  it('should re-resolve dependency factories when the active runtime changes', async () => {
+    const contexts: unknown[] = [];
+    const scorer = createScorer((context) => {
+      contexts.push(context);
+      return {
+        name: 'runtime-scorer',
+        score: () => ({ score: contexts.length }),
+      };
+    });
+    expect(scorer.name).toBe('runtime-scorer');
+    expect(contexts).toHaveLength(1);
+    const fallback = contexts[0];
+
+    useRuntime();
+    expect(scorer.name).toBe('runtime-scorer');
+    expect(contexts).toHaveLength(2);
+    expect(contexts[1]).not.toBe(fallback);
+
+    await scorer({ output: 'answer' });
+    expect(contexts).toHaveLength(2);
+
+    useRuntime();
+    await scorer({ output: 'answer' });
+    expect(contexts).toHaveLength(3);
+    expect(contexts[2]).not.toBe(contexts[1]);
+
+    globalThis.__viteval_runtime = undefined;
+    expect(scorer.name).toBe('runtime-scorer');
+    expect(contexts).toHaveLength(4);
   });
 
   it('should create a basic scorer with synchronous score function', async () => {
@@ -186,6 +245,13 @@ describe('createScorer', () => {
     expect(result.metadata?.passed).toBeDefined();
   });
 });
+
+function useRuntime(): ProjectRuntime {
+  const runtime = createProjectRuntime({});
+  runtimes.push(runtime);
+  globalThis.__viteval_runtime = runtime;
+  return runtime;
+}
 
 function calculateSimilarity(str1: string, str2: string): number {
   const words1 = str1.split(' ');

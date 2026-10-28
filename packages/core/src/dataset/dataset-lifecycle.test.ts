@@ -2,8 +2,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { err } from 'massaman/control';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createProjectRuntime } from '#/config/runtime';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createProjectRuntime, setProjectRuntime } from '#/config/runtime';
 import { createJsonProvider } from '#/provider/json';
 import type { Provider } from '#/provider/types';
 import { defineDataset } from './dataset';
@@ -19,17 +19,25 @@ const ITEMS = [{ input: 'q', expected: 'a', context: 'reference' }];
 
 beforeEach(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'viteval-dataset-lifecycle-'));
-  globalThis.__viteval_datasetProvider = createJsonProvider({ root }).datasets;
 });
 afterEach(async () => {
+  vi.restoreAllMocks();
   await globalThis.__viteval_runtime?.close();
   globalThis.__viteval_runtime = undefined;
-  globalThis.__viteval_datasetProvider = undefined;
   globalThis.__viteval_datasetDiscovery = undefined;
   await rm(root, { recursive: true, force: true });
 });
 
 describe('dataset lifecycle', () => {
+  it('should use local JSON storage outside a configured worker', async () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(root);
+    const dataset = defineDataset({ name: 'standalone', data: ITEMS });
+    expect(await dataset.exists()).toMatchObject({ ok: true, value: false });
+    expect(await dataset.save()).toMatchObject({ ok: true });
+    expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
+    expect(await dataset.load()).toMatchObject({ ok: true, value: ITEMS });
+  });
+
   it.each(['memory', 'disabled'] as const)(
     'should generate %s data without persistence',
     async (mode) => {
@@ -48,6 +56,7 @@ describe('dataset lifecycle', () => {
   );
 
   it('should return absent data unless creation is explicitly requested', async () => {
+    useJsonRuntime();
     let generations = 0;
     const dataset = defineDataset({
       name: 'generated',
@@ -72,6 +81,7 @@ describe('dataset lifecycle', () => {
   });
 
   it('should not regenerate stored data unless overwrite is requested', async () => {
+    useJsonRuntime();
     let generations = 0;
     const dataset = defineDataset({
       name: 'once',
@@ -262,6 +272,12 @@ describe('dataset lifecycle', () => {
     });
   });
 });
+
+function useJsonRuntime(): void {
+  setProjectRuntime(
+    createProjectRuntime({ providers: [createJsonProvider({ root })] })
+  );
+}
 
 function installBrokenProvider(
   overrides: Partial<NonNullable<Provider['datasets']>>

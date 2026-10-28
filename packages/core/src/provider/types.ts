@@ -349,10 +349,10 @@ export interface EvalProvider {
  *
  * @example
  * ```ts
- * import { viteval } from '@viteval/providers';
+ * import { defineConfig } from 'viteval/config';
+ * import { createJsonProvider } from 'viteval';
  *
- * const result = await initializeProvider(viteval());
- * if (!result.ok) process.exitCode = 1;
+ * export default defineConfig({ providers: [createJsonProvider()] });
  * ```
  */
 export interface Provider {
@@ -377,35 +377,6 @@ export interface Provider {
    */
   close(): Promise<Result<void>>;
 }
-
-/**
- * Provider configuration for `initializeProvider()`.
- *
- * Accepts either a single provider for all domains, or per-domain providers
- * for composable setups.
- *
- * @example Single provider
- * ```ts
- * const result = await initializeProvider(viteval());
- * if (!result.ok) process.exitCode = 1;
- * ```
- *
- * @example Composable providers
- * ```ts
- * const result = await initializeProvider({
- *   datasets: viteval(),
- *   evals: braintrust({ apiKey: '...' }),
- * });
- * if (!result.ok) process.exitCode = 1;
- * ```
- */
-export type ProviderConfig =
-  | Provider
-  | {
-      datasets?: DatasetProvider | Provider;
-      evals?: EvalProvider | Provider;
-      tags?: TagProvider | Provider;
-    };
 
 /*
 |------------------

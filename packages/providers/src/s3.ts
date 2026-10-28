@@ -21,7 +21,7 @@ export interface S3ProviderOptions extends ObjectDatasetOptions {
 /** Store datasets in S3 with immutable objects and conditional catalog publication.
  * @param options - Existing bucket, namespace, and optional AWS client configuration.
  * @returns A dataset-only provider with lazy SDK loading.
- * @example await initializeProvider({ datasets: s3({ bucket: 'eval-data', clientOptions: { region: 'us-east-1' } }) });
+ * @example defineConfig({ providers: [s3({ bucket: 'eval-data', clientOptions: { region: 'us-east-1' } })], dataset: { providers: ['s3'] } });
  */
 export function s3(options: S3ProviderOptions): Provider {
   return createObjectDatasetProvider({

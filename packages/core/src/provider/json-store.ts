@@ -1,4 +1,14 @@
-import { mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import {
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  rm,
+  rmdir,
+  writeFile,
+} from 'node:fs/promises';
+import { hostname } from 'node:os';
 import path from 'node:path';
 import { setTimeout } from 'node:timers/promises';
 import { writeJsonAtomic } from '@viteval/internal';
@@ -53,31 +63,35 @@ export function createJsonStore(root: string) {
     async update<T>(file: string, operation: () => Promise<T>): Promise<T> {
       const lock = `${resolve(file)}.lock`;
       await mkdir(path.dirname(lock), { recursive: true });
+      const owner = `${Buffer.from(hostname()).toString('base64url')}.${process.pid}.${randomUUID()}`;
+      const staging = `${lock}.${owner}`;
       const deadline = Date.now() + 5_000;
-      while (true) {
-        try {
-          await mkdir(lock);
-          break;
-        } catch (error) {
-          if (
-            !(
-              error instanceof Error &&
-              'code' in error &&
-              error.code === 'EEXIST'
-            )
-          )
-            throw error;
-          if (Date.now() >= deadline)
-            throw new Error(
-              `Storage lock timed out: ${file}. Another writer may still be active.`
-            );
-          await setTimeout(10);
-        }
-      }
+      await mkdir(staging);
       try {
-        return await operation();
+        await writeFile(path.join(staging, owner), '');
+        while (true) {
+          try {
+            // Publish the owner with the lock: an acquiring writer is never ownerless.
+            await rename(staging, lock);
+            break;
+          } catch (error) {
+            if (!hasCode(error, 'EEXIST') && !hasCode(error, 'ENOTEMPTY'))
+              throw error;
+            await recoverLock(lock);
+            if (Date.now() >= deadline)
+              throw new Error(
+                `Storage lock timed out: ${file}. Another writer may still be active.`
+              );
+            await setTimeout(10);
+          }
+        }
+        try {
+          return await operation();
+        } finally {
+          await removeOwnerLock({ lock, owner });
+        }
       } finally {
-        await rm(lock, { recursive: true, force: true });
+        await rm(staging, { recursive: true, force: true });
       }
     },
   };
@@ -86,5 +100,51 @@ export function createJsonStore(root: string) {
 export type JsonStore = ReturnType<typeof createJsonStore>;
 
 function isMissing(error: unknown) {
-  return error instanceof Error && 'code' in error && error.code === 'ENOENT';
+  return hasCode(error, 'ENOENT');
+}
+
+function hasCode(error: unknown, code: string) {
+  return error instanceof Error && 'code' in error && error.code === code;
+}
+
+async function recoverLock(lock: string): Promise<void> {
+  try {
+    const owners = await readdir(lock);
+    if (owners.length !== 1) return;
+    const owner = owners[0]!;
+    const match = /^([\w-]+)\.([1-9]\d*)\.([\da-f-]{36})$/.exec(owner);
+    if (!match || match[1] !== Buffer.from(hostname()).toString('base64url'))
+      return;
+    try {
+      process.kill(Number(match[2]), 0);
+      return;
+    } catch (error) {
+      if (!hasCode(error, 'ESRCH')) return;
+    }
+    // Remove only this dead owner's marker. A replacement has a unique marker,
+    // so rmdir cannot delete a new writer's nonempty lock during concurrent recovery.
+    await removeOwnerLock({ lock, owner });
+  } catch (error) {
+    if (!isMissing(error)) throw error;
+  }
+}
+
+async function removeOwnerLock({
+  lock,
+  owner,
+}: {
+  lock: string;
+  owner: string;
+}): Promise<void> {
+  try {
+    await rm(path.join(lock, owner), { force: true });
+    await rmdir(lock);
+  } catch (error) {
+    if (
+      !isMissing(error) &&
+      !hasCode(error, 'ENOTEMPTY') &&
+      !hasCode(error, 'EEXIST')
+    )
+      throw error;
+  }
 }

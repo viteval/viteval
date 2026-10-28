@@ -17,13 +17,9 @@ let root: string;
 describe('dataset functionality', () => {
   beforeEach(async () => {
     root = await mkdtemp(path.join(tmpdir(), 'viteval-datasets-'));
-    globalThis.__viteval_datasetProvider = createJsonProvider({
-      root,
-    }).datasets;
   });
   afterEach(async () => {
     await closeProjectRuntime();
-    globalThis.__viteval_datasetProvider = undefined;
     await rm(root, { recursive: true, force: true });
   });
 
@@ -99,6 +95,7 @@ describe('dataset functionality', () => {
     });
 
     it('should load existing dataset when not overwriting', async () => {
+      useJsonRuntime();
       const existingData = [{ expected: 'data', input: 'existing' }];
 
       await mkdir(path.join(root, '.viteval', 'datasets'), { recursive: true });
@@ -127,6 +124,7 @@ describe('dataset functionality', () => {
     });
 
     it('should preserve extras and replace saved items without changing identity', async () => {
+      useJsonRuntime();
       let input = 'first';
       const dataset = defineDataset({
         name: 'roundtrip',
@@ -155,6 +153,7 @@ describe('dataset functionality', () => {
     });
 
     it('should retain a saved dataset when replacement generation fails', async () => {
+      useJsonRuntime();
       const original = defineDataset({
         name: 'retained',
         data: async () => [{ input: 'original', expected: 'answer' }],
@@ -184,6 +183,7 @@ describe('dataset functionality', () => {
     ])(
       'should return an error for unversioned dataset files without overwriting them',
       async (document) => {
+        useJsonRuntime();
         const directory = path.join(root, '.viteval', 'datasets');
         await mkdir(directory, { recursive: true });
         const filename = path.join(directory, 'unversioned.json');
@@ -206,3 +206,9 @@ describe('dataset functionality', () => {
     );
   });
 });
+
+function useJsonRuntime(): void {
+  setProjectRuntime(
+    createProjectRuntime({ providers: [createJsonProvider({ root })] })
+  );
+}

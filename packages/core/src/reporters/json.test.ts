@@ -6,7 +6,7 @@ import { EVAL_RESULT_ARTIFACT_TYPE } from '#/evaluate/artifact';
 import { createJsonProvider } from '#/provider/json';
 import type { EvalResult } from '#/types';
 import type { TestCase, TestModule, Vitest } from 'vitest/node';
-import JsonReporter, { type JsonReporterOptions } from './json';
+import { createJsonReporter, type JsonReporterOptions } from './json';
 import { EVAL_RESULTS_SCHEMA } from './schema';
 
 let root: string;
@@ -20,7 +20,27 @@ afterEach(async () => {
   await fs.rm(root, { force: true, recursive: true });
 });
 
-describe('JsonReporter', () => {
+describe('createJsonReporter', () => {
+  it('should return independent plain reporter objects', async () => {
+    const first = createReporter({ run: { id: 'first', name: 'First' } });
+    const second = createReporter({
+      outputFile: 'second.json',
+      run: { id: 'second', name: 'Second' },
+    });
+    expect(Object.getPrototypeOf(first)).toBe(Object.prototype);
+    const { onTestRunStart, onTestRunEnd } = first;
+    onTestRunStart();
+    second.onTestRunStart();
+    await onTestRunEnd([], [], 'passed');
+    await second.onTestRunEnd([], [], 'passed');
+    expect(await readResults()).toMatchObject({
+      runId: 'first',
+      runName: 'First',
+    });
+    expect(
+      JSON.parse(await fs.readFile(path.join(root, 'second.json'), 'utf8'))
+    ).toMatchObject({ runId: 'second', runName: 'Second' });
+  });
   it('should retain each suite end time instead of extending it to reporter projection time', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(10_000);
     const reporter = createReporter();
@@ -222,7 +242,7 @@ describe('JsonReporter', () => {
   });
 
   it('should give watch reruns distinct identities and preserve history', async () => {
-    const reporter = new JsonReporter({ outputFile: 'history/<id>.json' });
+    const reporter = createJsonReporter({ outputFile: 'history/<id>.json' });
     reporter.onInit({ config: { root } } as Vitest);
     reporter.onTestRunStart();
     await reporter.onTestRunEnd(
@@ -271,7 +291,7 @@ describe('JsonReporter', () => {
     const write = vi
       .spyOn(process.stdout, 'write')
       .mockImplementation(() => true);
-    const reporter = new JsonReporter();
+    const reporter = createJsonReporter();
 
     await reporter.onTestRunEnd([], [], 'passed');
 
@@ -402,7 +422,10 @@ describe('JsonReporter', () => {
 });
 
 function createReporter(options: JsonReporterOptions = {}) {
-  const reporter = new JsonReporter({ outputFile: 'results.json', ...options });
+  const reporter = createJsonReporter({
+    outputFile: 'results.json',
+    ...options,
+  });
   reporter.onInit({ config: { root } } as Vitest);
   return reporter;
 }

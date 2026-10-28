@@ -13,12 +13,9 @@ import {
   resolveEmbeddingModel,
   resolveLanguageModel,
 } from './client';
-import { initializeModel } from './initialize';
 
 afterEach(async () => {
   await closeProjectRuntime();
-  globalThis.__viteval_model = undefined;
-  globalThis.__viteval_embeddingModel = undefined;
 });
 
 describe('model selection', () => {
@@ -108,26 +105,17 @@ describe('model selection', () => {
     expect(requireEmbeddingModel()).toMatchObject({ ok: false });
   });
 
-  it('should retain initialized fallback models when a project has no defaults', () => {
-    const language = new MockLanguageModelV4(),
-      embedding = new MockEmbeddingModelV4();
-    initializeModel({ language, embedding });
-    initializeModel(language);
-    initializeModel({ language });
+  it('should report missing models when a project has no model configuration', () => {
     setProjectRuntime(createProjectRuntime({}));
-    expect(getModel()).toBe(language);
-    expect(getEmbeddingModel()).toBe(embedding);
-    expect(requireModel()).toMatchObject({ ok: true, value: language });
-    expect(requireEmbeddingModel()).toMatchObject({
-      ok: true,
-      value: embedding,
-    });
-  });
-
-  it('should leave embeddings unset when repeated initialization has none', () => {
-    const language = new MockLanguageModelV4();
-    initializeModel(language);
-    initializeModel({ language });
+    expect(getModel()).toBeNull();
     expect(getEmbeddingModel()).toBeNull();
+    expect(requireModel()).toMatchObject({
+      ok: false,
+      error: { message: expect.stringContaining('models.defaults.language') },
+    });
+    expect(requireEmbeddingModel()).toMatchObject({
+      ok: false,
+      error: { message: expect.stringContaining('models.defaults.embedding') },
+    });
   });
 });

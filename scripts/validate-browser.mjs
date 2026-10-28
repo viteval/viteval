@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { setTimeout } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
 import { createJsonProvider } from '../packages/core/dist/provider/index.mjs';
 import { createVitevalServer } from '../packages/ui/server.mjs';
 
@@ -62,9 +63,9 @@ try {
   await writeFile(
     path.join(root, 'vitest.config.ts'),
     `import { defineConfig } from 'vitest/config';
-import { JsonReporter } from 'viteval/reporters';
+import { createJsonReporter } from '@viteval/core/internal/reporter';
 export default defineConfig({ test: {
-  reporters: [new JsonReporter({ outputFile: '.viteval/results/smoke.json' })],
+  reporters: [createJsonReporter({ outputFile: '.viteval/results/smoke.json' })],
   projects: ['alpha', 'beta'].map(name => ({ test: { name, include: ['src/**/*.eval.ts'] } })),
 } });`
   );
@@ -74,8 +75,11 @@ export default defineConfig({ test: {
 evaluate('failure diagnostics', { data: [{ input: 'broken task', expected: 'answer' }], task: () => { throw new Error('Browser smoke: task failed'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })] });
 evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'answer' }], task: () => { throw new Error('Must not execute'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })], skip: true });`
   );
-  // Multi-project coverage intentionally uses the native integration, not init's V1 config.
+  // Exercise internal multi-project snapshot projection, not a public CLI integration.
   runCli({
+    entry: fileURLToPath(
+      new URL('vitest.mjs', import.meta.resolve('vitest/package.json'))
+    ),
     args: ['run', '--root', root, '--config', 'vitest.config.ts'],
     expectedStatus: 1,
   });
@@ -487,8 +491,8 @@ function activateControl({ selector, text, event = 'click' }) {
   ]);
 }
 
-function runCli({ args, expectedStatus = 0 }) {
-  const result = spawnSync(process.execPath, [cli, ...args], {
+function runCli({ args, expectedStatus = 0, entry = cli }) {
+  const result = spawnSync(process.execPath, [entry, ...args], {
     encoding: 'utf8',
     timeout: 30_000,
   });

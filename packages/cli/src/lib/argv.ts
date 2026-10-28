@@ -1,8 +1,8 @@
 /**
- * Separate maltty's working-directory flag from native evaluation arguments.
+ * Separate maltty's working-directory flag from command tokens.
  * @param tokens - Original command tokens.
- * @returns Routing information and unmodified native tokens apart from --cwd.
- * @example parseInvocation(['--cwd', './app', 'data']);
+ * @returns Routing facts: the cwd override, remaining tokens, bare invocation, evaluation request.
+ * @example parseInvocation(['--cwd', './app', 'run']);
  */
 export function parseInvocation(tokens: readonly string[]) {
   const cwdIndex = tokens.indexOf('--cwd');
@@ -21,12 +21,13 @@ export function parseInvocation(tokens: readonly string[]) {
       tokens[index - 1] !== '--cwd' &&
       !token.startsWith('--cwd=')
   );
+  const bare = args.length === 0;
   return {
     args,
     cwd,
-    isProjectCommand: ['init', 'data', 'ui'].includes(args[0]),
-    isRootHelp:
-      args.length === 1 &&
-      ['--help', '-h', '--version', '-v'].includes(args[0]),
+    // Bare invocations execute evaluations directly: viteval basic usage.
+    isBare: bare,
+    // `run`, `list`, and bare invocations all execute against installed project dependencies.
+    isEvaluation: bare || ['run', 'list'].includes(args[0]!),
   };
 }

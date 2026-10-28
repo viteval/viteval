@@ -13,9 +13,17 @@
   "main": "dist/main/index.mjs",
   "types": "dist/main/index.d.mts",
   "exports": {
-    "./config/setup": {
+    "./internal/setup": {
       "types": "./dist/config/setup.d.mts",
       "import": "./dist/config/setup.mjs"
+    },
+    "./internal/runner": {
+      "types": "./dist/config/runner.d.mts",
+      "import": "./dist/config/runner.mjs"
+    },
+    "./internal/reporter": {
+      "types": "./dist/reporters/json.d.mts",
+      "import": "./dist/reporters/json.mjs"
     },
     "./provider": {
       "types": "./dist/provider/index.d.mts",

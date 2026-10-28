@@ -6,7 +6,7 @@ import { parseInvocation } from '#/lib/argv';
 
 /**
  * Run the installed Viteval Node CLI from the compiled command shell.
- * @param args - Original command tokens, preserved for Vitest and Viteval parsing.
+ * @param args - Original Viteval command tokens.
  * @returns Resolves after the child exits, preserving its exit status.
  * @example
  * await runNodeCli(['run', '--root', './project']);

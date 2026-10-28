@@ -19,12 +19,10 @@ export function resolveProjectConfig(options: {
     const configFile = path.resolve(root, options.config);
     return { configFile, root: options.root ? root : path.dirname(configFile) };
   }
-  for (const name of ['viteval', 'vitest']) {
-    for (const extension of ['ts', 'mts', 'js', 'mjs', 'cts', 'cjs']) {
-      const configFile = path.join(root, `${name}.config.${extension}`);
-      if (existsSync(configFile)) {
-        return { root, configFile };
-      }
+  for (const extension of ['ts', 'mts', 'js', 'mjs', 'cts', 'cjs']) {
+    const configFile = path.join(root, `viteval.config.${extension}`);
+    if (existsSync(configFile)) {
+      return { root, configFile };
     }
   }
   return { configFile: undefined, root };

@@ -3,9 +3,9 @@ import path from 'node:path';
 import { inject } from 'vitest';
 
 /**
- * Instrument an evaluation subprocess and retain its worker coverage for merging.
+ * Instrument an internal engine subprocess and retain worker coverage for merging.
  * @returns Native runner flags, or no flags for ordinary test runs.
- * @example spawnSync(CLI, ['run', ...createCoverageArguments()]);
+ * @example spawnSync(ENGINE, ['run', ...createCoverageArguments()]);
  */
 export function createCoverageArguments(): string[] {
   if (!inject('integrationCoverage')) return [];

@@ -4,7 +4,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { glob } from 'glob';
 import { command } from 'maltty';
 import { type Reporter, createVitest } from 'vitest/node';
-import { createRunnerConfig } from '@viteval/core/config';
+import { createRunnerConfig } from '@viteval/core/internal/runner';
 import { resolveProjectConfig } from '#/lib/config';
 import type { TestArtifactBase } from 'vitest';
 import { createDatasetWorker } from '#/commands/data/worker';
@@ -92,14 +92,7 @@ export const dataCommand = command({
       let workerPath: string | undefined;
       let bootstrapPath: string | undefined;
       try {
-        const project = argv.project
-          ? vitest.getProjectByName(argv.project)
-          : vitest.getRootProject();
-        if (argv.project && project.name !== argv.project) {
-          logger.error(`Vitest project "${argv.project}" was not found`);
-          process.exitCode = 1;
-          return;
-        }
+        const project = vitest.getRootProject();
         const rootPath = project.config.root;
         const datasets = await glob(argv.pattern, {
           cwd: rootPath,

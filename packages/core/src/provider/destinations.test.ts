@@ -7,18 +7,11 @@ import { getResultDestinations, writeDestinations } from './destinations';
 afterEach(async () => {
   await globalThis.__viteval_runtime?.close();
   globalThis.__viteval_runtime = undefined;
-  globalThis.__viteval_evalProvider = undefined;
 });
 
 describe('getResultDestinations', () => {
-  it('should default to no writers without runtime or initialized storage', async () => {
+  it('should return no writers without a project runtime', async () => {
     expect(await getResultDestinations()).toEqual([]);
-  });
-
-  it('should use initialized storage only when destinations are omitted', async () => {
-    const provider = createJsonProvider();
-    globalThis.__viteval_evalProvider = provider.evals;
-    expect(await getResultDestinations()).toEqual([provider.evals]);
     expect(await getResultDestinations([])).toEqual([]);
   });
 

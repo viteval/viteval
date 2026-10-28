@@ -1,10 +1,10 @@
 import { EventEmitter } from 'node:events';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createCLI } from 'vitest/node';
+import { createVitest, type Vitest } from 'vitest/node';
 import { cli, type Command } from 'maltty';
 import { createTestContext } from 'maltty/test';
 
@@ -14,7 +14,7 @@ vi.mock('maltty', async (importOriginal) => ({
 }));
 vi.mock('vitest/node', async (importOriginal) => ({
   ...(await importOriginal<typeof import('vitest/node')>()),
-  createCLI: vi.fn(),
+  createVitest: vi.fn(),
 }));
 vi.mock('node:child_process', async (importOriginal) => ({
   ...(await importOriginal<typeof import('node:child_process')>()),
@@ -24,30 +24,30 @@ vi.mock('node:child_process', async (importOriginal) => ({
 const originalArgv = process.argv,
   originalCwd = process.cwd(),
   originalExitCode = process.exitCode;
+const directories: string[] = [];
 let root: string,
-  exitListeners: Set<ReturnType<typeof process.rawListeners>[number]>;
-let nativeCli: {
-  matchedCommandName?: string;
-  options: Record<string, unknown>;
-  parse: ReturnType<typeof vi.fn>;
-  runMatchedCommand: ReturnType<typeof vi.fn>;
-};
+  native: {
+    start: ReturnType<typeof vi.fn>;
+    collect: ReturnType<typeof vi.fn>;
+    close: ReturnType<typeof vi.fn>;
+    cancelCurrentRun: ReturnType<typeof vi.fn>;
+  };
 
 beforeEach(async () => {
   vi.resetModules();
   vi.mocked(cli).mockClear();
-  vi.mocked(createCLI).mockReset();
-  root = await mkdtemp(path.join(tmpdir(), 'viteval-dispatcher-'));
-  process.chdir(root);
-  exitListeners = new Set(process.rawListeners('exit'));
-  nativeCli = {
-    options: {},
-    parse: vi.fn(() => ({ options: nativeCli.options, args: [] })),
-    runMatchedCommand: vi.fn(async () => {}),
+  vi.mocked(createVitest).mockReset();
+  vi.mocked(spawn).mockClear();
+  native = {
+    start: vi.fn(async () => ({ testModules: [], unhandledErrors: [] })),
+    collect: vi.fn(async () => ({ testModules: [], unhandledErrors: [] })),
+    close: vi.fn(async () => {}),
+    cancelCurrentRun: vi.fn(async () => {}),
   };
-  vi.mocked(createCLI).mockReturnValue(
-    nativeCli as unknown as ReturnType<typeof createCLI>
-  );
+  vi.mocked(createVitest).mockImplementation(async () => native as Vitest);
+  root = await mkdtemp(path.join(tmpdir(), 'viteval-dispatcher-'));
+  directories.push(root);
+  process.chdir(root);
   vi.mocked(spawn).mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
       kill: vi.fn(),
@@ -56,53 +56,146 @@ beforeEach(async () => {
     return child;
   });
 });
+
 afterEach(async () => {
-  for (const listener of process.rawListeners('exit')) {
-    if (!exitListeners.has(listener) && listener.name === 'cleanup') {
-      listener.call(process, 0);
-      process.removeListener('exit', listener);
-    }
-  }
   vi.restoreAllMocks();
   process.argv = originalArgv;
   process.chdir(originalCwd);
   process.exitCode = originalExitCode;
-  await rm(root, { recursive: true, force: true });
+  await Promise.all(
+    directories
+      .splice(0)
+      .map((directory) => rm(directory, { recursive: true, force: true }))
+  );
 });
 
 describe('Node CLI dispatch', () => {
-  it.each([undefined, true, false])(
-    'should default list to dynamic collection while preserving explicit static parsing: %s',
-    async (staticParse) => {
-      process.argv = ['node', 'viteval', 'list', '--json'];
-      nativeCli.matchedCommandName = 'list';
-      nativeCli.options = { staticParse };
-      await import('./index');
-      expect(nativeCli.options.staticParse).toBe(staticParse ?? false);
-      expect(nativeCli.runMatchedCommand).toHaveBeenCalledOnce();
-    }
-  );
-  it.each(['init', 'data', 'ui', '--help', '-h', '--version', '-v'])(
-    'should route %s through project command parsing',
-    async (argument) => {
-      process.argv = ['node', 'viteval', argument];
-      await import('./index');
-      expect(cli).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'viteval',
-          commands: expect.objectContaining({
-            init: expect.any(Object),
-            data: expect.any(Object),
-            ui: expect.any(Object),
-            run: expect.any(Object),
-          }),
-        })
-      );
-      expect(createCLI).not.toHaveBeenCalled();
-    }
-  );
+  it.each([
+    'init',
+    'data',
+    'ui',
+    'run',
+    'list',
+    '--help',
+    '-h',
+    '--version',
+    '-v',
+  ])('should route %s through the project command shell', async (argument) => {
+    process.argv = ['node', 'viteval', argument];
+    await import('./index');
+    expect(cli).toHaveBeenCalledWith(
+      expect.objectContaining({
+        help: expect.objectContaining({
+          order: ['run', 'list', 'init', 'data', 'ui'],
+        }),
+        name: 'viteval',
+        commands: expect.objectContaining({
+          init: expect.any(Object),
+          data: expect.any(Object),
+          run: expect.any(Object),
+          list: expect.any(Object),
+          ui: expect.any(Object),
+        }),
+      })
+    );
+    expect(createVitest).not.toHaveBeenCalled();
+  });
 
-  it('should lazily dispatch real project handlers with their validation intact', async () => {
+  it('should register evaluation commands with their supported option surface', async () => {
+    process.argv = ['node', 'viteval', '--help'];
+    await import('./index');
+    const commands = vi.mocked(cli).mock.calls[0][0].commands as Record<
+      string,
+      Command
+    >;
+    expect(commands.run.options).toMatchObject({
+      watch: { type: 'boolean' },
+      timeout: { type: 'number' },
+      concurrency: { type: 'number' },
+      retries: { type: 'number' },
+      name: { type: 'string' },
+    });
+    expect(commands.list.options).toMatchObject({ json: { type: 'boolean' } });
+    expect(commands.data.options).not.toHaveProperty('project');
+  });
+
+  it('should run evaluations directly on bare invocation', async () => {
+    process.argv = ['node', 'viteval'];
+    await import('./index');
+    expect(cli).not.toHaveBeenCalled();
+    expect(native.start).toHaveBeenCalledWith([]);
+    expect(native.close).toHaveBeenCalledOnce();
+    expect(process.exitCode).toBe(originalExitCode);
+  });
+
+  it('should apply working-directory overrides to bare evaluation runs', async () => {
+    process.argv = ['node', 'viteval', '--cwd', root];
+    await import('./index');
+    expect(process.cwd()).toBe(
+      await import('node:fs/promises').then((fs) => fs.realpath(root))
+    );
+    expect(cli).not.toHaveBeenCalled();
+    expect(native.start).toHaveBeenCalledWith([]);
+  });
+
+  it('should normalize shorthand file filters into a run command', async () => {
+    process.argv = ['node', 'viteval', 'a.eval.ts', 'b.eval.ts'];
+    await import('./index');
+    expect(process.argv).toEqual([
+      'node',
+      'viteval',
+      'run',
+      'a.eval.ts',
+      'b.eval.ts',
+    ]);
+    expect(cli).toHaveBeenCalledOnce();
+  });
+
+  it('should lazily execute the registered list handler', async () => {
+    process.argv = ['node', 'viteval', '--help'];
+    await import('./index');
+    const commands = vi.mocked(cli).mock.calls[0][0].commands as Record<
+      string,
+      Command
+    >;
+    await commands.list.handler?.(
+      createTestContext({ args: {}, meta: { command: ['list'] } }).ctx
+    );
+    expect(native.collect).toHaveBeenCalledWith([], { staticParse: false });
+    expect(native.close).toHaveBeenCalledOnce();
+  });
+
+  it('should reject working-directory overrides without a directory', async () => {
+    process.argv = ['node', 'viteval', '--cwd'];
+    await expect(import('./index')).rejects.toThrow(
+      '--cwd requires a directory'
+    );
+  });
+
+  it('should lazily execute the registered run handler with raw file filters', async () => {
+    process.argv = ['node', 'viteval', '--help'];
+    await import('./index');
+    const commands = vi.mocked(cli).mock.calls[0][0].commands as Record<
+      string,
+      Command
+    >;
+    const context = createTestContext({
+      args: { name: 'greeting' },
+      meta: {
+        command: ['run', '--name', 'greeting', 'a.eval.ts', 'b.eval.ts'],
+      },
+    });
+    await commands.run.handler?.(context.ctx);
+    expect(native.start).toHaveBeenCalledWith(['a.eval.ts', 'b.eval.ts']);
+    expect(vi.mocked(createVitest).mock.calls[0][0]).toMatchObject({
+      testNamePattern: 'greeting',
+      run: true,
+      watch: false,
+    });
+    expect(native.close).toHaveBeenCalledOnce();
+  });
+
+  it('should keep project handler validation intact', async () => {
     process.argv = ['node', 'viteval', '--help'];
     await import('./index');
     const commands = vi.mocked(cli).mock.calls[0][0].commands as Record<
@@ -115,61 +208,6 @@ describe('Node CLI dispatch', () => {
     await expect(
       commands.ui.handler?.(createTestContext({ args: { port: 0 } }).ctx)
     ).rejects.toThrow();
-  });
-
-  it.each(['--help', '-h', '--version', '-v'])(
-    'should preserve native subcommand %s without loading a project',
-    async (flag) => {
-      process.argv = ['node', 'viteval', 'list', flag];
-      await import('./index');
-      expect(nativeCli.parse).toHaveBeenCalledWith([
-        'node',
-        'viteval',
-        'list',
-        flag,
-      ]);
-      expect(nativeCli.runMatchedCommand).not.toHaveBeenCalled();
-    }
-  );
-
-  it('should normalize explicit relative roots without replacing native subcommand actions', async () => {
-    await mkdir(path.join(root, 'app'));
-    nativeCli.options = { root: './app', config: false, testTimeout: 456 };
-    process.argv = ['node', 'viteval', 'bench', '--root', './app'];
-    await import('./index');
-    expect(nativeCli.options.root).toBe(path.join(process.cwd(), 'app'));
-    expect(nativeCli.options.testTimeout).toBe(456);
-    expect(nativeCli.runMatchedCommand).toHaveBeenCalledOnce();
-    expect(await readFile(String(nativeCli.options.config), 'utf8')).toContain(
-      'createRunnerConfig'
-    );
-    expect(nativeCli.parse).toHaveBeenCalledWith(
-      ['node', 'viteval', 'bench', '--root', './app'],
-      { run: false }
-    );
-  });
-
-  it('should apply working-directory overrides while leaving inferred roots to project config', async () => {
-    await writeFile(path.join(root, 'viteval.config.ts'), 'export default {};');
-    process.argv = ['node', 'viteval', '--cwd', root, 'list', '--json'];
-    await import('./index');
-    expect(process.cwd()).toBe(
-      await import('node:fs/promises').then((fs) => fs.realpath(root))
-    );
-    expect(nativeCli.options.root).toBeUndefined();
-    expect(nativeCli.runMatchedCommand).toHaveBeenCalledOnce();
-    expect(nativeCli.parse).toHaveBeenCalledWith(
-      ['node', 'viteval', 'list', '--json'],
-      { run: false }
-    );
-  });
-
-  it('should preserve native dispatcher failures', async () => {
-    process.argv = ['node', 'viteval', 'run'];
-    nativeCli.runMatchedCommand.mockRejectedValue(
-      new Error('native dispatch failed')
-    );
-    await expect(import('./index')).rejects.toThrow('native dispatch failed');
   });
 });
 

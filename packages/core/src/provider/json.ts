@@ -11,7 +11,7 @@ import type { Provider } from './types';
  * @returns Dataset, evaluation, and tag operations backed by atomic JSON files.
  * @example
  * const provider = createJsonProvider({ root: process.cwd() });
- * await initializeProvider(provider);
+ * export default defineConfig({ providers: [provider] });
  */
 export function createJsonProvider(options: { root?: string } = {}): Provider {
   const store = createJsonStore(options.root ?? process.cwd());

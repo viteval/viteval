@@ -1,30 +1,37 @@
 /**
- * Install dataset discovery before native Vitest executes user setup files.
+ * Install dataset discovery before the internal engine imports user modules.
  * @returns JavaScript source for a per-worker setup module and its cleanup helpers.
  * @example const source = createDatasetBootstrap();
  */
 export function createDatasetBootstrap(): string {
-  return `import { afterAll } from 'vitest';
+  return `import { AsyncLocalStorage } from 'node:async_hooks';
+import { afterAll } from 'vitest';
 
 const previousDiscovery = globalThis.__viteval_datasetDiscovery;
 let candidates = [];
 const modules = new Map();
+const owners = new AsyncLocalStorage();
+const completed = new Set();
+let nextOwner = 0;
 const discovery = {
   register(value) {
-    candidates = [...candidates, value];
+    candidates = [...candidates, { value, owner: owners.getStore() }];
   },
   startModule() {
-    return candidates.length;
+    const owner = nextOwner++;
+    owners.enterWith(owner);
+    return owner;
   },
   finishModule(file, checkpoint) {
-    modules.set(file, candidates.slice(checkpoint));
+    completed.add(checkpoint);
+    modules.set(file, candidates.filter(item => item.owner === checkpoint).map(item => item.value));
   },
 };
 globalThis.__viteval_datasetDiscovery = discovery;
 afterAll(restoreDiscovery);
 
 export function takeCandidates() {
-  const values = candidates;
+  const values = candidates.filter(item => item.owner === undefined || completed.has(item.owner)).map(item => item.value);
   candidates = [];
   return values;
 }
@@ -34,6 +41,7 @@ export function moduleCandidates(file) {
 }
 
 export function restoreDiscovery() {
+  owners.disable();
   if (globalThis.__viteval_datasetDiscovery === discovery) {
     globalThis.__viteval_datasetDiscovery = previousDiscovery;
   }

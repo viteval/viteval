@@ -41,7 +41,7 @@ interface Runtime {
 /** Create a Langfuse provider with isolated OpenTelemetry experiment export.
  * @param options - Explicit project credentials and optional regional/self-hosted URL.
  * @returns Dataset and hosted evaluation operations loaded only on initialization.
- * @example await initializeProvider(langfuse({ publicKey: 'pk', secretKey: 'sk' }));
+ * @example defineConfig({ providers: [langfuse({ publicKey: 'pk', secretKey: 'sk' })] });
  */
 export function langfuse(options: LangfuseProviderOptions): Provider {
   let runtime: Runtime | undefined;
@@ -269,10 +269,12 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
             'langfuse.observation.output': serializeJson(params.output),
             'langfuse.observation.metadata.viteval_result':
               serializeJson(result),
-            'langfuse.observation.level': params.passed ? 'DEFAULT' : 'ERROR',
+            'langfuse.observation.level':
+              isSkipped(params) || params.passed ? 'DEFAULT' : 'ERROR',
             'langfuse.observation.status_message': statusMessage({
               error: params.metadata?.executionError,
               passed: params.passed,
+              skipped: isSkipped(params),
             }),
           },
         });
@@ -373,7 +375,16 @@ function createLangfuseEvals(runtime: Runtime): EvalProvider {
   };
 }
 
-function statusMessage(params: { error: unknown; passed: boolean }): string {
+function statusMessage(params: {
+  error: unknown;
+  passed: boolean;
+  skipped: boolean;
+}): string {
   if (typeof params.error === 'string') return params.error;
+  if (params.skipped) return 'Viteval evaluation case skipped';
   return params.passed ? '' : 'Viteval evaluation threshold not met';
+}
+
+function isSkipped(params: { metadata?: Record<string, unknown> }): boolean {
+  return params.metadata?.state === 'skipped';
 }

@@ -22,6 +22,8 @@ let observations: {
   name: string;
   sessionId: string;
   metadata: Record<string, unknown> | string;
+  level: string;
+  statusMessage: string;
 }[];
 let datasets: Map<string, Record<string, unknown>>;
 let items: Map<string, Record<string, unknown>[]>;
@@ -169,6 +171,10 @@ beforeEach(async () => {
               name: String(span.name),
               sessionId: String(attributes['langfuse.session.id']),
               metadata,
+              level: String(attributes['langfuse.observation.level'] ?? ''),
+              statusMessage: String(
+                attributes['langfuse.observation.status_message'] ?? ''
+              ),
             });
           }
       result = {};
@@ -1219,6 +1225,50 @@ describe('Langfuse remote history', () => {
       await provider.evals!.get({ id: created.value.id, includeResults: true })
     ).toMatchObject({ ok: true, value: { results: [] } });
   });
+  it('should export skipped cases without error levels or threshold messages', async () => {
+    const provider = langfuse({
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+      baseUrl: url,
+    });
+    providers.push(provider);
+    await provider.initialize();
+    const created = await provider.evals!.create({
+      name: 'skip-levels',
+      config: { aggregation: 'mean', threshold: 1, scorerNames: [] },
+    });
+    if (!created.ok) throw created.error;
+    const params = {
+      evalRunId: created.value.id,
+      input: 'q',
+      expected: 'a',
+      output: 'a',
+      scores: [],
+      meanScore: 1,
+      medianScore: 1,
+      sumScore: 1,
+    };
+    const outcomes = [
+      { ...params, passed: true },
+      { ...params, passed: false },
+      {
+        ...params,
+        passed: false,
+        metadata: { state: 'skipped', name: 'case' },
+      },
+    ];
+    for (const outcome of outcomes) {
+      const added = await provider.evals!.addResult(outcome);
+      if (!added.ok) throw added.error;
+    }
+    expect(
+      observations.map(({ level, statusMessage }) => ({ level, statusMessage }))
+    ).toEqual([
+      { level: 'DEFAULT', statusMessage: '' },
+      { level: 'ERROR', statusMessage: 'Viteval evaluation threshold not met' },
+      { level: 'DEFAULT', statusMessage: 'Viteval evaluation case skipped' },
+    ]);
+  });
 });
 
 describe('VoltOps hosted runs', () => {
@@ -1264,6 +1314,85 @@ describe('VoltOps hosted runs', () => {
       ok: true,
       value: { itemCount: 0 },
     });
+  });
+  it('should preserve stored case metadata and hosted labels across reads and appended versions', async () => {
+    const provider = voltops({
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+      baseUrl: url,
+    });
+    providers.push(provider);
+    await provider.initialize();
+    const created = await provider.datasets!.create({
+      name: 'preserve',
+      items: [
+        {
+          input: 'custom',
+          expected: 'a',
+          extra: { datasetVersionId: 'user-ref', name: 'user-name' },
+        },
+        { input: 'plain', expected: 'b', extra: { category: 'x' } },
+      ],
+    });
+    if (!created.ok) throw created.error;
+    const read = await provider.datasets!.getItems({
+      datasetId: created.value.id,
+    });
+    if (!read.ok) throw read.error;
+    expect(read.value[0].extra).toEqual({
+      datasetVersionId: 'user-ref',
+      name: 'user-name',
+    });
+    expect(read.value[1].extra).toEqual({
+      category: 'x',
+      datasetVersionId: 'version-0',
+    });
+    const versionKey = `${created.value.id}/version-0`;
+    items.set(
+      versionKey,
+      (items.get(versionKey) ?? []).map((row) =>
+        requireRecord(row).input === 'plain'
+          ? { ...row, label: 'console-label' }
+          : row
+      )
+    );
+    const labeled = await provider.datasets!.getItems({
+      datasetId: created.value.id,
+    });
+    if (!labeled.ok) throw labeled.error;
+    expect(labeled.value[1].extra).toEqual({
+      category: 'x',
+      datasetVersionId: 'version-0',
+      name: 'console-label',
+    });
+    const appended = await provider.datasets!.addItems({
+      datasetId: created.value.id,
+      items: [{ input: 'second', expected: 'c' }],
+    });
+    if (!appended.ok) throw appended.error;
+    const copied = (items.get(`${created.value.id}/version-1`) ?? []).filter(
+      (row) => !isUploadControl(row)
+    );
+    expect(
+      copied.map(({ input, extra, label }) => ({ input, extra, label }))
+    ).toEqual([
+      {
+        input: 'custom',
+        extra: { datasetVersionId: 'user-ref', name: 'user-name' },
+        label: 'user-name',
+      },
+      { input: 'plain', extra: { category: 'x' }, label: 'console-label' },
+      { input: 'second', extra: null, label: null },
+    ]);
+    const reread = await provider.datasets!.getItems({
+      datasetId: created.value.id,
+    });
+    if (!reread.ok) throw reread.error;
+    expect(reread.value.map(({ input }) => input)).toEqual([
+      'custom',
+      'plain',
+      'second',
+    ]);
   });
   it('should reject invalid managed descriptions even when upload controls are complete', async () => {
     const provider = voltops({
@@ -1621,6 +1750,64 @@ describe('VoltOps hosted runs', () => {
     expect(await provider.evals!.list()).toMatchObject({ ok: false });
     expect(await provider.evals!.get({ id: 'other-session' })).toMatchObject({
       ok: false,
+    });
+  });
+  it('should export skipped cases as not evaluated', async () => {
+    const provider = voltops({
+      publicKey: 'fixture-public',
+      secretKey: 'fixture-secret',
+      baseUrl: url,
+    });
+    providers.push(provider);
+    const initialized = await provider.initialize();
+    if (!initialized.ok) throw initialized.error;
+    const created = await provider.evals!.create({
+      name: 'skip-status',
+      config: { aggregation: 'mean', threshold: 1, scorerNames: ['exact'] },
+    });
+    if (!created.ok) throw created.error;
+    const params = {
+      evalRunId: created.value.id,
+      input: 'q',
+      expected: 'a',
+      output: 'a',
+      meanScore: 0,
+      medianScore: 0,
+      sumScore: 0,
+    };
+    expect(
+      await provider.evals!.addResults!([
+        {
+          ...params,
+          passed: false,
+          scores: [],
+          metadata: { state: 'skipped', name: 'case' },
+        },
+        {
+          ...params,
+          passed: false,
+          scores: [{ name: 'exact', score: 0 }],
+        },
+      ])
+    ).toMatchObject({
+      ok: true,
+      value: [{ passed: false }, { passed: false }],
+    });
+    const payload = requests.find((request) =>
+      request.path.endsWith('/results')
+    );
+    expect(payload?.body).toMatchObject({
+      results: [
+        {
+          status: 'pending',
+          thresholdPassed: null,
+          metadata: {
+            state: 'skipped',
+            viteval_result: expect.stringContaining('"state": "skipped"'),
+          },
+        },
+        { status: 'failed', thresholdPassed: false },
+      ],
     });
   });
   it('should propagate rejected result uploads without completing the hosted run', async () => {

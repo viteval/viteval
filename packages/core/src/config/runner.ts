@@ -18,8 +18,11 @@ export function createRunnerConfig(options: {
     plugins: [
       {
         config(raw) {
-          // Native runner configurations remain usable for integration tooling.
-          if (options.configFile && !('__viteval' in raw)) return;
+          if (options.configFile && !('__viteval' in raw)) {
+            throw new Error(
+              'Expected a Viteval configuration. Use defineConfig() from viteval/config.'
+            );
+          }
           const config = raw as ViteUserConfig & VitevalConfig;
           const root = path.resolve(
             options.root,
@@ -36,7 +39,7 @@ export function createRunnerConfig(options: {
             retries: typeof retry === 'number' ? retry : (retry.count ?? 0),
           };
           const setupFile = fileURLToPath(
-            import.meta.resolve('@viteval/core/config/setup')
+            import.meta.resolve('@viteval/core/internal/setup')
           );
           return {
             root,

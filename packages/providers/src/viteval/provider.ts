@@ -30,21 +30,21 @@ import type {
  *
  * @example Default JSON
  * ```ts
+ * import { defineConfig } from 'viteval/config';
  * import { viteval } from '@viteval/providers';
  *
- * const result = await initializeProvider(viteval());
- * if (!result.ok) process.exitCode = 1;
+ * export default defineConfig({ providers: [viteval()] });
  * ```
  *
  * @example PostgreSQL
  * ```ts
+ * import { defineConfig } from 'viteval/config';
  * import { viteval } from '@viteval/providers';
  *
- * const result = await initializeProvider(viteval({
+ * export default defineConfig({ providers: [viteval({
  *   database: 'postgres',
  *   url: process.env.DATABASE_URL!,
- * }));
- * if (!result.ok) process.exitCode = 1;
+ * })] });
  * ```
  */
 export function viteval(options: VitevalProviderOptions = {}): Provider {

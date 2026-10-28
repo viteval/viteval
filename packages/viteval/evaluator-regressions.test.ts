@@ -1,13 +1,16 @@
 import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createJsonProvider } from '@viteval/core/provider';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createCoverageArguments } from './coverage-fixture';
 
 const ROOT = path.join(import.meta.dirname, '.test-evaluator-regressions'),
-  CLI = path.resolve(import.meta.dirname, '../cli/cli.mjs');
+  ENGINE = fileURLToPath(
+    new URL('vitest.mjs', import.meta.resolve('vitest/package.json'))
+  );
 let sequence = 0;
 
 afterAll(async () => {
@@ -381,12 +384,17 @@ async function run(options: { evaluation: string; config?: string }) {
 const json = createJsonProvider({ root: import.meta.dirname });
 ${options.config ?? "export default defineConfig({ providers: [json], eval: { results: ['json'] } });"}`
   );
-  await writeFile(
-    path.join(root, 'reporter.mjs'),
-    `import { JsonReporter } from 'viteval/reporters';
-export default class Reporter extends JsonReporter { constructor() { super({ outputFile: 'report.json' }); } }`
-  );
   const coverage = createCoverageArguments();
+  const blob = coverage
+    .find((argument) => argument.startsWith('--outputFile.blob='))
+    ?.slice('--outputFile.blob='.length);
+  await writeFile(
+    path.join(root, 'engine.config.ts'),
+    `import config from './viteval.config.ts';
+import { createRunnerConfig } from '@viteval/core/internal/runner';
+import { createJsonReporter } from '@viteval/core/internal/reporter';
+export default { ...config, plugins: createRunnerConfig({ root: ${JSON.stringify(root)}, configFile: ${JSON.stringify(path.join(root, 'viteval.config.ts'))} }).plugins, test: { reporters: ['default', ${blob ? `['blob', { outputFile: ${JSON.stringify(blob)} }],` : ''} createJsonReporter({ outputFile: 'report.json' })] } };`
+  );
   const evaluator = coverage.length
     ? path.resolve(import.meta.dirname, '../core/src/evaluate/evaluate.ts')
     : 'viteval';
@@ -397,24 +405,24 @@ import { scorers } from 'viteval';
 ${options.evaluation}`
   );
   const args = [
-    CLI,
+    ENGINE,
     'run',
+    '--config',
+    path.join(root, 'engine.config.ts'),
     '--root',
     root,
-    ...(coverage.length ? coverage : ['--reporter=default']),
-    `--reporter=${path.join(root, 'reporter.mjs')}`,
+    ...coverage.filter(
+      (argument) =>
+        !argument.startsWith('--reporter=') &&
+        !argument.startsWith('--outputFile.')
+    ),
   ];
-  const binary = process.env.VITEVAL_TEST_BINARY;
-  const result = spawnSync(
-    binary ?? process.execPath,
-    binary ? args.slice(1) : args,
-    {
-      cwd: root,
-      encoding: 'utf8',
-      env: { ...process.env, CI: 'true', NO_COLOR: '1' },
-      timeout: 30_000,
-    }
-  );
+  const result = spawnSync(process.execPath, args, {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, CI: 'true', NO_COLOR: '1' },
+    timeout: 30_000,
+  });
   const logs = `${result.stdout}${result.stderr}`;
   const report = EVAL_RESULTS_SCHEMA.parse(
     JSON.parse(

@@ -13,7 +13,6 @@ beforeEach(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'viteval-storage-contract-'));
 });
 afterEach(async () => {
-  globalThis.__viteval_datasetProvider = undefined;
   await rm(root, { recursive: true, force: true });
 });
 
@@ -45,27 +44,18 @@ describe('createDatasetStorage', () => {
     });
   });
 
-  it('should use initialized storage when no provider is supplied', async () => {
-    globalThis.__viteval_datasetProvider = createJsonProvider({
-      root,
-    }).datasets;
-    expect(await storage().save([{ input: 'q', expected: 'a' }])).toMatchObject(
-      { ok: true }
-    );
-    expect(await storage().load()).toMatchObject({
-      ok: true,
-      value: [{ input: 'q', expected: 'a' }],
+  it('should prefer explicit provider storage over the local default', async () => {
+    const custom = createJsonProvider({
+      root: path.join(root, 'custom'),
+    }).datasets!;
+    await custom.create({
+      name: 'contract',
+      items: [{ input: 'remote', expected: 'a' }],
     });
-  });
-
-  it('should prefer explicit storage over initialized storage', async () => {
-    globalThis.__viteval_datasetProvider = {
-      ...createJsonProvider({ root }).datasets!,
-      get: async () => err('initialized provider should not run'),
-    };
-    expect(
-      await storage(createJsonProvider({ root }).datasets).load()
-    ).toMatchObject({ ok: true, value: null });
+    expect(await storage(custom).load()).toMatchObject({
+      ok: true,
+      value: [{ input: 'remote', expected: 'a' }],
+    });
   });
 
   it('should propagate lookup errors from every storage operation', async () => {

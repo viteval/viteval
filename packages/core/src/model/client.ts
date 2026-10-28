@@ -14,10 +14,7 @@ export type EmbeddingModelSelection = Exclude<EmbeddingModel, string> | ModelId;
 export function getModel(): LanguageModel | null {
   const runtime = getProjectRuntime(),
     id = runtime?.config.models?.defaults?.language;
-  if (runtime && id) {
-    return runtime.context.models.languageModel(id);
-  }
-  return globalThis.__viteval_model ?? null;
+  return runtime && id ? runtime.context.models.languageModel(id) : null;
 }
 
 /**
@@ -47,10 +44,7 @@ export function requireModel(): Result<LanguageModel> {
 export function getEmbeddingModel(): EmbeddingModel | null {
   const runtime = getProjectRuntime(),
     id = runtime?.config.models?.defaults?.embedding;
-  if (runtime && id) {
-    return runtime.context.models.embeddingModel(id);
-  }
-  return globalThis.__viteval_embeddingModel ?? null;
+  return runtime && id ? runtime.context.models.embeddingModel(id) : null;
 }
 
 /**

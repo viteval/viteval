@@ -81,51 +81,47 @@ interface SuiteProjection {
 /**
  * Project Viteval artifacts and Vitest's final task state into evaluation JSON.
  *
+ * @param options - Output destination and optional run identity.
+ * @returns A Vitest reporter with isolated run state.
  * @example
  * ```ts
- * import { JsonReporter } from 'viteval/reporters';
+ * import { createJsonReporter } from '@viteval/core/internal/reporter';
  * import { defineConfig } from 'vitest/config';
  *
  * export default defineConfig({
  *   test: {
  *     reporters: [
  *       'default',
- *       new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
+ *       createJsonReporter({ outputFile: '.viteval/results/<run>.json' }),
  *     ],
  *   },
  * });
  * ```
  */
-export default class JsonReporter implements Reporter {
-  private results: JsonEvalResults;
-  private readonly outputFile: string | null;
-  private root = process.cwd();
-  private iteration = 0;
-  private outputPath: string | null = null;
+export function createJsonReporter(options: JsonReporterOptions = {}) {
+  const run = options.run ?? createRunIdentity();
+  const outputFile = options.outputFile ?? null;
+  let results = createResults(run);
+  let root = process.cwd();
+  let iteration = 0;
+  let outputPath: string | null = null;
 
-  constructor(options: JsonReporterOptions = {}) {
-    const run = options.run ?? createRunIdentity();
-    this.outputFile = options.outputFile ?? null;
-    this.results = createResults(run);
-  }
+  return {
+    onInit(vitest: Vitest) {
+      root = vitest.config.root;
+    },
+    onTestRunStart() {
+      results = createResults(
+        iteration++ === 0
+          ? { id: results.runId, name: results.runName }
+          : createRunIdentity()
+      );
+      outputPath = null;
+    },
+    onTestRunEnd,
+  } satisfies Reporter;
 
-  onInit(vitest: Vitest) {
-    this.root = vitest.config.root;
-  }
-
-  onTestRunStart() {
-    this.results = createResults(
-      this.iteration++ === 0
-        ? {
-            id: this.results.runId,
-            name: this.results.runName,
-          }
-        : createRunIdentity()
-    );
-    this.outputPath = null;
-  }
-
-  async onTestRunEnd(
+  async function onTestRunEnd(
     testModules: readonly TestModule[],
     unhandledErrors: readonly SerializedError[],
     reason: TestRunEndReason
@@ -133,24 +129,24 @@ export default class JsonReporter implements Reporter {
     const endTime = Date.now();
     const suites = collectSuiteProjections(testModules);
     const evalResults = Array.from(suites.values()).map((suite) => {
-      const projected = toJsonEvalSuite(suite, this.root);
+      const projected = toJsonEvalSuite(suite, root);
       return {
         ...projected,
         evalResults: projected.evalResults.map((result) => ({
           ...result,
-          id: `${this.results.runId}:${result.id}`,
+          id: `${results.runId}:${result.id}`,
         })),
       };
     });
 
-    this.results = {
-      ...this.results,
+    results = {
+      ...results,
       schemaVersion: 1,
       errors: [
         ...unhandledErrors.map((error) => error.message),
         ...(reason === 'interrupted' ? ['Evaluation run interrupted'] : []),
       ],
-      duration: endTime - this.results.startTime,
+      duration: endTime - results.startTime,
       endTime,
       evalResults,
       numFailedEvalSuites: evalResults.filter(
@@ -171,27 +167,26 @@ export default class JsonReporter implements Reporter {
         evalResults.every((suite) => suite.status === 'passed'),
     };
 
-    await this.writeResults();
+    await writeResults();
   }
 
-  private async writeResults() {
-    const output = serializeJson(this.results);
-    if (!this.outputFile) {
+  async function writeResults() {
+    const output = serializeJson(results);
+    if (!outputFile) {
       process.stdout.write(output);
       return;
     }
 
-    const outputPath =
-      this.outputPath ??
+    outputPath =
+      outputPath ??
       path.resolve(
-        this.root,
-        this.outputFile
-          .replaceAll('<run>', encodeURIComponent(this.results.runName))
-          .replaceAll('<id>', encodeURIComponent(this.results.runId))
-          .replaceAll('<timestamp>', String(this.results.startTime))
+        root,
+        outputFile
+          .replaceAll('<run>', encodeURIComponent(results.runName))
+          .replaceAll('<id>', encodeURIComponent(results.runId))
+          .replaceAll('<timestamp>', String(results.startTime))
       );
-    this.outputPath = outputPath;
-    await writeJsonAtomic({ filePath: outputPath, value: this.results });
+    await writeJsonAtomic({ filePath: outputPath, value: results });
   }
 }
 

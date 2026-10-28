@@ -1,5 +1,14 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
+import { hostname, tmpdir } from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 import fs from 'node:fs/promises';
@@ -91,6 +100,10 @@ describe('createJsonStore', () => {
     await mkdir(path.join(root, '.viteval/item.json.lock'), {
       recursive: true,
     });
+    await writeFile(
+      path.join(root, '.viteval/item.json.lock', ownerName(process.pid)),
+      ''
+    );
     vi.spyOn(Date, 'now').mockReturnValueOnce(0).mockReturnValue(5_000);
     await expect(store.update('item.json', async () => 1)).rejects.toThrow(
       'Storage lock timed out'
@@ -103,18 +116,141 @@ describe('createJsonStore', () => {
     const failure = Object.assign(new Error('permission denied'), {
       code: 'EACCES',
     });
-    const mkdir = fs.mkdir;
-    vi.spyOn(fs, 'mkdir').mockImplementation((...args) => {
-      if (args[0] === path.join(root, '.viteval/item.json.lock')) {
+    const rename = fs.rename;
+    vi.spyOn(fs, 'rename').mockImplementation((...args) => {
+      if (args[1] === path.join(root, '.viteval/item.json.lock')) {
         return Promise.reject(failure);
       }
-      return mkdir(...args);
+      return rename(...args);
     });
     syncBuiltinESMExports();
     const operation = vi.fn(async () => 1);
     await expect(store.update('item.json', operation)).rejects.toBe(failure);
     expect(operation).not.toHaveBeenCalled();
+    expect(await readdir(path.join(root, '.viteval'))).toEqual([]);
   });
+
+  it('should recover a crashed process lock and serialize competing recovery writers', async () => {
+    const lock = path.join(root, '.viteval/item.json.lock');
+    const child = spawnSync(process.execPath, [
+      '--input-type=module',
+      '-e',
+      `
+      import { mkdirSync, writeFileSync } from 'node:fs';
+      import { hostname } from 'node:os';
+      import { randomUUID } from 'node:crypto';
+      const lock = process.argv[1];
+      mkdirSync(lock, { recursive: true });
+      writeFileSync(lock + '/' + Buffer.from(hostname()).toString('base64url') + '.' + process.pid + '.' + randomUUID(), '');
+      process.kill(process.pid, 'SIGKILL');
+    `,
+      lock,
+    ]);
+    expect(child.signal).toBe('SIGKILL');
+    const store = createJsonStore(root);
+    await store.write('item.json', 0);
+    await Promise.all(
+      Array.from({ length: 12 }, () =>
+        store.update('item.json', async () => {
+          const value = await store.read('item.json', z.number());
+          await store.write('item.json', value! + 1);
+        })
+      )
+    );
+    expect(await store.read('item.json', z.number())).toBe(12);
+    expect(await readdir(path.join(root, '.viteval'))).toEqual(['item.json']);
+  });
+
+  it('should recover an empty abandoned lock from the previous locking protocol', async () => {
+    await mkdir(path.join(root, '.viteval/item.json.lock'), {
+      recursive: true,
+    });
+    expect(await createJsonStore(root).update('item.json', async () => 1)).toBe(
+      1
+    );
+  });
+
+  it.each(['foreign', 'malformed', 'multiple', 'permission'])(
+    'should preserve an unverified %s owner lock',
+    async (kind) => {
+      const lock = path.join(root, '.viteval/item.json.lock');
+      await mkdir(lock, { recursive: true });
+      const owner =
+        kind === 'malformed'
+          ? 'unknown'
+          : ownerName(
+              process.pid,
+              kind === 'foreign' ? 'other-host' : hostname()
+            );
+      await writeFile(path.join(lock, owner), '');
+      if (kind === 'multiple')
+        await writeFile(path.join(lock, 'unexpected'), '');
+      if (kind === 'permission')
+        vi.spyOn(process, 'kill').mockImplementation(() => {
+          throw Object.assign(new Error('not permitted'), { code: 'EPERM' });
+        });
+      vi.spyOn(Date, 'now').mockReturnValueOnce(0).mockReturnValue(5_000);
+      await expect(
+        createJsonStore(root).update('item.json', async () => 1)
+      ).rejects.toThrow('Storage lock timed out');
+      expect(await readFile(path.join(lock, owner), 'utf8')).toBe('');
+    }
+  );
+
+  it('should clean staging directories when owner publication fails', async () => {
+    const failure = Object.assign(new Error('disk full'), { code: 'ENOSPC' });
+    vi.spyOn(fs, 'writeFile').mockRejectedValue(failure);
+    syncBuiltinESMExports();
+    await expect(
+      createJsonStore(root).update('item.json', async () => 1)
+    ).rejects.toBe(failure);
+    expect(await readdir(path.join(root, '.viteval'))).toEqual([]);
+  });
+
+  it.each(['ENOENT', 'EACCES'])(
+    'should handle a %s failure while inspecting an existing lock',
+    async (code) => {
+      const lock = path.join(root, '.viteval/item.json.lock');
+      await mkdir(lock, { recursive: true });
+      await writeFile(path.join(lock, ownerName(process.pid)), '');
+      const failure = Object.assign(new Error('lock inspection failed'), {
+        code,
+      });
+      const original = fs.readdir;
+      vi.spyOn(fs, 'readdir').mockImplementation((...args) => {
+        if (args[0] === lock) return Promise.reject(failure);
+        return original(...args);
+      });
+      syncBuiltinESMExports();
+      vi.spyOn(Date, 'now').mockReturnValueOnce(0).mockReturnValue(5_000);
+      await expect(
+        createJsonStore(root).update('item.json', async () => 1)
+      ).rejects.toThrow(
+        code === 'ENOENT' ? 'Storage lock timed out' : 'lock inspection failed'
+      );
+    }
+  );
+
+  it.each(['ENOENT', 'ENOTEMPTY', 'EEXIST', 'EACCES'])(
+    'should handle a %s release race without recursively removing a replacement owner',
+    async (code) => {
+      const lock = path.join(root, '.viteval/item.json.lock');
+      const replacement = ownerName(process.pid);
+      const failure = Object.assign(new Error('release failed'), { code });
+      const original = fs.rmdir;
+      vi.spyOn(fs, 'rmdir').mockImplementation(async (...args) => {
+        if (args[0] !== lock) return original(...args);
+        if (code === 'ENOENT') await original(...args);
+        else await writeFile(path.join(lock, replacement), '');
+        throw failure;
+      });
+      syncBuiltinESMExports();
+      const result = createJsonStore(root).update('item.json', async () => 1);
+      if (code === 'EACCES') await expect(result).rejects.toBe(failure);
+      else await expect(result).resolves.toBe(1);
+      if (code !== 'ENOENT') expect(await readdir(lock)).toEqual([replacement]);
+    }
+  );
 
   it('should serialize updates and release locks after a rejected operation', async () => {
     const store = createJsonStore(root);
@@ -144,3 +280,7 @@ describe('createJsonStore', () => {
     expect(events).toEqual(['start', 'finish', 'next']);
   });
 });
+
+function ownerName(pid: number, host = hostname()) {
+  return `${Buffer.from(host).toString('base64url')}.${pid}.${randomUUID()}`;
+}

@@ -114,27 +114,6 @@ describe('dataCommand', () => {
     expect(await readdir(path.join(root, '.viteval'))).toEqual([]);
   });
 
-  it.each([false, true])(
-    'should report missing named projects (name returned: %s)',
-    async (matched) => {
-      const native = nativeWorker();
-      if (matched)
-        native.getProjectByName.mockImplementation(() => {
-          throw new Error('native project error');
-        });
-      else native.project.name = 'other';
-      const result = await runHandler({
-        cmd: dataCommand,
-        overrides: { args: { root, project: 'missing' } },
-      });
-      expect(result.stdout()).toContain(
-        matched ? 'native project error' : 'was not found'
-      );
-      expect(process.exitCode).toBe(1);
-      expect(native.close).toHaveBeenCalledOnce();
-    }
-  );
-
   it('should close the native worker when no matching datasets exist', async () => {
     const native = nativeWorker(),
       result = await runHandler({
@@ -306,7 +285,6 @@ function nativeWorker() {
     },
     native = {
       project,
-      getProjectByName: vi.fn(() => project),
       getRootProject: vi.fn(() => project),
       close: vi.fn(async () => {}),
       runTestSpecifications: vi.fn(async () => ({

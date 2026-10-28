@@ -7,9 +7,7 @@ export type {
   ScorerArgs,
   Task,
   TaskArgs,
-  ModelConfig,
   Provider,
-  ProviderConfig,
   DatasetProvider,
   EvalProvider,
   CreateProviderParams,
@@ -34,8 +32,6 @@ export {
   defineConfig,
   defineDataset,
   sampleItems,
-  initializeModel,
-  initializeProvider,
   scorers,
   wrapScorer,
 } from '@viteval/core';

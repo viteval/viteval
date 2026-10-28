@@ -2,7 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { createCoverageArguments } from './coverage-fixture';
 
 const ROOT = path.join(import.meta.dirname, '.test-runtime-regressions'),
   CLI = path.resolve(import.meta.dirname, '../cli/cli.mjs');
@@ -41,7 +40,7 @@ ${scenario === 'collection-error' ? "throw new Error('collection rejected');" : 
         }),
         result = run(
           root,
-          scenario === 'filtered' ? ['--testNamePattern', 'no-match'] : []
+          scenario === 'filtered' ? ['--name', 'no-match'] : []
         );
       expect(result.status, result.logs).toBe(
         scenario === 'collection-error' ? 1 : 0
@@ -102,7 +101,7 @@ export default defineConfig({ providers: [createProvider({ ...json,
 
 function run(root: string, args: string[] = []) {
   const binary = process.env.VITEVAL_TEST_BINARY;
-  const argv = ['run', '--root', root, ...args, ...createCoverageArguments()];
+  const argv = ['run', '--root', root, ...args];
   const result = spawnSync(
     binary ?? process.execPath,
     binary ? argv : [CLI, ...argv],

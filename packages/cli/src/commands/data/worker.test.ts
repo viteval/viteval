@@ -24,7 +24,6 @@ describe('createDatasetWorker', () => {
       expect(source).toContain(JSON.stringify(pathToFileURL(file).href));
       expect(source).toContain(JSON.stringify(pathToFileURL(bootstrap).href));
       expect(source).toContain(`overwrite: ${overwrite}`);
-      expect(source).toContain('root: "/app/root %#"');
     }
   );
 });

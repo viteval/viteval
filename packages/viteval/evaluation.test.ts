@@ -1,41 +1,56 @@
 import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
 import { createJsonProvider } from '@viteval/core/provider';
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
 
-const ROOT = path.join(import.meta.dirname, '.test-evaluation-contract'),
-  CLI = path.resolve(import.meta.dirname, '../cli/cli.mjs'),
-  BINARY = process.env.VITEVAL_TEST_BINARY;
+const ROOT = path.join(import.meta.dirname, '.test-evaluation-contract');
 let invocation = 0;
-const CONFIG = `import { defineConfig } from 'vitest/config';
-import { JsonReporter } from 'viteval/reporters';
-export default defineConfig({ test: { include: ['contract.eval.ts'], reporters: [new JsonReporter({ outputFile: '.viteval/results/contract.json' })], setupFiles: ['./setup.ts'] } });`;
+const CONFIG = `import config from './viteval.config.ts';
+import { createRunnerConfig } from '@viteval/core/internal/runner';
+import { createJsonReporter } from '@viteval/core/internal/reporter';
+export default { ...config, plugins: createRunnerConfig({ root: ${JSON.stringify(ROOT)}, configFile: ${JSON.stringify(path.join(ROOT, 'viteval.config.ts'))} }).plugins, test: { reporters: ['default', createJsonReporter({ outputFile: '.viteval/results/contract.json' })] } };`;
 
 beforeAll(async () => {
+  await rm(ROOT, { recursive: true, force: true });
   await mkdir(ROOT, { recursive: true });
-  await writeFile(path.join(ROOT, 'vitest.config.ts'), CONFIG);
 });
 afterAll(async () => {
   await rm(ROOT, { force: true, recursive: true });
 });
 
-describe('evaluation contract', () => {
-  it('should initialize the judge model in native worker setup', async () => {
+describe('internal evaluation engine and report projections', () => {
+  it('should initialize default worker state without a project configuration', async () => {
+    const configuration = CONFIG.replace(
+      `, configFile: ${JSON.stringify(path.join(ROOT, 'viteval.config.ts'))}`,
+      ''
+    );
+    const result = await run(
+      `evaluate('unconfigured worker', { data: [{ input: 'a', expected: 'a' }], task: ({ input }) => input, scorers: [score(1)] });`,
+      '',
+      configuration
+    );
+    expect(result.exitCode, result.logs).toBe(0);
+    expect(result.report.numPassedEvals).toBe(1);
+  });
+
+  it('should resolve the configured V1 judge model in workers', async () => {
     const result = await run(
       `import { scorers } from 'viteval';
 evaluate('configured judge', { data: [{ name: 'named case', input: 'q', expected: 'a' }], task: () => 'a', scorers: [scorers.answerCorrectness()] });`,
-      `import { initializeModel } from 'viteval';
-initializeModel({
-  specificationVersion: 'v4', provider: 'fixture', modelId: 'judge', supportedUrls: {},
+      `models: { defaults: { language: 'fixture:judge' }, providers: [{
+languageModel: (modelId) => ({
+  specificationVersion: 'v4', provider: 'fixture.language', modelId, supportedUrls: {},
   doGenerate: async () => ({
     content: [{ type: 'text', text: JSON.stringify({ choice: 'A', reasons: 'Correct answer.' }) }],
     finishReason: { unified: 'stop', raw: undefined },
     usage: { inputTokens: { total: 1, noCache: 1 }, outputTokens: { total: 1, text: 1 } },
     warnings: [],
   }),
-});`
+}), embeddingModel: () => { throw new Error('Embedding model not configured'); }, imageModel: () => { throw new Error('Image model not configured'); },
+}] },`
     );
     expect(result.exitCode, result.logs).toBe(0);
     expect(result.report.evalResults[0].evalResults[0]).toMatchObject({
@@ -76,9 +91,7 @@ evaluate('cyclic input', { data: [{ input: cyclic, expected: 'a' }], task: () =>
     );
     const result = await run(
       `evaluate('persistence failure', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [score(1)] });`,
-      `import { initializeProvider, createJsonProvider } from 'viteval/provider';
-const initialized = await initializeProvider(createJsonProvider({ root: ${JSON.stringify(providerRoot)} }));
-if (!initialized.ok) throw initialized.error;`
+      `providers: [createJsonProvider({ root: ${JSON.stringify(providerRoot)} })],`
     );
     expect(result.exitCode, result.logs).toBe(1);
     expect(result.report).toMatchObject({
@@ -91,14 +104,12 @@ if (!initialized.ok) throw initialized.error;`
     ).toBe('blocking file');
   });
 
-  it('should create JSON datasets under the root configured by native setup', async () => {
+  it('should create JSON datasets under the configured V1 provider root', async () => {
     const result = await run(
       `import { defineDataset } from 'viteval/dataset';
 const data = defineDataset({ name: 'rooted-eval', data: async () => [{ input: 'q', expected: 'a' }] });
 evaluate('local data', { data, task: () => 'a', scorers: [score(1)] });`,
-      `import { initializeProvider, createJsonProvider } from 'viteval/provider';
-const initialized = await initializeProvider({ datasets: createJsonProvider({ root: ${JSON.stringify(ROOT)} }) });
-if (!initialized.ok) throw initialized.error;`
+      `providers: [createJsonProvider({ root: ${JSON.stringify(ROOT)} })],`
     );
     expect(result.exitCode, result.logs).toBe(0);
     const saved = JSON.parse(
@@ -224,12 +235,10 @@ evaluate('retry', { data: [{ input: 'q', expected: 'a' }], task: () => { if (att
 
   it('should persist configured-provider results after scoring', async () => {
     const providerRoot = path.join(ROOT, 'provider'),
-      setup = `import { initializeProvider, createJsonProvider } from 'viteval';
-const initialized = await initializeProvider(createJsonProvider({ root: ${JSON.stringify(providerRoot)} }));
-if (!initialized.ok) throw initialized.error;`,
+      config = `providers: [createJsonProvider({ root: ${JSON.stringify(providerRoot)} })],`,
       result = await run(
         `evaluate('provider result', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [score(1)] });`,
-        setup
+        config
       );
     expect(result.exitCode, result.logs).toBe(0);
     const stored = await createJsonProvider({
@@ -340,9 +349,7 @@ evaluate('provider retry', { data: [{ input: 'q', expected: 'a' }], task: () => 
     const providerRoot = path.join(ROOT, 'provider-static-skip'),
       result = await run(
         `evaluate('provider skipped', { data: [{ input: 'q', expected: 'a' }], task: () => { throw new Error('must not run'); }, scorers: [score(1)], skip: true });`,
-        `import { initializeProvider, createJsonProvider } from 'viteval/provider';
-const initialized = await initializeProvider(createJsonProvider({ root: ${JSON.stringify(providerRoot)} }));
-if (!initialized.ok) throw initialized.error;`
+        `providers: [createJsonProvider({ root: ${JSON.stringify(providerRoot)} })],`
       );
     expect(result.exitCode, result.logs).toBe(0);
     expect(result.report).toMatchObject({
@@ -413,11 +420,7 @@ evaluate('passing eval', { data: [{ input: 'q', expected: 'a' }], task: () => 'a
   });
 
   it('should keep same-file module failures separate across native projects', async () => {
-    const configuration = `import { defineConfig } from 'vitest/config';
-import { JsonReporter } from 'viteval/reporters';
-export default defineConfig({ test: { reporters: [new JsonReporter({ outputFile: '.viteval/results/contract.json' })], projects: [
-{ test: { name: 'first', include: ['contract.eval.ts'] } }, { test: { name: 'second', include: ['contract.eval.ts'] } }
-] } });`,
+    const configuration = multiProjectConfig(),
       result = await run(
         `throw new Error('collection exploded');`,
         '',
@@ -465,11 +468,7 @@ scorers: [createScorer({ name: 'exact', score: ({ output, expected }) => ({ scor
   });
 
   it('should keep same-file suites distinct across Vitest projects', async () => {
-    const configuration = `import { defineConfig } from 'vitest/config';
-import { JsonReporter } from 'viteval/reporters';
-export default defineConfig({ test: { reporters: [new JsonReporter({ outputFile: '.viteval/results/contract.json' })], projects: [
-{ test: { name: 'first', include: ['contract.eval.ts'] } }, { test: { name: 'second', include: ['contract.eval.ts'] } }
-] } });`,
+    const configuration = multiProjectConfig(),
       result = await run(
         `evaluate('shared', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [score(1)] });`,
         '',
@@ -480,18 +479,20 @@ export default defineConfig({ test: { reporters: [new JsonReporter({ outputFile:
       numPassedEvals: 2,
       numTotalEvalSuites: 2,
     });
-    const runs = await createJsonProvider({ root: ROOT }).evals!.get({
-      id: result.report.runId,
-      includeResults: true,
-    });
-    expect(runs).toMatchObject({
-      ok: true,
-      value: { results: [{ passed: true }, { passed: true }] },
-    });
+    const runs = await createJsonProvider({ root: ROOT }).evals!.list();
+    if (!runs.ok) {
+      throw runs.error;
+    }
+    const shared = runs.value.filter((stored) => stored.name === 'shared');
+    expect(shared).toHaveLength(2);
+    expect(
+      shared.map((stored) => stored.metadata.projectName).toSorted()
+    ).toEqual(['first', 'second']);
+    expect(shared.every((stored) => stored.results?.[0]?.passed)).toBe(true);
   });
 });
 
-async function run(body: string, setup = '', configuration = CONFIG) {
+async function run(body: string, options = '', configuration = CONFIG) {
   if (inject('integrationCoverage')) {
     configuration = configuration.replace(
       /test:\s*\{/g,
@@ -529,8 +530,13 @@ async function run(body: string, setup = '', configuration = CONFIG) {
       `coverage: ${JSON.stringify(coverage)}, reporters: [${JSON.stringify(blob)}, `
     );
   }
-  await writeFile(path.join(ROOT, 'vitest.config.ts'), configuration);
-  await writeFile(path.join(ROOT, 'setup.ts'), setup);
+  await writeFile(path.join(ROOT, 'engine.config.ts'), configuration);
+  await writeFile(
+    path.join(ROOT, 'viteval.config.ts'),
+    `import { defineConfig } from 'viteval/config';
+import { createJsonProvider } from 'viteval/provider';
+export default defineConfig({ eval: { include: ['contract.eval.ts'], results: ['json'] }, dataset: { providers: ['json'] }, ${options} });`
+  );
   await writeFile(
     path.join(ROOT, 'contract.eval.ts'),
     `import { evaluate } from ${JSON.stringify(inject('integrationCoverage') ? path.resolve(import.meta.dirname, '../core/src/evaluate/evaluate.ts') : 'viteval')};
@@ -541,10 +547,24 @@ ${body}`
   await rm(path.join(ROOT, '.viteval', 'results', 'contract.json'), {
     force: true,
   });
-  const args = ['run', '--root', ROOT],
+  const args = [
+      'run',
+      '--root',
+      ROOT,
+      '--config',
+      path.join(ROOT, 'engine.config.ts'),
+    ],
     result = spawnSync(
-      BINARY ?? process.execPath,
-      BINARY ? args : [CLI, ...args],
+      process.execPath,
+      [
+        path.join(
+          path.dirname(
+            fileURLToPath(import.meta.resolve('vitest/package.json'))
+          ),
+          'vitest.mjs'
+        ),
+        ...args,
+      ],
       { encoding: 'utf8', timeout: 30_000 }
     ),
     report = EVAL_RESULTS_SCHEMA.parse(
@@ -554,7 +574,7 @@ ${body}`
           'utf8'
         ).catch((error: unknown) => {
           throw new Error(
-            `Native evaluation did not write a report (exit ${result.status}):\n${result.stdout}${result.stderr}`,
+            `Internal evaluation engine did not write a report (exit ${result.status}):\n${result.stdout}${result.stderr}`,
             { cause: error }
           );
         })
@@ -567,14 +587,18 @@ ${body}`
   };
 }
 
+function multiProjectConfig() {
+  return `import config from './viteval.config.ts';
+import { createRunnerConfig } from '@viteval/core/internal/runner';
+import { createJsonReporter } from '@viteval/core/internal/reporter';
+export default { test: { reporters: ['default', createJsonReporter({ outputFile: '.viteval/results/contract.json' })], projects: ['first', 'second'].map(name => ({ ...config, plugins: createRunnerConfig({ root: ${JSON.stringify(ROOT)}, configFile: ${JSON.stringify(path.join(ROOT, 'viteval.config.ts'))} }).plugins, test: { name } })) } };`;
+}
+
 async function runWithProvider(body: string, hooks = '') {
   const providerRoot = path.join(ROOT, `provider-hooks-${++invocation}`),
     result = await run(
-      body,
-      `import { initializeProvider, createJsonProvider } from 'viteval/provider';
-const initialized = await initializeProvider(createJsonProvider({ root: ${JSON.stringify(providerRoot)} }));
-if (!initialized.ok) throw initialized.error;
-${hooks}`
+      `${hooks}\n${body}`,
+      `providers: [createJsonProvider({ root: ${JSON.stringify(providerRoot)} })],`
     ),
     runs = await createJsonProvider({ root: providerRoot }).evals!.list();
   if (!runs.ok) {

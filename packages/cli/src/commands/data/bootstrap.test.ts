@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   createDatasetBootstrap,
@@ -78,11 +79,12 @@ describe('normalizeDatasetPath', () => {
 });
 
 describe('createDatasetBootstrap', () => {
-  it('should capture only successful matched imports and restore previous discovery', () => {
+  it('should capture only successful matched imports and restore previous discovery', async () => {
     const previous = { register: vi.fn() },
       hooks: (() => void)[] = [];
     vi.stubGlobal('__viteval_datasetDiscovery', previous);
     const source = createDatasetBootstrap()
+        .replace("import { AsyncLocalStorage } from 'node:async_hooks';", '')
         .replace("import { afterAll } from 'vitest';", '')
         .replaceAll('export function', 'function'),
       bootstrap: {
@@ -96,8 +98,9 @@ describe('createDatasetBootstrap', () => {
         };
       } = new Function(
         'afterAll',
+        'AsyncLocalStorage',
         `${source}\nreturn { takeCandidates, moduleCandidates, restoreDiscovery, discovery };`
-      )((hook: () => void) => hooks.push(hook)),
+      )((hook: () => void) => hooks.push(hook), AsyncLocalStorage),
       discovery = bootstrap.discovery;
     discovery.register('unmatched');
     const checkpoint = discovery.startModule();
@@ -107,6 +110,17 @@ describe('createDatasetBootstrap', () => {
     expect(bootstrap.moduleCandidates('/missing.eval.ts')).toEqual([]);
     expect(bootstrap.takeCandidates()).toEqual(['unmatched', 'matched']);
     expect(bootstrap.takeCandidates()).toEqual([]);
+    const parent = discovery.startModule();
+    await Promise.resolve().then(() => {
+      discovery.startModule();
+      discovery.register('failed nested import');
+    });
+    discovery.register('successful parent');
+    discovery.finishModule('/parent.eval.ts', parent);
+    expect(bootstrap.moduleCandidates('/parent.eval.ts')).toEqual([
+      'successful parent',
+    ]);
+    expect(bootstrap.takeCandidates()).toEqual(['successful parent']);
     hooks[0]();
     expect(Reflect.get(globalThis, '__viteval_datasetDiscovery')).toBe(
       previous

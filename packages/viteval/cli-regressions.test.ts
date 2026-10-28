@@ -3,7 +3,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { API } from 'typescript/unstable/sync';
 import { afterEach, describe, expect, it } from 'vitest';
-import { createCoverageArguments } from './coverage-fixture';
 
 const CLI = path.resolve(import.meta.dirname, '../cli/dist/index.mjs'),
   projects: string[] = [];
@@ -16,7 +15,20 @@ afterEach(async () => {
   );
 });
 
-describe('native CLI regressions', () => {
+describe('Viteval CLI regressions', () => {
+  it('should run without a configuration file using local defaults', async () => {
+    const root = await createProject();
+    await writeEval({
+      root,
+      source: `evaluate('zero configuration', { data: [{ input: 'a', expected: 'a' }], task: ({ input }) => input, scorers: [scorers.exactMatch()] });`,
+    });
+    const result = runCli({ root, args: [] });
+    expect(result.status, result.output).toBe(0);
+    expect(await fs.readdir(path.join(root, '.viteval/results'))).toHaveLength(
+      1
+    );
+  });
+
   it('should typecheck and run the generated V1 example without setup or reporters', async () => {
     const root = await createProject();
     const templates = path.resolve(
@@ -91,7 +103,7 @@ describe('native CLI regressions', () => {
     ).toMatchObject({ schemaVersion: 1, success: true, numPassedEvals: 3 });
   }, 30_000);
 
-  it.each([['--json'], ['--filesOnly']])(
+  it.each([['--json'], []])(
     'should list evaluations without invoking paid tasks or scorers: %j',
     async (...options) => {
       const root = await createProject();
@@ -102,39 +114,67 @@ describe('native CLI regressions', () => {
   data: [{ input: 'q', expected: 'a' }],
   task: () => { throw new Error('paid task executed'); },
   scorers: [() => { throw new Error('paid scorer executed'); }],
+});
+evaluate('generator collection only', {
+  data: async () => { throw new Error('paid generator executed'); },
+  task: () => { throw new Error('paid task executed'); },
+  scorers: [() => { throw new Error('paid scorer executed'); }],
 });`,
       });
       const result = runCli({ root, args: ['list', ...options] });
       expect(result.status, result.output).toBe(0);
       expect(result.output).toContain('regression.eval.ts');
       expect(result.output).not.toContain('paid task executed');
+      expect(result.output).not.toContain('paid generator executed');
+      if (options.includes('--json')) {
+        expect(JSON.parse(result.stdout)).toEqual([
+          { name: 'collection only', file: 'regression.eval.ts' },
+          { name: 'generator collection only', file: 'regression.eval.ts' },
+        ]);
+      }
       await expect(
         fs.access(path.join(root, '.viteval/results'))
       ).rejects.toThrow();
     }
   );
 
-  it('should dispatch native benchmarks without executing evaluation tasks', async () => {
-    const root = await createProject(),
-      marker = path.join(root, 'bench-ran');
-    await writeConfig({ root });
-    await writeEval({
-      root,
-      source: `evaluate('not a benchmark', { data: [{ input: 'q', expected: 'a' }], task: () => { throw new Error('evaluation ran during bench'); }, scorers: [scorers.exactMatch()] });`,
-    });
-    await fs.writeFile(
-      path.join(root, 'native.bench.ts'),
-      `import { test } from 'vitest';
-import { writeFileSync } from 'node:fs';
-test('native benchmark', async ({ bench }) => {
-  await bench('write marker', () => writeFileSync(${JSON.stringify(marker)}, 'ran')).run({ iterations: 1, time: 0, warmupTime: 0, warmupIterations: 0 });
-});`
-    );
-    const result = runCli({ root, args: ['bench', '--run'] });
-    expect(result.status, result.output).toBe(0);
-    expect(await fs.readFile(marker, 'utf8')).toBe('ran');
-    expect(result.output).not.toContain('evaluation ran during bench');
-  });
+  it.each([false, true])(
+    'should run multiple file filters with a single cwd override (explicit run: %s)',
+    async (explicit) => {
+      const parent = await createProject();
+      const root = path.join(parent, 'app');
+      await fs.mkdir(root);
+      await writeConfig({ root, options: { eval: { results: [] } } });
+      for (const name of ['first', 'second']) {
+        await fs.writeFile(
+          path.join(root, `${name}.eval.ts`),
+          `import { writeFileSync } from 'node:fs';
+import { evaluate, scorers } from 'viteval';
+evaluate('${name} selected', { data: [{ input: 'a', expected: 'a' }], task: ({ input }) => { writeFileSync(${JSON.stringify(path.join(root, `${name}.ran`))}, input); return input; }, scorers: [scorers.exactMatch()] });`
+        );
+      }
+      await fs.writeFile(
+        path.join(root, 'excluded.eval.ts'),
+        "throw new Error('unselected module ran');"
+      );
+      const result = runCli({
+        root: parent,
+        args: [
+          ...(explicit ? ['run'] : []),
+          '--cwd',
+          'app',
+          'first.eval.ts',
+          'second.eval.ts',
+        ],
+      });
+      expect(result.status, result.output).toBe(0);
+      expect(await fs.readFile(path.join(root, 'first.ran'), 'utf8')).toBe('a');
+      expect(await fs.readFile(path.join(root, 'second.ran'), 'utf8')).toBe(
+        'a'
+      );
+      expect(result.output).not.toContain('unselected module ran');
+    }
+  );
 
   it.each([false, true])(
     'should use one effective discovery and persistence root (explicit CLI root: %s)',
@@ -197,7 +237,10 @@ test('native benchmark', async ({ bench }) => {
   it('should apply CLI retries ahead of project defaults and per-evaluation overrides ahead of CLI', async () => {
     const root = await createProject(),
       marker = path.join(root, 'retry-calls');
-    await writeConfig({ root, options: { eval: { retries: 0 } } });
+    await writeConfig({
+      root,
+      options: { eval: { retries: 0, results: ['json'] } },
+    });
     await writeEval({
       root,
       source: `import { appendFileSync } from 'node:fs';
@@ -207,20 +250,23 @@ evaluate('explicit override', { retries: 0, data: [{ input: 'q', expected: 'a' }
     });
     const result = runCli({
       root,
-      args: [
-        'run',
-        '--retry',
-        '1',
-        '--reporter=json',
-        `--outputFile.json=${path.join(root, 'report.json')}`,
-      ],
+      args: ['run', '--retries', '1'],
     });
     expect(result.status, result.output).toBe(1);
-    const report = JSON.parse(
-      await fs.readFile(path.join(root, 'report.json'), 'utf8')
+    const reports = await fs.readdir(path.join(root, '.viteval/results'));
+    const summaries = await Promise.all(
+      reports.map(async (file) =>
+        JSON.parse(
+          await fs.readFile(path.join(root, '.viteval/results', file), 'utf8')
+        )
+      )
     );
-    expect(report.numPassedTests).toBe(1);
-    expect(report.numFailedTests).toBe(1);
+    expect(
+      summaries.reduce((count, report) => count + report.numPassedEvals, 0)
+    ).toBe(1);
+    expect(
+      summaries.reduce((count, report) => count + report.numFailedEvals, 0)
+    ).toBe(1);
     expect(await fs.readFile(marker, 'utf8')).toBe('attempt\n');
   });
 
@@ -233,7 +279,7 @@ evaluate('explicit override', { retries: 0, data: [{ input: 'q', expected: 'a' }
         root,
         source: `evaluate('CLI timeout', { data: [{ input: 'q', expected: 'a' }], task: async () => { await new Promise(resolve => setTimeout(resolve, 30)); return 'a'; }, scorers: [scorers.exactMatch()] });`,
       });
-      const result = runCli({ root, args: ['run', '--testTimeout', timeout] });
+      const result = runCli({ root, args: ['run', '--timeout', timeout] });
       expect(result.status, result.output).toBe(0);
     }
   );
@@ -247,7 +293,7 @@ evaluate('explicit override', { retries: 0, data: [{ input: 'q', expected: 'a' }
 let peak = 0;
 evaluate('CLI concurrency', { data: [{ input: 'q', expected: 'a' }, { input: 'q', expected: 'a' }], task: async () => { active++; peak = Math.max(peak, active); await new Promise(resolve => setTimeout(resolve, 50)); active--; if (peak !== 2) throw new Error('CLI concurrency was ignored'); return 'a'; }, scorers: [scorers.exactMatch()] });`,
     });
-    const result = runCli({ root, args: ['run', '--maxConcurrency', '2'] });
+    const result = runCli({ root, args: ['run', '--concurrency', '2'] });
     expect(result.status, result.output).toBe(0);
   });
 });
@@ -289,13 +335,9 @@ async function writeEval({ root, source }: { root: string; source: string }) {
 
 function runCli({ root, args }: { root: string; args: string[] }) {
   const binary = process.env.VITEVAL_TEST_BINARY,
-    effectiveArgs = [
-      ...args,
-      ...(args[0] === 'run' ? createCoverageArguments() : []),
-    ],
     result = spawnSync(
       binary ?? process.execPath,
-      binary ? effectiveArgs : [CLI, ...effectiveArgs],
+      binary ? args : [CLI, ...args],
       { cwd: root, encoding: 'utf8', timeout: 15_000 }
     );
   if (result.error) throw result.error;

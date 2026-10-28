@@ -2,7 +2,6 @@ import { isErr } from 'massaman/control';
 import { getProjectRuntime } from '#/config/runtime';
 import type { ResultProviderName } from './registry';
 import type { EvalProvider } from './types';
-import { getEvalProvider } from './client';
 
 /**
  * Resolve selected result destinations before evaluation tasks execute.
@@ -21,8 +20,7 @@ export async function getResultDestinations(
         'Result destinations require a Viteval project configuration'
       );
     }
-    const provider = getEvalProvider();
-    return names ? [] : provider ? [provider] : [];
+    return [];
   }
   return Promise.all(
     runtime.resultNames(names).map(async (name) => {

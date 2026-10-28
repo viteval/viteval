@@ -50,7 +50,7 @@ describe('resolveProjectConfig', () => {
   });
 
   it.each(['ts', 'mts', 'js', 'mjs', 'cts', 'cjs'])(
-    'should discover .%s configs and prefer Viteval over native Vitest',
+    'should discover .%s Viteval configs and ignore Vitest configs',
     async (extension) => {
       const root = await mkdtemp(path.join(tmpdir(), 'viteval-config-'));
       directories.push(root);
@@ -59,7 +59,7 @@ describe('resolveProjectConfig', () => {
       await writeFile(native, 'export default {};');
       expect(resolveProjectConfig({ root })).toEqual({
         root,
-        configFile: native,
+        configFile: undefined,
       });
       await writeFile(own, 'export default {};');
       expect(resolveProjectConfig({ root })).toEqual({ root, configFile: own });

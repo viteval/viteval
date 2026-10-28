@@ -1,7 +1,5 @@
-export { initializeProvider } from './initialize';
 export { createProvider } from './create';
 export { createJsonProvider } from './json';
-export { getDatasetProvider } from './client';
 export type {
   ProviderRegistry,
   DatasetProviderName,
@@ -11,7 +9,6 @@ export type {
 } from './registry';
 export type {
   Provider,
-  ProviderConfig,
   DatasetProvider,
   EvalProvider,
   TagProvider,

@@ -21,7 +21,7 @@ export interface GcsProviderOptions extends ObjectDatasetOptions {
 /** Store datasets in Google Cloud Storage with generation-conditional catalog publication.
  * @param options - Existing bucket, namespace, and optional Google client configuration.
  * @returns A dataset-only provider with lazy SDK loading.
- * @example await initializeProvider({ datasets: gcs({ bucket: 'eval-data' }) });
+ * @example defineConfig({ providers: [gcs({ bucket: 'eval-data' })], dataset: { providers: ['gcs'] } });
  */
 export function gcs(options: GcsProviderOptions): Provider {
   return createObjectDatasetProvider({

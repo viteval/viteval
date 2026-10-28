@@ -47,11 +47,11 @@ describe('help', () => {
     expect(result.stdout.trim()).toBe(manifest.version);
   });
 
-  it('should preserve the native Vitest help for evaluation commands', () => {
+  it('should describe Viteval evaluation options', () => {
     const result = runCli({ args: ['run', '--help', '--root', BASIC_EXAMPLE] });
     expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
-    expect(result.stdout).toContain('--reporter');
-    expect(result.stdout).toContain('--project');
+    expect(result.stdout).toContain('--timeout');
+    expect(result.stdout).toContain('--concurrency');
   });
 });
 
@@ -281,8 +281,8 @@ describe('data', () => {
     await fs.rm(DATA_TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(DATA_TEST_DIR, { recursive: true });
     await fs.writeFile(
-      path.join(DATA_TEST_DIR, 'vitest.config.ts'),
-      "import { defineConfig } from 'viteval/config';\n\nexport default defineConfig({});\n"
+      path.join(DATA_TEST_DIR, 'viteval.config.ts'),
+      vitevalConfig()
     );
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'rooted.dataset.ts'),
@@ -302,7 +302,7 @@ describe('data', () => {
     await fs.rm(DATA_TEST_DIR, { force: true, recursive: true });
   });
 
-  it('should write datasets under the selected Vitest root', async () => {
+  it('should write datasets under the selected V1 project root', async () => {
     const result = runCli({
       args: ['data', '--root', DATA_TEST_DIR, '--overwrite'],
     });
@@ -317,14 +317,14 @@ describe('data', () => {
     expect(dataset.data).toEqual([{ expected: 'answer', input: 'question' }]);
   });
 
-  it('should reject an unknown Vitest project', () => {
+  it('should reject the removed native project selection option', () => {
     const result = runCli({
       args: ['data', '--root', DATA_TEST_DIR, '--project', 'missing'],
     });
 
     expect(result.status).toBe(1);
     expect(`${result.stdout}${result.stderr}`).toContain(
-      'Vitest project "missing" was not found'
+      'Unknown argument: project'
     );
   });
 
@@ -397,7 +397,9 @@ test('ordinary test', () => { throw new Error('ordinary test ran'); });`
 
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'inline.config.ts'),
-      "export default { test: { include: ['inline.eval.ts'] } };"
+      vitevalConfig({
+        eval: { include: ['inline.eval.ts'], results: ['json'] },
+      })
     );
     const evaluation = runCli({
       args: [
@@ -418,10 +420,7 @@ test('ordinary test', () => { throw new Error('ordinary test ran'); });`
   it('should include eval files in default dataset discovery', async () => {
     const root = path.join(DATA_TEST_DIR, 'default-discovery');
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(
-      path.join(root, 'vitest.config.ts'),
-      'export default {};'
-    );
+    await fs.writeFile(path.join(root, 'viteval.config.ts'), vitevalConfig());
     await fs.writeFile(
       path.join(root, 'questions.eval.ts'),
       `import { evaluate } from 'viteval';
@@ -467,13 +466,10 @@ export const shared = defineDataset({ name: 'shared-discovery', data: async () =
     );
   });
 
-  it('should discover eval datasets already initialized by setup files', async () => {
+  it('should discover eval datasets imported from shared modules', async () => {
     const root = path.join(DATA_TEST_DIR, 'setup-discovery');
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(
-      path.join(root, 'vitest.config.ts'),
-      "export default { test: { setupFiles: ['./datasets.setup.ts'] } };"
-    );
+    await fs.writeFile(path.join(root, 'viteval.config.ts'), vitevalConfig());
     await fs.writeFile(
       path.join(root, 'datasets.setup.ts'),
       `import { defineDataset } from 'viteval/dataset';
@@ -498,33 +494,26 @@ evaluate('questions', { data: dataset, task: () => { throw new Error('task ran')
     expect(saved.data).toEqual([{ expected: 'answer', input: 'setup' }]);
   });
 
-  it.each(['forks', 'threads'])(
-    'should discover setup-imported inline datasets once in %s workers',
-    async (pool) => {
-      const root = path.join(DATA_TEST_DIR, `setup-inline-${pool}`),
-        marker = path.join(root, 'generator-calls.txt'),
-        workerConfig = {
-          isolate: false,
-          pool,
-          sequence: { setupFiles: 'parallel' },
-          setupFiles: ['./first.setup.ts', './second.setup.ts'],
-        },
-        testConfig =
-          pool === 'threads'
-            ? { projects: [{ test: { ...workerConfig, name: 'datasets' } }] }
-            : workerConfig;
+  it.each([1, 2])(
+    'should discover multiply imported inline datasets once with concurrency %s',
+    async (concurrency) => {
+      const root = path.join(DATA_TEST_DIR, `shared-inline-${concurrency}`),
+        marker = path.join(root, 'generator-calls.txt');
       await fs.mkdir(root, { recursive: true });
       await fs.writeFile(
-        path.join(root, 'vitest.config.ts'),
-        `export default { test: ${JSON.stringify(testConfig)} };`
+        path.join(root, 'viteval.config.ts'),
+        vitevalConfig({ eval: { concurrency, results: ['json'] } })
       );
       await fs.writeFile(
         path.join(root, 'first.setup.ts'),
         `import './questions.eval';
 import { afterAll } from 'vitest';
-import { defineDataset } from 'viteval/dataset';
-defineDataset({ name: 'unmatched-setup', data: async () => { throw new Error('unmatched setup dataset generated'); } });
 afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });`
+      );
+      await fs.writeFile(
+        path.join(root, 'unmatched.ts'),
+        `import { defineDataset } from 'viteval/dataset';
+defineDataset({ name: 'unmatched-module', data: async () => { throw new Error('unmatched dataset generated'); } });`
       );
       await fs.writeFile(
         path.join(root, 'second.setup.ts'),
@@ -532,7 +521,9 @@ afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dat
       );
       await fs.writeFile(
         path.join(root, 'questions.eval.ts'),
-        `import { appendFile } from 'node:fs/promises';
+        `import './first.setup';
+import './second.setup';
+import { appendFile } from 'node:fs/promises';
 import { evaluate } from 'viteval';
 import { defineDataset } from 'viteval/dataset';
 import { describe, test } from 'vitest';
@@ -550,14 +541,7 @@ describe('ordinary suite', () => {
 });`
       );
       const result = runCli({
-        args: [
-          'data',
-          'questions.eval.ts',
-          '--root',
-          root,
-          '--overwrite',
-          ...(pool === 'threads' ? ['--project', 'datasets'] : []),
-        ],
+        args: ['data', 'questions.eval.ts', '--root', root, '--overwrite'],
       });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       expect(`${result.stdout}${result.stderr}`).toContain(
@@ -579,20 +563,18 @@ describe('ordinary suite', () => {
     }
   );
 
-  it('should discard setup-time candidates from a failed matched import', async () => {
+  it('should discard candidates from a caught failed matched import', async () => {
     const root = path.join(DATA_TEST_DIR, 'setup-failed-import');
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(
-      path.join(root, 'vitest.config.ts'),
-      "export default { test: { setupFiles: ['./caught.setup.ts'] } };"
-    );
+    await fs.writeFile(path.join(root, 'viteval.config.ts'), vitevalConfig());
     await fs.writeFile(
       path.join(root, 'caught.setup.ts'),
-      "import './valid.eval';\ntry { await import('./broken.eval'); } catch {}"
+      "try { await import('./broken.eval'); } catch {}"
     );
     await fs.writeFile(
-      path.join(root, 'valid.eval.ts'),
-      `import { defineDataset } from 'viteval/dataset';
+      path.join(root, '00-valid.eval.ts'),
+      `import './caught.setup';
+import { defineDataset } from 'viteval/dataset';
 const dataset = defineDataset({ name: 'valid-setup-import', data: async () => [{ input: 'valid', expected: 'answer' }] });`
     );
     await fs.writeFile(
@@ -798,17 +780,14 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
     expect(`${result.stdout}${result.stderr}`).toContain('dataset exploded');
   });
 
-  it('should support dataset setup modules with native Vitest lifecycle hooks', async () => {
-    const config = path.join(DATA_TEST_DIR, 'vitest.config.ts'),
-      original = await fs.readFile(config, 'utf8');
+  it('should run imported dataset lifecycle cleanup without leaking discovery state', async () => {
+    const dataset = path.join(DATA_TEST_DIR, 'rooted.dataset.ts'),
+      original = await fs.readFile(dataset, 'utf8');
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'hooks.setup.ts'),
       "import { afterAll } from 'vitest';\nafterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });\n"
     );
-    await fs.writeFile(
-      config,
-      "export default { test: { setupFiles: ['./hooks.setup.ts'] } };\n"
-    );
+    await fs.writeFile(dataset, `import './hooks.setup';\n${original}`);
     try {
       const result = runCli({
         args: [
@@ -821,7 +800,7 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
       });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
     } finally {
-      await fs.writeFile(config, original);
+      await fs.writeFile(dataset, original);
     }
   });
 });
@@ -831,8 +810,10 @@ describe('run', () => {
     await fs.rm(RUN_TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(RUN_TEST_DIR, { recursive: true });
     await fs.writeFile(
-      path.join(RUN_TEST_DIR, 'vitest.config.ts'),
-      "export default { test: { include: ['failure.eval.ts'] } };\n"
+      path.join(RUN_TEST_DIR, 'viteval.config.ts'),
+      vitevalConfig({
+        eval: { include: ['failure.eval.ts'], results: ['json'] },
+      })
     );
     await fs.writeFile(
       path.join(RUN_TEST_DIR, 'failure.eval.ts'),
@@ -842,20 +823,79 @@ describe('run', () => {
   afterAll(async () => {
     await fs.rm(RUN_TEST_DIR, { force: true, recursive: true });
   });
-  it('should delegate filters and options to the native Vitest CLI', () => {
+  it('should run a failing V1 evaluation with CLI filters and options', () => {
     const result = runCli({
-      args: [
-        'run',
-        '--root',
-        RUN_TEST_DIR,
-        '--reporter=dot',
-        '--testTimeout=10000',
-      ],
+      args: ['run', '--root', RUN_TEST_DIR, '--timeout=10000'],
     });
 
     expect(result.status).toBe(1);
     expect(`${result.stdout}${result.stderr}`).toContain(
       'mean score 0 is below threshold 1'
+    );
+  });
+
+  it('should resolve the default judge from V1 model provider configuration', async () => {
+    await fs.writeFile(
+      path.join(RUN_TEST_DIR, 'judge.eval.ts'),
+      `import { evaluate, scorers } from 'viteval';
+evaluate('configured judge', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [scorers.answerCorrectness()] });`
+    );
+    await fs.writeFile(
+      path.join(RUN_TEST_DIR, 'judge.config.ts'),
+      `import { defineConfig } from 'viteval/config';
+export default defineConfig({
+  eval: { include: ['judge.eval.ts'], results: ['json'] },
+  models: { defaults: { language: 'fixture:judge' }, providers: [{
+    languageModel: (modelId) => ({
+      specificationVersion: 'v4', provider: 'fixture.language', modelId, supportedUrls: {},
+      doGenerate: async () => ({
+        content: [{ type: 'text', text: JSON.stringify({ choice: 'A', reasons: 'Correct answer.' }) }],
+        finishReason: { unified: 'stop', raw: undefined },
+        usage: { inputTokens: { total: 1, noCache: 1 }, outputTokens: { total: 1, text: 1 } },
+        warnings: [],
+      }),
+    }),
+    embeddingModel: () => { throw new Error('Embedding model not configured'); },
+    imageModel: () => { throw new Error('Image model not configured'); },
+  }] },
+});`
+    );
+    const result = runCli({
+      args: ['run', '--root', RUN_TEST_DIR, '--config', 'judge.config.ts'],
+    });
+    expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+    const reports = await fs.readdir(
+      path.join(RUN_TEST_DIR, '.viteval/results')
+    );
+    const documents = await Promise.all(
+      reports.map(async (file) =>
+        JSON.parse(
+          await fs.readFile(
+            path.join(RUN_TEST_DIR, '.viteval/results', file),
+            'utf8'
+          )
+        )
+      )
+    );
+    expect(documents).toContainEqual(
+      expect.objectContaining({
+        success: true,
+        numPassedEvals: 1,
+        evalResults: expect.arrayContaining([
+          expect.objectContaining({
+            evalResults: expect.arrayContaining([
+              expect.objectContaining({
+                scores: [
+                  expect.objectContaining({
+                    name: 'AnswerCorrectness',
+                    score: 1,
+                  }),
+                ],
+              }),
+            ]),
+          }),
+        ]),
+      })
     );
   });
 });
@@ -976,4 +1016,9 @@ function runCli({ args, cwd }: { args: string[]; cwd?: string }) {
     );
   }
   return result;
+}
+
+function vitevalConfig(options: Record<string, unknown> = {}) {
+  return `import { defineConfig } from 'viteval/config';
+export default defineConfig(${JSON.stringify({ eval: { results: ['json'] }, dataset: { providers: ['json'] }, ...options })});\n`;
 }

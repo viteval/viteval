@@ -1,21 +1,7 @@
 # Reporters
 
-Use result providers for evaluation inputs, outputs, and scores. Runner reporters
-are an optional console/CI concern, not a persistence requirement.
-
-## Vitest reporters
-
-### `default`
-
-Vitest's default reporter prints results to the console. Viteval does not wrap or replace it.
-
-### `json`
-
-Vitest includes native JSON, JUnit, TAP, tree, verbose, dot, and other reporters. Pass them through Vitest's native CLI:
-
-```sh
-viteval run --reporter json
-```
+Use result providers for evaluation inputs, outputs, and scores. Console output
+is managed internally; there is no public runner-reporter configuration.
 
 ## Evaluation JSON
 
@@ -39,16 +25,13 @@ JSON provider runs have distinct identities under `.viteval/results`; file
 replacement is atomic. Per-evaluation `results` replaces the configured array;
 `results: []` disables persistence. Persistence failures fail the run.
 
-The old `--outputPath` flag is not part of V1. Native `--outputFile` only applies
-to runner reporters, not evaluation storage. The low-level `JsonReporter` export
-remains available for native runner integrations; do not add
-it alongside JSON provider persistence unless you intentionally want two reports.
+The old `--outputPath` flag is not part of V1. Result persistence is selected through
+`eval.results`; runner reporters and setup hooks are internal implementation details.
 
 Reports include `schemaVersion: 1`, passed/failed/skipped counts, project names,
 case IDs and final states, execution errors, and suite summaries. The suite
 median is the median of per-case median scores. Native tests without evaluation
-metadata are excluded from evaluation counts; the CLI still preserves Vitest's
-overall exit code.
+metadata are excluded from evaluation counts. Execution failures still fail the CLI.
 
 The dashboard uses those recorded outcomes instead of recalculating every case
 from its mean score. This preserves median/sum gates, retries, skips, and

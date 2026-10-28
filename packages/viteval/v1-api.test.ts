@@ -3,7 +3,6 @@ import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
-import { createCoverageArguments } from './coverage-fixture';
 
 const ROOT = path.join(import.meta.dirname, '.test-v1-api'),
   CLI = path.resolve(import.meta.dirname, '../cli/cli.mjs');
@@ -157,12 +156,7 @@ async function fixture(options: {
 
 function run(root: string, command: string[]) {
   const binary = process.env.VITEVAL_TEST_BINARY;
-  const args = [
-    ...command,
-    ...(command[0] === 'run' ? createCoverageArguments() : []),
-    '--root',
-    root,
-  ];
+  const args = [...command, '--root', root];
   const result = spawnSync(
     binary ?? process.execPath,
     binary ? args : [CLI, ...args],
