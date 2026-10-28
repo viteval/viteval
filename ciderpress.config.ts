@@ -7,6 +7,8 @@ const midnightDark = BUILT_IN_THEMES.midnight.variants.dark!;
 const honeycrispLight = BUILT_IN_THEMES.honeycrisp.variants.light!;
 const SITE_HEAD: [string, Record<string, string>][] = [
   ['script', { type: 'module', src: '/github-stars.js' }],
+  ['link', { rel: 'stylesheet', href: '/footer.css' }],
+  ['link', { rel: 'stylesheet', href: '/loader.css' }],
 ];
 const FONT_FAMILIES = {
   sans: "'Geist', ui-sans-serif, system-ui, sans-serif",
@@ -127,21 +129,23 @@ export default defineConfig({
     logo: '/assets/viteval-wordmark.svg',
     favicon: '/assets/viteval-flask.svg',
     loader: {
-      content: '/assets/viteval-loading.svg',
-      label: 'Loading Viteval',
+      content: '/assets/viteval-loading-wordmark.svg',
+      label: '',
     },
   },
   footer: {
     message: 'TypeScript-native evals, powered by Vitest.',
     copyright: true,
-    tagline: 'MIT licensed',
+    tagline:
+      'MIT licensed. Viteval is an independent open-source project. It is not affiliated with, endorsed by, or supported by VoidZero.',
     columns: [
       {
         heading: 'Start here',
         links: [
+          { text: 'Introduction', href: '/introduction' },
           { text: 'Why Viteval', href: '/features' },
-          { text: 'Getting started', href: '/guide/getting-started' },
-          { text: 'Core concepts', href: '/guide/concepts' },
+          { text: 'Getting started', href: '/getting-started' },
+          { text: 'Concepts', href: '/concepts/evaluations' },
           { text: 'Examples', href: '/examples' },
         ],
       },
@@ -151,15 +155,15 @@ export default defineConfig({
           { text: 'Configuration', href: '/api/configuration' },
           { text: 'Evaluations', href: '/api/evaluate' },
           { text: 'Datasets', href: '/api/define-dataset' },
-          { text: 'Scorers', href: '/api/scorers' },
+          { text: 'Scorers', href: '/api/scoring/scorers' },
         ],
       },
       {
         heading: 'Workflow',
         links: [
-          { text: 'CLI and dashboard', href: '/guide/cli' },
-          { text: 'CI integration', href: '/guide/advanced/ci' },
-          { text: 'Reporters', href: '/guide/advanced/reporters' },
+          { text: 'CLI', href: '/cli/run' },
+          { text: 'Run in CI', href: '/guide/ci' },
+          { text: 'Inspect results', href: '/guide/results' },
           { text: 'Providers', href: '/guide/providers' },
         ],
       },
@@ -181,76 +185,178 @@ export default defineConfig({
   reportLink: { repo: 'viteval/viteval' },
   topbar: {
     announcement: {
-      message:
-        'V1 release candidate available. V0 support ends at the v1 launch.',
-      cta: { href: '/guide/migration', label: 'Migrate to v1' },
+      message: 'V1 release candidate available.',
+      cta: { href: '/guide/migration', label: 'Migration guide' },
       persistent: true,
     },
     nav: [
-      { title: 'Features', link: '/features' },
-      { title: 'Guide', link: '/guide/getting-started' },
-      { title: 'API', link: '/api/evaluate' },
-      { title: 'Examples', link: '/examples' },
+      { title: 'Introduction', link: '/introduction' },
+      { title: 'Get started', link: '/getting-started' },
+      {
+        title: 'Concepts',
+        activeMatch: '^/concepts(?:/|$)',
+        items: [
+          { title: 'Evaluations and tasks', link: '/concepts/evaluations' },
+          { title: 'Datasets', link: '/concepts/datasets' },
+          { title: 'Scoring and thresholds', link: '/concepts/scoring' },
+          { title: 'Storage and results', link: '/concepts/storage' },
+        ],
+      },
+      {
+        title: 'Guides',
+        activeMatch: '^/guide(?:/|$)',
+        items: [
+          { title: 'Configure models', link: '/guide/models' },
+          { title: 'Write a custom scorer', link: '/guide/custom-scorers' },
+          { title: 'Set up storage providers', link: '/guide/providers' },
+          { title: 'Inspect results', link: '/guide/results' },
+          { title: 'Run in CI', link: '/guide/ci' },
+          { title: 'Migrate to v1', link: '/guide/migration' },
+        ],
+      },
+      {
+        title: 'Reference',
+        activeMatch: '^/(?:api|cli)(?:/|$)',
+        items: [
+          { title: 'API', link: '/api/evaluate', activeMatch: '^/api(?:/|$)' },
+          { title: 'CLI', link: '/cli/run', activeMatch: '^/cli(?:/|$)' },
+        ],
+      },
     ],
-    cta: { text: 'Star on GitHub', href: 'https://github.com/viteval/viteval' },
+    cta: { text: 'GitHub', href: 'https://github.com/viteval/viteval' },
   },
   pages: [
-    { title: 'Viteval', path: '/', include: 'docs/index.mdx' },
-    { title: 'Features', path: '/features', include: 'docs/features.mdx' },
-    { title: 'Brand & assets', path: '/brand', include: 'docs/brand.mdx' },
     {
-      title: 'Guide',
+      title: 'Viteval',
+      path: '/',
+      include: 'docs/index.mdx',
+      nav: { hidden: true },
+    },
+    {
+      title: 'Features',
+      path: '/features',
+      include: 'docs/features.mdx',
+      nav: { hidden: true },
+    },
+    {
+      title: 'Brand & assets',
+      path: '/brand',
+      include: 'docs/brand.mdx',
+      nav: { hidden: true },
+    },
+    {
+      title: 'Introduction',
+      path: '/introduction',
+      include: 'docs/introduction.md',
+    },
+    {
+      title: 'Getting started',
+      path: '/getting-started',
+      include: 'docs/getting-started.mdx',
+    },
+    {
+      title: 'Concepts',
+      path: '/concepts',
+      description:
+        'Understand evaluation execution, datasets, scoring, and result storage.',
+      discover: { sort: 'none' as const },
       pages: [
         {
-          title: 'Getting started',
-          path: '/guide/getting-started',
-          include: 'docs/guide/getting-started.md',
+          title: 'Evaluations and tasks',
+          path: '/concepts/evaluations',
+          include: 'docs/concepts/evaluations.md',
         },
         {
-          title: 'Core concepts',
-          path: '/guide/concepts',
-          include: 'docs/guide/concepts.md',
+          title: 'Datasets',
+          path: '/concepts/datasets',
+          include: 'docs/concepts/datasets.md',
         },
         {
-          title: 'CLI usage',
-          path: '/guide/cli',
-          include: 'docs/guide/cli.md',
+          title: 'Scoring and thresholds',
+          path: '/concepts/scoring',
+          include: 'docs/concepts/scoring.md',
         },
         {
-          title: 'Providers',
+          title: 'Storage and results',
+          path: '/concepts/storage',
+          include: 'docs/concepts/storage.md',
+        },
+      ],
+    },
+    {
+      title: 'Guides',
+      path: '/guide',
+      description:
+        'Configure models and storage, inspect results, and run evaluations in CI.',
+      discover: { sort: 'none' as const },
+      pages: [
+        {
+          title: 'Configure models',
+          path: '/guide/models',
+          include: 'docs/guide/models.mdx',
+        },
+        {
+          title: 'Write a custom scorer',
+          path: '/guide/custom-scorers',
+          include: 'docs/guide/custom-scorers.mdx',
+        },
+        {
+          title: 'Set up storage providers',
           path: '/guide/providers',
-          include: 'docs/guide/providers.md',
+          include: 'docs/guide/providers.mdx',
+        },
+        {
+          title: 'Inspect results',
+          path: '/guide/results',
+          include: 'docs/guide/results.mdx',
+        },
+        {
+          title: 'Run in CI',
+          path: '/guide/ci',
+          include: 'docs/guide/ci.mdx',
         },
         {
           title: 'Migrate to v1',
           path: '/guide/migration',
-          include: 'docs/guide/migration.md',
+          include: 'docs/guide/migration.mdx',
         },
       ],
     },
     {
-      title: 'Advanced',
+      title: 'CLI',
+      path: '/cli',
+      description:
+        'Command syntax, arguments, options, and execution behavior.',
+      discover: { sort: 'none' as const },
       pages: [
         {
-          title: 'CI integration',
-          path: '/guide/advanced/ci',
-          include: 'docs/guide/advanced/ci.md',
+          title: 'run',
+          path: '/cli/run',
+          include: 'docs/cli/run.md',
         },
         {
-          title: 'Reporters',
-          path: '/guide/advanced/reporters',
-          include: 'docs/guide/advanced/reporters.md',
+          title: 'init',
+          path: '/cli/init',
+          include: 'docs/cli/init.md',
+        },
+        {
+          title: 'data',
+          path: '/cli/data',
+          include: 'docs/cli/data.md',
+        },
+        {
+          title: 'ui',
+          path: '/cli/ui',
+          include: 'docs/cli/ui.md',
         },
       ],
     },
     {
-      title: 'API reference',
+      title: 'Reference',
+      description:
+        'Reference evaluation APIs, scoring functions, configuration, and storage contracts.',
+      discover: { sort: 'none' as const },
       pages: [
-        {
-          title: 'Configuration',
-          path: '/api/configuration',
-          include: 'docs/api/configuration.mdx',
-        },
         {
           title: 'evaluate()',
           path: '/api/evaluate',
@@ -262,14 +368,57 @@ export default defineConfig({
           include: 'docs/api/define-dataset.mdx',
         },
         {
-          title: 'createScorer()',
-          path: '/api/create-scorer',
-          include: 'docs/api/create-scorer.md',
+          title: 'sampleItems()',
+          path: '/api/sample-items',
+          include: 'docs/api/sample-items.mdx',
         },
         {
-          title: 'Scorers',
-          path: '/api/scorers',
-          include: 'docs/api/scorers.md',
+          title: 'Configuration',
+          path: '/api/configuration',
+          include: 'docs/api/configuration.mdx',
+        },
+        {
+          title: 'Scoring',
+          description:
+            'Choose built-in scorers, write custom scoring functions, and configure judge models.',
+          path: '/api/scoring',
+          discover: { sort: 'none' as const },
+          pages: [
+            {
+              title: 'Built-in scorers',
+              path: '/api/scoring/scorers',
+              include: 'docs/api/scorers.mdx',
+            },
+            {
+              title: 'createScorer()',
+              path: '/api/scoring/create-scorer',
+              include: 'docs/api/create-scorer.mdx',
+            },
+            {
+              title: 'wrapScorer()',
+              path: '/api/scoring/wrap-scorer',
+              include: 'docs/api/wrap-scorer.mdx',
+            },
+          ],
+        },
+        {
+          title: 'Storage & results',
+          description:
+            'Configure storage providers and write local evaluation snapshots.',
+          path: '/api/storage',
+          discover: { sort: 'none' as const },
+          pages: [
+            {
+              title: 'Providers',
+              path: '/api/storage/create-provider',
+              include: 'docs/api/create-provider.mdx',
+            },
+            {
+              title: 'Provider types',
+              path: '/api/storage/provider-types',
+              include: 'docs/api/provider-types.mdx',
+            },
+          ],
         },
       ],
     },

@@ -1,0 +1,78 @@
+[data-motion-visible='false'],
+[data-motion-visible='false'] *,
+[data-motion-visible='false'] *::before,
+[data-motion-visible='false'] *::after {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-hover-shine,
+  .vv-hover-shine::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .vv-hover-shine:hover {
+    scale: 1;
+  }
+
+  [data-motion-visible],
+  [data-motion-visible] *,
+  [data-motion-visible] *::before,
+  [data-motion-visible] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@property --vv-shine-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.vv-hover-shine {
+  position: relative;
+  pointer-events: auto;
+  transition: scale 220ms ease;
+}
+
+.vv-hover-shine::after {
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--vv-shine-angle),
+    transparent 0deg 290deg,
+    var(--cp-c-brand-2) 330deg,
+    var(--vv-cyan) 345deg,
+    transparent 360deg
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.3;
+  pointer-events: none;
+  animation: vv-hover-shine-turn 9s linear infinite;
+  transition: opacity 220ms ease;
+  content: '';
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vv-hover-shine:hover {
+    scale: 1.05;
+    z-index: 1;
+  }
+
+  .vv-hover-shine:hover::after {
+    opacity: 1;
+    animation-duration: 2.4s;
+  }
+}
+
+@keyframes vv-hover-shine-turn {
+  to {
+    --vv-shine-angle: 360deg;
+  }
+}

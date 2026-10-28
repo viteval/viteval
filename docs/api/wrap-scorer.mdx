@@ -1,0 +1,81 @@
+---
+title: wrapScorer()
+description: Transform output or expected values before passing them to an existing scorer.
+---
+
+# `wrapScorer()`
+
+import { Field, FieldGroup } from '@theme';
+
+Transform the output or expected value before passing them to an existing scorer.
+The wrapper preserves the scorer's name and forwards input and extra case fields.
+
+## Import
+
+```ts
+import { wrapScorer } from 'viteval';
+```
+
+## Signature
+
+```ts
+function wrapScorer<
+  OUTPUT,
+  EXPECTED,
+  INNER_OUTPUT = OUTPUT,
+  INNER_EXPECTED = EXPECTED,
+  EXTRA extends Extra = Extra,
+>(
+  scorer: Scorer<INNER_OUTPUT, INNER_EXPECTED, EXTRA>,
+  options: WrapScorerOptions<OUTPUT, EXPECTED, INNER_OUTPUT, INNER_EXPECTED>
+): Scorer<OUTPUT, EXPECTED, EXTRA>;
+```
+
+## Parameters
+
+<FieldGroup title="Parameters">
+  <Field
+    name="scorer"
+    type="Scorer<INNER_OUTPUT, INNER_EXPECTED, EXTRA>"
+    required
+  >
+    The scorer receiving the transformed values.
+  </Field>
+  <Field name="options" type="WrapScorerOptions" required>
+    Synchronous transformations. Omitted transformations pass the original value
+    through.
+    <FieldGroup title="Properties" expandable defaultOpen>
+      <Field name="output" type="(output: OUTPUT) => INNER_OUTPUT">
+        Transform the task's output before scoring.
+      </Field>
+      <Field name="expected" type="(expected: EXPECTED) => INNER_EXPECTED">
+        Transform the dataset's expected value before scoring.
+      </Field>
+    </FieldGroup>
+  </Field>
+</FieldGroup>
+
+## Example
+
+```ts
+import { evaluate, scorers, wrapScorer } from 'viteval';
+
+evaluate('Structured answer', {
+  data: [{ input: 'What is 2 + 2?', expected: { answer: '4' } }],
+  task: () => ({ text: '4' }),
+  scorers: [
+    wrapScorer(scorers.exactMatch(), {
+      output: (value: { text: string }) => value.text,
+      expected: (value: { answer: string }) => value.answer,
+    }),
+  ],
+});
+```
+
+## Return value and errors
+
+Returns a scorer with the outer `OUTPUT` and `EXPECTED` types. The inner scorer's
+score and metadata are returned unchanged. Transformations are not awaited.
+Exceptions propagate to the evaluator and fail the case.
+
+See [createScorer()](/api/scoring/create-scorer) for the scorer callback contract.

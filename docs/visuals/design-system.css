@@ -124,14 +124,45 @@ html[data-cp-variant='dark'] {
 }
 
 @media (max-width: 640px) {
+  .cp-page-rail {
+    --vv-section-space: 48px;
+    --vv-section-inset: 20px;
+    --vv-heading-gap: 28px;
+  }
+
+  .cp-page-rail .cp-hero {
+    padding-block: 40px 48px;
+  }
+
+  .cp-page-rail .cp-hero__eyebrow {
+    margin-bottom: 20px;
+  }
+
   .cp-page-rail .cp-hero__title {
     font-size: clamp(32px, 8vw, 48px);
     letter-spacing: -0.035em;
+    margin-bottom: 20px;
+  }
+
+  .cp-page-rail .cp-hero__tagline {
+    margin-bottom: 24px;
+  }
+
+  .cp-page-rail .cp-hero__cta {
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .cp-page-rail .cp-tabs--horizontal .cp-tabs__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
 
   .cp-page-rail .cp-tabs--horizontal .cp-tabs__tab {
+    flex: 0 0 auto;
     gap: 6px;
-    padding-inline: 8px;
+    min-height: 44px;
+    padding-inline: 16px;
     font-size: 12px;
   }
 }

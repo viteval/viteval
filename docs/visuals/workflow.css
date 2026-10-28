@@ -24,8 +24,8 @@
 
 .vv-workflow__layout {
   display: grid;
-  grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.4fr);
-  gap: 56px;
+  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.6fr);
+  gap: 40px;
   align-items: center;
 }
 
@@ -82,11 +82,6 @@
   color: var(--cp-c-text-1);
 }
 
-.vv-workflow__step-title {
-  font-size: 14px;
-  font-weight: 600;
-}
-
 .vv-workflow__description {
   max-width: 36ch;
   font: 14px / 1.65 var(--cp-ff-sans);
@@ -124,31 +119,75 @@
   display: none;
 }
 
+.vv-workflow__panel--write,
+.vv-workflow__panel--run {
+  --cp-c-bg: #1f1f1f;
+  --cp-c-bg-alt: #181818;
+  --cp-c-border: #313131;
+  --cp-c-text-1: #d4d4d4;
+  --cp-c-text-2: #b0b0b0;
+  --cp-c-text-3: #858585;
+  --cp-c-brand-2: #75beff;
+  --cp-c-brand-soft: #04395e;
+  background: var(--cp-c-bg);
+}
+
+.vv-workflow__panel--run .vv-workflow__canvas {
+  background: #0c0c0c;
+}
+
 .vv-workflow__window-bar {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 48px;
-  padding: 10px 16px;
+  min-height: 32px;
+  padding: 4px 12px;
   border-bottom: 1px solid var(--cp-c-border);
   color: var(--cp-c-text-2);
   font: 11px / 1.5 var(--cp-ff-mono);
+  background: var(--cp-c-bg-alt);
 }
 
-.vv-workflow__window-mark {
-  color: var(--cp-c-brand-2);
-  font-weight: 700;
+.vv-workflow__window-dots {
+  display: flex;
+  gap: 5px;
 }
 
-.vv-workflow__example {
-  margin-left: auto;
-  color: var(--cp-c-text-3);
-  white-space: nowrap;
-  font-size: 9px;
+.vv-workflow__window-dots i {
+  width: 7px;
+  height: 7px;
+  background: #ff5f57;
+  border-radius: 50%;
+}
+
+.vv-workflow__window-dots i:nth-child(2) {
+  background: #febc2e;
+}
+
+.vv-workflow__window-dots i:nth-child(3) {
+  background: #28c840;
+}
+
+.vv-workflow__panel--run .vv-workflow__green {
+  color: #8cce76;
+}
+
+.vv-workflow__panel--run :is(.vv-workflow__red, .vv-workflow__failed) {
+  color: #f48771;
+}
+
+.vv-workflow__panel--inspect {
+  --cp-c-bg: #0b1016;
+  --cp-c-bg-alt: #0e1620;
+  --cp-c-border: #233345;
+  --cp-c-text-1: #f8fafc;
+  --cp-c-text-2: #c5d4e3;
+  --cp-c-brand-soft: #032d54;
 }
 
 .vv-workflow__canvas {
-  height: 460px;
+  height: 400px;
+  min-width: 0;
   overflow: auto;
   font: 11px / 1.8 var(--cp-ff-mono);
   color: var(--cp-c-text-1);
@@ -156,18 +195,19 @@
 
 .vv-workflow__code {
   margin: 0;
-  padding: 8px 16px 24px;
+  padding: 0 16px 16px 0;
   border: 0;
   background: transparent;
-  font: inherit;
-  white-space: normal;
+  font: 12px / 1.8 var(--cp-ff-mono);
 }
 
 .vv-workflow__code code {
+  display: block;
   padding: 0;
   background: transparent;
   color: inherit;
   font: inherit;
+  white-space: pre;
 }
 
 .vv-workflow__code pre {
@@ -175,33 +215,205 @@
   border: 0;
   background: transparent;
   font: inherit;
+  white-space: pre;
 }
 
-.vv-workflow__code[hidden] {
-  display: none;
-}
-
-.vv-workflow__files {
+.vv-workflow__editor {
   display: flex;
-  overflow-x: auto;
-  gap: 20px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--cp-c-border);
+  flex-direction: column;
+  min-width: 0;
+  padding-top: 12px;
+  overflow: auto;
 }
 
-.vv-workflow__files button {
-  padding: 10px 0;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  background: transparent;
+.vv-workflow__editor-content {
+  display: flex;
+  flex: 1;
+  overflow: auto;
+}
+
+.vv-workflow__line-numbers {
+  display: grid;
+  align-content: start;
+  flex: none;
+  width: 36px;
+  padding-right: 10px;
   color: var(--cp-c-text-3);
-  cursor: pointer;
-  font: 10px / 1.5 var(--cp-ff-mono);
+  font: 12px / 1.8 var(--cp-ff-mono);
+  text-align: right;
+  user-select: none;
 }
 
-.vv-workflow__files button[aria-pressed='true'] {
-  border-bottom-color: var(--cp-c-brand-2);
-  color: var(--cp-c-text-1);
+.vv-workflow__run .vv-workflow__exit {
+  margin-top: 20px;
+  color: var(--cp-c-text-3);
+  font-size: 10px;
+}
+
+.vv-workflow__dashboard {
+  min-height: 100%;
+  background: #0b1016;
+  color: #f8fafc;
+  font-family: var(--cp-ff-sans);
+}
+
+.vv-workflow__inspect {
+  min-width: 0;
+}
+
+.vv-workflow__inspect-heading > strong {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.vv-workflow__badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid #2b4055;
+  border-radius: 20px;
+  color: #c5d4e3;
+  font: 9px / 1.6 var(--cp-ff-mono);
+  white-space: nowrap;
+}
+
+.vv-workflow__badge--failed {
+  border-color: #7f1d1d;
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+.vv-workflow__badge--passed {
+  border-color: #14532d;
+  background: #052e16;
+  color: #86efac;
+}
+
+.vv-workflow__run-meta {
+  display: flex;
+  gap: 12px;
+  margin: 4px 0 16px;
+  color: #91a4b8;
+  font-size: 10px;
+}
+
+.vv-workflow__stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 12px 0;
+  border: 1px solid #233345;
+  border-radius: 6px;
+  background: #101923;
+}
+
+.vv-workflow__stats > div {
+  display: grid;
+  gap: 4px;
+  padding-inline: 10px;
+}
+
+.vv-workflow__stats > div + div {
+  border-left: 1px solid #233345;
+}
+
+.vv-workflow__stats span {
+  color: #91a4b8;
+  font-size: 9px;
+}
+
+.vv-workflow__stats strong {
+  font: 700 16px var(--cp-ff-mono);
+}
+
+.vv-workflow__pass {
+  color: #86efac;
+}
+
+.vv-workflow__fail {
+  color: #fca5a5;
+}
+
+.vv-workflow__results-label {
+  margin: 14px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.vv-workflow__results-table {
+  overflow: auto;
+  border: 1px solid #233345;
+  border-radius: 6px;
+}
+
+.vv-workflow__results-table table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font: 10px / 1.5 var(--cp-ff-sans);
+}
+
+.vv-workflow__results-table :is(th, td) {
+  padding: 8px;
+  border: 0;
+  border-bottom: 1px solid #233345;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.vv-workflow__results-table th {
+  background: #101923;
+  color: #91a4b8;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.vv-workflow__results-table tr {
+  background: transparent;
+}
+
+.vv-workflow__results-table button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.vv-workflow__results-table button[aria-expanded='true'] {
+  color: #78baff;
+}
+
+.vv-workflow__results-table .vv-workflow__expanded-cell {
+  padding: 12px;
+  background: #14202c;
+  white-space: normal;
+}
+
+.vv-workflow__expanded-values {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.vv-workflow__expanded-values > div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+}
+
+.vv-workflow__expanded-values dt {
+  font-weight: 600;
+}
+
+.vv-workflow__expanded-values dd {
+  margin: 0;
+  color: #c5d4e3;
+  font: 10px / 1.5 var(--cp-ff-mono);
 }
 
 .vv-workflow__purple {
@@ -236,7 +448,7 @@ html[data-cp-variant='dark'] :is(.vv-workflow__red, .vv-workflow__failed) {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px 16px;
-  padding: 14px 16px;
+  padding: 8px 12px;
   border-top: 1px solid var(--cp-c-border);
   color: var(--cp-c-text-3);
   font: 10px / 1.5 var(--cp-ff-mono);
@@ -252,7 +464,7 @@ html[data-cp-variant='dark'] :is(.vv-workflow__red, .vv-workflow__failed) {
 }
 
 .vv-workflow__run {
-  padding: 24px;
+  padding: 12px 16px;
 }
 .vv-workflow__run p {
   margin: 0 0 16px;
@@ -299,7 +511,7 @@ html[data-cp-variant='dark'] :is(.vv-workflow__red, .vv-workflow__failed) {
 }
 
 .vv-workflow__inspect {
-  padding: 24px;
+  padding: 12px 16px;
 }
 .vv-workflow__inspect-heading {
   display: flex;
@@ -409,8 +621,7 @@ html[data-cp-variant='dark'] :is(.vv-workflow__red, .vv-workflow__failed) {
   .vv-workflow__steps button[aria-pressed='true'] {
     box-shadow: 0 1px var(--cp-c-brand-2);
   }
-  .vv-workflow__description,
-  .vv-workflow__step-title {
+  .vv-workflow__description {
     display: none;
   }
   .vv-workflow__label {
@@ -419,16 +630,26 @@ html[data-cp-variant='dark'] :is(.vv-workflow__red, .vv-workflow__failed) {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .vv-workflow {
-    padding: 64px 20px;
+    padding: var(--vv-section-space) var(--vv-section-inset);
   }
   .vv-workflow__heading {
-    margin-bottom: 40px;
+    margin-bottom: var(--vv-heading-gap);
+  }
+  .vv-workflow__steps {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+  .vv-workflow__steps li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
   }
   .vv-workflow__steps button {
-    gap: 6px;
-    padding-inline: 2px;
+    gap: 8px;
+    min-height: 44px;
+    padding: 12px 16px;
   }
   .vv-workflow__number {
     width: 28px;
@@ -436,7 +657,7 @@ html[data-cp-variant='dark'] :is(.vv-workflow__red, .vv-workflow__failed) {
     font-size: 10px;
   }
   .vv-workflow__label {
-    font-size: 12px;
+    font-size: 14px;
     padding-top: 6px;
   }
   .vv-workflow__window-bar {

@@ -1,0 +1,37 @@
+.cp-site-footer .cp-site-footer__bottom-end {
+  flex: 1 1 32rem;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.cp-site-footer__tagline {
+  white-space: normal;
+  line-height: 1.6;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .cp-header .cp-nav-search,
+  .cp-header .cp-nav-hamburger {
+    min-width: 44px;
+    height: 44px;
+  }
+
+  .cp-docs-bar__menu-btn {
+    min-height: 44px;
+  }
+
+  .cp-docs-bar__outline-wrap {
+    min-width: 0;
+    max-width: 65%;
+  }
+
+  .cp-docs-bar__outline-dropdown .rp-toc-item__text {
+    padding-block: 12px;
+  }
+
+  .cp-site-footer .cp-site-footer__bottom-end {
+    flex-basis: auto;
+    width: 100%;
+  }
+}

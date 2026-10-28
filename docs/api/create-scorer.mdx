@@ -1,0 +1,120 @@
+---
+title: createScorer()
+description: Define a named scoring function to use in an evaluation.
+---
+
+# `createScorer()`
+
+import { Field, FieldGroup } from '@theme';
+
+`createScorer()` gives a scoring function a name. Use the returned scorer in
+an evaluation's `scorers` array.
+
+## Import
+
+```ts
+import { createScorer } from 'viteval';
+```
+
+## Signature
+
+```ts
+function createScorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra>(
+  config:
+    | ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+    | ((context: RuntimeContext) => ScorerConfig<OUTPUT, EXPECTED, EXTRA>)
+): Scorer<OUTPUT, EXPECTED, EXTRA>;
+```
+
+## Parameters
+
+<FieldGroup title="Parameters">
+  <Field name="config" type="ScorerConfig<OUTPUT, EXPECTED, EXTRA>" required>
+    Scorer identity and scoring callback. `EXPECTED` defaults to `OUTPUT`.
+    <FieldGroup title="Properties" expandable defaultOpen>
+      <Field name="name" type="string" required>
+        Name attached to each score. The callback cannot override it.
+      </Field>
+      <Field
+        name="score"
+        type="(args: ScorerArgs) => ScoreResult | Promise<ScoreResult>"
+        required
+      >
+        Receives the task output, expected value, and additional case fields.
+        <FieldGroup title="Callback arguments" expandable>
+          <Field name="output" type="OUTPUT" required>
+            The value returned by the task.
+          </Field>
+          <Field name="expected" type="EXPECTED" required>
+            The reference value from the dataset.
+          </Field>
+          <Field name="...extra" type="EXTRA">
+            Additional case fields. Input is passed at runtime. Declare it in
+            `EXTRA` when you need a typed input in the callback.
+          </Field>
+        </FieldGroup>
+        <FieldGroup title="Callback result" expandable>
+          <Field name="score" type="number | null" required>
+            Any finite score. Use 0 to 1 for the usual mean or median gates.
+            Null contributes zero. Non-finite scores and thrown errors fail the
+            case.
+          </Field>
+          <Field name="metadata" type="Record<string, unknown>">
+            Diagnostics saved alongside the score.
+          </Field>
+          <Field name="name" type="string">
+            If returned, Viteval replaces it with the configured name.
+          </Field>
+        </FieldGroup>
+      </Field>
+    </FieldGroup>
+  </Field>
+</FieldGroup>
+
+## Return value
+
+Returns a `Scorer<OUTPUT, EXPECTED, EXTRA>` function that can be used in evaluations:
+
+```ts
+type Scorer<OUTPUT, EXPECTED = OUTPUT, EXTRA extends Extra = Extra> = (
+  args: ScorerArgs<OUTPUT, EXPECTED, EXTRA>
+) => Score | Promise<Score>;
+
+type ScorerArgs<OUTPUT, EXPECTED, EXTRA extends Extra> = EXTRA & {
+  output: OUTPUT;
+  expected: EXPECTED;
+};
+
+interface Score {
+  name: string;
+  score: number | null;
+  metadata?: Record<string, unknown>;
+}
+
+type ScoreResult = Omit<Score, 'name'> & { name?: string };
+```
+
+`createScorer()` supplies the configured name, overriding any name returned by
+the callback. `evaluate()` passes additional case fields to each scorer. It also
+passes `input` at runtime, but the current `ScorerArgs` type does not infer its
+type separately. Declare `input` in `EXTRA` when using it in a typed custom
+scorer.
+
+A config factory receives worker-local model and integration dependencies. Use
+it to resolve dependencies, not to open external resources for each case.
+
+## Example
+
+Task output and expected values may have different types:
+
+```ts
+const correctAnswer = createScorer<{ answer: string }, string>({
+  name: 'correct-answer',
+  score: ({ output, expected }) => ({
+    score: output.answer === expected ? 1 : 0,
+  }),
+});
+```
+
+To adapt an existing scorer instead of writing a new one, use
+[wrapScorer()](/api/scoring/wrap-scorer).

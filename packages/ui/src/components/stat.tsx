@@ -29,7 +29,12 @@ export function Stat({
         </span>
         {icon && <span className="text-muted-foreground">{icon}</span>}
       </div>
-      <div className={cn('font-bold', size === 'lg' ? 'text-2xl' : 'text-xl')}>
+      <div
+        className={cn(
+          'font-mono font-bold tabular-nums',
+          size === 'lg' ? 'text-2xl' : 'text-xl'
+        )}
+      >
         {value}
       </div>
     </div>

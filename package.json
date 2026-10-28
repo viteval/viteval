@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "turbo run build --filter='./packages/*'",
-    "docs:build": "ciderpress build && node --test scripts/github-stars.test.mjs",
+    "docs:build": "ciderpress build && node --test scripts/github-stars.test.mjs scripts/docs-contract.test.mjs",
     "docs:dev": "ciderpress dev",
     "docs:preview": "ciderpress serve",
     "docs:check": "ciderpress check",

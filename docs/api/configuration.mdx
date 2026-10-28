@@ -77,10 +77,9 @@ public Vite `resolve` block.
 ## Evaluation defaults
 
 Per-evaluation options override CLI flags; CLI flags override project defaults.
-The native <code>--testTimeout</code>, <code>--retry</code>, and
+Use <code>--timeout</code>, <code>--retries</code>, and
 
-<code>--maxConcurrency</code> flags apply to Viteval cases as well as the
-runner.
+<code>--concurrency</code> to override project defaults from the CLI.
 
 <FieldGroup title="eval">
   <Field name="include" type="string[]">

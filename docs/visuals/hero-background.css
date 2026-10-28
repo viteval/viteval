@@ -1,5 +1,9 @@
 @import './design-system.css';
 
+.cp-header-logo {
+  --cp-header-logo-height: 40px;
+}
+
 html[data-cp-variant='light'] .cp-header-logo__img {
   content: url('../../public/assets/viteval-wordmark-light.svg');
 }
@@ -620,6 +624,14 @@ html[data-cp-variant='light'] .cp-trust .cp-trust__logo[alt='Bytefarm'] {
   .vv-hero-terminal__result {
     gap: 6px;
     padding-left: 4px;
+  }
+
+  .vv-hero-demo__replay {
+    min-height: 44px;
+  }
+
+  .cp-trust:has([alt='Bytefarm']) {
+    padding-block: 24px 40px;
   }
 }
 

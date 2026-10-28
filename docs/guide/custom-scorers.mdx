@@ -1,0 +1,86 @@
+---
+title: Write a custom scorer
+description: Turn an application-specific check into a named scorer and use it in an evaluation.
+---
+
+import { Steps, Step } from '@theme';
+
+# Write a custom scorer
+
+Use `createScorer()` when a built-in check does not express your application's
+requirements. This example compares order IDs after trimming and normalizing case.
+
+## Prerequisites
+
+- Complete [Getting started](/getting-started) and keep its Vitest configuration.
+- Use string outputs and expected values for this example. No API key is needed.
+
+## Steps
+
+<Steps>
+<Step title="Define the check">
+
+Create `src/normalized-order-id.ts`:
+
+```ts
+import { createScorer } from 'viteval';
+
+export const normalizedOrderId = createScorer<string>({
+  name: 'normalized-order-id',
+  score: ({ output, expected }) => ({
+    score: output.trim().toUpperCase() === expected ? 1 : 0,
+    metadata: { normalized: output.trim().toUpperCase() },
+  }),
+});
+```
+
+The callback can be synchronous or asynchronous. Return a finite score and any
+metadata that will help explain the result. Viteval attaches the configured name.
+
+</Step>
+<Step title="Use the scorer in an evaluation">
+
+Replace `src/viteval.eval.ts` with:
+
+```ts
+import { evaluate } from 'viteval';
+import { normalizedOrderId } from './normalized-order-id';
+
+evaluate('Order extraction', {
+  data: [
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0] ?? '',
+  scorers: [normalizedOrderId],
+  threshold: 1,
+});
+```
+
+</Step>
+</Steps>
+
+## Verification
+
+```bash
+pnpm exec viteval run
+```
+
+Both cases pass because the scorer normalizes the extracted ID. Remove
+`.toUpperCase()` from the scorer and run again. The lowercase case now fails.
+Restore normalization after the check.
+
+## Troubleshooting
+
+### The case fails without a numeric score
+
+Save a JSON report to inspect the score and metadata in the dashboard. Return
+`score: null` when your scorer cannot produce a measurement. Null contributes
+zero to aggregation, while throwing an error fails the case regardless of its
+threshold. Inspect the score metadata or execution errors in a saved report.
+
+## References
+
+- [`createScorer()`](/api/scoring/create-scorer) for callback types
+- [`wrapScorer()`](/api/scoring/wrap-scorer) to transform values before an existing check
+- [Inspect results](/guide/results) for report setup

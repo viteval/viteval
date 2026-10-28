@@ -1,6 +1,7 @@
 import { CTA, Hero, PageRail, TrustStrip } from '@ciderpress/ui/theme';
 import type { TrustStripProps } from '@ciderpress/ui/theme';
 import { useState, type ReactNode } from 'react';
+import { InView } from './in-view';
 
 import pkg from '../../packages/viteval/package.json' with { type: 'json' };
 
@@ -9,6 +10,7 @@ import { HeroBackground } from './hero-background';
 import { Workflow } from './workflow';
 
 import './hero-background.css';
+import './motion.css';
 
 const USERS: TrustStripProps['names'] = [
   {
@@ -85,14 +87,14 @@ export function LandingPage({ children }: { children: ReactNode }) {
             <span className="cp-accent">in TypeScript.</span>
           </>
         }
-        tagline="Test extraction, routing, and generated answers against reference cases. Score each output, inspect failures locally, and fail CI when a case falls below your threshold. Built on Vitest."
+        tagline="Run evaluations against real datasets, score outputs, and inspect results. Use your own models and infrastructure. Powered by Vitest."
         actions={[
           {
             theme: 'brand',
             text: 'Get started',
-            link: '/guide/getting-started',
+            link: '/getting-started',
           },
-          { theme: 'alt', text: 'Why Viteval', link: '/features' },
+          { theme: 'alt', text: 'Introduction', link: '/introduction' },
         ]}
         backgroundContent={<HeroBackground />}
         demo={<HeroRun />}
@@ -105,10 +107,10 @@ export function LandingPage({ children }: { children: ReactNode }) {
         aria-labelledby="vv-integrations-title"
       >
         <p className="vv-eyebrow">Integrations</p>
-        <h2 id="vv-integrations-title">Dataset and result storage</h2>
+        <h2 id="vv-integrations-title">Connect the tools you already use.</h2>
         <p>
-          Keep results in local JSON, or connect your preferred storage and
-          evaluation tools.
+          Load datasets and save results with local files, cloud storage, or
+          supported evaluation platforms.
         </p>
         <TrustStrip lead="" names={PROVIDERS} />
         <a className="vv-integrations__cta" href="/guide/providers">
@@ -122,7 +124,7 @@ export function LandingPage({ children }: { children: ReactNode }) {
           {
             theme: 'brand',
             text: 'Write your first evaluation',
-            link: '/guide/getting-started',
+            link: '/getting-started',
           },
         ]}
       />
@@ -134,96 +136,104 @@ function HeroRun() {
   const [replayCount, setReplayCount] = useState(0);
 
   return (
-    <div className="vv-hero-demo">
-      <figure
-        key={replayCount}
-        className="vv-hero-terminal"
-        aria-label="Order extraction evaluation: three cases passed"
-      >
-        <figcaption className="vv-hero-terminal__bar">
-          <span className="vv-hero-terminal__dots" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          <span>order-extraction.eval.ts</span>
-        </figcaption>
-        <div className="vv-hero-terminal__body">
-          <div className="vv-hero-terminal__command">
-            <span className="vv-hero-terminal__prompt">❯</span>
-            <span className="vv-hero-terminal__typed">
-              pnpm exec viteval run
-            </span>
-          </div>
-          <div className="vv-hero-terminal__runner">
-            <span className="vv-hero-terminal__badge">RUN</span>{' '}
-            <strong>v5.0.3</strong>
-          </div>
-          <div className="vv-hero-terminal__file">
-            src/order-extraction.eval.ts{' '}
-            <span className="vv-hero-terminal__muted">/ Order extraction</span>
-          </div>
-          <div className="vv-hero-terminal__cases">
-            {[
-              { name: 'Where is order ORD-1042?', duration: '5ms' },
-              { name: 'Please cancel ord-2087.', duration: '1ms' },
-              { name: 'How do I update my address?', duration: '1ms' },
-            ].map(({ name, duration }, index) => (
-              <div
-                className="vv-hero-terminal__result"
-                key={name}
-                style={{ animationDelay: `${2300 + index * 450}ms` }}
-              >
-                <span className="vv-hero-terminal__check">✓</span>
-                <span>{name}</span>
-                <span className="vv-hero-terminal__duration">{duration}</span>
+    <InView fallbackInView>
+      {({ ref, inView }) => (
+        <div className="vv-hero-demo" ref={ref} data-motion-visible={inView}>
+          <figure
+            key={replayCount}
+            className="vv-hero-terminal"
+            aria-label="Order extraction evaluation: three cases passed"
+          >
+            <figcaption className="vv-hero-terminal__bar">
+              <span className="vv-hero-terminal__dots" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span>order-extraction.eval.ts</span>
+            </figcaption>
+            <div className="vv-hero-terminal__body">
+              <div className="vv-hero-terminal__command">
+                <span className="vv-hero-terminal__prompt">❯</span>
+                <span className="vv-hero-terminal__typed">
+                  pnpm exec viteval run
+                </span>
               </div>
-            ))}
-          </div>
-          <div className="vv-hero-terminal__summary">
-            <div>
-              <span>Test Files</span>
-              <strong>1 passed</strong>
-              <span className="vv-hero-terminal__muted">(1)</span>
+              <div className="vv-hero-terminal__runner">
+                <span className="vv-hero-terminal__badge">RUN</span>{' '}
+                <strong>v5.0.3</strong>
+              </div>
+              <div className="vv-hero-terminal__file">
+                src/order-extraction.eval.ts{' '}
+                <span className="vv-hero-terminal__muted">
+                  / Order extraction
+                </span>
+              </div>
+              <div className="vv-hero-terminal__cases">
+                {[
+                  { name: 'Where is order ORD-1042?', duration: '5ms' },
+                  { name: 'Please cancel ord-2087.', duration: '1ms' },
+                  { name: 'How do I update my address?', duration: '1ms' },
+                ].map(({ name, duration }, index) => (
+                  <div
+                    className="vv-hero-terminal__result"
+                    key={name}
+                    style={{ animationDelay: `${2300 + index * 450}ms` }}
+                  >
+                    <span className="vv-hero-terminal__check">✓</span>
+                    <span>{name}</span>
+                    <span className="vv-hero-terminal__duration">
+                      {duration}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="vv-hero-terminal__summary">
+                <div>
+                  <span>Test Files</span>
+                  <strong>1 passed</strong>
+                  <span className="vv-hero-terminal__muted">(1)</span>
+                </div>
+                <div>
+                  <span>Tests</span>
+                  <strong>3 passed</strong>
+                  <span className="vv-hero-terminal__muted">(3)</span>
+                </div>
+                <div>
+                  <span>Scorer</span>
+                  <span>ExactMatch: 1 on each case</span>
+                </div>
+                <div>
+                  <span>Duration</span>
+                  <span>355ms</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <span>Tests</span>
-              <strong>3 passed</strong>
-              <span className="vv-hero-terminal__muted">(3)</span>
-            </div>
-            <div>
-              <span>Scorer</span>
-              <span>ExactMatch: 1 on each case</span>
-            </div>
-            <div>
-              <span>Duration</span>
-              <span>355ms</span>
-            </div>
-          </div>
+          </figure>
+          <button
+            className="vv-hero-demo__replay"
+            type="button"
+            onClick={() => setReplayCount((count) => count + 1)}
+            aria-label="Replay evaluation animation"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 3v6h-6" />
+              <path d="M21 12a9 9 0 1 1-2.64-6.36L21 9" />
+            </svg>
+            Replay animation
+          </button>
         </div>
-      </figure>
-      <button
-        className="vv-hero-demo__replay"
-        type="button"
-        onClick={() => setReplayCount((count) => count + 1)}
-        aria-label="Replay example evaluation animation"
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M21 3v6h-6" />
-          <path d="M21 12a9 9 0 1 1-2.64-6.36L21 9" />
-        </svg>
-        Replay animation
-      </button>
-    </div>
+      )}
+    </InView>
   );
 }
