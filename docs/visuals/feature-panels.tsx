@@ -1,41 +1,38 @@
-import { useEffect, useRef } from 'react';
+import { InView } from './in-view';
 
-import {
-  LocalScene,
-  RunnersScene,
-  ScoringScene,
-  ToolingScene,
-} from './feature-scenes';
+import { RunnersScene, ScoringScene, ToolingScene } from './feature-scenes';
+import { StorageScene } from './storage-scene';
 
 import './feature-panels.css';
+import './motion.css';
 
 const FEATURES = [
   {
     id: 'familiar-tooling',
-    title: 'Built on Vitest',
+    title: 'Powered by Vitest',
     description:
-      'Import your application functions into evaluations. Use Viteval configuration, watch mode, retries, and CI exit codes.',
-    Scene: ToolingScene,
+      'Evaluate your existing AI code with Vitest handling execution, watch mode, and retries.',
+    Scene: BrandedToolingScene,
   },
   {
     id: 'built-in-defaults',
-    title: 'Built-in and custom scorers',
+    title: 'Measure what matters',
     description:
       'Check exact answers and structured output, or use embeddings and LLM judges. Set a per-case threshold to fail regressions.',
     Scene: ScoringScene,
   },
   {
     id: 'local-first',
-    title: 'Local-first by default',
+    title: 'Store data where it fits',
     description:
-      'Run evaluations and inspect results on your machine. Connect a hosted provider only when you choose.',
-    Scene: LocalScene,
+      'Start with local datasets and results, or connect supported storage and evaluation platforms.',
+    Scene: StorageScene,
   },
   {
     id: 'run-anywhere',
-    title: 'Run on your infrastructure',
+    title: 'Keep control of execution',
     description:
-      'The same evaluations on your laptop, in CI, or on a runner you control. You choose where the data lives.',
+      'Run the same evaluations on your laptop, in CI, or in your cloud. You choose the infrastructure.',
     Scene: RunnersScene,
   },
 ] as const;
@@ -47,52 +44,37 @@ const FEATURES = [
  * <FeaturePanels />
  */
 export function FeaturePanels() {
-  const rootRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root || !('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          entry.target.setAttribute(
-            'data-visible',
-            String(entry.isIntersecting)
-          );
-        }
-      },
-      { threshold: 0, rootMargin: '80px 0px' }
-    );
-    for (const panel of root.querySelectorAll('.vv-feature'))
-      observer.observe(panel);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section
-      className="vv-features"
-      ref={rootRef}
-      aria-labelledby="vv-features-title"
-    >
+    <section className="vv-features" aria-labelledby="vv-features-title">
       <header className="vv-features__heading">
         <p className="vv-eyebrow">Why Viteval</p>
-        <h2 id="vv-features-title">Evals belong beside your tests.</h2>
+        <h2 id="vv-features-title">Your AI stack. Measurable results.</h2>
         <p>
-          Evaluate your application code in TypeScript. Viteval owns the
-          configuration, scoring, and results; Vitest runs the cases underneath.
+          Keep your models and agent frameworks. Choose your scoring criteria,
+          storage, and where evaluations run.
         </p>
       </header>
       <div className="vv-features__grid">
         {FEATURES.map(({ id, title, description, Scene }) => (
-          <article className="vv-feature" key={id}>
-            <div className="vv-feature__copy">
-              <h3>
-                <a href={`/features#${id}`}>{title}</a>
-              </h3>
-              <p>{description}</p>
-            </div>
-            <Scene />
-          </article>
+          <InView key={id} fallbackInView>
+            {({ ref, inView }) => (
+              <article
+                className="vv-feature"
+                ref={ref}
+                data-motion-visible={inView}
+              >
+                <div className="vv-feature__copy">
+                  <h3>
+                    <a href={`/features#${id}`}>{title}</a>
+                  </h3>
+                  <p>{description}</p>
+                </div>
+                <div className="vv-feature__visual">
+                  <Scene />
+                </div>
+              </article>
+            )}
+          </InView>
         ))}
       </div>
       <footer className="vv-features__footer">
@@ -102,4 +84,8 @@ export function FeaturePanels() {
       </footer>
     </section>
   );
+}
+
+function BrandedToolingScene() {
+  return <ToolingScene brandMark />;
 }

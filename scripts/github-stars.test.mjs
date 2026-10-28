@@ -14,7 +14,7 @@ test('shows the exact current count and does not append it twice', async () => {
   assert.equal(fixture.badges[0].textContent, '12,345');
   assert.equal(
     fixture.attributes['aria-label'],
-    'Star Viteval on GitHub (12,345 stars)'
+    'Viteval on GitHub (12,345 stars)'
   );
   fixture.notify();
   assert.equal(fixture.badges.length, 1);

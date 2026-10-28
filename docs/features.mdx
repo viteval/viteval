@@ -1,42 +1,44 @@
 ---
 pageType: custom
 title: Features
-description: Evaluations built on Vitest, built-in scoring, local results, and your own infrastructure.
+description: Native Vitest workflows, built-in scoring, local results, and evaluations on your own infrastructure.
 ---
 
 import { FeatureHero, FeatureMotion, FeaturesPage } from '#docs/features-page';
+import { StackScene } from '#docs/stack-scene';
+import { StorageScene } from '#docs/storage-scene';
+import { CiScene } from '#docs/ci-scene';
 
 <FeaturesPage>
 
 <FeatureHero />
 
 <nav className="vv-features-page__nav" aria-label="Feature sections">
-  <a href="#familiar-tooling">Built on Vitest</a>
+  <a href="#bring-your-own-stack">Your stack</a>
   <a href="#built-in-defaults">Scoring</a>
-  <a href="#local-first">Local results</a>
+  <a href="#local-first">Storage</a>
   <a href="#run-anywhere">Your infrastructure</a>
 </nav>
 
-<section className="vv-feature-detail" id="familiar-tooling" aria-labelledby="feature-tooling-title">
+<section className="vv-feature-detail" id="bring-your-own-stack" aria-labelledby="feature-stack-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">Familiar tooling</p>
-<h2 id="feature-tooling-title">
-  {'Built on Vitest. Configured with Viteval.'}
-</h2>
+<p className="vv-eyebrow">Your tools</p>
+<h2 id="feature-stack-title">{'Bring your own stack'}</h2>
 
-Use watch mode, retries, and CI exit codes through `viteval run` and
-`viteval.config.ts`. Import your application functions into an evaluation, then
-score their answers. No Vitest configuration or setup files are required.
+Choose the models, judges, and scorers that fit your app. Store datasets and
+results locally or with a supported provider.
 
-<a className="vv-feature-detail__link" href="/guide/getting-started">
-  {'Write an eval '}
-  <span aria-hidden="true">→</span>
-</a>
+<div className="vv-feature-detail__links">
+  <a className="vv-feature-detail__link" href="/guide/providers">
+    {'Explore integrations '}
+    <span aria-hidden="true">→</span>
+  </a>
+</div>
 
 </div>
 
-<FeatureMotion kind="tooling" />
+<StackScene />
 
 </section>
 
@@ -51,7 +53,7 @@ score their answers. No Vitest configuration or setup files are required.
 Use deterministic checks for exact answers and structured output. Add embeddings
 or LLM judges for free-form responses, or define a scorer for your own criteria.
 
-<a className="vv-feature-detail__link" href="/api/scorers">
+<a className="vv-feature-detail__link" href="/api/scoring/scorers">
   {'Choose a scorer '}
   <span aria-hidden="true">→</span>
 </a>
@@ -65,34 +67,34 @@ or LLM judges for free-form responses, or define a scorer for your own criteria.
 <section className="vv-feature-detail" id="local-first" aria-labelledby="feature-local-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">Local by default</p>
-<h2 id="feature-local-title">{'Inspect results locally'}</h2>
+<p className="vv-eyebrow">Your data</p>
+<h2 id="feature-local-title">{'Choose your storage'}</h2>
 
-Start with JSON datasets and results in your project. Open the local dashboard
-to inspect inputs, reference answers, outputs, and individual scores.
+Keep JSON files locally or in Git. Store datasets in S3/GCS, or datasets and
+results with Braintrust, Langfuse, and other supported providers.
 
-<a className="vv-feature-detail__link" href="/guide/cli#view-results">
-  {'Open the dashboard '}
+<a className="vv-feature-detail__link" href="/guide/providers">
+  {'Explore storage options '}
   <span aria-hidden="true">→</span>
 </a>
 
 </div>
 
-<FeatureMotion kind="local" />
+<StorageScene />
 
 </section>
 
 <section className="vv-feature-detail" id="run-anywhere" aria-labelledby="feature-runners-title">
 <div className="vv-feature-detail__copy">
 
-<p className="vv-eyebrow">Run on your infrastructure</p>
+<p className="vv-eyebrow">Your infrastructure</p>
 <h2 id="feature-runners-title">{'Run evaluations in CI'}</h2>
 
 Run the same evaluations on your laptop, in CI, or on a runner you control.
 Return a nonzero exit code when a case fails its scoring threshold.
 
 <div className="vv-feature-detail__links">
-  <a className="vv-feature-detail__link" href="/guide/advanced/ci">
+  <a className="vv-feature-detail__link" href="/guide/ci">
     {'Set up CI '}
     <span aria-hidden="true">→</span>
   </a>
@@ -104,7 +106,28 @@ Return a nonzero exit code when a case fails its scoring threshold.
 
 </div>
 
-<FeatureMotion kind="runners" />
+<CiScene />
+
+</section>
+
+<section className="vv-vitest-foundation" id="familiar-tooling" aria-labelledby="feature-tooling-title">
+
+<FeatureMotion kind="tooling" />
+
+<div className="vv-vitest-foundation__copy">
+
+<p className="vv-eyebrow">The foundation</p>
+<h2 id="feature-tooling-title">{'Built on Vitest'}</h2>
+
+Import your agent or application code and evaluate it with familiar TypeScript
+APIs. Vitest handles execution, watch mode, and retries.
+
+<a className="vv-vitest-foundation__link" href="/getting-started">
+  {'Write an eval '}
+  <span aria-hidden="true">→</span>
+</a>
+
+</div>
 
 </section>
 

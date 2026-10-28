@@ -107,7 +107,7 @@ evaluate('Support policy answers', {
 The threshold applies to the mean of the three scores. This example performs
 real generation, embedding, and judge requests. Judge scores vary by model and
 are not proof that an answer follows your policy. For exact extraction checks,
-use the [model-backed getting-started example](/guide/getting-started#evaluate-a-model).
+use the [model-backed evaluation guide](/guide/models).
 
 ## Runnable examples
 

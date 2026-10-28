@@ -1,6 +1,9 @@
 <p align="center">
 <a href="https://viteval.dev">
-<img src="./public/assets/viteval-flask.svg" alt="Viteval flask" height="160">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./public/assets/viteval-wordmark.svg">
+  <img src="./public/assets/viteval-wordmark-light.svg" alt="Viteval" width="420" height="142">
+</picture>
 </a>
 </p>
 
@@ -15,18 +18,21 @@ TypeScript-native evals, powered by Vitest.
 </p>
 
 <p align="center">
-  <a href="https://viteval.dev">Documentation</a> | <a href="https://viteval.dev/guide/getting-started">Getting started</a> | <a href="https://viteval.dev/examples">Examples</a> | <a href="https://viteval.dev/brand">Brand & assets</a>
+  <a href="https://viteval.dev">Documentation</a> | <a href="https://viteval.dev/getting-started">Getting started</a> | <a href="https://viteval.dev/examples">Examples</a> | <a href="https://viteval.dev/brand">Brand & assets</a>
 </p>
 <br>
 <br>
 
 > [!WARNING]
-> V1 is a release candidate. Install `viteval@rc`; untagged installs resolve to v0.
+> V1 is a release candidate. Install `viteval@rc`. Untagged installs resolve to v0.
 > V0 support ends when v1 launches. The [`v0` branch](https://github.com/viteval/viteval/tree/v0) contains the stable release.
 
 ## Features
 
-- Viteval configuration with Vitest execution, watch mode, retries, and CI exit codes.
+Viteval is an independent open-source project. It is not affiliated with,
+endorsed by, or supported by VoidZero.
+
+- Viteval-owned configuration and CLI, with Vitest-powered execution, watch mode, retries, and CI exit codes.
 - Typed tasks, reusable datasets, built-in scorers, and custom scoring functions.
 - JSON storage by default, with atomic writes. Inspect saved results locally with `viteval ui`.
 - Optional SQLite, Braintrust, Langfuse, and hosted VoltOps providers for datasets and evaluation results, plus S3/GCS dataset storage. Backend SDKs and database drivers are opt-in.
@@ -41,9 +47,10 @@ pnpm exec viteval run
 pnpm exec viteval ui
 ```
 
-Requires Node >=26. Initialization creates `viteval.config.ts` and a passing
-`src/viteval.eval.ts` example. No worker setup is required. JSON results are saved
-under `.viteval/results`.
+Requires Node >=26. Initialization creates `viteval.config.ts` (`.mts` for
+CommonJS) and a passing `src/viteval.eval.ts` example. JSON results are saved
+under `.viteval/results`. Existing Viteval configuration is preserved; no runner
+config, setup module, or reporter is required.
 
 ## Usage
 

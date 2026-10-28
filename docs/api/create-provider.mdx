@@ -1,0 +1,301 @@
+---
+title: Providers
+description: Compose storage providers and register them through Viteval configuration.
+---
+
+# Providers
+
+import { Field, FieldGroup } from '@theme';
+
+Providers implement dataset, evaluation-result, and tag storage independently.
+Use the [provider guide](/guide/providers) for backend installation and setup.
+This page documents the public factory and initialization contracts.
+
+## Import
+
+```ts
+import { createJsonProvider, createProvider } from 'viteval/provider';
+import type {
+  DatasetProvider,
+  EvalProvider,
+  Provider,
+  TagProvider,
+} from 'viteval/provider';
+```
+
+## `createProvider()`
+
+Compose domain implementations into a provider. This function neither initializes
+nor registers the provider.
+
+```ts
+function createProvider(params: CreateProviderParams): Provider;
+```
+
+<FieldGroup title="Parameters">
+  <Field name="params" type="CreateProviderParams" required>
+    Provider identity, domain implementations, and lifecycle hooks.
+    <FieldGroup title="Properties" expandable defaultOpen>
+      <Field name="name" type="string" required>
+        Readonly provider identity on the returned object.
+      </Field>
+      <Field name="datasets" type="DatasetProvider">
+        Dataset operations. Omit when unsupported.
+      </Field>
+      <Field name="evals" type="EvalProvider">
+        Evaluation-run and result operations. Omit when unsupported.
+      </Field>
+      <Field name="tags" type="TagProvider">
+        Tag and entity-tagging operations. Omit when unsupported.
+      </Field>
+      <Field
+        name="initialize"
+        type="() => Promise<Result<void>>"
+        defaultValue="successful no-op"
+      >
+        Open connections or initialize the backend when registered.
+      </Field>
+      <Field
+        name="close"
+        type="() => Promise<Result<void>>"
+        defaultValue="successful no-op"
+      >
+        Flush pending writes and close resources when called by the consumer.
+      </Field>
+    </FieldGroup>
+  </Field>
+</FieldGroup>
+
+The returned `Provider` exposes readonly `name`, `datasets`, `evals`, and `tags`,
+plus `initialize()` and `close()` methods. Every method on a supplied domain
+interface is required except the explicitly optional methods below. Unsupported
+operations should return an error Result rather than silently succeed.
+
+```ts
+import { createJsonProvider, createProvider } from 'viteval/provider';
+
+const json = createJsonProvider();
+const datasetsOnly = createProvider({
+  name: 'datasets-only',
+  datasets: json.datasets,
+});
+```
+
+## `createJsonProvider()`
+
+Create a JSON-backed provider implementing all three domains.
+
+```ts
+function createJsonProvider(options?: { root?: string }): Provider;
+```
+
+<FieldGroup title="Parameters">
+  <Field name="options" type="{ root?: string }" defaultValue="{}">
+    JSON storage configuration.
+    <FieldGroup title="Properties" expandable defaultOpen>
+      <Field name="root" type="string" defaultValue="process.cwd()">
+        Project directory containing `.viteval`. Dataset, run, and tag writes
+        use the local JSON store. See the [serialization
+        rules](#serialization-and-failures).
+      </Field>
+    </FieldGroup>
+  </Field>
+</FieldGroup>
+
+## Registration and cleanup
+
+Register provider objects in `viteval.config.ts`; Viteval initializes used
+integrations lazily and closes resources after persistence, including failed runs.
+No global provider registration or worker setup module is public.
+
+```ts
+import { createJsonProvider, defineConfig } from 'viteval';
+
+export default defineConfig({
+  providers: [createJsonProvider({ root: import.meta.dirname })],
+  dataset: { providers: ['json'] },
+  eval: { results: ['json'] },
+});
+```
+
+Registration makes integrations available. Destination arrays decide which
+integrations receive writes; registration alone never enables hosted uploads.
+
+## Domain contracts
+
+All operations are asynchronous and return `Result<T>`. A successful Result exposes
+`ok: true` and `value`. A failure exposes `ok: false` and `error`. Get operations
+return `null` for missing records. Availability of operations depends on the
+backend. See the [capability matrix](/concepts/storage#provider-capabilities).
+
+The parameter and stored-record types listed below are exported from
+`viteval/provider`. See [Provider types](/api/storage/provider-types) for their fields.
+
+### `DatasetProvider`
+
+| Method                  | Parameter type          | Result value            |
+| ----------------------- | ----------------------- | ----------------------- |
+| `create(params)`        | `CreateDatasetParams`   | `StoredDataset`         |
+| `get(params)`           | `GetDatasetParams`      | `StoredDataset \| null` |
+| `list(params?)`         | `ListDatasetsParams`    | `StoredDataset[]`       |
+| `update(params)`        | `UpdateDatasetParams`   | `StoredDataset`         |
+| `delete(params)`        | `DeleteDatasetParams`   | `void`                  |
+| `getItems(params)`      | `GetDatasetItemsParams` | `StoredDataItem[]`      |
+| `addItems(params)`      | `AddDatasetItemsParams` | `void`                  |
+| `replaceItems?(params)` | `AddDatasetItemsParams` | `void`                  |
+
+`replaceItems` is optional and replaces the complete item set atomically when
+supported. Backends without atomic replacement cannot support the same overwrite
+contract. See each provider's limitations.
+
+### `EvalProvider`
+
+| Method                | Parameter type          | Result value            |
+| --------------------- | ----------------------- | ----------------------- |
+| `create(params)`      | `CreateEvalRunParams`   | `StoredEvalRun`         |
+| `get(params)`         | `GetEvalRunParams`      | `StoredEvalRun \| null` |
+| `list(params?)`       | `ListEvalRunsParams`    | `StoredEvalRun[]`       |
+| `addResult(params)`   | `AddEvalResultParams`   | `StoredEvalResult`      |
+| `addResults?(params)` | `AddEvalResultParams[]` | `StoredEvalResult[]`    |
+| `complete(params)`    | `CompleteEvalRunParams` | `StoredEvalRun`         |
+
+`addResults` is optional. The evaluator falls back to sequential `addResult`
+calls when it is absent. Evaluation suites create runs, write final case
+outcomes, and complete runs through this interface.
+
+### `TagProvider`
+
+| Method                       | Parameter type             | Result value      |
+| ---------------------------- | -------------------------- | ----------------- |
+| `list(params?)`              | `ListTagsParams`           | `StoredTag[]`     |
+| `create(params)`             | `CreateTagParams`          | `StoredTag`       |
+| `update(params)`             | `UpdateTagParams`          | `StoredTag`       |
+| `delete(params)`             | `DeleteTagParams`          | `void`            |
+| `addTagging(params)`         | `AddTaggingParams`         | `StoredTagging`   |
+| `removeTagging(params)`      | `RemoveTaggingParams`      | `void`            |
+| `listTaggings(params)`       | `ListTaggingsParams`       | `StoredTag[]`     |
+| `listEntitiesForTag(params)` | `ListEntitiesForTagParams` | `StoredTagging[]` |
+
+`listTaggings` returns the tags applied to an entity, not tagging records.
+`TagEntityType` is `'eval_run' | 'eval_result' | 'dataset' | 'dataset_item'`.
+
+## Backend behavior
+
+### SQLite
+
+SQLite schema and client assets are included in the package. Consumers do not
+run Prisma generation. `viteval()` without a database option returns JSON.
+PostgreSQL is experimental and is not covered by v1 provider tests.
+
+### Braintrust
+
+The provider finds or creates the named project. Datasets use Braintrust's dataset
+API. Suites create distinct experiments so reruns preserve history. The provider
+preserves pagination and configuration metadata.
+
+Tests use the official SDK with local HTTP fixtures for dataset pagination and
+replacement, experiment creation, result writes, completion metadata, and result
+pagination. They do not use a live Braintrust account.
+
+### Langfuse
+
+Each case is published as a separate experiment-item trace, with scores written
+through the official client. The provider uses v4 OpenTelemetry ingestion and the
+v2 Observations API with an isolated tracer provider. It does not replace global
+OpenTelemetry configuration. Regional and self-hosted URLs are supported.
+Export failures return persistence errors.
+
+Completed run snapshots and paginated case outcomes can be read from a fresh
+process. Datasets support creation, reads, pagination, and item additions.
+Local inputs can be correlated as experiment items without uploading a managed
+dataset. Supply `metadata.datasetItemId` when writing results directly to link
+an existing Langfuse item.
+
+Dataset rename, update, deletion, and atomic item replacement are unsupported.
+These operations return explicit errors. Manage them in Langfuse or create a
+new dataset.
+
+### VoltOps
+
+The provider publishes experiments, registered scorers, batched case outcomes,
+thresholds, errors, and completion summaries. Runs use `autoQueue: false`.
+Vitest executes the task and scorers, while VoltOps stores their outcomes.
+No second hosted execution is launched. Any Viteval task is supported, including
+VoltAgent agents.
+
+Set `datasetId` to bind runs to the latest version of a hosted dataset, or
+`experimentId` to bind an existing experiment. Otherwise, suites create distinct
+experiments. Datasets support creation, upload, and paginated reads. Adding items
+creates a new version through the SDK's authenticated upload transport.
+
+The current SDK does not expose historical run retrieval or listing, dataset
+rename, update, or deletion. `evals.get()` reads runs created by the current
+provider session. Unavailable historical reads and `evals.list()` return explicit
+errors. Inspect persisted runs in the [VoltOps console](https://console.voltagent.dev/).
+Atomic dataset replacement is unsupported. A failed multi-request upload can
+leave a partial new version while prior versions remain available.
+
+Langfuse and VoltOps tests use official SDKs with local HTTP fixtures, not live accounts.
+
+### S3 and Google Cloud Storage
+
+Object storage providers implement only the dataset domain. Both support create,
+read, list, rename, metadata updates, item additions, replacement, and deletion
+from the active catalog. Combine them with a separate results provider.
+
+Buckets must already exist. `clientOptions` accepts standard SDK configuration:
+AWS credential chains and custom endpoints, or Google Application Default
+Credentials and client settings. S3-compatible endpoints can use `endpoint` and
+`forcePathStyle`, but must enforce conditional writes. AWS and GCS SDK protocols
+are tested against local HTTP fixtures. Individual S3-compatible services are
+not separately verified.
+
+## Atomic publication and retained versions
+
+S3 and Google Cloud Storage use the default namespace `viteval/datasets`. Each
+namespace contains:
+
+- `index.json`: a validated catalog of dataset metadata and current version pointers.
+- `versions/<uuid>.json`: immutable dataset snapshots.
+
+An update uploads its immutable snapshot first, then conditionally publishes the
+catalog pointer. S3 uses ETags with `If-Match`/`If-None-Match`. GCS uses generation
+preconditions. Conflicting writers reread the catalog and reapply their update.
+The catalog records a SHA-256 digest for each snapshot. Reads reject rewritten or
+corrupted snapshot contents.
+`maxAttempts` controls the conflict budget and defaults to 16. Listing pagination
+is applied to the catalog, independently of bucket object listing.
+
+A failed snapshot upload or rejected catalog write leaves the previously visible
+version intact. Network errors return without automatically replaying writes:
+if the server committed a write but its response was lost, read the dataset before
+manually retrying the operation. Google downloads retain SDK checksum validation
+and capture the generation token from the same response as their content.
+
+Deleting a dataset removes its active catalog entry. Prior snapshots and snapshots
+from unsuccessful publication attempts remain in the bucket so readers of an
+earlier catalog cannot lose their referenced data. Cleanup must preserve objects
+referenced by the current catalog. No automatic garbage collection is performed.
+
+## Serialization and failures
+
+VoltOps dataset creation and `addItems` upload versions through multiple requests.
+They are not failure-safe: a failed item upload can leave an incomplete latest
+version that subsequent reads return. Errors include the dataset and version IDs.
+Inspect and repair that version in the VoltOps console before retrying. Previous
+versions are retained remotely. The SDK does not expose transactional publication
+or version deletion, so atomic replacement remains unsupported.
+
+Braintrust creation attempts to delete a newly created dataset if its metadata
+or initial item write fails. If cleanup is also rejected, the error retains the
+original failure and identifies the dataset that needs manual cleanup.
+
+- Store JSON-compatible inputs, expected values, outputs, and metadata. Dates serialize to ISO strings.
+- Native JSON and SQLite providers normalize undefined inputs, expected values, and outputs to null. Optional object fields remain omitted.
+- Non-finite numbers, BigInt, functions, symbols, cycles, and unsupported object classes fail explicitly.
+- JSON writes use a temporary file and atomic rename. Serialization failure preserves the previous file.
+- Local JSON dataset/tag updates use a cross-process lock. A lock timeout identifies the affected file. If a writer was interrupted, confirm it has stopped before removing its `.lock` directory.
+- Datasets with `providers: []` generate without writing to storage.
+
+Provider operations return `Result` values. Check `ok` before reading `value`.
+Initialization and persistence errors fail the evaluation run.

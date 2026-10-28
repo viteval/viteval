@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1120" viewBox="0 0 1560 1120" role="img" aria-labelledby="title description">
+  <title id="title">Viteval lettering and bracket explorations</title>
+  <desc id="description">Twelve preview-only logo concepts: current lettering, Helvetica Neue, Avenir Next, and Menlo, each with parentheses, square brackets, and braces. EVAL is blue in every concept.</desc>
+  <defs>
+    <g id="current" transform="scale(.31) translate(-249 -383)">
+      <g fill="#F8FAFC">
+        <path d="M249 383h62l26 83 29-83h60l-61 148h-60Z"/>
+        <path d="M426 383h54v148h-54Z"/>
+        <path d="M488 383h128v43h-38v105h-54V426h-36Z"/>
+      </g>
+      <g fill="#168DFA">
+        <path d="M624 383h116l7 41h-69v13h61v37h-61v14h73v43H624Z"/>
+        <path d="M746 383h61l26 83 29-83h60l-61 148h-59Z"/>
+        <path fill-rule="evenodd" d="M936 383h66l51 148h-57l-7-23h-46l-8 23h-54Zm31 49-12 38h23Z"/>
+        <path d="M1053 383h51v105h62v43h-113Z"/>
+      </g>
+    </g>
+    <g id="helvetica">
+      <text y="50" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="70" font-weight="700" letter-spacing="-1.5" fill="#F8FAFC">VIT<tspan fill="#168DFA">EVAL</tspan></text>
+    </g>
+    <g id="avenir">
+      <text y="48" font-family="Avenir Next, Avenir, sans-serif" font-size="62" font-weight="800" letter-spacing="1" fill="#F8FAFC">VIT<tspan fill="#168DFA">EVAL</tspan></text>
+    </g>
+    <g id="menlo">
+      <text y="50" font-family="Menlo, Consolas, monospace" font-size="70" font-weight="700" letter-spacing="-1" fill="#F8FAFC">VIT<tspan fill="#168DFA">EVAL</tspan></text>
+    </g>
+    <g id="flask" transform="translate(322 -10) scale(.36) translate(-1190 -340)">
+      <path fill="#168DFA" fill-rule="evenodd" d="M1274 348h48c7 0 12 6 12 13s-5 12-10 12v26c31 12 51 39 51 72 0 43-35 77-77 77s-77-34-77-77c0-33 20-60 50-72v-26c-5 0-9-5-9-12s5-13 12-13Zm13 25v32c0 5-2 7-7 9-26 8-43 31-43 57 0 34 27 61 61 61s61-27 61-61c0-26-17-49-43-57-5-2-7-4-7-9v-32Z"/>
+      <path fill="#12D9E9" d="M1238 458c18-11 29-13 43-6 20 10 27 18 46 13 18-5 21-12 29-9 2 5 3 10 3 15 0 34-27 61-61 61s-61-27-61-61c0-5 0-9 1-13Z"/>
+      <path fill="#0BB5F0" d="M1240 488c20-4 45-1 65-21 15-2 33 3 52-7 1 4 2 7 2 11 0 34-27 61-61 61-28 0-51-18-58-44Z"/>
+    </g>
+    <g id="flask-on-color" transform="translate(322 -10) scale(.36) translate(-1190 -340)">
+      <path fill="#F8FAFC" fill-rule="evenodd" d="M1274 348h48c7 0 12 6 12 13s-5 12-10 12v26c31 12 51 39 51 72 0 43-35 77-77 77s-77-34-77-77c0-33 20-60 50-72v-26c-5 0-9-5-9-12s5-13 12-13Zm13 25v32c0 5-2 7-7 9-26 8-43 31-43 57 0 34 27 61 61 61s61-27 61-61c0-26-17-49-43-57-5-2-7-4-7-9v-32Z"/>
+      <path fill="#12D9E9" d="M1238 458c18-11 29-13 43-6 20 10 27 18 46 13 18-5 21-12 29-9 2 5 3 10 3 15 0 34-27 61-61 61s-61-27-61-61c0-5 0-9 1-13Z"/>
+      <path fill="#0BB5F0" d="M1240 488c20-4 45-1 65-21 15-2 33 3 52-7 1 4 2 7 2 11 0 34-27 61-61 61-28 0-51-18-58-44Z"/>
+    </g>
+    <g id="parens" fill="none" stroke="#F8FAFC" stroke-width="6.5" stroke-linecap="round">
+      <path d="M326 4c-15 16-15 39 0 55M396 4c15 16 15 39 0 55"/>
+    </g>
+    <g id="square" fill="none" stroke="#F8FAFC" stroke-width="6" stroke-linejoin="round">
+      <path d="M329 3h-12v57h12M393 3h12v57h-12"/>
+    </g>
+    <g id="braces" fill="none" stroke="#F8FAFC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M329 3c-12 0-11 8-11 16 0 7-3 11-10 12 7 1 10 5 10 12 0 8-1 17 11 17M393 3c12 0 11 8 11 16 0 7 3 11 10 12-7 1-10 5-10 12 0 8 1 17-11 17"/>
+    </g>
+    <g id="cards" fill="#101820" stroke="#293644">
+      <rect width="480" height="154" rx="12"/>
+      <rect x="504" width="480" height="154" rx="12"/>
+      <rect x="1008" width="480" height="154" rx="12"/>
+    </g>
+  </defs>
+  <rect width="1560" height="1120" fill="#0B1016"/>
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+    <text x="36" y="55" fill="#12D9E9" font-size="15" letter-spacing="2">VITEVAL / IDENTITY EXPLORATIONS</text>
+    <text x="36" y="105" fill="#F8FAFC" font-size="34" font-weight="700">Same family resemblance. More of our own character.</text>
+    <text x="36" y="141" fill="#B6C4D2" font-size="18">Keep the flask and blue EVAL. Compare lettering down the rows and brackets across the columns.</text>
+    <g fill="#B6C4D2" font-size="16">
+      <text x="60" y="192">01 / PARENTHESES ( )</text>
+      <text x="564" y="192">02 / SQUARE BRACKETS [ ]</text>
+      <text x="1068" y="192">03 / BRACES { }</text>
+    </g>
+    <g transform="translate(36 214)">
+      <use href="#cards"/>
+      <g transform="translate(30 43)"><use href="#current"/><use href="#flask"/><use href="#parens"/></g>
+      <g transform="translate(534 43)"><use href="#current"/><use href="#flask"/><use href="#square"/></g>
+      <g transform="translate(1038 43)"><use href="#current"/><use href="#flask"/><use href="#braces"/></g>
+      <text x="24" y="134" fill="#93A4B6" font-size="14">A / CURRENT CUSTOM LETTERING — CONTROL</text>
+    </g>
+    <g transform="translate(36 392)">
+      <use href="#cards"/>
+      <g transform="translate(30 43)"><use href="#helvetica"/><use href="#flask"/><use href="#parens"/></g>
+      <g transform="translate(534 43)"><use href="#helvetica"/><use href="#flask"/><use href="#square"/></g>
+      <g transform="translate(1038 43)"><use href="#helvetica"/><use href="#flask"/><use href="#braces"/></g>
+      <text x="24" y="134" fill="#93A4B6" font-size="14">B / HELVETICA NEUE BOLD — RESTRAINED</text>
+    </g>
+    <g transform="translate(36 570)">
+      <use href="#cards"/>
+      <g transform="translate(30 43)"><use href="#avenir"/><use href="#flask"/><use href="#parens"/></g>
+      <g transform="translate(534 43)"><use href="#avenir"/><use href="#flask"/><use href="#square"/></g>
+      <g transform="translate(1038 43)"><use href="#avenir"/><use href="#flask"/><use href="#braces"/></g>
+      <text x="24" y="134" fill="#93A4B6" font-size="14">C / AVENIR NEXT HEAVY — GEOMETRIC, MORE OPEN</text>
+    </g>
+    <g transform="translate(36 748)">
+      <use href="#cards"/>
+      <g transform="translate(30 43)"><use href="#menlo"/><use href="#flask"/><use href="#parens"/></g>
+      <g transform="translate(534 43)"><use href="#menlo"/><use href="#flask"/><use href="#square"/></g>
+      <g transform="translate(1038 43)"><use href="#menlo"/><use href="#flask"/><use href="#braces"/></g>
+      <text x="24" y="134" fill="#93A4B6" font-size="14">D / MENLO BOLD — CODE-FIRST</text>
+    </g>
+    <text x="36" y="958" fill="#F8FAFC" font-size="20" font-weight="700">Starting picks: A2 for a minimal change. C3 for a more distinct identity.</text>
+    <text x="36" y="995" fill="#B6C4D2" font-size="17">Brackets are custom paths. Typeface samples are exploratory, not final wordmark artwork.</text>
+    <text x="36" y="1025" fill="#93A4B6" font-size="15">Preview uses macOS system fonts; other systems may show fallbacks. Final assets would use outlined lettering.</text>
+    <text x="36" y="1074" fill="#93A4B6" font-size="14">PREVIEW ONLY / Production logos, favicon, and independence notices are unchanged.</text>
+  </g>
+</svg>

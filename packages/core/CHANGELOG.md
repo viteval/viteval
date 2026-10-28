@@ -1,5 +1,11 @@
 # @viteval/core
 
+## 1.0.0-rc.5
+
+### Patch Changes
+
+- @viteval/internal@1.0.0-rc.5
+
 ## 1.0.0-rc.4
 
 ### Minor Changes

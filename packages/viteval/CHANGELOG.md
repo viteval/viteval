@@ -1,5 +1,15 @@
 # viteval
 
+## 1.0.0-rc.5
+
+### Patch Changes
+
+- Ship the custom documentation redesign with V1 RC configuration, model, dataset,
+  and persistence examples. Align the bundled dashboard branding with the site.
+- Updated dependencies
+  - @viteval/cli@1.0.0-rc.5
+  - @viteval/core@1.0.0-rc.5
+
 ## 1.0.0-rc.4
 
 ### Minor Changes

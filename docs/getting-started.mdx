@@ -1,0 +1,139 @@
+---
+title: Getting started
+description: Install Viteval and run your first evaluation with a local JSON report.
+---
+
+import { PackageManagerTabs, Steps, Step } from '@theme';
+
+# Getting started
+
+Run a passing evaluation, save its JSON report, and inspect it locally without an API key.
+
+## Prerequisites
+
+- Node >=26 and a Node package manager.
+- A project with a `package.json` file.
+- Run the commands below from that project's root.
+
+> [!NOTE]
+> V1 is currently a release candidate. Install `viteval@rc`. Untagged installs
+> still resolve to v0. V0 support ends when v1 launches.
+
+## Steps
+
+<Steps>
+<Step title="Install Viteval">
+
+Install the release candidate:
+
+<PackageManagerTabs
+  command={{
+    npm: 'npm install --save-dev viteval@rc',
+    pnpm: 'pnpm add -D viteval@rc',
+    yarn: 'yarn add --dev viteval@rc',
+  }}
+/>
+
+</Step>
+<Step title="Initialize the project">
+
+<PackageManagerTabs
+  command={{
+    npm: 'npx viteval init',
+    pnpm: 'pnpm exec viteval init',
+    yarn: 'yarn viteval init',
+  }}
+/>
+
+This creates `viteval.config.ts` for ESM projects (`viteval.config.mts` for CommonJS)
+and a passing `src/viteval.eval.ts` example. Existing Viteval configuration is
+preserved. JSON storage is registered in config; no setup file is needed.
+
+In noninteractive
+environments, initialization skips the env-file prompt. Use `--create-env-file`
+to create it explicitly, or `--no-env-file` to skip it locally.
+
+</Step>
+<Step title="Write an evaluation">
+
+Init generates a small uppercase-string smoke test. Replace its contents with
+this order-ID extraction check. It also needs no API key:
+
+```ts
+import { evaluate, scorers } from 'viteval';
+
+evaluate('Order extraction', {
+  data: [
+    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
+  scorers: [scorers.exactMatch()],
+});
+```
+
+</Step>
+<Step title="Run the evaluation">
+
+Run the evaluation:
+
+```bash
+pnpm exec viteval run
+```
+
+The command:
+
+1. Discovers the files matched by `eval.include` in `viteval.config.ts`
+2. Executes each evaluation
+3. Displays evaluation results
+4. Exits with a non-zero code if any evaluation fails
+
+</Step>
+<Step title="Open the results">
+
+Viteval reports three passing cases. The JSON destination saves inputs, outputs, scores,
+and execution diagnostics under `.viteval/results`. Inspect them with:
+
+```bash
+pnpm exec viteval ui
+```
+
+</Step>
+</Steps>
+
+## Verification
+
+Confirm Viteval reports three passing cases and the dashboard shows the saved run
+with the same inputs, expected values, outputs, and scores.
+
+Remove the regular expression’s `i` flag and run again. The lowercase ID now
+produces an empty string, scores 0, and fails the default threshold of 1. Restore
+the flag before continuing. These cases check normalization and missing values.
+They do not establish extraction accuracy on arbitrary support messages.
+
+## Next steps
+
+- [Configure models](/guide/models) to replace the deterministic task with a model call.
+- [Datasets](/concepts/datasets) to share saved cases across evaluations.
+- [Write a custom scorer](/guide/custom-scorers) for application-specific criteria.
+
+## Troubleshooting
+
+### No evaluation files are found
+
+Confirm the example is saved as `src/viteval.eval.ts` and your Viteval `eval.include`
+matches it. Init preserves existing configuration, so you may need to register
+the evaluation pattern manually.
+
+### The dashboard has no results
+
+Confirm your Viteval configuration selects `eval.results: ['json']` and the
+dashboard uses the same project root as the evaluation command.
+
+## References
+
+- [Evaluations and tasks](/concepts/evaluations): execution and case outcomes
+- [CLI](/cli/run): file filters, dataset generation, and dashboard commands
+- [Examples](/examples/): deterministic and model-backed evaluations
+- [Run in CI](/guide/ci): automated runs and saved reports

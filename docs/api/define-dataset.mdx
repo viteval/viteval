@@ -170,14 +170,12 @@ type Extra = Record<string, unknown>;
 Returns a `Dataset<DATA_FUNC>` object:
 
 ```ts
-interface Dataset<DATA_FUNC extends DatasetData> {
+interface Dataset<DATA_FUNC extends DatasetData, DATA_ITEM extends DataItem> {
   name: string;
   storage: 'local' | 'memory';
   description?: string;
   exists(): Promise<Result<boolean>>;
-  load(options?: {
-    create?: boolean;
-  }): Promise<Result<Awaited<ReturnType<DATA_FUNC>> | null>>;
+  load(options?: { create?: boolean }): Promise<Result<DATA_ITEM[] | null>>;
   save(options?: { overwrite?: boolean }): Promise<Result<void>>;
 }
 ```
@@ -213,5 +211,5 @@ Multiple datasets can share a module. Re-exporting the same dataset does not
 generate it twice; distinct objects must have unique names.
 
 Evaluation tasks and scorers are not executed during generation. See
-[CLI datasets](/guide/cli#datasets) for patterns, overwrite behavior, and module
+[CLI datasets](/cli/data) for patterns, overwrite behavior, and module
 import semantics.

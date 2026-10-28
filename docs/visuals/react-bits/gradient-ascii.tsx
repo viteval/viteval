@@ -685,7 +685,6 @@ const GradientASCII = ({
     let grainClock = 0;
     let raf = 0;
     let last = 0;
-    let visible = true;
     let disposed = false;
 
     const syncAtlas = () => {
@@ -870,7 +869,7 @@ const GradientASCII = ({
 
     const frame = (now: number) => {
       raf = 0;
-      if (disposed || !visible || document.hidden) return;
+      if (disposed || document.hidden) return;
       const s = settingsRef.current;
       const dt = last ? clamp((now - last) / 1000, 0.001, 0.05) : 1 / 60;
       last = now;
@@ -894,7 +893,7 @@ const GradientASCII = ({
     };
 
     function wake() {
-      if (!raf && !disposed && visible && !document.hidden)
+      if (!raf && !disposed && !document.hidden)
         raf = requestAnimationFrame(frame);
     }
 
@@ -949,14 +948,6 @@ const GradientASCII = ({
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
-    const intersection = new IntersectionObserver((entries) => {
-      visible = entries.some((entry) => entry.isIntersecting);
-      if (visible) {
-        last = 0;
-        wake();
-      }
-    });
-    intersection.observe(container);
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     document.addEventListener('visibilitychange', onVisibility);
@@ -968,7 +959,6 @@ const GradientASCII = ({
       cancelAnimationFrame(raf);
       wakeRef.current = null;
       resizeObserver.disconnect();
-      intersection.disconnect();
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('visibilitychange', onVisibility);

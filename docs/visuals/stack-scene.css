@@ -1,0 +1,76 @@
+.vv-stack-scene {
+  width: 100%;
+  max-width: 420px;
+  min-width: 0;
+  margin-inline: auto;
+  color: var(--cp-c-text-1);
+}
+
+.vv-stack-scene > svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.vv-stack-scene text {
+  fill: var(--cp-c-text-1);
+  font: 12px var(--cp-ff-mono);
+}
+
+.vv-stack-scene .vv-stack-scene__caption {
+  fill: var(--cp-c-text-3);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.vv-stack-scene .vv-stack-scene__code {
+  fill: var(--cp-c-brand-2);
+  font-size: 18px;
+}
+
+.vv-stack-scene__tile {
+  fill: var(--cp-c-bg-alt);
+  stroke: var(--cp-c-border);
+}
+
+.vv-stack-scene__hub {
+  fill: #0b1016;
+  stroke: var(--cp-c-brand-2);
+}
+
+.vv-stack-scene__connection,
+.vv-stack-scene__pulse {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vv-stack-scene__connection {
+  stroke: var(--cp-c-border);
+  stroke-width: 1.5;
+}
+
+.vv-stack-scene__pulse {
+  stroke: var(--cp-c-brand-2);
+  stroke-width: 2;
+  stroke-dasharray: 5 95;
+  animation: vv-stack-flow 7s linear infinite;
+  opacity: 0.45;
+}
+
+html[data-cp-variant='dark'] .vv-stack-scene__mono {
+  filter: invert(1);
+}
+
+@keyframes vv-stack-flow {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-stack-scene__pulse {
+    animation: none;
+    opacity: 0;
+  }
+}

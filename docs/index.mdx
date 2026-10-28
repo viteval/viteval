@@ -12,44 +12,16 @@ import { LandingPage } from '#docs/landing-page';
 
 ```ts
 import { evaluate, scorers } from 'viteval';
-import { orderMessages } from './order-extraction.dataset';
+import { classifyTicket } from './support-agent';
 
-evaluate('Order extraction', {
-  data: orderMessages,
-  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
-  scorers: [scorers.exactMatch()],
-});
-```
-
-</div>
-
-<div>
-
-```ts
-import { defineDataset } from 'viteval/dataset';
-
-export const orderMessages = defineDataset({
-  name: 'order-extraction',
-  data: async () => [
-    { input: 'Where is order ORD-1042?', expected: 'ORD-1042' },
-    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
-    { input: 'How do I update my address?', expected: '' },
+evaluate('Support routing', {
+  data: [
+    { input: 'I was charged twice.', expected: 'billing' },
+    { input: 'Reset my password.', expected: 'account' },
+    { input: 'Cancel my subscription.', expected: 'billing' },
   ],
-});
-```
-
-</div>
-
-<div>
-
-```ts
-import { defineConfig } from 'viteval/config';
-
-export default defineConfig({
-  eval: {
-    include: ['src/**/*.eval.ts'],
-    results: ['json'],
-  },
+  task: ({ input }) => classifyTicket(input),
+  scorers: [scorers.exactMatch()],
 });
 ```
 

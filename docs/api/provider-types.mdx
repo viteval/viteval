@@ -1,0 +1,283 @@
+---
+title: Provider types
+description: Reference parameter and stored-record types for datasets, evaluation results, and tags.
+---
+
+# Provider types
+
+import { Field, FieldGroup } from '@theme';
+
+Parameter and stored-record types for the [provider interfaces](/api/storage/create-provider#domain-contracts).
+All types on this page are exported from `viteval/provider`.
+
+## Dataset parameters
+
+```ts
+interface CreateDatasetParams {
+  name: string;
+  description?: string;
+  items?: {
+    input: unknown;
+    expected: unknown;
+    extra?: Record<string, unknown>;
+  }[];
+  metadata?: Record<string, unknown>;
+}
+
+type GetDatasetParams =
+  { id: string; name?: string } | { id?: string; name: string };
+
+interface ListDatasetsParams {
+  limit?: number;
+  offset?: number;
+}
+
+interface UpdateDatasetParams {
+  id: string;
+  name?: string;
+  description?: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface DeleteDatasetParams {
+  id: string;
+}
+
+interface GetDatasetItemsParams {
+  datasetId: string;
+  limit?: number;
+  offset?: number;
+}
+
+interface AddDatasetItemsParams {
+  datasetId: string;
+  items: {
+    input: unknown;
+    expected: unknown;
+    extra?: Record<string, unknown>;
+  }[];
+}
+```
+
+`get()` requires an ID or a name. `replaceItems()` uses the same parameter type
+as `addItems()`. Additional case fields are stored in each item's `extra` object.
+Pagination defaults and supported update operations depend on the backend.
+
+## Evaluation parameters
+
+```ts
+interface CreateEvalRunParams {
+  name: string;
+  datasetId?: string;
+  config: StoredEvalConfig;
+  metadata?: Record<string, unknown>;
+}
+
+interface GetEvalRunParams {
+  id: string;
+  includeResults?: boolean;
+}
+
+interface ListEvalRunsParams {
+  datasetId?: string;
+  status?: 'running' | 'completed' | 'failed';
+  limit?: number;
+  offset?: number;
+}
+
+interface AddEvalResultParams {
+  evalRunId: string;
+  input: unknown;
+  expected: unknown;
+  output: unknown;
+  scores: {
+    name: string;
+    score: number;
+    metadata?: Record<string, unknown>;
+  }[];
+  meanScore: number;
+  medianScore: number;
+  sumScore: number;
+  passed: boolean;
+  duration?: number;
+  metadata?: Record<string, unknown>;
+}
+
+interface CompleteEvalRunParams {
+  id: string;
+  status?: 'completed' | 'failed';
+  summary: StoredEvalSummary;
+}
+```
+
+Provider scores are numeric. The evaluator normalizes null scores to zero when
+persisting them. Provider records are not the same shape as
+[JSON result snapshots](/guide/results).
+
+## Tag parameters
+
+```ts
+type TagEntityType = 'eval_run' | 'eval_result' | 'dataset' | 'dataset_item';
+
+interface CreateTagParams {
+  name: string;
+  color?: string;
+  description?: string;
+}
+
+interface UpdateTagParams {
+  id: string;
+  name?: string;
+  color?: string;
+  description?: string;
+}
+
+interface DeleteTagParams {
+  id: string;
+}
+
+interface ListTagsParams {
+  limit?: number;
+  offset?: number;
+}
+
+interface AddTaggingParams {
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+interface RemoveTaggingParams {
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+interface ListTaggingsParams {
+  entityType: TagEntityType;
+  entityId: string;
+}
+
+interface ListEntitiesForTagParams {
+  tagId: string;
+  entityType?: TagEntityType;
+}
+```
+
+## Stored records
+
+<FieldGroup title="Record conventions">
+  <Field name="id" type="string" required>
+    Provider-assigned identifier. Related records refer to it through
+    `datasetId`, `evalRunId`, or `tagId`.
+  </Field>
+  <Field name="metadata" type="Record<string, unknown>">
+    Required on dataset, run, and result records. Optional in their creation
+    parameters. Not every stored record has metadata.
+  </Field>
+</FieldGroup>
+
+Provider interfaces expose timestamps as `Date` objects. Serialized JSON uses
+ISO strings. Payload values must follow the selected backend's
+[serialization rules](/api/storage/create-provider#serialization-and-failures).
+
+### Datasets and items
+
+```ts
+interface StoredDataset {
+  id: string;
+  name: string;
+  description?: string;
+  version: number;
+  itemCount: number;
+  metadata: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface StoredDataItem {
+  id: string;
+  datasetId: string;
+  input: unknown;
+  expected: unknown;
+  extra: Record<string, unknown>;
+  ordinal: number;
+}
+```
+
+### Runs, configuration, and summaries
+
+```ts
+interface StoredEvalRun {
+  id: string;
+  name: string;
+  datasetId?: string;
+  status: 'running' | 'completed' | 'failed';
+  config: StoredEvalConfig;
+  summary?: StoredEvalSummary;
+  results?: StoredEvalResult[];
+  metadata: Record<string, unknown>;
+  startedAt: Date;
+  completedAt?: Date;
+}
+
+interface StoredEvalConfig {
+  aggregation: 'mean' | 'median' | 'sum';
+  threshold: number;
+  scorerNames: string[];
+  timeout?: number;
+}
+
+interface StoredEvalSummary {
+  meanScore: number;
+  medianScore: number;
+  sumScore: number;
+  passedCount: number;
+  failedCount: number;
+  totalCount: number;
+  passed: boolean;
+}
+```
+
+### Case results
+
+```ts
+interface StoredEvalResult {
+  id: string;
+  evalRunId: string;
+  input: unknown;
+  expected: unknown;
+  output: unknown;
+  scores: {
+    name: string;
+    score: number;
+    metadata?: Record<string, unknown>;
+  }[];
+  meanScore: number;
+  medianScore: number;
+  sumScore: number;
+  passed: boolean;
+  duration?: number;
+  metadata: Record<string, unknown>;
+}
+```
+
+### Tags and taggings
+
+```ts
+interface StoredTag {
+  id: string;
+  name: string;
+  color?: string;
+  description?: string;
+  createdAt: Date;
+}
+
+interface StoredTagging {
+  id: string;
+  tagId: string;
+  entityType: TagEntityType;
+  entityId: string;
+  createdAt: Date;
+}
+```

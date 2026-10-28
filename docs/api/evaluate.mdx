@@ -1,10 +1,14 @@
+---
+title: evaluate()
+description: Run a task against each case, score its output, and check the passing threshold.
+---
+
 # `evaluate()`
 
 import { Field, FieldGroup } from '@theme';
 
-`evaluate()` registers an evaluation with a case for each input. Viteval runs your
-task, scores the output, and checks the threshold using Vitest internally. It
-returns `void`, not a runner suite or test object.
+`evaluate()` registers an evaluation with a check for each case. It runs your task,
+scores the output, and checks the threshold.
 
 ## Import
 
@@ -27,116 +31,94 @@ function evaluate<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>>(
     concurrency,
     retries,
     results,
+    skip,
   }: Eval<DATA, TASK_OUTPUT>
-);
+): void;
 ```
 
 ## Parameters
 
 <FieldGroup title="Parameters">
   <Field name="name" type="string" required>
-    The suite name shown in results.
+    The suite name shown in Vitest and evaluation reports.
   </Field>
   <Field name="options" type="Eval<DATA, TASK_OUTPUT>" required>
-    Cases, task, scorers, and optional overrides.
+    Cases, task, scorers, and passing criteria.
+    <FieldGroup title="Properties" expandable defaultOpen>
+      <Field name="data" type="Data<DATA_ITEM>" required>
+        A case array, asynchronous generator, or reusable dataset. Empty
+        datasets fail the evaluation.
+        <FieldGroup title="Case fields" expandable>
+          <Field name="input" type="INPUT" required>
+            Input passed to the task.
+          </Field>
+          <Field name="expected" type="EXPECTED" required>
+            Reference value passed to scorers, not the task.
+          </Field>
+          <Field name="name" type="string">
+            Display name for the case.
+          </Field>
+          <Field name="...extra" type="Record<string, unknown>">
+            Additional context or metadata passed to the task and scorers.
+          </Field>
+        </FieldGroup>
+      </Field>
+      <Field name="task" type="Task<INPUT, TASK_OUTPUT, EXTRA>" required>
+        Synchronous or asynchronous function receiving input and extra case
+        fields. Expected values are not passed to it. The returned output type
+        may differ from the expected-value type.
+      </Field>
+      <Field
+        name="scorers"
+        type="Scorer<TASK_OUTPUT, EXPECTED, EXTRA>[]"
+        required
+      >
+        At least one scorer. Each receives output, expected value, input, and
+        additional case fields. See
+        [createScorer()](/api/scoring/create-scorer).
+      </Field>
+      <Field name="threshold" type="number" defaultValue="1">
+        A finite minimum for each case's aggregate score. The case passes when
+        its aggregate is greater than or equal to this value. Sum thresholds may
+        exceed 1.
+      </Field>
+      <Field
+        name="aggregation"
+        type="'mean' | 'median' | 'sum'"
+        defaultValue="'mean'"
+      >
+        Combines each case's scorer values. Null contributes zero. Task or
+        scorer exceptions and timeouts fail the case regardless of threshold.
+      </Field>
+      <Field name="timeout" type="number">
+        Positive per-case timeout in milliseconds, including task and scoring.
+      </Field>
+      <Field name="concurrency" type="number">
+        Positive case concurrency limit, bounded by the worker limit.
+      </Field>
+      <Field name="retries" type="number">
+        Additional attempts after a failed case; reruns tasks and scorers.
+      </Field>
+      <Field name="results" type="ResultProviderName[]">
+        Result destinations. Omitted inherits config; an explicit array replaces
+        it; an empty array disables persistence.
+      </Field>
+      <Field name="skip" type="boolean">
+        Register the evaluation without executing its cases.
+      </Field>
+      <Field name="description" type="string">
+        Descriptive text that does not affect scoring or case discovery.
+      </Field>
+    </FieldGroup>
   </Field>
 </FieldGroup>
 
-## Eval interface
-
-```ts
-interface Eval<DATA extends Data, TASK_OUTPUT = InferDataOutput<DATA>> {
-  /**
-   * The description of the evaluation.
-   */
-  description?: string;
-  /**
-   * The data to use for the evaluation.
-   */
-  data: DATA;
-  /**
-   * The task to evaluate.
-   */
-  task: Task<InferDataInput<DATA>, TASK_OUTPUT, InferDataExtra<DATA>>;
-  /**
-   * The scorers to use for the evaluation.
-   */
-  scorers: Scorer<TASK_OUTPUT, InferDataOutput<DATA>, InferDataExtra<DATA>>[];
-  /**
-   * The aggregation type for the evaluation.
-   *
-   * @default 'mean'
-   */
-  aggregation?: ScorerAggregationType;
-  /**
-   * The threshold for the evaluation.
-   *
-   * @default 1.0
-   */
-  threshold?: number;
-  timeout?: number;
-  concurrency?: number;
-  retries?: number;
-  results?: readonly ResultProviderName[];
-  skip?: boolean;
-}
-```
-
-### `data`
-
-Provide cases as an array, a typed dependency callback, a dataset reference, or a
-single-source dataset definition. Empty datasets fail explicitly.
-
-**Type**: `Data<DATA_ITEM>`
+## Related types
 
 ```ts
 type Data<DATA_ITEM extends DataItem> =
-  | DATA_ITEM[]
-  | DataSource<DATA_ITEM>
-  | Dataset<DatasetData<DATA_ITEM>>
-  | DatasetReference<DATA_ITEM>;
-```
+  DATA_ITEM[] | DataGenerator<DATA_ITEM> | Dataset<DataGenerator<DATA_ITEM>>;
 
-```ts
-// Inline data
-data: [
-  { input: 'What is 2+2?', expected: '4' },
-  { input: 'What is 3+3?', expected: '6' },
-];
-
-// From function
-data: async () => {
-  const response = await fetch('https://example.com/api/test-cases');
-  if (!response.ok)
-    throw new Error(`Dataset request failed: ${response.status}`);
-  return response.json();
-};
-
-// From dataset
-data: mathDataset;
-```
-
-Read an existing dataset without generating or overwriting it:
-
-```ts
-data: ({ langfuse }) => langfuse.dataset('support-cases');
-```
-
-Remote records have unknown input/expected types by default. Use
-`langfuse.dataset<SupportCase>('support-cases')` when your application owns that
-case contract. This type parameter does not validate remote records. Data callbacks
-run during collection, before tasks; keep expensive generation in `defineDataset()`.
-
-### `task`
-
-The function that receives a case's input and returns the output to score.
-`TASK_OUTPUT` is inferred from the task's return value and can differ from the
-dataset's expected type. Additional dataset fields are available alongside
-`input`; `expected` is reserved for scorers.
-
-**Type**: `Task<InferDataInput<DATA>, TASK_OUTPUT, InferDataExtra<DATA>>`
-
-```ts
 type Task<INPUT, OUTPUT, EXTRA extends Extra> = (
   args: TaskArgs<INPUT, EXTRA>
 ) => Promise<OUTPUT> | OUTPUT;
@@ -144,152 +126,7 @@ type Task<INPUT, OUTPUT, EXTRA extends Extra> = (
 type TaskArgs<INPUT, EXTRA extends Extra> = EXTRA & { input: INPUT };
 ```
 
-```ts
-import { openai } from '@ai-sdk/openai';
-import { generateText } from 'ai';
-
-// Simple text generation
-task: async ({ input }) => {
-  const result = await generateText({
-    model: openai('gpt-4.1-mini'),
-    prompt: input,
-  });
-  return result.text;
-};
-
-// With chat messages
-task: async ({ input }) => {
-  const result = await generateText({
-    model: openai('gpt-4.1-mini'),
-    messages: [
-      { role: 'system', content: 'You are a math tutor.' },
-      { role: 'user', content: input },
-    ],
-  });
-  return result.text;
-};
-
-// Structured input
-task: async ({ input, context }) => {
-  return await answerQuestion(input.question, context);
-};
-```
-
-### `scorers`
-
-Scorer functions to run against each task output.
-
-**Type**: `Scorer<TASK_OUTPUT, InferDataOutput<DATA>, InferDataExtra<DATA>>[]`
-
-```ts
-import { scorers, createScorer } from 'viteval';
-
-// Built-in scorers
-scorers: [scorers.exactMatch()];
-scorers: [scorers.levenshtein(), scorers.factual()];
-
-// Custom scorer
-const customScorer = createScorer<string>({
-  name: 'length-check',
-  score: ({ output, expected }) => {
-    return {
-      score: output.length === expected.length ? 1 : 0,
-      metadata: { method: 'length_comparison' },
-    };
-  },
-});
-
-scorers: [customScorer, scorers.answerSimilarity()];
-```
-
-### `threshold` (optional)
-
-Minimum score for each case's configured mean, median, or sum aggregation.
-
-**Type**: `number`  
-**Default**: `1.0`  
-**Range**: Any finite number. Sum thresholds may exceed `1.0`.
-
-```ts
-// Require 90% average score
-threshold: 0.9;
-
-// More lenient threshold
-threshold: 0.6;
-
-// Perfect scores only (default)
-threshold: 1.0;
-```
-
-### Execution and result options
-
-<FieldGroup title="Overrides">
-  <Field name="timeout" type="number">
-    Positive per-case timeout in milliseconds; inherits config.
-  </Field>
-  <Field name="concurrency" type="number">
-    Positive limit on executing cases in this evaluation. The configured worker
-    limit remains the ceiling; queued cases count toward their timeout.
-  </Field>
-  <Field name="retries" type="number">
-    Non-negative additional attempts for failed cases; inherits config.
-  </Field>
-  <Field name="results" type="ResultProviderName[]">
-    Replaces inherited result destinations. An empty array disables persistence.
-    All selected providers receive the same completed outcomes without rerunning
-    tasks.
-  </Field>
-  <Field name="skip" type="boolean" defaultValue="false">
-    Skip all cases, retaining skipped outcomes in reports.
-  </Field>
-</FieldGroup>
-
-```ts
-evaluate('Support answers', {
-  data: ({ langfuse }) => langfuse.dataset('support-cases'),
-  task: ({ input }) => answerQuestion(input),
-  scorers: [scorers.factual()],
-  timeout: 120_000,
-  retries: 1,
-  results: ['json'],
-});
-```
-
-Persistence failures fail the run. Fan-out is not transactional: successfully
-published destinations are not rolled back when another destination fails.
-
-### `aggregation` (optional)
-
-How to combine a case's scorer results before checking its threshold.
-
-**Type**: `ScorerAggregationType`  
-**Default**: `'mean'`  
-**Options**: `'mean' | 'median' | 'sum'`
-
-```ts
-// Use mean score (default)
-aggregation: 'mean';
-
-// Use median score
-aggregation: 'median';
-
-// Use sum of scores
-aggregation: 'sum';
-```
-
-### `description` (optional)
-
-An optional description of what the evaluation checks.
-
-**Type**: `string`
-
-```ts
-description: 'Evaluates math problem solving capabilities';
-```
-
-## DataItem interface
-
-Each case is a `DataItem`:
+Each case is a `DataItem`. Additional fields are preserved in `EXTRA`:
 
 ```ts
 type DataItem<
@@ -309,48 +146,48 @@ type DataItem<
 type Extra = Record<string, unknown>;
 ```
 
-### Simple test cases
+## Return value
+
+Returns `void`. Evaluation outcomes are recorded during execution, not returned
+as completed scores or runner objects by this call.
+
+## Worker-local dependencies
+
+`data` can select a registered integration's dataset handle. `task` and `scorers`
+also accept factories that resolve dependencies from the worker-local context.
+Generation destinations do not select the evaluation's read source:
 
 ```ts
-{ input: "Hello", expected: "Hi there!" }
+evaluate('Reviewed support answers', {
+  data: ({ langfuse }) => langfuse.dataset('reviewed-support'),
+  task: ({ input }) => answerSupportQuestion(input),
+  scorers: [scorers.factual()],
+  results: ['json'],
+});
 ```
 
-### Complex input types
+Import and register the Langfuse integration in config before using its handle.
+Storage integrations initialize lazily, fail the run on persistence errors, and
+close after persistence. A successful write is not rolled back if another
+destination fails.
+
+## Example
 
 ```ts
-// Object input
-{
-  input: {
-    question: "What's the weather?",
-    location: "San Francisco"
-  },
-  expected: "Sunny, 72°F"
-}
+import { evaluate, scorers } from 'viteval';
 
-// Array input
-{
-  input: ["apple", "banana", "cherry"],
-  expected: "apple, banana, cherry"
-}
+evaluate('Order extraction', {
+  data: [
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
+  scorers: [scorers.exactMatch()],
+  threshold: 1,
+  timeout: 60_000,
+  retries: 2,
+});
 ```
 
-### Test case metadata
-
-```ts
-{
-  input: "Translate: Hello",
-  expected: "Hola",
-  difficulty: "easy",
-  language: "spanish"
-}
-```
-
-### Named test cases
-
-```ts
-{
-  name: "Basic addition",
-  input: "What is 2+2?",
-  expected: "4"
-}
-```
+See [evaluations and tasks](/concepts/evaluations) for the execution model and
+[configure models](/guide/models) for model-backed tasks and judges.

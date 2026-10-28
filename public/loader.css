@@ -1,0 +1,12 @@
+html:root body::before {
+  background-color: #0b1016;
+}
+
+html:root::before {
+  width: min(320px, calc(100vw - 48px));
+  height: auto;
+  aspect-ratio: 313.484 / 106.302;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  image-rendering: auto;
+}

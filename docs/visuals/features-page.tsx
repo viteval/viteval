@@ -1,11 +1,14 @@
 import { CTA, PageRail } from '@ciderpress/ui/theme';
 import type { ReactNode } from 'react';
+import { InView } from './in-view';
 
 import { ToolingScene } from './feature-scenes';
+import { ScoringScene } from './scoring-scene';
 
 import './hero-background.css';
 import './feature-panels.css';
 import './features-page.css';
+import './motion.css';
 
 /**
  * Frames the features page with the homepage's shared rails and design tokens.
@@ -25,7 +28,7 @@ export function FeaturesPage({ children }: { children: ReactNode }) {
           {
             theme: 'brand',
             text: 'Write your first eval',
-            link: '/guide/getting-started',
+            link: '/getting-started',
           },
           {
             theme: 'alt',
@@ -50,11 +53,21 @@ export function FeatureMotion({
 }: {
   kind: 'tooling' | 'scoring' | 'local' | 'runners';
 }) {
+  if (kind === 'scoring') return <ScoringScene />;
+
   if (kind === 'tooling') {
     return (
-      <div className="vv-motion vv-motion--tooling">
-        <ToolingScene brandMark />
-      </div>
+      <InView fallbackInView>
+        {({ ref, inView }) => (
+          <div
+            className="vv-motion vv-motion--tooling"
+            ref={ref}
+            data-motion-visible={inView}
+          >
+            <ToolingScene brandMark />
+          </div>
+        )}
+      </InView>
     );
   }
 
@@ -108,50 +121,6 @@ export function FeatureMotion({
   };
 
   const artwork = {
-    scoring: (
-      <>
-        <g transform="translate(104 54)">
-          <rect
-            className="vv-motion__edge"
-            x="0"
-            y="8"
-            width="192"
-            height="170"
-            rx="8"
-          />
-          <rect
-            className="vv-motion__surface"
-            width="192"
-            height="170"
-            rx="8"
-          />
-          <path className="vv-motion__divider" d="M0 30h192" />
-          <text x="16" y="19">
-            SCORER RESULTS
-          </text>
-          {['exactMatch', 'answerSimilarity', 'yourScorer'].map(
-            (label, index) => (
-              <g key={label} transform={`translate(16 ${47 + index * 37})`}>
-                <rect
-                  className="vv-motion__surface--blue"
-                  width="20"
-                  height="20"
-                  rx="4"
-                />
-                <path
-                  className="vv-motion__check"
-                  d="m5 10 4 4 7-8"
-                  style={{ animationDelay: `${index * 0.5}s` }}
-                />
-                <text x="32" y="14">
-                  {label}
-                </text>
-              </g>
-            )
-          )}
-        </g>
-      </>
-    ),
     local: (
       <g>
         <path className="vv-motion__edge" d="M72 226h256v5l-8 4H80l-8-4z" />
@@ -237,11 +206,20 @@ export function FeatureMotion({
   };
 
   return (
-    <div className={`vv-motion vv-motion--${kind}`} aria-hidden="true">
-      <svg viewBox="45 25 310 240" fill="none">
-        {artwork[kind]}
-      </svg>
-    </div>
+    <InView fallbackInView>
+      {({ ref, inView }) => (
+        <div
+          className={`vv-motion vv-motion--${kind}`}
+          aria-hidden="true"
+          ref={ref}
+          data-motion-visible={inView}
+        >
+          <svg viewBox="45 25 310 240" fill="none">
+            {artwork[kind]}
+          </svg>
+        </div>
+      )}
+    </InView>
   );
 }
 
@@ -257,18 +235,18 @@ export function FeatureHero() {
       <div className="vv-feature-hero__copy">
         <p className="vv-eyebrow">Why Viteval</p>
         <h1>
-          Test prompts and agents
+          Your agent needs
           <br />
-          <span>against reference cases.</span>
+          <span>a test suite</span>
         </h1>
         <p className="vv-feature-hero__description">
-          Run your prompts and agents against real cases. Score the answers and
-          catch regressions before you ship.
+          Test your agent against real cases and score every answer. Catch
+          regressions before you ship.
         </p>
         <div className="vv-feature-hero__actions">
           <a
             className="cp-hero__btn cp-hero__btn--primary"
-            href="#familiar-tooling"
+            href="#bring-your-own-stack"
           >
             Explore features
           </a>
@@ -278,6 +256,20 @@ export function FeatureHero() {
         </div>
       </div>
       <div className="vv-feature-hero__visual">
+        <div className="vv-feature-hero__compact-terminal">
+          <p>order-extraction.eval.ts</p>
+          <pre>
+            <code>{`❯ pnpm exec viteval run
+
+✓ Order lookup
+✓ Order cancellation
+✓ Address update
+
+Test Files  1 passed
+Tests       3 passed
+ExactMatch  1 on each case`}</code>
+          </pre>
+        </div>
         <img
           className="vv-feature-hero__terminal"
           src="/assets/viteval-hero-run.svg"

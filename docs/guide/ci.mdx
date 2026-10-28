@@ -1,0 +1,151 @@
+---
+title: Run in CI
+description: Run evaluations in CI and save reports to catch regressions before deployment.
+---
+
+import { Steps, Step } from '@theme';
+
+# Run in CI
+
+Run `viteval run` in CI to check prompt and application changes against your
+evaluation suite. A failed case returns a nonzero exit code.
+
+## Prerequisites
+
+- Have a passing local evaluation and a committed package lockfile.
+- This example uses GitHub Actions and npm. Use the equivalent install command
+  and cache for your project's package manager.
+- Add any model credentials to your repository's Actions secrets.
+
+## Steps
+
+<Steps>
+<Step title="Configure JSON reports">
+
+Select `eval.results: ['json']` in `viteval.config.ts`. Follow
+[inspect results](/guide/results) if your project does not save reports yet.
+
+</Step>
+<Step title="Add the evaluation workflow">
+
+The example below runs evaluations when the selected source paths change.
+
+:::tip
+
+Use `paths` to limit model requests on unrelated changes. Include evaluation
+files, datasets, configuration, and dependencies as well as the code under test.
+Omit the filter if you want evaluations to run on every change.
+
+:::
+
+Create `.github/workflows/evaluate.yml` and adapt the paths to your repository:
+
+```yaml
+name: LLM Evaluation
+
+on:
+  push:
+    branches: [main, develop]
+    # Include every path that can affect evaluation results.
+    paths:
+      - 'src/**'
+      - 'evals/**'
+      - 'datasets/**'
+      - '**/*.eval.ts'
+      - '**/*.dataset.ts'
+      - 'viteval.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/evaluate.yml'
+  pull_request:
+    branches: [main]
+    # Keep this filter in sync with the push filter.
+    paths:
+      - 'src/**'
+      - 'evals/**'
+      - 'datasets/**'
+      - '**/*.eval.ts'
+      - '**/*.dataset.ts'
+      - 'viteval.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/evaluate.yml'
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run evaluations
+        run: npx viteval run
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
+</Step>
+<Step title="Preserve reports on failure">
+
+Select the JSON result destination, then upload the
+files even when a score or execution failure makes the evaluation step fail:
+
+Append this step to the job's `steps` list:
+
+```yaml
+- name: Upload evaluation reports
+  if: always()
+  uses: actions/upload-artifact@v7
+  with:
+    name: evaluation-results
+    path: .viteval/results/*.json
+    if-no-files-found: warn
+```
+
+The same `viteval run` command works in GitLab, CircleCI, and other CI systems.
+Install with a lockfile, provide model credentials through the CI environment,
+and retain the JSON reports. A nonzero Vitest exit code fails the job.
+
+</Step>
+</Steps>
+
+## Verification
+
+Open a pull request that changes a path included by the workflow. Confirm the
+evaluation job runs, passes for your known-good cases, and uploads the
+`evaluation-results` artifact.
+
+Temporarily change an expected value so a deterministic case fails. Confirm the
+job fails and still uploads its report. Restore the expected value afterward.
+
+## Troubleshooting
+
+### The workflow does not run
+
+Check the event branch and path filters. Include every file that can affect
+evaluation results, or remove the path filters to run on every change.
+
+### No artifact is uploaded
+
+Confirm JSON results are enabled and saved under `.viteval/results` relative to the project root.
+An install or configuration failure can happen before a report is written.
+
+### Model calls fail in CI
+
+Confirm the job receives the required secrets. Fork pull requests may not have
+access to repository secrets. Never commit credentials to make the workflow pass.
+
+## References
+
+- [`run`](/cli/run) for evaluation arguments and exit behavior
+- [Inspect results](/guide/results) for report configuration
+- [Configure models](/guide/models) for task and judge model setup

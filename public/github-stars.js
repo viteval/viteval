@@ -26,7 +26,7 @@ async function showGithubStars() {
         button.append(badge);
         button.setAttribute(
           'aria-label',
-          `Star Viteval on GitHub (${formatted} stars)`
+          `Viteval on GitHub (${formatted} stars)`
         );
       }
     };

@@ -1,23 +1,21 @@
+---
+title: Built-in scorers
+description: Choose deterministic checks, embedding similarity scorers, or LLM judges for your outputs.
+---
+
 # `scorers`
+
+import { Field, FieldGroup } from '@theme';
 
 Viteval includes deterministic scorers, embedding similarity scorers, and LLM
 judges. Call each factory to create a scorer. LLM and embedding scorers use the
-defaults in `viteval.config.ts`. See [Configuration](/api/configuration).
+models configured in `viteval.config.ts`. See [Configuration](/api/configuration).
 
 The scores in the examples illustrate how to read results. Model-based scores
 vary with the configured model and are not guarantees of correctness or safety.
 
-Judge and embedding scorers accept `{ model }` to override their configured default
-with a namespaced model ID or a direct AI SDK model instance:
-
-```ts
-scorers.factual({ model: 'openai:gpt-4.1-mini' });
-scorers.embeddingSimilarity({ model: 'openai:text-embedding-3-small' });
-```
-
-Model strings require a registered provider, but are not an exhaustive typed
-catalog of remote model IDs. SDK/API validation remains authoritative.
-Model failures return `score: null` with an error in `metadata`; null scores
+Judge scorers accept `{ model }` to override the configured language model.
+Model failures return `score: null` with an error in `metadata`. Null scores
 contribute 0 to evaluation aggregation.
 
 ## Import
@@ -25,6 +23,109 @@ contribute 0 to evaluation aggregation.
 ```ts
 import { scorers } from 'viteval';
 ```
+
+## Factory contracts
+
+All factories return a `Scorer` accepting `{ output, expected, ...extra }` and
+returning a `Score` or `Promise<Score>`. The evaluator also passes the case's
+`input`. Scores include a name, `number | null` value, and optional metadata.
+See [createScorer()](/api/scoring/create-scorer) for the full callback type and
+[wrapScorer()](/api/scoring/wrap-scorer) for adapting structured values.
+
+### Deterministic and embedding inputs
+
+| Factory                 | Values compared                                                                  | Options                 | Model     |
+| ----------------------- | -------------------------------------------------------------------------------- | ----------------------- | --------- |
+| `exactMatch()`          | Output and expected. Objects use JSON serialization, other values use `String()` | `caseSensitive`, `trim` | None      |
+| `levenshtein()`         | Output and expected converted with `String()`                                    | `threshold`             | None      |
+| `jsonDiff()`            | JSON values or JSON strings, compared recursively                                | `threshold`             | None      |
+| `numericDiff()`         | Output and expected converted with `Number()`                                    | `tolerance`             | None      |
+| `listContains()`        | Arrays, JSON array strings, or newline-separated strings                         | `threshold`             | None      |
+| `answerSimilarity()`    | Output and expected converted with `String()`                                    | None                    | Embedding |
+| `embeddingSimilarity()` | Output and expected converted with `String()`                                    | None                    | Embedding |
+
+<FieldGroup title="Deterministic scorer options">
+  <Field name="caseSensitive" type="boolean" defaultValue="true">
+    `exactMatch()` only. Set false to lowercase both normalized values before
+    comparison.
+  </Field>
+  <Field name="trim" type="boolean" defaultValue="false">
+    `exactMatch()` only. Trim both normalized values before comparison.
+  </Field>
+  <Field name="threshold" type="number" defaultValue="0">
+    `levenshtein()`, `jsonDiff()`, and `listContains()` only. Similarities below
+    this value return zero. Other scores are unchanged. This does not set the
+    evaluation's pass threshold.
+  </Field>
+  <Field name="tolerance" type="number" defaultValue="0">
+    `numericDiff()` only. A positive tolerance returns 1 when the absolute
+    difference is within that tolerance. Otherwise, relative similarity is used.
+  </Field>
+</FieldGroup>
+
+```ts
+scorers.exactMatch({ caseSensitive: false, trim: true });
+scorers.levenshtein({ threshold: 0.8 });
+scorers.jsonDiff({ threshold: 0.9 });
+scorers.numericDiff({ tolerance: 2 });
+scorers.listContains({ threshold: 0.8 });
+```
+
+### Judge inputs and score values
+
+These are the fields read by each judge's prompt. `output` is always the value
+being assessed. Context scorers expect retrieved context there, not the final answer.
+All judges return discrete rubric scores, not continuous confidence estimates.
+
+| Factory                 | Prompt fields                             | Possible scores |
+| ----------------------- | ----------------------------------------- | --------------- |
+| `answerCorrectness()`   | `input`, `output`, `expected`             | 0, 0.5, 1       |
+| `answerRelevancy()`     | `input`, `output`                         | 0, 0.5, 1       |
+| `contextEntityRecall()` | `input`, `output`, `expected`             | 0, 0.3, 0.7, 1  |
+| `contextPrecision()`    | `input`, `output`, `expected`             | 0, 0.5, 1       |
+| `contextRecall()`       | `input`, `output`, `expected`             | 0, 0.5, 1       |
+| `contextRelevancy()`    | `input`, `output`                         | 0, 0.5, 1       |
+| `factual()`             | `input`, `output`, `expected`             | 0, 0.4, 0.6, 1  |
+| `summary()`             | `input`, `output`, `expected`             | 0, 1            |
+| `translation()`         | `input`, `output`, `expected`, `language` | 0, 1            |
+| `moderation()`          | `output`                                  | 0, 1            |
+| `sql()`                 | `input`, `output`, `expected`             | 0, 1            |
+| `possible()`            | `input`, `output`                         | 0, 1            |
+| `humor()`               | `output`                                  | 0, 0.5, 1       |
+
+`DataItem` still requires an `expected` field even when a judge does not read it.
+Set translation's `language` field to the source language. When omitted it
+defaults to `'Unknown'`.
+
+<FieldGroup title="Judge options">
+  <Field
+    name="model"
+    type="LanguageModel"
+    defaultValue="configured language model"
+  >
+    Override the judge model for one scorer. All judge factories accept this
+    option. See [Configuration](/api/configuration).
+  </Field>
+</FieldGroup>
+
+```ts
+scorers.factual({ model: openai('gpt-4.1') });
+```
+
+### Metadata and failures
+
+| Scorer family               | Successful metadata                  | Failure behavior                                                                          |
+| --------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| LLM judges                  | `choice`, `rationale`                | Missing model, request, or structured-response failures return null with `metadata.error` |
+| Embeddings                  | `similarity` (raw cosine similarity) | Embedding failures return null with `metadata.error` and `similarity: 0`                  |
+| Levenshtein                 | `distance`                           | Exceptions propagate and fail the case                                                    |
+| Numeric difference          | None normally                        | Non-finite numeric conversions return 0 with `metadata.error: 'non-numeric input'`        |
+| Other deterministic scorers | None                                 | Exceptions propagate and fail the case                                                    |
+
+Null contributes zero to aggregation. It is not a separate automatic failure
+when the scorer returns normally. A permissive evaluation threshold can therefore
+still pass. Embedding scorers return 1 immediately for identical string values,
+without calling a model.
 
 ## Text similarity
 
@@ -106,7 +207,7 @@ scorers.embeddingSimilarity();
 
 **Model setup**:
 
-- Uses `models.defaults.embedding` from Viteval config
+- Uses the embedding model configured in `models.defaults.embedding`
 - Compares outputs and expected answers with cosine similarity
 - Language support depends on the selected model
 
@@ -379,12 +480,16 @@ scorers.listContains();
 ```ts
 // Output: ["apple", "banana", "cherry"]
 // Expected: ["apple", "banana"]
-// Score: 1.0 (contains all expected items)
+// Score: ~0.67 (two exact matches divided by the longer list's length)
 
 // Output: ["apple"]
 // Expected: ["apple", "banana"]
 // Score: 0.5 (contains half of expected items)
 ```
+
+Items are converted to strings and compared using Levenshtein similarity with
+optimal one-to-one matching. The total is divided by the longer list's length,
+so extra output items reduce the score. Two empty lists score 1. One empty list scores 0.
 
 ## Specialized scorers
 

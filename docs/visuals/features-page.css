@@ -73,7 +73,7 @@
 .vv-feature-detail__link {
   display: inline-flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
   margin-top: 12px;
   padding: 12px 18px;
   border: 1px solid var(--cp-c-border);
@@ -86,17 +86,92 @@
   text-decoration: none;
 }
 
+.vv-vitest-foundation {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 48px;
+  padding: 96px var(--vv-section-inset);
+  border-block: 1px solid var(--cp-c-border);
+  background: var(--cp-c-bg-alt);
+  scroll-margin-top: 112px;
+}
+
+.vv-vitest-foundation__copy {
+  min-width: 0;
+  max-width: 640px;
+}
+
+.vv-vitest-foundation h2 {
+  margin: 16px 0;
+  font: 750 clamp(26px, 3vw, 34px) / 1.2 var(--cp-ff-display);
+  letter-spacing: -0.03em;
+}
+
+.vv-vitest-foundation__copy > p:not(.vv-eyebrow) {
+  margin: 0;
+  color: var(--cp-c-text-2);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.vv-vitest-foundation__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 12px 18px;
+  border: 1px solid var(--cp-c-brand-1);
+  background: var(--cp-c-brand-1);
+  color: var(--cp-c-brand-fg);
+  font: 12px var(--cp-ff-mono);
+  text-decoration: none;
+}
+
+.vv-vitest-foundation__link:hover {
+  background: color-mix(in srgb, var(--cp-c-brand-1) 90%, var(--cp-c-text-1));
+  text-decoration: none;
+}
+
+.vv-vitest-foundation .vv-motion--tooling {
+  min-height: 340px;
+}
+
+.vv-vitest-foundation .vv-motion--tooling .vv-scene {
+  height: 340px;
+  padding-bottom: 40px;
+}
+
+.vv-vitest-foundation .vv-motion--tooling .vv-stack {
+  scale: 1.4;
+}
+
 @media (max-width: 600px) {
   .vv-features-page__nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .vv-features-page__nav a:nth-child(2) {
+  .vv-features-page__nav a:nth-child(even) {
     border-right: 0;
   }
 
   .vv-features-page__nav a:nth-child(-n + 2) {
     border-bottom: 1px solid var(--cp-c-border);
+  }
+
+  .vv-vitest-foundation {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-block: 64px;
+  }
+
+  .vv-vitest-foundation > .vv-motion {
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .vv-vitest-foundation .vv-motion--tooling .vv-stack {
+    scale: 1.15;
   }
 }
 .vv-features-page .vv-eyebrow {
@@ -263,7 +338,7 @@ html:has(.vv-features-page) {
 }
 .vv-feature-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
 }
 
 .vv-feature-hero__copy {
@@ -283,7 +358,7 @@ html:has(.vv-features-page) {
 }
 
 .vv-feature-hero__description {
-  max-width: 30ch;
+  max-width: 40ch;
   color: var(--cp-c-text-2);
   font-size: 17px;
   line-height: 1.7;
@@ -327,6 +402,10 @@ html:has(.vv-features-page) {
   box-shadow: 0 20px 60px rgb(0 0 0 / 16%);
 }
 
+.vv-feature-hero__compact-terminal {
+  display: none;
+}
+
 .vv-feature-hero__actions .cp-hero__btn,
 .vv-features-page + .cp-cta .cp-cta__btn {
   text-decoration: none;
@@ -351,6 +430,12 @@ html:has(.vv-features-page) {
 }
 
 @media (max-width: 900px) {
+  .vv-vitest-foundation {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    padding-block: 64px;
+  }
+
   .vv-feature-hero {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -367,6 +452,65 @@ html:has(.vv-features-page) {
   .vv-feature-detail {
     grid-template-columns: minmax(0, 1fr);
     gap: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .vv-feature-hero__copy {
+    padding-block: 40px 24px;
+  }
+
+  .vv-feature-hero__actions {
+    margin-top: 24px;
+  }
+
+  .vv-feature-hero__visual {
+    padding: 0 var(--vv-section-inset) 32px;
+  }
+
+  .vv-feature-hero__terminal {
+    display: none;
+  }
+
+  .vv-feature-hero__compact-terminal {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    border: 1px solid var(--cp-c-border);
+    background: var(--cp-c-bg-alt);
+    font: 12px / 1.8 var(--cp-ff-mono);
+  }
+
+  .vv-feature-hero__compact-terminal p {
+    margin: 0;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--cp-c-border);
+    color: var(--cp-c-text-3);
+    font: inherit;
+  }
+
+  .vv-feature-hero__compact-terminal pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    color: var(--cp-c-text-1);
+    font: inherit;
+  }
+
+  .vv-feature-hero__compact-terminal code {
+    font: inherit;
+  }
+
+  .vv-feature-detail {
+    gap: 24px;
+  }
+
+  .vv-motion {
+    min-height: 200px;
+  }
+
+  .vv-motion--tooling .vv-scene {
+    height: 240px;
   }
 }
 

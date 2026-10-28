@@ -16,7 +16,7 @@ export function PageHeader({
   return (
     <div className="flex items-start justify-between">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 [&>svg]:text-primary [&>svg]:size-6">
           {icon}
           {title}
         </h1>

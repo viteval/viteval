@@ -1,0 +1,132 @@
+.vv-storage-scene {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  isolation: isolate;
+  background: radial-gradient(
+    ellipse at 50% 32%,
+    var(--cp-c-brand-soft),
+    transparent 65%
+  );
+}
+
+.vv-storage-scene > svg {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.vv-storage-scene .vv-storage-scene__files {
+  position: absolute;
+  top: 6.67%;
+  left: 29%;
+  width: 42%;
+  height: 29.44%;
+  border-radius: 8px;
+  isolation: isolate;
+}
+
+.vv-storage-scene__file-card {
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 14px;
+  border: 1px solid var(--cp-c-border);
+  border-radius: inherit;
+  background: var(--cp-c-bg);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 6%);
+}
+
+.vv-storage-scene__files::before {
+  position: absolute;
+  z-index: 0;
+  inset: -8px 6px 8px -6px;
+  border: 1px solid var(--cp-c-border);
+  border-radius: inherit;
+  background: var(--cp-c-bg-alt);
+  transform: rotate(-5deg);
+  pointer-events: none;
+  content: '';
+}
+
+.vv-storage-scene__file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-block: 10px;
+  color: var(--cp-c-text-2);
+  font: 11px var(--cp-ff-mono);
+}
+
+.vv-storage-scene__file-row + .vv-storage-scene__file-row {
+  border-top: 1px solid var(--cp-c-border);
+}
+
+.vv-storage-scene__file-row > span {
+  color: var(--cp-c-brand-2);
+}
+
+.vv-storage-scene__destinations {
+  position: absolute;
+  top: 61.11%;
+  inset-inline: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.vv-storage-scene__destination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--cp-c-text-2);
+  text-align: center;
+  font: 12px / 1.5 var(--cp-ff-sans);
+}
+
+.vv-storage-scene__destination small {
+  margin-top: -6px;
+  color: var(--cp-c-text-3);
+  font-size: 10px;
+}
+
+.vv-storage-scene__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid var(--cp-c-border);
+  border-radius: 12px;
+  background: var(--cp-c-bg);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
+}
+
+.vv-storage-scene__icon > svg {
+  width: 26px;
+  height: 26px;
+  stroke: var(--cp-c-brand-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vv-storage-scene__icon--pair {
+  gap: 6px;
+  width: 68px;
+}
+
+@media (max-width: 400px) {
+  .vv-storage-scene__file-row {
+    gap: 6px;
+    font-size: 9px;
+  }
+
+  .vv-storage-scene__destination {
+    font-size: 11px;
+  }
+}

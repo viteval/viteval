@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { InView } from './in-view';
 
 import GradientAscii from './react-bits/gradient-ascii';
 import { GridScan } from './react-bits/grid-scan';
 
 import './hero-background.css';
+import './motion.css';
 
 type HeroVariant = 'gradient-ascii' | 'grid-scan';
 
@@ -56,46 +58,56 @@ export function HeroBackground() {
 
   return (
     <div className="viteval-hero-background" ref={rootRef}>
-      <div className="viteval-hero-art" aria-hidden="true" data-hero={variant}>
-        {variant === 'gradient-ascii' ? (
-          <GradientAscii
-            colors={ASCII_COLORS}
-            shape="horizon"
-            characters=" .:-=+*#%@"
-            cellSize={10}
-            glyphOpacity={0.9}
-            gradientOpacity={0.3}
-            glow={0.35}
-            speed={0.4}
-            grain={0.08}
-            flicker={0.1}
-            mouseInteraction
-            clickEffect="none"
-            intro={false}
-            paused={paused}
-            dpr={1}
-          />
-        ) : (
-          <GridScan
-            linesColor="#1D3E58"
-            scanColor="#168DFA"
-            cells={12}
-            depth={3}
-            scanDuration={3.5}
-            scanDelay={1.5}
-            scanDirection="pingpong"
-            glow={0.2}
-            reflection={0.06}
-            parallax={0.3}
-            enableWebcam={false}
-            enableGyro={false}
-            clickEffect="none"
-            intro={false}
-            paused={paused}
-            dpr={1}
-          />
+      <InView fallbackInView>
+        {({ ref, inView }) => (
+          <div
+            className="viteval-hero-art"
+            aria-hidden="true"
+            data-hero={variant}
+            ref={ref}
+            data-motion-visible={inView}
+          >
+            {variant === 'gradient-ascii' ? (
+              <GradientAscii
+                colors={ASCII_COLORS}
+                shape="horizon"
+                characters=" .:-=+*#%@"
+                cellSize={10}
+                glyphOpacity={0.9}
+                gradientOpacity={0.3}
+                glow={0.35}
+                speed={0.4}
+                grain={0.08}
+                flicker={0.1}
+                mouseInteraction
+                clickEffect="none"
+                intro={false}
+                paused={paused || !inView}
+                dpr={1}
+              />
+            ) : (
+              <GridScan
+                linesColor="#1D3E58"
+                scanColor="#168DFA"
+                cells={12}
+                depth={3}
+                scanDuration={3.5}
+                scanDelay={1.5}
+                scanDirection="pingpong"
+                glow={0.2}
+                reflection={0.06}
+                parallax={0.3}
+                enableWebcam={false}
+                enableGyro={false}
+                clickEffect="none"
+                intro={false}
+                paused={paused || !inView}
+                dpr={1}
+              />
+            )}
+          </div>
         )}
-      </div>
+      </InView>
       <div className="viteval-hero-scrim" aria-hidden="true" />
       <div
         className="viteval-hero-controls"

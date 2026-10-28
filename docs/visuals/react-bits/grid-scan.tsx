@@ -705,7 +705,6 @@ export const GridScan = ({
     let introClock = settingsRef.current.intro && !reduce ? 0 : 1;
     let raf = 0;
     let last = 0;
-    let visible = true;
     let leaveTimer = 0;
 
     const roomSize = () => {
@@ -942,7 +941,7 @@ export const GridScan = ({
 
     const frame = (now: number) => {
       raf = 0;
-      if (!visible || document.hidden) return;
+      if (document.hidden) return;
       const s = settingsRef.current;
       const dt = last ? clamp((now - last) / 1000, 0.001, 0.05) : 1 / 60;
       last = now;
@@ -1002,8 +1001,7 @@ export const GridScan = ({
     };
 
     function wake() {
-      if (!raf && visible && !document.hidden)
-        raf = requestAnimationFrame(frame);
+      if (!raf && !document.hidden) raf = requestAnimationFrame(frame);
     }
 
     const locate = (event: PointerEvent) => {
@@ -1099,14 +1097,6 @@ export const GridScan = ({
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
-    const intersection = new IntersectionObserver((entries) => {
-      visible = entries.some((entry) => entry.isIntersecting);
-      if (visible) {
-        last = 0;
-        wake();
-      }
-    });
-    intersection.observe(container);
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     window.addEventListener('deviceorientation', onOrientation);
@@ -1136,7 +1126,6 @@ export const GridScan = ({
       wakeRef.current = null;
       headRef.current = null;
       resizeObserver.disconnect();
-      intersection.disconnect();
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('deviceorientation', onOrientation);

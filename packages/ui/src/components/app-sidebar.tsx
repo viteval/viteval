@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router';
-import { Badge } from '@/components/ui/badge';
 import {
   Sidebar,
   SidebarContent,
@@ -34,13 +33,20 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              className="cursor-default hover:bg-transparent active:bg-transparent"
+              className="h-16 cursor-default hover:bg-transparent active:bg-transparent"
             >
-              <img src="/logo192.png" alt="Viteval" className="size-8" />
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-lg">Viteval</span>
-                <Badge variant="secondary">alpha</Badge>
-              </div>
+              <img
+                src="/viteval-wordmark.png"
+                alt="Viteval"
+                width="1112"
+                height="377"
+                className="h-12 w-auto max-w-36 group-data-[collapsible=icon]:hidden"
+              />
+              <img
+                src="/logo192.png"
+                alt="Viteval"
+                className="hidden size-8 group-data-[collapsible=icon]:block"
+              />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

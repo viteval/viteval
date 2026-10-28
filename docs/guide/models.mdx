@@ -1,0 +1,131 @@
+---
+title: Configure models
+description: Configure task models, built-in LLM judges, and embedding scorers independently.
+---
+
+import { Steps, Step } from '@theme';
+
+# Configure models
+
+Configure scorer models in `viteval.config.ts`. Choose your task model separately
+inside the task function. No worker setup module is required.
+
+## Prerequisites
+
+- Complete [Getting started](/getting-started) and keep a passing evaluation.
+- Choose a model provider and have its API credentials available.
+- This walkthrough uses OpenAI through the AI SDK.
+
+## Steps
+
+<Steps>
+<Step title="Install a model provider">
+
+This example uses OpenAI through the AI SDK:
+
+```bash
+pnpm add ai @ai-sdk/openai
+```
+
+Provide `OPENAI_API_KEY` in the process environment before running evaluations.
+Installing the SDK does not load credentials from an env file automatically.
+
+</Step>
+<Step title="Register scorer models">
+
+Add raw AI SDK providers and default model references to `viteval.config.ts`:
+
+```ts
+import { openai } from '@ai-sdk/openai';
+import { defineConfig } from 'viteval/config';
+
+export default defineConfig({
+  models: {
+    providers: [openai],
+    defaults: {
+      language: 'openai:gpt-4.1-mini',
+      embedding: 'openai:text-embedding-3-small',
+    },
+  },
+});
+```
+
+Use `provider:model-id` references for defaults. Deterministic scorers need no
+model configuration. Registration does not make network requests.
+
+</Step>
+<Step title="Choose the task model">
+
+The default language model is the judge, not the task model. Call the client
+you want to evaluate inside the task. Replace `src/viteval.eval.ts` with:
+
+```ts
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
+import { evaluate, scorers } from 'viteval';
+
+evaluate('Support policy answers', {
+  data: [
+    {
+      input: 'Can I return an unopened item after 14 days?',
+      expected: 'Unopened items can be returned within 30 days of delivery.',
+    },
+  ],
+  task: async ({ input }) => {
+    const result = await generateText({
+      model: openai('gpt-4.1-mini'),
+      system: 'Unopened items can be returned within 30 days of delivery.',
+      prompt: input,
+    });
+    return result.text;
+  },
+  scorers: [scorers.factual(), scorers.answerSimilarity()],
+  threshold: 0.8,
+});
+```
+
+</Step>
+<Step title="Override a judge when needed">
+
+Pass `model` to an LLM judge factory to use a different judge for that scorer.
+Embedding factories do not support per-scorer model overrides.
+
+```ts
+const factual = scorers.factual({ model: openai('gpt-4.1') });
+```
+
+Use `factual` instead of `scorers.factual()` in the evaluation's `scorers` array.
+
+Viteval resolves defaults in each worker from the selected project config.
+
+</Step>
+</Steps>
+
+## Verification
+
+```bash
+pnpm exec viteval run
+```
+
+Confirm the task produces an answer and each scorer returns a numeric score.
+Model-based scores vary and the example is not guaranteed to pass its threshold.
+Use [saved reports](/guide/results) to inspect score metadata.
+
+## Troubleshooting
+
+### Missing model or authentication errors
+
+Confirm `models.providers` and `models.defaults` are configured and `OPENAI_API_KEY` is
+available to the evaluation process. A null score with error metadata indicates
+a failed measurement, not a low-quality answer.
+
+### Use a different judge for one scorer
+
+Use a factory's `model` override to change
+one judge. Embedding factories do not accept per-scorer model overrides.
+
+## References
+
+- [Scoring and thresholds](/concepts/scoring)
+- [Configuration](/api/configuration)
+- [Built-in scorers](/api/scoring/scorers)

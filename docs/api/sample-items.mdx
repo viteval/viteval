@@ -1,0 +1,76 @@
+---
+title: sampleItems()
+description: Generate a fixed number of dataset items from a single-item factory.
+---
+
+# `sampleItems()`
+
+import { Field, FieldGroup } from '@theme';
+
+Create a dataset generator from a single-item factory and a fixed count.
+This generates new items. It does not sample an existing array.
+
+## Import
+
+```ts
+import { sampleItems } from 'viteval/dataset';
+```
+
+## Signature
+
+```ts
+function sampleItems<DATA_ITEM extends DataItem>(
+  params: SampleItemsParams<DATA_ITEM>
+): Result<() => Promise<DATA_ITEM[]>>;
+```
+
+## Parameters
+
+<FieldGroup title="Parameters">
+  <Field name="params" type="SampleItemsParams<DATA_ITEM>" required>
+    Item count and generator factory.
+    <FieldGroup title="Properties" expandable defaultOpen>
+      <Field name="count" type="number" required>
+        A positive safe integer. Zero, negative, fractional, and non-finite
+        values return an error Result without calling the factory.
+      </Field>
+      <Field
+        name="item"
+        type="(index: number) => DATA_ITEM | Promise<DATA_ITEM>"
+        required
+      >
+        Factory receiving a zero-based index. Items are generated sequentially
+        in index order whenever the returned generator is called.
+      </Field>
+    </FieldGroup>
+  </Field>
+</FieldGroup>
+
+## Example
+
+```ts
+import { defineDataset, sampleItems } from 'viteval/dataset';
+
+const sampled = sampleItems({
+  count: 20,
+  item: (index) => ({
+    input: `What is ${index} + 1?`,
+    expected: String(index + 1),
+  }),
+});
+if (!sampled.ok) throw sampled.error;
+
+export default defineDataset({
+  name: 'addition',
+  data: sampled.value,
+});
+```
+
+## Return value and errors
+
+Returns a synchronous `Result` containing an asynchronous generator. Calling
+`sampleItems()` validates the count but does not generate cases. If the item
+factory throws or rejects later, the generator rejects. When used by
+`evaluate()`, that is an evaluation data-loading failure.
+
+See [defineDataset()](/api/define-dataset) for persistence and overwrite behavior.

@@ -1,0 +1,103 @@
+---
+title: Inspect results
+description: Save evaluation reports and inspect inputs, outputs, scores, and failures in the dashboard.
+---
+
+import { Steps, Step } from '@theme';
+
+# Inspect results
+
+Save a local JSON report, run an evaluation, and open the dashboard to inspect
+case outcomes.
+
+## Prerequisites
+
+- Complete [Getting started](/getting-started) and have an evaluation to run.
+- Run the commands from the project root containing `viteval.config.ts`.
+
+## Steps
+
+<Steps>
+<Step title="Save evaluation reports">
+
+Select the JSON result destination in `viteval.config.ts`:
+
+```ts
+import { defineConfig } from 'viteval/config';
+
+export default defineConfig({
+  eval: { results: ['json'] },
+});
+```
+
+Viteval saves evaluation inputs, outputs, scores, and final case outcomes.
+There is no public reporter constructor or runner configuration.
+
+</Step>
+<Step title="Run the evaluation">
+
+```bash
+pnpm exec viteval run
+```
+
+The JSON destination writes the completed run under `.viteval/results` even when a case
+fails its threshold.
+
+</Step>
+<Step title="Open the dashboard">
+
+```bash
+pnpm exec viteval ui --open
+```
+
+For a project in another directory, pass its root:
+
+```bash
+pnpm exec viteval ui --root ./app --open
+```
+
+The dashboard reads `.viteval/results` under the selected root. The installed
+package includes the server and browser assets, so no development server is
+needed.
+
+</Step>
+<Step title="Inspect a completed run">
+
+Open the run and compare each case's input, expected value, output, and scores.
+Use execution errors and scorer metadata to distinguish request failures from
+answers that scored below the threshold.
+
+</Step>
+</Steps>
+
+## Verification
+
+Confirm `.viteval/results` contains a new JSON file and the dashboard shows the
+same evaluation case counts and final outcomes as the CLI. Native tests are
+excluded from evaluation counts. A skipped case without an evaluation artifact
+can contribute to counts without a detailed case entry.
+
+## Troubleshooting
+
+### No runs appear
+
+Confirm the dashboard root contains `.viteval/results` and JSON persistence writes
+there. Hosted results and Vitest's built-in JSON reports are not dashboard inputs.
+
+### Retaining run history
+
+JSON persistence gives each run its own identity, including watch reruns. No
+output filename or path placeholder is needed. Writes use atomic replacement.
+
+### A saved file is rejected
+
+Use a V1 snapshot written by the JSON result destination. Empty, malformed, or
+incompatible files produce warnings. Hosted results and runner test reports
+are not local dashboard inputs.
+
+## References
+
+- [Storage and results](/concepts/storage)
+- [Configuration](/api/configuration) for result destination options
+- [`ui`](/cli/ui) for dashboard command options
+- [Set up storage providers](/guide/providers) to persist results in another backend
