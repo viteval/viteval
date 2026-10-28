@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('#/model/client', () => ({
-  requireModel: vi.fn(() => ({ ok: true, value: {} })),
+  resolveLanguageModel: vi.fn(() => ({ ok: true, value: {} })),
 }));
 
 vi.mock('ai', () => ({
@@ -9,7 +9,7 @@ vi.mock('ai', () => ({
 }));
 
 import { generateObject } from 'ai';
-import { requireModel } from '#/model/client';
+import { resolveLanguageModel } from '#/model/client';
 import { moderation } from './moderation';
 
 describe('moderation', () => {
@@ -18,10 +18,10 @@ describe('moderation', () => {
       object: { choice: 'Safe', reasons: 'Content is harmless.' },
     } as never);
 
-    const scorer = moderation();
-    const result = await scorer({
-      output: 'Hello world',
-    });
+    const scorer = moderation(),
+      result = await scorer({
+        output: 'Hello world',
+      });
 
     expect(result.score).toBe(1);
     expect(result.metadata?.choice).toBe('Safe');
@@ -32,31 +32,31 @@ describe('moderation', () => {
       object: { choice: 'Unsafe', reasons: 'Content contains threats.' },
     } as never);
 
-    const scorer = moderation();
-    const result = await scorer({
-      output: 'harmful content',
-    });
+    const scorer = moderation(),
+      result = await scorer({
+        output: 'harmful content',
+      });
 
     expect(result.score).toBe(0);
     expect(result.metadata?.choice).toBe('Unsafe');
   });
 
   it('should return a null score if model is not initialized', async () => {
-    vi.mocked(requireModel).mockReturnValueOnce({
+    vi.mocked(resolveLanguageModel).mockReturnValueOnce({
       error: new Error(
-        'Model not initialized. Call initializeModel() from a Vitest setup file.'
+        'Language model not configured. Set models.defaults.language in viteval.config.ts.'
       ),
       ok: false,
     });
 
-    const scorer = moderation();
-    const result = await scorer({ output: 'test' });
+    const scorer = moderation(),
+      result = await scorer({ output: 'test' });
 
     expect(result).toEqual(
       expect.objectContaining({
         metadata: {
           error:
-            'Model not initialized. Call initializeModel() from a Vitest setup file.',
+            'Language model not configured. Set models.defaults.language in viteval.config.ts.',
         },
         score: null,
       })

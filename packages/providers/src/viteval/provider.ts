@@ -2,8 +2,11 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { attemptAsync } from 'massaman/control';
 import { createJsonProvider, type Provider } from '@viteval/core/provider';
-import type { PrismaClient } from '#/generated/prisma/client';
-import { createPrismaClient, resolveSqlitePath } from './db';
+import {
+  createPrismaClient,
+  resolveSqlitePath,
+  type DatabaseClient,
+} from './db';
 import { createDatasetOps } from './datasets';
 import { createEvalOps } from './evals';
 import { createTagOps } from './tags';
@@ -27,21 +30,21 @@ import type {
  *
  * @example Default JSON
  * ```ts
+ * import { defineConfig } from 'viteval/config';
  * import { viteval } from '@viteval/providers';
  *
- * const result = await initializeProvider(viteval());
- * if (!result.ok) process.exitCode = 1;
+ * export default defineConfig({ providers: [viteval()] });
  * ```
  *
  * @example PostgreSQL
  * ```ts
+ * import { defineConfig } from 'viteval/config';
  * import { viteval } from '@viteval/providers';
  *
- * const result = await initializeProvider(viteval({
+ * export default defineConfig({ providers: [viteval({
  *   database: 'postgres',
  *   url: process.env.DATABASE_URL!,
- * }));
- * if (!result.ok) process.exitCode = 1;
+ * })] });
  * ```
  */
 export function viteval(options: VitevalProviderOptions = {}): Provider {
@@ -59,7 +62,7 @@ function createDatabaseProvider(
 ): Provider {
   const isPostgres = options.database === 'postgres';
 
-  let prisma: PrismaClient | undefined;
+  let prisma: DatabaseClient | undefined;
   let datasets: ReturnType<typeof createDatasetOps> | undefined;
   let evals: ReturnType<typeof createEvalOps> | undefined;
   let tags: ReturnType<typeof createTagOps> | undefined;
@@ -118,7 +121,7 @@ function createDatabaseProvider(
 */
 
 async function ensureSchema(
-  prisma: PrismaClient,
+  prisma: DatabaseClient,
   isPostgres: boolean
 ): Promise<void> {
   // Create tables if they don't exist using raw SQL.
@@ -132,6 +135,14 @@ async function ensureSchema(
   // Wrap in a transaction for atomicity — if the process is killed mid-way,
   // We don't end up with a partially initialized schema.
   await prisma.$transaction([
+    // PostgreSQL's IF NOT EXISTS still races on catalog entries during concurrent first use.
+    ...(isPostgres
+      ? [
+          prisma.$executeRawUnsafe(
+            "SELECT pg_advisory_xact_lock(hashtext('viteval.schema'))"
+          ),
+        ]
+      : []),
     prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "datasets" (
         "id" TEXT NOT NULL PRIMARY KEY,

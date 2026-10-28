@@ -1,4 +1,4 @@
-export { viteval } from './viteval/provider';
+export { viteval } from './viteval';
 export type {
   VitevalProviderOptions,
   VitevalSqliteOptions,

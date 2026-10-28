@@ -3,25 +3,46 @@ import { version } from '../package.json';
 import { initCommand } from '#/commands/init';
 import { parseInvocation } from '#/lib/argv';
 
-const args = process.argv.slice(2);
-const invocation = parseInvocation(args);
+const args = process.argv.slice(2),
+  invocation = parseInvocation(args);
 
-if (invocation.isProjectCommand || invocation.isRootHelp) {
-  const { DATA_OPTIONS, DATA_POSITIONALS, UI_OPTIONS } =
-    await import('#/lib/command-options');
+if (invocation.isBare) {
+  if (invocation.cwd !== undefined) process.chdir(invocation.cwd);
+  const { runEvaluations } = await import('#/commands/run');
+  const { createLogger } = await import('#/lib/logger');
+  const logger = createLogger();
+  await runEvaluations({
+    argv: {},
+    filters: [],
+    log: logger,
+  });
+} else {
+  if (
+    ![
+      'run',
+      'list',
+      'init',
+      'data',
+      'ui',
+      '--help',
+      '-h',
+      '--version',
+      '-v',
+    ].includes(invocation.args[0])
+  ) {
+    process.argv = [...process.argv.slice(0, 2), 'run', ...args];
+  }
+  const {
+    DATA_OPTIONS,
+    DATA_POSITIONALS,
+    LIST_OPTIONS,
+    LIST_POSITIONALS,
+    RUN_OPTIONS,
+    RUN_POSITIONALS,
+    UI_OPTIONS,
+  } = await import('#/lib/command-options');
   await cli({
-    name: 'viteval',
-    version,
-    description: 'LLM evaluations powered by Vitest',
-    help: {
-      footer: 'Evaluation options: viteval run --help',
-      order: ['run', 'init', 'data', 'ui'],
-    },
     commands: {
-      run: command({
-        description: 'Run evaluations with native Vitest options',
-      }),
-      init: initCommand,
       data: command({
         description: 'Generate the datasets in your codebase',
         options: DATA_OPTIONS,
@@ -29,6 +50,25 @@ if (invocation.isProjectCommand || invocation.isRootHelp) {
         handler: async (ctx) => {
           const { dataCommand } = await import('#/commands/data');
           await dataCommand.handler?.(ctx);
+        },
+      }),
+      init: initCommand,
+      list: command({
+        description: 'List evaluations without running tasks or scorers',
+        options: LIST_OPTIONS,
+        positionals: LIST_POSITIONALS,
+        handler: async (ctx) => {
+          const { listCommand } = await import('#/commands/list');
+          await listCommand.handler?.(ctx);
+        },
+      }),
+      run: command({
+        description: 'Run evaluations',
+        options: RUN_OPTIONS,
+        positionals: RUN_POSITIONALS,
+        handler: async (ctx) => {
+          const { runCommand } = await import('#/commands/run');
+          await runCommand.handler?.(ctx);
         },
       }),
       ui: command({
@@ -40,9 +80,12 @@ if (invocation.isProjectCommand || invocation.isRootHelp) {
         },
       }),
     },
+    description: 'LLM evaluations powered by Vitest',
+    help: {
+      footer: 'Evaluation options: viteval run --help',
+      order: ['run', 'list', 'init', 'data', 'ui'],
+    },
+    name: 'viteval',
+    version,
   });
-} else {
-  if (invocation.cwd !== undefined) process.chdir(invocation.cwd);
-  const { createCLI } = await import('vitest/node');
-  createCLI().parse([...process.argv.slice(0, 2), ...invocation.args]);
 }

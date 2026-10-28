@@ -28,6 +28,8 @@ let failure: 'version' | 'catalog' | undefined;
 let lostResponse: boolean;
 let omitToken: boolean;
 let badCatalogChecksum: boolean;
+let versionConflict: boolean;
+let readFailure: boolean;
 
 beforeEach(async () => {
   providers = [];
@@ -39,6 +41,8 @@ beforeEach(async () => {
   lostResponse = false;
   omitToken = false;
   badCatalogChecksum = false;
+  versionConflict = false;
+  readFailure = false;
   server = createServer(async (request, response) => {
     const parsed = new URL(request.url ?? '/', 'http://localhost');
     const isGoogle = parsed.pathname.includes('/storage/v1/');
@@ -86,6 +90,10 @@ beforeEach(async () => {
       );
     }
     if (method === 'GET') {
+      if (readFailure) {
+        reject(400, 'InvalidRequest');
+        return;
+      }
       if (!current) {
         reject(404, 'NoSuchKey');
         return;
@@ -127,6 +135,10 @@ beforeEach(async () => {
     }
     if (failure === 'version' && key.includes('/versions/')) {
       reject(503, 'ServiceUnavailable');
+      return;
+    }
+    if (versionConflict && key.includes('/versions/')) {
+      reject(412, 'PreconditionFailed');
       return;
     }
     if (failure === 'catalog' && key.endsWith('/index.json')) {
@@ -220,6 +232,7 @@ describe.each(['s3', 'gcs'] as const)(
       providers.push(provider);
       const result = await provider.initialize();
       if (!result.ok) throw result.error;
+      expect(await provider.initialize()).toMatchObject({ ok: true });
       expect(provider.evals).toBeUndefined();
       expect(provider.tags).toBeUndefined();
       if (!provider.datasets) throw new Error('Missing dataset operations');
@@ -234,6 +247,154 @@ describe.each(['s3', 'gcs'] as const)(
       });
       expect(objects.size).toBe(0);
     });
+    it('should retain omitted metadata updates, clear descriptions explicitly, and normalize null items', async () => {
+      const datasets = await initialized({ prefix: '/' });
+      const created = await datasets.create({
+        name: 'normalized',
+        description: 'before',
+        metadata: { retained: true },
+        items: [{ input: undefined, expected: undefined }],
+      });
+      if (!created.ok) throw created.error;
+      expect(
+        await datasets.update({ id: created.value.id, description: '' })
+      ).toMatchObject({
+        ok: true,
+        value: { description: '', metadata: { retained: true } },
+      });
+      expect(await datasets.update({ id: created.value.id })).toMatchObject({
+        ok: true,
+        value: { name: 'normalized', description: '' },
+      });
+      expect(
+        await datasets.getItems({ datasetId: created.value.id })
+      ).toMatchObject({
+        ok: true,
+        value: [{ input: null, expected: null, extra: {} }],
+      });
+      expect(objects.has('index.json')).toBe(true);
+      expect(await datasets.list({ limit: 1 })).toMatchObject({
+        ok: true,
+        value: [{ name: 'normalized' }],
+      });
+    });
+    it('should reject missing immutable snapshots and transport read failures', async () => {
+      const datasets = await initialized();
+      const created = await datasets.create({ name: 'missing-version' });
+      if (!created.ok) throw created.error;
+      const key = [...objects.keys()].find((key) =>
+        key.includes('/versions/')
+      )!;
+      objects.delete(key);
+      expect(
+        await datasets.getItems({ datasetId: created.value.id })
+      ).toMatchObject({
+        ok: false,
+        error: { message: expect.stringContaining('version is missing') },
+      });
+      readFailure = true;
+      expect(await datasets.list()).toMatchObject({ ok: false });
+    });
+    it('should reject immutable key conflicts rather than publishing a catalog', async () => {
+      const datasets = await initialized();
+      versionConflict = true;
+      expect(await datasets.create({ name: 'conflict' })).toMatchObject({
+        ok: false,
+        error: { message: 'Immutable dataset version key unexpectedly exists' },
+      });
+      expect(objects.size).toBe(0);
+    });
+    it.each([{ schemaVersion: 2 }, { datasets: null }])(
+      'should reject malformed catalog roots %s',
+      async (patch) => {
+        const datasets = await initialized();
+        await datasets.create({ name: 'catalog' });
+        const key = 'viteval/datasets/index.json';
+        const current = objects.get(key)!;
+        objects.set(key, {
+          ...current,
+          body: Buffer.from(
+            JSON.stringify({
+              ...requireRecord(JSON.parse(current.body.toString())),
+              ...patch,
+            })
+          ),
+        });
+        expect(await datasets.list()).toMatchObject({
+          ok: false,
+          error: { message: 'Invalid dataset catalog schema' },
+        });
+      }
+    );
+    it.each([
+      { id: null },
+      { name: null },
+      { name: ' ' },
+      { version: '1' },
+      { version: 1.5 },
+      { version: 0 },
+      { itemCount: '1' },
+      { itemCount: 0.5 },
+      { itemCount: -1 },
+      { key: null },
+      { key: '../escape.json' },
+      { digest: null },
+      { digest: 'invalid' },
+      { description: 1 },
+      { metadata: null },
+      { createdAt: 1 },
+      { updatedAt: 'invalid' },
+    ])('should reject corrupt catalog descriptors %s', async (patch) => {
+      const datasets = await initialized();
+      await datasets.create({ name: 'catalog' });
+      const key = 'viteval/datasets/index.json';
+      const current = objects.get(key)!;
+      const catalog = requireRecord(JSON.parse(current.body.toString()));
+      const entries = catalog.datasets;
+      if (!Array.isArray(entries)) throw new Error('Invalid fixture catalog');
+      objects.set(key, {
+        ...current,
+        body: Buffer.from(
+          JSON.stringify({
+            ...catalog,
+            datasets: [{ ...requireRecord(entries[0]), ...patch }],
+          })
+        ),
+      });
+      expect(await datasets.list()).toMatchObject({ ok: false });
+    });
+    it.each(['id', 'name'] as const)(
+      'should reject duplicate catalog %s values',
+      async (field) => {
+        const datasets = await initialized();
+        await datasets.create({ name: 'first' });
+        await datasets.create({ name: 'second' });
+        const key = 'viteval/datasets/index.json';
+        const current = objects.get(key)!;
+        const catalog = requireRecord(JSON.parse(current.body.toString()));
+        const entries = catalog.datasets;
+        if (!Array.isArray(entries)) throw new Error('Invalid fixture catalog');
+        objects.set(key, {
+          ...current,
+          body: Buffer.from(
+            JSON.stringify({
+              ...catalog,
+              datasets: [
+                entries[0],
+                {
+                  ...requireRecord(entries[1]),
+                  [field]: requireRecord(entries[0])[field],
+                },
+              ],
+            })
+          ),
+        });
+        expect(await datasets.list()).toMatchObject({
+          ok: false,
+          error: { message: 'Dataset catalog contains duplicate IDs or names' },
+        });
+      }
+    );
     it('should preserve dataset metadata and extra item fields in a fresh provider', async () => {
       const datasets = await initialized();
       const created = await datasets.create({
@@ -310,6 +471,12 @@ describe.each(['s3', 'gcs'] as const)(
       expect(
         await datasets.getItems({ datasetId: replacement.value.id })
       ).toMatchObject({ ok: true, value: [{ input: 'new' }] });
+      expect(
+        await datasets.update({ id: created.value.id, description: 'updated' })
+      ).toMatchObject({ ok: true });
+      expect(
+        await datasets.getItems({ datasetId: created.value.id, limit: 1 })
+      ).toMatchObject({ ok: true, value: [{ input: 'old' }] });
     });
     it('should replace items atomically and retain immutable prior versions', async () => {
       const datasets = await initialized();
@@ -480,6 +647,10 @@ describe.each(['s3', 'gcs'] as const)(
         })
       ).toMatchObject({ ok: false });
       expect(await datasets.create({ name: ' ' })).toMatchObject({ ok: false });
+      // @ts-expect-error JavaScript callers can pass malformed item collections.
+      expect(
+        await datasets.create({ name: 'bad-items', items: {} })
+      ).toMatchObject({ ok: false });
       expect(requests).toHaveLength(0);
     });
     it('should paginate datasets and items and remove only the active catalog entry', async () => {

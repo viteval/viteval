@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
+import NotFound from '@/app/not-found';
 import {
   CircleCheckIcon,
   ClockIcon,
@@ -34,6 +35,7 @@ export const Route = createFileRoute('/suites/$slug')({
     meta: [{ title: `${loaderData?.suite.name ?? 'Eval'} | Viteval` }],
   }),
   component: EvalDetailPage,
+  notFoundComponent: NotFound,
 });
 
 function EvalDetailPage() {

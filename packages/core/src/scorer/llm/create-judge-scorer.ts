@@ -1,4 +1,4 @@
-import type { LanguageModel } from 'ai';
+import type { LanguageModelSelection } from '#/model/client';
 import { isErr } from 'massaman/control';
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
@@ -9,7 +9,7 @@ import { runJudge } from './judge';
  */
 export interface JudgeScorerOptions {
   /** Model override for this scorer */
-  model?: LanguageModel;
+  model?: LanguageModelSelection;
 }
 
 /**

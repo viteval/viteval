@@ -1,9 +1,9 @@
 import { evaluate, scorers } from 'viteval';
 import exampleDataset from './model.dataset';
 
-evaluate('A test eval', {
+evaluate('uppercase', {
   data: exampleDataset,
-  description: 'Generate a random number between 0 and 100',
+  description: 'Convert each input to uppercase',
   scorers: [scorers.exactMatch()],
-  task: async () => 1,
+  task: ({ input }) => input.toUpperCase(),
 });

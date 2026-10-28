@@ -19,13 +19,18 @@ afterEach(async () => {
 describe('dashboard storage', () => {
   it('should keep copied datasets with stale or duplicate embedded IDs independently addressable', async () => {
     await mkdir(path.join(root, '.viteval/datasets'), { recursive: true });
-    const filenames = ['original', 'copied', 'legacy %# name'];
+    const filenames = ['original', 'copied', 'special %# name'];
     for (const filename of filenames) {
       await writeFile(
         path.join(root, '.viteval/datasets', `${filename}.json`),
         JSON.stringify({
+          schemaVersion: 1,
           id: 'original',
           name: filename,
+          version: 1,
+          metadata: {},
+          createdAt: '2026-10-01T00:00:00.000Z',
+          updatedAt: '2026-10-01T00:00:00.000Z',
           data: [{ input: filename, expected: filename }],
         })
       );
@@ -150,7 +155,7 @@ describe('dashboard storage', () => {
     });
   });
 
-  it('should resolve exact suite identities and reject ambiguous legacy slugs', async () => {
+  it('should resolve exact suite identities and reject display-name slugs', async () => {
     await mkdir(path.join(root, '.viteval/results'), { recursive: true });
     const first = {
       name: 'accuracy',
@@ -193,12 +198,15 @@ describe('dashboard storage', () => {
     await writeFile(
       path.join(root, '.viteval/results/unique.json'),
       JSON.stringify(
-        reportFixture({ id: 'unique', suites: [{ name: 'Legacy unique' }] })
+        reportFixture({ id: 'unique', suites: [{ name: 'Unique suite' }] })
       )
     );
-    expect(await sdk.suites.get({ slug: 'legacy-unique' })).toMatchObject({
-      data: { name: 'Legacy unique' },
+    expect(await sdk.suites.get({ slug: 'unique-suite' })).toEqual({
+      data: null,
     });
+    expect(
+      await sdk.suites.get({ slug: suiteId({ name: 'Unique suite' }) })
+    ).toMatchObject({ data: { name: 'Unique suite' } });
   });
 
   it('should distinguish missing datasets from malformed JSON, schema failures, and filesystem errors', async () => {

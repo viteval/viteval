@@ -1,10 +1,21 @@
 export { evaluate } from './evaluate';
-export { initializeModel } from './model';
-export {
-  createJsonProvider,
-  createProvider,
-  initializeProvider,
-} from './provider';
+export { defineConfig } from './config';
+export { defineDataset, sampleItems } from './dataset';
+export type {
+  VitevalConfig,
+  EvalOptions,
+  ModelId,
+  ModelProvider,
+} from './config/types';
+export type { RuntimeContext } from './config/runtime';
+export type {
+  ProviderRegistry,
+  DatasetProviderName,
+  ResultProviderName,
+  DatasetReference,
+  DatasetHandle,
+} from './provider/registry';
+export { createJsonProvider, createProvider } from './provider';
 export { createScorer, scorers, wrapScorer } from './scorer';
 export type {
   Data,
@@ -12,6 +23,8 @@ export type {
   Dataset,
   DatasetConfig,
   DatasetStorage,
+  DatasetData,
+  DataSource,
   Score,
   Scorer,
   ScorerAggregationType,
@@ -19,10 +32,8 @@ export type {
   Task,
   TaskArgs,
 } from './types';
-export type { ModelConfig } from './model';
 export type {
   Provider,
-  ProviderConfig,
   DatasetProvider,
   EvalProvider,
   TagProvider,

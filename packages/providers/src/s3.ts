@@ -1,6 +1,12 @@
 import type { S3ClientConfig } from '@aws-sdk/client-s3';
 import { attemptAsync } from 'massaman/control';
 import type { Provider } from '@viteval/core';
+
+declare module '@viteval/core' {
+  interface ProviderRegistry {
+    s3: { datasets: true };
+  }
+}
 import {
   createObjectDatasetProvider,
   type ObjectDatasetOptions,
@@ -15,12 +21,11 @@ export interface S3ProviderOptions extends ObjectDatasetOptions {
 /** Store datasets in S3 with immutable objects and conditional catalog publication.
  * @param options - Existing bucket, namespace, and optional AWS client configuration.
  * @returns A dataset-only provider with lazy SDK loading.
- * @example await initializeProvider({ datasets: s3({ bucket: 'eval-data', clientOptions: { region: 'us-east-1' } }) });
+ * @example defineConfig({ providers: [s3({ bucket: 'eval-data', clientOptions: { region: 'us-east-1' } })], dataset: { providers: ['s3'] } });
  */
 export function s3(options: S3ProviderOptions): Provider {
   return createObjectDatasetProvider({
     ...options,
-    name: 's3',
     connect: async () => {
       if (!options.bucket?.trim()) throw new Error('S3 bucket is required');
       const imported = await attemptAsync(() => import('@aws-sdk/client-s3'));
@@ -90,5 +95,6 @@ export function s3(options: S3ProviderOptions): Provider {
         },
       };
     },
+    name: 's3',
   });
 }

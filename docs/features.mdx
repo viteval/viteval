@@ -1,7 +1,7 @@
 ---
 pageType: custom
 title: Features
-description: Native Vitest workflows, built-in scoring, local results, and evaluations on your own infrastructure.
+description: Evaluations built on Vitest, built-in scoring, local results, and your own infrastructure.
 ---
 
 import { FeatureHero, FeatureMotion, FeaturesPage } from '#docs/features-page';
@@ -11,7 +11,7 @@ import { FeatureHero, FeatureMotion, FeaturesPage } from '#docs/features-page';
 <FeatureHero />
 
 <nav className="vv-features-page__nav" aria-label="Feature sections">
-  <a href="#familiar-tooling">Vitest-native</a>
+  <a href="#familiar-tooling">Built on Vitest</a>
   <a href="#built-in-defaults">Scoring</a>
   <a href="#local-first">Local results</a>
   <a href="#run-anywhere">Your infrastructure</a>
@@ -21,10 +21,13 @@ import { FeatureHero, FeatureMotion, FeaturesPage } from '#docs/features-page';
 <div className="vv-feature-detail__copy">
 
 <p className="vv-eyebrow">Familiar tooling</p>
-<h2 id="feature-tooling-title">{'Use your Vitest configuration'}</h2>
+<h2 id="feature-tooling-title">
+  {'Built on Vitest. Configured with Viteval.'}
+</h2>
 
-Keep native configuration, watch mode, retries, and CI exit codes. Import your
-application functions into an evaluation, then score their answers.
+Use watch mode, retries, and CI exit codes through `viteval run` and
+`viteval.config.ts`. Import your application functions into an evaluation, then
+score their answers. No Vitest configuration or setup files are required.
 
 <a className="vv-feature-detail__link" href="/guide/getting-started">
   {'Write an eval '}

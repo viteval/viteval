@@ -44,16 +44,11 @@ export const orderMessages = defineDataset({
 
 ```ts
 import { defineConfig } from 'viteval/config';
-import { JsonReporter } from 'viteval/reporters';
 
 export default defineConfig({
-  test: {
+  eval: {
     include: ['src/**/*.eval.ts'],
-    setupFiles: ['./viteval.setup.ts'],
-    reporters: [
-      'default',
-      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
-    ],
+    results: ['json'],
   },
 });
 ```

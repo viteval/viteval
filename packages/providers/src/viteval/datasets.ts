@@ -6,7 +6,7 @@ import type {
   StoredDataset,
 } from '@viteval/core';
 import { serializeJson } from '@viteval/internal';
-import type { PrismaClient } from '#/generated/prisma/client';
+import type { DatabaseClient } from './db';
 
 /**
  * Create dataset operations backed by Prisma.
@@ -14,7 +14,7 @@ import type { PrismaClient } from '#/generated/prisma/client';
  * @param prisma - The Prisma client instance.
  * @returns A DatasetProvider implementation.
  */
-export function createDatasetOps(prisma: PrismaClient): DatasetProvider {
+export function createDatasetOps(prisma: DatabaseClient): DatasetProvider {
   return {
     replaceItems: (params) =>
       attemptAsync(async () => {

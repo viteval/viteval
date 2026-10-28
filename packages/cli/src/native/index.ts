@@ -9,18 +9,25 @@ import ui from './commands/ui';
 const args = process.argv.slice(2);
 const invocation = parseInvocation(args);
 
-if (invocation.isProjectCommand || invocation.isRootHelp) {
+if (
+  ['init', 'data', 'ui'].includes(invocation.args[0]) ||
+  (invocation.args.length === 1 &&
+    ['--help', '-h', '--version', '-v'].includes(invocation.args[0]))
+) {
   await cli({
     name: 'viteval',
     version,
     description: 'LLM evaluations powered by Vitest',
     help: {
       footer: 'Evaluation options: viteval run --help',
-      order: ['run', 'init', 'data', 'ui'],
+      order: ['run', 'list', 'init', 'data', 'ui'],
     },
     commands: {
       run: command({
-        description: 'Run evaluations with native Vitest options',
+        description: 'Run evaluations',
+      }),
+      list: command({
+        description: 'List evaluations without running tasks or scorers',
       }),
       init: initCommand,
       data,

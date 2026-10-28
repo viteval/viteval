@@ -249,17 +249,17 @@ export default defineConfig({
         {
           title: 'Configuration',
           path: '/api/configuration',
-          include: 'docs/api/configuration.md',
+          include: 'docs/api/configuration.mdx',
         },
         {
           title: 'evaluate()',
           path: '/api/evaluate',
-          include: 'docs/api/evaluate.md',
+          include: 'docs/api/evaluate.mdx',
         },
         {
           title: 'defineDataset()',
           path: '/api/define-dataset',
-          include: 'docs/api/define-dataset.md',
+          include: 'docs/api/define-dataset.mdx',
         },
         {
           title: 'createScorer()',

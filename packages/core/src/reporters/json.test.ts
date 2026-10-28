@@ -3,9 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EVAL_RESULT_ARTIFACT_TYPE } from '#/evaluate/artifact';
+import { createJsonProvider } from '#/provider/json';
 import type { EvalResult } from '#/types';
 import type { TestCase, TestModule, Vitest } from 'vitest/node';
-import JsonReporter from './json';
+import { createJsonReporter, type JsonReporterOptions } from './json';
+import { EVAL_RESULTS_SCHEMA } from './schema';
 
 let root: string;
 
@@ -18,7 +20,27 @@ afterEach(async () => {
   await fs.rm(root, { force: true, recursive: true });
 });
 
-describe('JsonReporter', () => {
+describe('createJsonReporter', () => {
+  it('should return independent plain reporter objects', async () => {
+    const first = createReporter({ run: { id: 'first', name: 'First' } });
+    const second = createReporter({
+      outputFile: 'second.json',
+      run: { id: 'second', name: 'Second' },
+    });
+    expect(Object.getPrototypeOf(first)).toBe(Object.prototype);
+    const { onTestRunStart, onTestRunEnd } = first;
+    onTestRunStart();
+    second.onTestRunStart();
+    await onTestRunEnd([], [], 'passed');
+    await second.onTestRunEnd([], [], 'passed');
+    expect(await readResults()).toMatchObject({
+      runId: 'first',
+      runName: 'First',
+    });
+    expect(
+      JSON.parse(await fs.readFile(path.join(root, 'second.json'), 'utf8'))
+    ).toMatchObject({ runId: 'second', runName: 'Second' });
+  });
   it('should retain each suite end time instead of extending it to reporter projection time', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(10_000);
     const reporter = createReporter();
@@ -220,7 +242,7 @@ describe('JsonReporter', () => {
   });
 
   it('should give watch reruns distinct identities and preserve history', async () => {
-    const reporter = new JsonReporter({ outputFile: 'history/<id>.json' });
+    const reporter = createJsonReporter({ outputFile: 'history/<id>.json' });
     reporter.onInit({ config: { root } } as Vitest);
     reporter.onTestRunStart();
     await reporter.onTestRunEnd(
@@ -269,7 +291,7 @@ describe('JsonReporter', () => {
     const write = vi
       .spyOn(process.stdout, 'write')
       .mockImplementation(() => true);
-    const reporter = new JsonReporter();
+    const reporter = createJsonReporter();
 
     await reporter.onTestRunEnd([], [], 'passed');
 
@@ -279,16 +301,171 @@ describe('JsonReporter', () => {
       evalResults: [],
     });
   });
+
+  it('should retain failed and skipped artifacts and leave pending tasks uncounted by outcome', async () => {
+    const reporter = createReporter();
+    await reporter.onTestRunEnd(
+      [
+        createMockModule([
+          {
+            state: 'failed',
+            errors: [{ message: 'first error' }, { message: 'second error' }],
+            evalResult: createEvalResult(),
+          },
+          {
+            state: 'skipped',
+            evalResult: createEvalResult({ mean: 1, median: 1, sum: 1 }),
+          },
+          { state: 'pending', noDiagnostic: true },
+        ]),
+      ],
+      [],
+      'interrupted'
+    );
+    const report = await readResults();
+    expect(report).toMatchObject({
+      numTotalEvals: 3,
+      numFailedEvals: 1,
+      numSkippedEvals: 1,
+      numPassedEvals: 0,
+    });
+    expect(report.evalResults[0]).toMatchObject({
+      evalResults: [
+        { state: 'failed', error: 'first error\nsecond error' },
+        { state: 'skipped' },
+      ],
+      summary: { meanScore: 0.85, sumScore: 0.85 },
+    });
+  });
+
+  it('should project top-level evaluation tests using the module name', async () => {
+    const reporter = createReporter();
+    await reporter.onTestRunEnd(
+      [
+        createMockModule([
+          {
+            state: 'passed',
+            moduleParent: true,
+            evalResult: createEvalResult(),
+          },
+        ]),
+      ],
+      [],
+      'passed'
+    );
+    expect((await readResults()).evalResults).toMatchObject([
+      { name: 'example.eval.ts', status: 'passed' },
+    ]);
+  });
+
+  it('should attach suite and module errors to an existing evaluation suite', async () => {
+    const reporter = createReporter();
+    await reporter.onTestRunEnd(
+      [
+        createMockModule(
+          [
+            {
+              state: 'passed',
+              suiteErrors: [{ message: 'suite hook failed' }],
+              suiteFailed: true,
+            },
+          ],
+          [{ message: 'module failed' }]
+        ),
+      ],
+      [],
+      'failed'
+    );
+    const report = await readResults();
+    expect(report.numTotalEvalSuites).toBe(1);
+    expect(report.evalResults).toMatchObject([
+      { status: 'failed', message: 'suite hook failed\nmodule failed' },
+    ]);
+  });
+
+  it('should attach module errors only once when a file contains multiple evaluation suites', async () => {
+    const reporter = createReporter();
+    await reporter.onTestRunEnd(
+      [
+        createMockModule(
+          [
+            {
+              state: 'passed',
+              suiteId: 'first',
+              evalResult: createEvalResult(),
+            },
+            {
+              state: 'passed',
+              suiteId: 'second',
+              evalResult: createEvalResult(),
+            },
+          ],
+          [{ message: 'module cleanup failed' }]
+        ),
+      ],
+      [],
+      'failed'
+    );
+    const report = await readResults();
+    expect(report.numTotalEvalSuites).toBe(2);
+    expect(report.evalResults).toMatchObject([
+      { status: 'failed', message: 'module cleanup failed' },
+      { status: 'passed' },
+    ]);
+    expect(report.evalResults[1].message).toBeUndefined();
+  });
+
+  it('should produce V1 snapshots that the JSON provider reads without reconstructing outcomes', async () => {
+    const reporter = createReporter({
+      outputFile: '.viteval/results/snapshot.json',
+      run: { id: 'current-run', name: 'current run' },
+    });
+    await reporter.onTestRunEnd(
+      [
+        createMockModule([
+          {
+            state: 'passed',
+            evalResult: createEvalResult({
+              mean: 0,
+              median: 0,
+              sum: 0,
+              threshold: 1,
+            }),
+          },
+        ]),
+      ],
+      [],
+      'passed'
+    );
+    expect(
+      await createJsonProvider({ root }).evals!.get({
+        id: 'current-run',
+        includeResults: true,
+      })
+    ).toMatchObject({
+      ok: true,
+      value: {
+        id: 'current-run',
+        status: 'completed',
+        results: [{ passed: true, meanScore: 0 }],
+      },
+    });
+  });
 });
 
-function createReporter() {
-  const reporter = new JsonReporter({ outputFile: 'results.json' });
+function createReporter(options: JsonReporterOptions = {}) {
+  const reporter = createJsonReporter({
+    outputFile: 'results.json',
+    ...options,
+  });
   reporter.onInit({ config: { root } } as Vitest);
   return reporter;
 }
 
 async function readResults() {
-  return JSON.parse(await fs.readFile(path.join(root, 'results.json'), 'utf8'));
+  return EVAL_RESULTS_SCHEMA.parse(
+    JSON.parse(await fs.readFile(path.join(root, 'results.json'), 'utf8'))
+  );
 }
 
 function createEvalResult(overrides: Partial<EvalResult> = {}): EvalResult {
@@ -311,7 +488,12 @@ interface MockTestOptions {
   errors?: { message: string }[];
   evalResult?: EvalResult;
   isViteval?: boolean;
-  state: 'failed' | 'passed' | 'skipped';
+  state: 'failed' | 'passed' | 'skipped' | 'pending';
+  moduleParent?: boolean;
+  noDiagnostic?: boolean;
+  suiteErrors?: { message: string }[];
+  suiteFailed?: boolean;
+  suiteId?: string;
 }
 
 function createMockModule(
@@ -321,6 +503,7 @@ function createMockModule(
 ): TestModule {
   const moduleId = path.join(root, relativeModuleId);
   const testModule = {
+    type: 'module',
     diagnostic: () => ({ duration: 25 }),
     errors: () => moduleErrors,
     moduleId,
@@ -344,13 +527,14 @@ function createMockTestCase(
 ): TestCase {
   const errors = options.errors ?? [];
   const parent = {
-    errors: () => [],
-    id: 'suite',
+    errors: () => options.suiteErrors ?? [],
+    id: options.suiteId ?? 'suite',
     name: 'evaluation suite',
-    ok: () => options.state !== 'failed',
+    ok: () => !options.suiteFailed && options.state !== 'failed',
     type: 'suite',
   };
   return {
+    id: `${testModule.moduleId}:case-${index}`,
     artifacts: () =>
       options.evalResult
         ? [
@@ -360,11 +544,14 @@ function createMockTestCase(
             },
           ]
         : [],
-    diagnostic: () => ({ duration: 10, startTime: 1000 + index * 10 }),
+    diagnostic: () =>
+      options.noDiagnostic
+        ? undefined
+        : { duration: 10, startTime: 1000 + index * 10 },
     module: testModule,
     meta: () => (options.isViteval === false ? {} : { viteval: true }),
     ok: () => options.state !== 'failed',
-    parent,
+    parent: options.moduleParent ? testModule : parent,
     result: () => ({ errors, state: options.state }),
   } as unknown as TestCase;
 }

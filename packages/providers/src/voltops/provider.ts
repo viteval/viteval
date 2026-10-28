@@ -31,7 +31,7 @@ export interface VoltOpsProviderOptions {
 /** Create a hosted VoltOps provider using the official evaluation SDK.
  * @param options - Hosted project credentials, API URL, and optional experiment/dataset binding.
  * @returns Lazy dataset and evaluation operations.
- * @example await initializeProvider(voltops({ publicKey: 'pk', secretKey: 'sk' }));
+ * @example defineConfig({ providers: [voltops({ publicKey: 'pk', secretKey: 'sk' })] });
  */
 export function voltops(options: VoltOpsProviderOptions): Provider {
   let client: VoltOpsRestClient | undefined;
@@ -125,7 +125,7 @@ function createVoltOpsEvals({
         output: jsonValue(params.output),
         status: resultStatus(params),
         threshold: run.config.threshold,
-        thresholdPassed: params.passed,
+        thresholdPassed: isSkipped(params) ? null : params.passed,
         durationMs: params.duration,
         metadata: {
           ...params.metadata,
@@ -271,6 +271,12 @@ function createVoltOpsEvals({
 function resultStatus(
   params: AddEvalResultParams
 ): AppendEvalRunResultPayload['status'] {
+  // The hosted union has no skipped status; "pending" is its neutral not-evaluated value.
+  if (isSkipped(params)) return 'pending';
   if (typeof params.metadata?.executionError === 'string') return 'error';
   return params.passed ? 'passed' : 'failed';
+}
+
+function isSkipped(params: AddEvalResultParams): boolean {
+  return params.metadata?.state === 'skipped';
 }

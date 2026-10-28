@@ -6,7 +6,7 @@ import type {
   StoredEvalRun,
 } from '@viteval/core';
 import { serializeJson } from '@viteval/internal';
-import type { PrismaClient } from '#/generated/prisma/client';
+import type { DatabaseClient } from './db';
 
 /**
  * Create eval run operations backed by Prisma.
@@ -20,7 +20,7 @@ import type { PrismaClient } from '#/generated/prisma/client';
  * const run = await evalOps.create({ name: 'my-eval' });
  * ```
  */
-export function createEvalOps(prisma: PrismaClient): EvalProvider {
+export function createEvalOps(prisma: DatabaseClient): EvalProvider {
   return {
     addResult: (params) =>
       attemptAsync(async () => {

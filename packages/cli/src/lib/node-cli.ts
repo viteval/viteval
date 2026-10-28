@@ -6,7 +6,7 @@ import { parseInvocation } from '#/lib/argv';
 
 /**
  * Run the installed Viteval Node CLI from the compiled command shell.
- * @param args - Original command tokens, preserved for Vitest and Viteval parsing.
+ * @param args - Original Viteval command tokens.
  * @returns Resolves after the child exits, preserving its exit status.
  * @example
  * await runNodeCli(['run', '--root', './project']);
@@ -45,8 +45,7 @@ export async function runNodeCli(args: readonly string[]): Promise<void> {
 
 async function resolveNodeCli(roots: readonly string[]): Promise<string> {
   for (const root of roots) {
-    let directory = root;
-    while (true) {
+    for (const directory of ancestorPaths(root)) {
       for (const packageName of ['viteval', '@viteval/cli']) {
         const entry = path.join(
           directory,
@@ -61,14 +60,17 @@ async function resolveNodeCli(roots: readonly string[]): Promise<string> {
           continue;
         }
       }
-      const parent = path.dirname(directory);
-      if (parent === directory) {
-        break;
-      }
-      directory = parent;
     }
   }
   throw new Error(
     'Install viteval in your project before running evaluations, datasets, or the UI with the binary. Node.js >=26 must be available on PATH.'
   );
+}
+
+function ancestorPaths(directory: string): string[] {
+  const parent = path.dirname(directory);
+  if (parent === directory) {
+    return [directory];
+  }
+  return [directory, ...ancestorPaths(parent)];
 }

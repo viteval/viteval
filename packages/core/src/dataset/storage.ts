@@ -1,13 +1,15 @@
-import { err, isErr, ok, type Result } from 'massaman/control';
-import { getDatasetProvider } from '#/provider/client';
-import { createJsonProvider } from '#/provider/json';
+import { type Result, err, isErr, ok } from 'massaman/control';
+import { createJsonDatasets } from '#/provider/json-datasets';
+import { createJsonStore } from '#/provider/json-store';
 import type { DataItem, Extra } from '#/types';
+import type { DatasetProvider } from '#/provider/types';
 
 export interface DatasetStorageConfig {
   description?: string;
   name: string;
   root: string;
   storage: 'local';
+  provider?: DatasetProvider;
 }
 
 /**
@@ -18,10 +20,8 @@ export interface DatasetStorageConfig {
 export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
   payload: DatasetStorageConfig
 ) {
-  const { name, root } = payload;
-  const provider =
-    getDatasetProvider() ?? createJsonProvider({ root }).datasets;
-  if (!provider) throw new Error('Dataset provider is unavailable');
+  const { name, root } = payload,
+    provider = payload.provider ?? createJsonDatasets(createJsonStore(root));
   return {
     /**
      * Check if the dataset exists in the storage
@@ -30,6 +30,25 @@ export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
     async exists(): Promise<Result<boolean>> {
       const result = await provider.get({ name });
       return isErr(result) ? result : ok(result.value !== null);
+    },
+    /**
+     * Load the dataset from the storage
+     * @returns The dataset
+     */
+    async load(): Promise<Result<DataItem<INPUT, OUTPUT, EXTRA>[] | null>> {
+      const dataset = await provider.get({ name });
+      if (isErr(dataset)) return dataset;
+      if (!dataset.value) return ok(null);
+      const items = await provider.getItems({ datasetId: dataset.value.id });
+      if (isErr(items)) return items;
+      // The dataset's generator supplies its generic shape; provider storage is type-erased.
+      return ok(
+        items.value.map(({ input, expected, extra }) => ({
+          ...extra,
+          input,
+          expected,
+        })) as DataItem<INPUT, OUTPUT, EXTRA>[]
+      );
     },
     /**
      * Save the dataset to the storage
@@ -54,25 +73,6 @@ export function createDatasetStorage<INPUT, OUTPUT, EXTRA extends Extra>(
         description: payload.description,
       });
       return isErr(created) ? created : ok(undefined);
-    },
-    /**
-     * Load the dataset from the storage
-     * @returns The dataset
-     */
-    async load(): Promise<Result<DataItem<INPUT, OUTPUT, EXTRA>[] | null>> {
-      const dataset = await provider.get({ name });
-      if (isErr(dataset)) return dataset;
-      if (!dataset.value) return ok(null);
-      const items = await provider.getItems({ datasetId: dataset.value.id });
-      if (isErr(items)) return items;
-      // The dataset's generator supplies its generic shape; provider storage is type-erased.
-      return ok(
-        items.value.map(({ input, expected, extra }) => ({
-          ...extra,
-          input,
-          expected,
-        })) as DataItem<INPUT, OUTPUT, EXTRA>[]
-      );
     },
   };
 }

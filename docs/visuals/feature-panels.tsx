@@ -14,7 +14,7 @@ const FEATURES = [
     id: 'familiar-tooling',
     title: 'Built on Vitest',
     description:
-      'Import your application functions into evaluations. Use Vitest configuration, watch mode, retries, and CI exit codes.',
+      'Import your application functions into evaluations. Use Viteval configuration, watch mode, retries, and CI exit codes.',
     Scene: ToolingScene,
   },
   {
@@ -78,8 +78,8 @@ export function FeaturePanels() {
         <p className="vv-eyebrow">Why Viteval</p>
         <h2 id="vv-features-title">Evals belong beside your tests.</h2>
         <p>
-          Keep your application code, TypeScript, and Vitest workflow. Viteval
-          adds the evaluation pieces.
+          Evaluate your application code in TypeScript. Viteval owns the
+          configuration, scoring, and results; Vitest runs the cases underneath.
         </p>
       </header>
       <div className="vv-features__grid">

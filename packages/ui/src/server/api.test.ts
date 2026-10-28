@@ -31,6 +31,87 @@ afterEach(async () => {
 });
 
 describe('UI HTTP API', () => {
+  it('should ignore unknown listing statuses without hiding valid records', async () => {
+    await writeListingFixtures(root);
+    for (const [resource, handler] of [
+      ['results', listResults],
+      ['suites', listSuites],
+    ] as const) {
+      const response = await handler(
+        new Request(`http://localhost/api/${resource}?status=unknown&limit=100`)
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({ total: 25 });
+    }
+  });
+  it('should reject an unknown tagging entity type without modifying stored taggings', async () => {
+    const response = await removeTagging(
+      new Request(
+        'http://localhost/api/taggings?tagId=tag&entityType=unknown&entityId=record'
+      )
+    );
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: 'tagId, entityType, and entityId are required',
+    });
+    expect(
+      await createViteval().tags.listTaggingsForEntities('dataset', ['record'])
+    ).toEqual({ data: { record: [] } });
+  });
+  it('should expose corrupt tag storage as errors rather than silently resetting tags', async () => {
+    await mkdir(path.join(root, '.viteval'), { recursive: true });
+    await writeFile(path.join(root, '.viteval/tags.json'), '{broken');
+    const listing = await listTags(new Request('http://localhost/api/tags'));
+    expect(await listing.json()).toMatchObject({
+      data: [],
+      warnings: [expect.any(String)],
+    });
+    const created = await createTag(
+      jsonRequest('/api/tags', { name: 'release' })
+    );
+    expect(created.status).toBe(500);
+    expect(await created.json()).toHaveProperty('error');
+    const lookup = await lookupTaggings(
+      jsonRequest('/api/taggings/lookup', {
+        entityType: 'dataset',
+        entityIds: ['data'],
+      })
+    );
+    expect(await lookup.json()).toHaveProperty('error');
+    const updated = await updateTag(
+      jsonRequest('/api/tags/tag', { description: 'release' }),
+      { params: { id: 'tag' } }
+    );
+    expect(updated.status).toBe(500);
+    expect(
+      (
+        await deleteTag(new Request('http://localhost/api/tags/tag'), {
+          params: { id: 'tag' },
+        })
+      ).status
+    ).toBe(500);
+    expect(
+      (
+        await addTagging(
+          jsonRequest('/api/taggings', {
+            tagId: 'tag',
+            entityType: 'dataset',
+            entityId: 'data',
+          })
+        )
+      ).status
+    ).toBe(500);
+    await writeFile(path.join(root, '.viteval/taggings.json'), '{broken');
+    expect(
+      (
+        await removeTagging(
+          new Request(
+            'http://localhost/api/taggings?tagId=tag&entityType=dataset&entityId=data'
+          )
+        )
+      ).status
+    ).toBe(500);
+  });
   it.each([
     {
       name: 'tag creation',

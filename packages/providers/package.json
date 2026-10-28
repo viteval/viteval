@@ -1,6 +1,6 @@
 {
   "name": "@viteval/providers",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "JSON, SQLite, and third-party evaluation providers for Viteval.",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",
@@ -48,13 +48,13 @@
     "dev": "tsdown --watch",
     "test": "vitest run --typecheck",
     "types": "tsc --noEmit",
-    "prisma:generate": "prisma7 generate"
+    "prisma:generate": "prisma7 generate --schema prisma/schema.prisma && prisma7 generate --schema prisma/postgres.prisma"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.3.0",
     "@viteval/core": "workspace:^",
     "@viteval/internal": "workspace:^",
-    "massaman": "^0.5.2"
+    "massaman": "^0.5.5"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1149.0",

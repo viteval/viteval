@@ -47,7 +47,7 @@ const RUN_SCHEMA = z.object({
       passed: z.boolean(),
     })
     .optional(),
-  results: z.array(RESULT_SCHEMA).default([]),
+  results: z.array(RESULT_SCHEMA),
   metadata: z.record(z.string(), z.unknown()),
   startedAt: z.coerce.date(),
   completedAt: z.coerce.date().optional(),
@@ -79,8 +79,8 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
     if ('providerRun' in raw) return FILE_SCHEMA.parse(raw).providerRun;
     const report = EVAL_RESULTS_SCHEMA.parse(raw);
     const results = report.evalResults.flatMap((suite) =>
-      suite.evalResults.map((result, index) => ({
-        id: result.id ?? `${report.runId}:${suite.name}:${index}`,
+      suite.evalResults.map((result) => ({
+        id: result.id,
         evalRunId: report.runId,
         input: result.input ?? null,
         expected: result.expected ?? null,
@@ -89,14 +89,7 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
         meanScore: result.mean,
         medianScore: result.median,
         sumScore: result.sum,
-        passed: result.state
-          ? result.state === 'passed'
-          : !result.metadata?.executionError &&
-            (result.aggregation === 'sum'
-              ? result.sum
-              : result.aggregation === 'median'
-                ? result.median
-                : result.mean) >= result.threshold,
+        passed: result.state === 'passed',
         metadata: {
           ...result.metadata,
           state: result.state,
@@ -160,8 +153,8 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
       },
     };
   }
-  async function save(run: StoredEvalRun) {
-    const results = run.results ?? [];
+  async function save(run: z.infer<typeof RUN_SCHEMA>) {
+    const results = run.results;
     const passedCount = results.filter((result) => result.passed).length;
     const endTime = run.completedAt?.getTime();
     const startTime = run.startedAt.getTime();
@@ -268,7 +261,7 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
   return {
     create: (params) =>
       attemptAsync(async () => {
-        const run: StoredEvalRun = RUN_SCHEMA.parse({
+        const run = RUN_SCHEMA.parse({
           id: randomUUID(),
           name: params.name,
           datasetId: params.datasetId,

@@ -1,3 +1,5 @@
+import { pipe } from 'massaman/fp';
+import { when } from 'massaman/function';
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 
@@ -38,25 +40,24 @@ export interface ExactMatchOptions {
  */
 export function exactMatch(options?: ExactMatchOptions): Scorer {
   const { caseSensitive = true, trim = false } = options ?? {};
+  const compareValue = (value: unknown) =>
+    pipe(
+      normalize(value),
+      when<string>(
+        () => trim,
+        (text) => text.trim()
+      ),
+      when<string>(
+        () => !caseSensitive,
+        (text) => text.toLowerCase()
+      )
+    );
 
   return createScorer({
     name: 'ExactMatch',
-    score: ({ output, expected }) => {
-      let a = normalize(output);
-      let b = normalize(expected);
-
-      if (trim) {
-        a = a.trim();
-        b = b.trim();
-      }
-
-      if (!caseSensitive) {
-        a = a.toLowerCase();
-        b = b.toLowerCase();
-      }
-
-      return { score: a === b ? 1 : 0 };
-    },
+    score: ({ output, expected }) => ({
+      score: Number(compareValue(output) === compareValue(expected)),
+    }),
   });
 }
 

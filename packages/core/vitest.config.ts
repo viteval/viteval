@@ -6,6 +6,11 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
+    coverage: {
+      include: ['src/**/*.ts'],
+      exclude: ['**/*.test.*', '**/*.test-d.ts', '**/*.d.ts'],
+      reporter: ['text', 'json', 'json-summary', 'html'],
+    },
     environment: 'node',
     exclude: ['node_modules', 'dist', 'original'],
     globals: true,

@@ -26,7 +26,7 @@ TypeScript-native evals, powered by Vitest.
 
 ## Features
 
-- Native Vitest configuration, execution, watch mode, retries, and CI exit codes.
+- Viteval configuration with Vitest execution, watch mode, retries, and CI exit codes.
 - Typed tasks, reusable datasets, built-in scorers, and custom scoring functions.
 - JSON storage by default, with atomic writes. Inspect saved results locally with `viteval ui`.
 - Optional SQLite, Braintrust, Langfuse, and hosted VoltOps providers for datasets and evaluation results, plus S3/GCS dataset storage. Backend SDKs and database drivers are opt-in.
@@ -41,8 +41,8 @@ pnpm exec viteval run
 pnpm exec viteval ui
 ```
 
-Requires Node >=26. Initialization creates native Vitest configuration, a worker
-setup module, and a passing `src/viteval.eval.ts` example. JSON results are saved
+Requires Node >=26. Initialization creates `viteval.config.ts` and a passing
+`src/viteval.eval.ts` example. No worker setup is required. JSON results are saved
 under `.viteval/results`.
 
 ## Usage

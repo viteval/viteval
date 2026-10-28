@@ -1,0 +1,217 @@
+# `defineDataset()`
+
+import { Field, FieldGroup } from '@theme';
+
+`defineDataset()` defines how cases are generated and where to save them, including
+hosted integrations such as Langfuse. Run generation with `viteval data`; importing
+a definition does not generate cases or write to providers.
+
+## Import
+
+```ts
+import { defineDataset } from 'viteval/dataset';
+```
+
+## Signature
+
+```ts
+function defineDataset<DATA_FUNC extends DatasetData>(
+  config: DatasetConfig<DATA_FUNC>
+): Dataset<DATA_FUNC>;
+```
+
+## Parameters
+
+<FieldGroup title="Configuration">
+  <Field name="name" type="string" required>
+    Unique dataset name.
+  </Field>
+  <Field name="description" type="string">
+    Description saved with the dataset.
+  </Field>
+  <Field
+    name="data"
+    type="DataItem[] | (context) => DataItem[] | Promise<DataItem[]>"
+    required
+  >
+    Cases or generator using typed integration/model dependencies.
+  </Field>
+  <Field name="providers" type="DatasetProviderName[]">
+    Dataset-write destinations. Omitted inherits config; an explicit array
+    replaces it; an empty array generates without saving.
+  </Field>
+</FieldGroup>
+
+## DatasetConfig
+
+```ts
+interface DatasetConfig<DATA extends DatasetData = DatasetData> {
+  providers?: readonly DatasetProviderName[];
+  /**
+   * The name of the dataset.
+   */
+  name: string;
+  /**
+   * The description of the dataset.
+   */
+  description?: string;
+  /**
+   * The data generator of the dataset.
+   */
+  data: DATA;
+}
+```
+
+### `name`
+
+Unique identifier for the dataset.
+
+**Type**: `string`  
+**Required**: Yes
+
+```ts
+defineDataset({
+  name: 'math-problems',
+  data: async () => [{ input: '2 + 2', expected: '4' }],
+});
+```
+
+### `data`
+
+Cases, or a function that generates cases once per generation operation. A callback
+can access direct dataset handles and the model registry.
+
+**Type**: `DatasetData`
+**Required**: Yes
+
+```ts
+// Static data
+data: async () => [
+  { input: '2 + 2', expected: '4' },
+  { input: '3 + 3', expected: '6' },
+];
+
+// Async data loading
+data: async () => {
+  const response = await fetch('https://example.com/api/datasets/math');
+  if (!response.ok)
+    throw new Error(`Dataset request failed: ${response.status}`);
+  return response.json();
+};
+
+// Generated data
+data: async () => {
+  const problems = [];
+  for (let i = 0; i < 1000; i++) {
+    const a = Math.floor(Math.random() * 100);
+    const b = Math.floor(Math.random() * 100);
+    problems.push({
+      input: `${a} + ${b}`,
+      expected: String(a + b),
+    });
+  }
+  return problems;
+};
+```
+
+### `providers` (optional)
+
+```ts
+defineDataset({
+  name: 'reviewed-support',
+  providers: ['json', 'langfuse'],
+  data: async ({ langfuse }) => {
+    const cases = await langfuse.dataset('support-cases').load();
+    return cases.filter((item) => item.reviewed === true);
+  },
+});
+```
+
+The generator runs once and the same cases are sent to every selected destination.
+Without `--overwrite`, existing destinations are preserved and only missing ones
+are populated. Overwrite requires replacement support; Langfuse and VoltOps do not
+support atomic replacement. Cross-provider saves are not transactional: successful
+writes remain if another provider fails.
+
+### `description` (optional)
+
+An optional description of the cases in the dataset.
+
+**Type**: `string`
+
+```ts
+description: 'Math problems for basic arithmetic evaluation';
+```
+
+## DataItem interface
+
+The generator returns an array of `DataItem` objects:
+
+```ts
+type DataItem<
+  INPUT = unknown,
+  OUTPUT = unknown,
+  EXTRA extends Extra = Extra,
+> = EXTRA & {
+  name?: string;
+  input: INPUT;
+  expected: OUTPUT;
+};
+```
+
+`Extra` holds additional case fields:
+
+```ts
+type Extra = Record<string, unknown>;
+```
+
+## Return value
+
+Returns a `Dataset<DATA_FUNC>` object:
+
+```ts
+interface Dataset<DATA_FUNC extends DatasetData> {
+  name: string;
+  storage: 'local' | 'memory';
+  description?: string;
+  exists(): Promise<Result<boolean>>;
+  load(options?: {
+    create?: boolean;
+  }): Promise<Result<Awaited<ReturnType<DATA_FUNC>> | null>>;
+  save(options?: { overwrite?: boolean }): Promise<Result<void>>;
+}
+```
+
+Use `load()` and `save()`; the returned dataset does not expose a `data()` method:
+
+```ts
+const saved = await dataset.save({ overwrite: true });
+if (!saved.ok) throw saved.error;
+const loaded = await dataset.load({ create: true });
+if (!loaded.ok) throw loaded.error;
+const cases = loaded.value;
+```
+
+With one destination, `load({ create: true })` and passing the definition to
+`evaluate()` retain load-or-generate behavior. Multiple destinations are ambiguous
+for reading; select a source explicitly:
+
+```ts
+data: ({ langfuse }) => langfuse.dataset('reviewed-support');
+```
+
+With `providers: []`, `load()` generates in memory and `save()` generates without
+writing. The low-level `storage` property selects local or in-memory storage;
+use provider arrays for configured destinations. See [Providers](/guide/providers) for serialization
+and integration capability limits.
+
+## CLI discovery
+
+`viteval data` discovers datasets in `.dataset.*` and `.eval.*` modules. Default
+exports, named exports, and non-exported `defineDataset()` calls are supported.
+Multiple datasets can share a module. Re-exporting the same dataset does not
+generate it twice; distinct objects must have unique names.
+
+Evaluation tasks and scorers are not executed during generation. See
+[CLI datasets](/guide/cli#datasets) for patterns, overwrite behavior, and module
+import semantics.

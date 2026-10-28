@@ -2,8 +2,8 @@
 
 Viteval is open source and uses local JSON storage by default. You do not need a
 hosted evaluation account. With the default JSON provider, datasets live under
-`.viteval/datasets` and runs under `.viteval/results`. The JSON reporter also
-writes local snapshots for dashboard inspection. Configured hosted providers
+`.viteval/datasets` and runs under `.viteval/results`. The JSON provider writes
+snapshots for dashboard inspection. Selected hosted providers
 such as Braintrust, Langfuse, and VoltOps persist runs through their own services;
 they do not move those hosted runs into the local directory.
 
@@ -28,33 +28,38 @@ Choose providers independently for datasets and evaluation results:
 
 These providers store evaluation data. They do not choose the model used by your
 task. Call your model client inside the task function; configure models for
-built-in judges and embedding scorers with `initializeModel()`.
+built-in judges and embedding scorers with `models.providers` and `models.defaults`.
 
 ## Combine providers
 
-Pass `datasets` and `evals` separately to `initializeProvider()`. For example,
-keep datasets in local JSON files and publish results to Braintrust:
+Register integrations once in `viteval.config.ts`, then select destinations:
 
 ```ts
-import { fileURLToPath } from 'node:url';
-import { createJsonProvider, initializeProvider } from 'viteval/provider';
+import { createJsonProvider, defineConfig } from 'viteval';
 import { braintrust } from '@viteval/providers/braintrust';
 
-const initialized = await initializeProvider({
-  datasets: createJsonProvider({
-    root: fileURLToPath(new URL('.', import.meta.url)),
-  }),
-  evals: braintrust({
-    project: 'knowledge-answers',
-    apiKey: process.env.BRAINTRUST_API_KEY,
-  }),
+export default defineConfig({
+  providers: [
+    createJsonProvider({ root: import.meta.dirname }),
+    braintrust({
+      project: 'knowledge-answers',
+      apiKey: process.env.BRAINTRUST_API_KEY,
+    }),
+  ],
+  dataset: { providers: ['json'] },
+  eval: { results: ['json', 'braintrust'] },
 });
-if (!initialized.ok) throw initialized.error;
 ```
 
-Install `@viteval/providers` and `@braintrust/api` for this example, and register
-the module in Vitest's `test.setupFiles`. Keep `JsonReporter` configured to save a
-local copy for the dashboard. It reads local JSON reports, not hosted results.
+Install `@viteval/providers` and `@braintrust/api` for this example. No setup file
+or reporter configuration is needed. Include `json` in results to retain a local
+dashboard copy; the dashboard does not fetch hosted results.
+
+Registration does not enable uploads. Omitted destination arrays inherit defaults;
+explicit arrays replace them and `[]` disables persistence. Each integration may
+be registered once per config. Separate configs represent separate projects.
+Viteval initializes used storage integrations lazily in workers and closes them
+after persistence. Failures fail the run; cross-provider writes are not transactional.
 
 You can replace the JSON dataset provider with S3 or Google Cloud Storage without
 changing the results provider. Each integration's supported operations and
@@ -62,27 +67,21 @@ limitations are listed below.
 
 ## Default JSON setup
 
-`viteval init` creates a setup module equivalent to:
+With no `providers` array, Viteval registers JSON automatically. To configure it:
 
 ```ts
-import { fileURLToPath } from 'node:url';
-import { createJsonProvider, initializeProvider } from 'viteval/provider';
+import { createJsonProvider, defineConfig } from 'viteval';
 
-const provider = createJsonProvider({
-  root: fileURLToPath(new URL('.', import.meta.url)),
+export default defineConfig({
+  providers: [createJsonProvider({ root: import.meta.dirname })],
+  dataset: { providers: ['json'] },
+  eval: { results: ['json'] },
 });
-const initialized = await initializeProvider({ datasets: provider });
-if (!initialized.ok) throw initialized.error;
 ```
 
-Register this file in Vitest's `test.setupFiles`. Binding the root in setup keeps
-dataset storage correct when you use `--root` or multiple Vitest projects.
-Without a configured dataset provider, local datasets use the current working
-directory.
-
-The JSON reporter writes a combined run snapshot. JSON provider operations can
-read both those snapshots and runs created through the provider API. Reporter
-snapshots are finalized history; provider-created running records accept new results.
+The default JSON root follows the selected project. Explicit provider roots are
+owned by their factory options. JSON operations read both V1 provider records and
+V1 reporter snapshots. Both require `schemaVersion: 1`.
 
 ## SQLite
 
@@ -92,33 +91,54 @@ Install the optional provider package:
 pnpm add -D @viteval/providers@rc @prisma/client@^7.10 @prisma/adapter-better-sqlite3@^7.10 better-sqlite3
 ```
 
-Configure it in `viteval.setup.ts`:
+Configure it in `viteval.config.ts`:
 
 ```ts
-import { afterAll } from 'vitest';
-import { fileURLToPath } from 'node:url';
-import { initializeProvider } from 'viteval/provider';
+import { createJsonProvider, defineConfig } from 'viteval';
 import { viteval } from '@viteval/providers/viteval';
 
-const provider = viteval({
-  database: 'sqlite',
-  path: fileURLToPath(new URL('.viteval/evals.db', import.meta.url)),
-});
-const initialized = await initializeProvider(provider);
-if (!initialized.ok) throw initialized.error;
-
-afterAll(async () => {
-  const closed = await provider.close();
-  if (!closed.ok) throw closed.error;
+export default defineConfig({
+  providers: [
+    createJsonProvider({ root: import.meta.dirname }),
+    viteval({
+      database: 'sqlite',
+      path: `${import.meta.dirname}/.viteval/evals.db`,
+    }),
+  ],
+  dataset: { providers: ['viteval'] },
+  eval: { results: ['json', 'viteval'] },
 });
 ```
 
 Evaluation suites persist their final case outcomes to the configured evaluation
-provider. Keep the JSON reporter configured to inspect a local copy in the
-dashboard. SQLite schema/client assets are included in the package; consumers
+provider. Keep JSON selected to inspect a local copy in the
+dashboard. SQLite and PostgreSQL client assets are included in the package; consumers
 do not run Prisma generation. `viteval()` with no database option returns JSON.
 
-The PostgreSQL option is experimental and is not covered by v1 provider tests.
+## PostgreSQL
+
+Install the PostgreSQL driver and adapter instead of the SQLite dependencies:
+
+```bash
+pnpm add -D @viteval/providers@rc @prisma/client @prisma/adapter-pg pg
+```
+
+```ts
+import { defineConfig } from 'viteval';
+import { viteval } from '@viteval/providers';
+
+export default defineConfig({
+  providers: [
+    viteval({ database: 'postgres', url: process.env.DATABASE_URL! }),
+  ],
+  dataset: { providers: ['viteval'] },
+  eval: { results: ['viteval'] },
+});
+```
+
+The provider creates its tables on initialization. Use a database user permitted
+to create those tables. PostgreSQL contract tests exercise persistence, rollback,
+reconnects, cascades, and concurrent initialization against a real server.
 
 ## Braintrust
 
@@ -127,16 +147,19 @@ pnpm add -D @viteval/providers@rc @braintrust/api
 ```
 
 ```ts
-import { initializeProvider } from 'viteval/provider';
+import { defineConfig } from 'viteval';
 import { braintrust } from '@viteval/providers/braintrust';
 
-const initialized = await initializeProvider(
-  braintrust({
-    project: 'answer-quality',
-    apiKey: process.env.BRAINTRUST_API_KEY,
-  })
-);
-if (!initialized.ok) throw initialized.error;
+export default defineConfig({
+  providers: [
+    braintrust({
+      project: 'answer-quality',
+      apiKey: process.env.BRAINTRUST_API_KEY,
+    }),
+  ],
+  dataset: { providers: ['braintrust'] },
+  eval: { results: ['braintrust'] },
+});
 ```
 
 The provider finds or creates the named project. Datasets use Braintrust's
@@ -154,21 +177,19 @@ pnpm add -D @viteval/providers@rc @langfuse/client @opentelemetry/api @opentelem
 ```
 
 ```ts
-import { afterAll } from 'vitest';
-import { initializeProvider } from 'viteval/provider';
+import { defineConfig } from 'viteval';
 import { langfuse } from '@viteval/providers/langfuse';
 
-const provider = langfuse({
-  publicKey: process.env.LANGFUSE_PUBLIC_KEY ?? '',
-  secretKey: process.env.LANGFUSE_SECRET_KEY ?? '',
-  baseUrl: 'https://cloud.langfuse.com',
-});
-const initialized = await initializeProvider({ evals: provider });
-if (!initialized.ok) throw initialized.error;
-
-afterAll(async () => {
-  const closed = await provider.close();
-  if (!closed.ok) throw closed.error;
+export default defineConfig({
+  providers: [
+    langfuse({
+      publicKey: process.env.LANGFUSE_PUBLIC_KEY ?? '',
+      secretKey: process.env.LANGFUSE_SECRET_KEY ?? '',
+      baseUrl: 'https://cloud.langfuse.com',
+    }),
+  ],
+  dataset: { providers: ['langfuse'] },
+  eval: { results: ['langfuse'] },
 });
 ```
 
@@ -195,22 +216,20 @@ pnpm add -D @viteval/providers@rc @voltagent/sdk
 ```
 
 ```ts
-import { afterAll } from 'vitest';
-import { initializeProvider } from 'viteval/provider';
+import { defineConfig } from 'viteval';
 import { voltops } from '@viteval/providers/voltops';
 
-const provider = voltops({
-  publicKey: process.env.VOLTAGENT_PUBLIC_KEY ?? '',
-  secretKey: process.env.VOLTAGENT_SECRET_KEY ?? '',
-  baseUrl: 'https://api.voltagent.dev',
-  triggerSource: 'ci',
-});
-const initialized = await initializeProvider({ evals: provider });
-if (!initialized.ok) throw initialized.error;
-
-afterAll(async () => {
-  const closed = await provider.close();
-  if (!closed.ok) throw closed.error;
+export default defineConfig({
+  providers: [
+    voltops({
+      publicKey: process.env.VOLTAGENT_PUBLIC_KEY ?? '',
+      secretKey: process.env.VOLTAGENT_SECRET_KEY ?? '',
+      baseUrl: 'https://api.voltagent.dev',
+      triggerSource: 'ci',
+    }),
+  ],
+  dataset: { providers: ['voltops'] },
+  eval: { results: ['voltops'] },
 });
 ```
 
@@ -235,7 +254,7 @@ Atomic dataset replacement is not supported; failed multi-request uploads may
 leave a partial new version, while prior versions remain available.
 
 Langfuse and VoltOps tests use official SDKs with local HTTP fixtures, not live
-accounts. Keep the JSON reporter configured
+accounts. Keep JSON registered and selected
 for local dashboard inspection alongside hosted persistence.
 
 ## S3 and Google Cloud Storage datasets
@@ -251,28 +270,27 @@ pnpm add -D @viteval/providers@rc @aws-sdk/client-s3
 pnpm add -D @viteval/providers@rc @google-cloud/storage
 ```
 
-Configure the dataset provider in your worker setup:
+Configure the dataset provider in `viteval.config.ts`:
 
 ```ts
-import { afterAll } from 'vitest';
-import { initializeProvider } from 'viteval/provider';
+import { createJsonProvider, defineConfig } from 'viteval';
 import { s3 } from '@viteval/providers/s3';
 
-const datasets = s3({
-  bucket: 'evaluation-data',
-  prefix: 'my-project/datasets',
-  clientOptions: { region: 'us-east-1' },
-});
-const initialized = await initializeProvider({ datasets });
-if (!initialized.ok) throw initialized.error;
-
-afterAll(async () => {
-  const closed = await datasets.close();
-  if (!closed.ok) throw closed.error;
+export default defineConfig({
+  providers: [
+    createJsonProvider({ root: import.meta.dirname }),
+    s3({
+      bucket: 'evaluation-data',
+      prefix: 'my-project/datasets',
+      clientOptions: { region: 'us-east-1' },
+    }),
+  ],
+  dataset: { providers: ['s3'] },
+  eval: { results: ['json'] },
 });
 ```
 
-Use Google Cloud Storage with the same setup pattern:
+Replace the S3 instance with Google Cloud Storage and select `['gcs']`:
 
 ```ts
 import { gcs } from '@viteval/providers/gcs';
@@ -323,12 +341,12 @@ referenced by the current catalog. No automatic garbage collection is performed.
 
 ## Serialization and failures
 
-VoltOps dataset creation and `addItems` upload versions through multiple requests.
-They are not failure-safe: a failed item upload can leave an incomplete latest
-version that subsequent reads return. Errors include the dataset and version IDs;
-inspect and repair that version in the VoltOps console before retrying. Previous
-versions are retained remotely. The SDK does not expose transactional publication
-or version deletion, so atomic replacement remains unsupported.
+Langfuse and VoltOps upload datasets through multiple requests and persist upload
+journals remotely. Fresh provider instances reject incomplete managed uploads
+rather than returning partial data. Errors identify the affected dataset or
+version; inspect and repair it in the provider console before retrying. Previous
+VoltOps versions are retained remotely. These checks do not roll back successful
+remote writes or guarantee atomic replacement.
 
 Braintrust creation attempts to delete a newly created dataset if its metadata
 or initial item write fails. If cleanup is also rejected, the error retains the
@@ -339,7 +357,7 @@ original failure and identifies the dataset that needs manual cleanup.
 - Non-finite numbers, BigInt, functions, symbols, cycles, and unsupported object classes fail explicitly.
 - JSON writes use a temporary file and atomic rename. Serialization failure preserves the previous file.
 - Local JSON dataset/tag updates use a cross-process lock. A lock timeout identifies the affected file; if a writer was interrupted, confirm it has stopped before removing its `.lock` directory.
-- `storage: 'memory'` datasets regenerate on load and are not written to disk.
+- `providers: []` datasets generate without persistence.
 
 Provider operations return `Result` values. Check `ok` before reading `value`;
 initialization and persistence errors fail the evaluation run.

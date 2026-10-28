@@ -4,24 +4,18 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-const TEST_DIR = path.join(import.meta.dirname, '.test-cli-init');
-const DATA_TEST_DIR = path.join(import.meta.dirname, '.test-cli-data');
-const RUN_TEST_DIR = path.join(import.meta.dirname, '.test-cli-run');
-const CLI_DIST = path.join(
-  import.meta.dirname,
-  '..',
-  'cli',
-  'dist',
-  'index.mjs'
-);
-const CLI_BINARY = process.env.VITEVAL_TEST_BINARY;
-const BASIC_EXAMPLE = path.join(
-  import.meta.dirname,
-  '..',
-  '..',
-  'examples',
-  'basic'
-);
+const TEST_DIR = path.join(import.meta.dirname, '.test-cli-init'),
+  DATA_TEST_DIR = path.join(import.meta.dirname, '.test-cli-data'),
+  RUN_TEST_DIR = path.join(import.meta.dirname, '.test-cli-run'),
+  CLI_DIST = path.join(import.meta.dirname, '..', 'cli', 'dist', 'index.mjs'),
+  CLI_BINARY = process.env.VITEVAL_TEST_BINARY,
+  BASIC_EXAMPLE = path.join(
+    import.meta.dirname,
+    '..',
+    '..',
+    'examples',
+    'basic'
+  );
 
 beforeAll(async () => {
   const distExists = await fs
@@ -45,24 +39,25 @@ describe('help', () => {
   });
 
   it('should report the Viteval package version', async () => {
-    const result = runCli({ args: ['--version'] });
-    const manifest = JSON.parse(
-      await fs.readFile(new URL('./package.json', import.meta.url), 'utf8')
-    );
+    const result = runCli({ args: ['--version'] }),
+      manifest = JSON.parse(
+        await fs.readFile(new URL('package.json', import.meta.url), 'utf8')
+      );
     expect(result.status).toBe(0);
     expect(result.stdout.trim()).toBe(manifest.version);
   });
 
-  it('should preserve the native Vitest help for evaluation commands', () => {
+  it('should describe Viteval evaluation options', () => {
     const result = runCli({ args: ['run', '--help', '--root', BASIC_EXAMPLE] });
     expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
-    expect(result.stdout).toContain('--reporter');
-    expect(result.stdout).toContain('--project');
+    expect(result.stdout).toContain('--timeout');
+    expect(result.stdout).toContain('--concurrency');
   });
 });
 
 describe('init', () => {
   beforeAll(async () => {
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
     await fs.mkdir(path.join(TEST_DIR, 'node_modules'), { recursive: true });
     await fs.symlink(
@@ -74,7 +69,7 @@ describe('init', () => {
     await fs.writeFile(
       path.join(TEST_DIR, 'package.json'),
       JSON.stringify(
-        { name: 'test-project', version: '1.0.0', type: 'module' },
+        { name: 'test-project', type: 'module', version: '1.0.0' },
         null,
         2
       )
@@ -87,13 +82,13 @@ describe('init', () => {
 
   afterEach(async () => {
     for (const extension of ['ts', 'mts', 'js', 'mjs', 'cts', 'cjs']) {
-      await fs.rm(path.join(TEST_DIR, `vitest.config.${extension}`), {
+      await fs.rm(path.join(TEST_DIR, `viteval.config.${extension}`), {
         force: true,
       });
     }
     await fs.writeFile(
       path.join(TEST_DIR, 'package.json'),
-      JSON.stringify({ name: 'test-project', version: '1.0.0', type: 'module' })
+      JSON.stringify({ name: 'test-project', type: 'module', version: '1.0.0' })
     );
     await fs.rm(path.join(TEST_DIR, 'viteval.setup.ts'), { force: true });
     await fs.rm(path.join(TEST_DIR, '.env'), { force: true });
@@ -103,22 +98,22 @@ describe('init', () => {
     });
   });
 
-  it('should create vitest.config.ts and .viteval directory', async () => {
+  it('should create viteval.config.ts and .viteval directory', async () => {
     const result = runCli({ args: ['init', '--no-env-file'], cwd: TEST_DIR });
     expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
 
     const configExists = await fs
-      .access(path.join(TEST_DIR, 'vitest.config.ts'))
+      .access(path.join(TEST_DIR, 'viteval.config.ts'))
       .then(() => true)
       .catch(() => false);
     expect(configExists).toBe(true);
     expect(
-      await fs.readFile(path.join(TEST_DIR, 'vitest.config.ts'), 'utf8')
+      await fs.readFile(path.join(TEST_DIR, 'viteval.config.ts'), 'utf8')
     ).toBe(
       await fs.readFile(
         path.join(
           import.meta.dirname,
-          '../cli/src/templates/vitest.config.ts.template'
+          '../cli/src/templates/viteval.config.ts.template'
         ),
         'utf8'
       )
@@ -139,7 +134,7 @@ describe('init', () => {
 
   it.each(
     ['module', 'commonjs'].flatMap((moduleType) =>
-      ['relative', 'absolute'].map((kind) => ({ moduleType, kind }))
+      ['relative', 'absolute'].map((kind) => ({ kind, moduleType }))
     )
   )(
     'should create and load a URL-safe $kind env-file path in a $moduleType project',
@@ -148,17 +143,17 @@ describe('init', () => {
         path.join(TEST_DIR, 'package.json'),
         JSON.stringify({
           name: 'test-project',
-          version: '1.0.0',
           type: moduleType,
+          version: '1.0.0',
         })
       );
-      const relative = 'config/env %#.fixture';
-      const destination = path.join(TEST_DIR, relative);
-      const selected = kind === 'absolute' ? destination : relative;
-      const initialized = runCli({
-        args: ['init', '--create-env-file', '--env-file-path', selected],
-        cwd: TEST_DIR,
-      });
+      const relative = 'config/env %#.fixture',
+        destination = path.join(TEST_DIR, relative),
+        selected = kind === 'absolute' ? destination : relative,
+        initialized = runCli({
+          args: ['init', '--create-env-file', '--env-file-path', selected],
+          cwd: TEST_DIR,
+        });
       expect(
         initialized.status,
         `${initialized.stdout}${initialized.stderr}`
@@ -182,7 +177,7 @@ describe('init', () => {
     }
   );
 
-  it('should create .env and viteval.setup.ts when env file is enabled', async () => {
+  it('should load .env from viteval.config.ts when env file is enabled', async () => {
     const result = runCli({ args: ['init', '--env-file'], cwd: TEST_DIR });
     expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
 
@@ -196,16 +191,16 @@ describe('init', () => {
       .access(path.join(TEST_DIR, 'viteval.setup.ts'))
       .then(() => true)
       .catch(() => false);
-    expect(setupExists).toBe(true);
+    expect(setupExists).toBe(false);
 
     const configExists = await fs
-      .access(path.join(TEST_DIR, 'vitest.config.ts'))
+      .access(path.join(TEST_DIR, 'viteval.config.ts'))
       .then(() => true)
       .catch(() => false);
     expect(configExists).toBe(true);
 
     const setup = await fs.readFile(
-      path.join(TEST_DIR, 'viteval.setup.ts'),
+      path.join(TEST_DIR, 'viteval.config.ts'),
       'utf8'
     );
     expect(setup).toContain('new URL(');
@@ -216,7 +211,7 @@ describe('init', () => {
     const result = runCli({ args: ['init'], cwd: TEST_DIR });
     expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
     expect(
-      await fs.readFile(path.join(TEST_DIR, 'viteval.setup.ts'), 'utf8')
+      await fs.readFile(path.join(TEST_DIR, 'viteval.config.ts'), 'utf8')
     ).toContain('createJsonProvider');
     await expect(fs.access(path.join(TEST_DIR, '.env'))).rejects.toThrow();
   });
@@ -231,30 +226,30 @@ describe('init', () => {
       const result = runCli({ args: ['init', '--no-env-file'], cwd: project });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       const config = await fs.readFile(
-        path.join(project, 'vitest.config.mts'),
+        path.join(project, 'viteval.config.mts'),
         'utf8'
       );
-      expect(config).toContain("from 'viteval/reporters'");
-      expect(config).toContain('.viteval/results/<run>.json');
+      expect(config).toContain("from 'viteval/config'");
+      expect(config).toContain("results: ['json']");
     } finally {
-      await fs.rm(project, { recursive: true, force: true });
+      await fs.rm(project, { force: true, recursive: true });
     }
   });
 
   it.each(['ts', 'mts', 'js', 'mjs', 'cts', 'cjs'])(
     'should preserve existing .%s configuration on repeated initialization',
     async (extension) => {
-      const configPath = path.join(TEST_DIR, `vitest.config.${extension}`);
-      const existingConfig = 'export default { test: { retry: 2 } };\n';
+      const configPath = path.join(TEST_DIR, `viteval.config.${extension}`),
+        existingConfig = 'export default { eval: { retries: 2 } };\n';
       await fs.writeFile(configPath, existingConfig);
       const result = runCli({ args: ['init', '--no-env-file'], cwd: TEST_DIR });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       expect(await fs.readFile(configPath, 'utf8')).toBe(existingConfig);
       expect(
         (await fs.readdir(TEST_DIR)).filter((name) =>
-          name.startsWith('vitest.config.')
+          name.startsWith('viteval.config.')
         )
-      ).toEqual([`vitest.config.${extension}`]);
+      ).toEqual([`viteval.config.${extension}`]);
     }
   );
 
@@ -283,10 +278,11 @@ describe('init', () => {
 
 describe('data', () => {
   beforeAll(async () => {
+    await fs.rm(DATA_TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(DATA_TEST_DIR, { recursive: true });
     await fs.writeFile(
-      path.join(DATA_TEST_DIR, 'vitest.config.ts'),
-      "import { defineConfig } from 'viteval/config';\n\nexport default defineConfig({});\n"
+      path.join(DATA_TEST_DIR, 'viteval.config.ts'),
+      vitevalConfig()
     );
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'rooted.dataset.ts'),
@@ -306,7 +302,7 @@ describe('data', () => {
     await fs.rm(DATA_TEST_DIR, { force: true, recursive: true });
   });
 
-  it('should write datasets under the selected Vitest root', async () => {
+  it('should write datasets under the selected V1 project root', async () => {
     const result = runCli({
       args: ['data', '--root', DATA_TEST_DIR, '--overwrite'],
     });
@@ -321,14 +317,14 @@ describe('data', () => {
     expect(dataset.data).toEqual([{ expected: 'answer', input: 'question' }]);
   });
 
-  it('should reject an unknown Vitest project', () => {
+  it('should reject the removed native project selection option', () => {
     const result = runCli({
       args: ['data', '--root', DATA_TEST_DIR, '--project', 'missing'],
     });
 
     expect(result.status).toBe(1);
     expect(`${result.stdout}${result.stderr}`).toContain(
-      'Vitest project "missing" was not found'
+      'Unknown argument: project'
     );
   });
 
@@ -397,11 +393,13 @@ test('ordinary test', () => { throw new Error('ordinary test ran'); });`
         'utf8'
       )
     );
-    expect(saved.data).toEqual([{ input: 'inline', expected: 'answer' }]);
+    expect(saved.data).toEqual([{ expected: 'answer', input: 'inline' }]);
 
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'inline.config.ts'),
-      "export default { test: { include: ['inline.eval.ts'] } };"
+      vitevalConfig({
+        eval: { include: ['inline.eval.ts'], results: ['json'] },
+      })
     );
     const evaluation = runCli({
       args: [
@@ -422,10 +420,7 @@ test('ordinary test', () => { throw new Error('ordinary test ran'); });`
   it('should include eval files in default dataset discovery', async () => {
     const root = path.join(DATA_TEST_DIR, 'default-discovery');
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(
-      path.join(root, 'vitest.config.ts'),
-      'export default {};'
-    );
+    await fs.writeFile(path.join(root, 'viteval.config.ts'), vitevalConfig());
     await fs.writeFile(
       path.join(root, 'questions.eval.ts'),
       `import { evaluate } from 'viteval';
@@ -471,19 +466,17 @@ export const shared = defineDataset({ name: 'shared-discovery', data: async () =
     );
   });
 
-  it('should discover eval datasets already initialized by setup files', async () => {
+  it('should discover eval datasets imported from shared modules', async () => {
     const root = path.join(DATA_TEST_DIR, 'setup-discovery');
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(
-      path.join(root, 'vitest.config.ts'),
-      "export default { test: { setupFiles: ['./datasets.setup.ts'] } };"
-    );
+    await fs.writeFile(path.join(root, 'viteval.config.ts'), vitevalConfig());
     await fs.writeFile(
       path.join(root, 'datasets.setup.ts'),
       `import { defineDataset } from 'viteval/dataset';
 import { afterAll } from 'vitest';
+import { getExecutionScope } from '@viteval/core/internal/execution';
 export const dataset = defineDataset({ name: 'setup-discovery', data: async () => [{ input: 'setup', expected: 'answer' }] });
-afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });`
+afterAll(() => { if (getExecutionScope()?.discovery) throw new Error('dataset discovery leaked'); });`
     );
     await fs.writeFile(
       path.join(root, 'questions.eval.ts'),
@@ -499,36 +492,30 @@ evaluate('questions', { data: dataset, task: () => { throw new Error('task ran')
         'utf8'
       )
     );
-    expect(saved.data).toEqual([{ input: 'setup', expected: 'answer' }]);
+    expect(saved.data).toEqual([{ expected: 'answer', input: 'setup' }]);
   });
 
-  it.each(['forks', 'threads'])(
-    'should discover setup-imported inline datasets once in %s workers',
-    async (pool) => {
-      const root = path.join(DATA_TEST_DIR, `setup-inline-${pool}`);
-      const marker = path.join(root, 'generator-calls.txt');
-      const workerConfig = {
-        pool,
-        isolate: false,
-        sequence: { setupFiles: 'parallel' },
-        setupFiles: ['./first.setup.ts', './second.setup.ts'],
-      };
-      const testConfig =
-        pool === 'threads'
-          ? { projects: [{ test: { ...workerConfig, name: 'datasets' } }] }
-          : workerConfig;
+  it.each([1, 2])(
+    'should discover multiply imported inline datasets once with concurrency %s',
+    async (concurrency) => {
+      const root = path.join(DATA_TEST_DIR, `shared-inline-${concurrency}`),
+        marker = path.join(root, 'generator-calls.txt');
       await fs.mkdir(root, { recursive: true });
       await fs.writeFile(
-        path.join(root, 'vitest.config.ts'),
-        `export default { test: ${JSON.stringify(testConfig)} };`
+        path.join(root, 'viteval.config.ts'),
+        vitevalConfig({ eval: { concurrency, results: ['json'] } })
       );
       await fs.writeFile(
         path.join(root, 'first.setup.ts'),
         `import './questions.eval';
 import { afterAll } from 'vitest';
-import { defineDataset } from 'viteval/dataset';
-defineDataset({ name: 'unmatched-setup', data: async () => { throw new Error('unmatched setup dataset generated'); } });
-afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });`
+import { getExecutionScope } from '@viteval/core/internal/execution';
+afterAll(() => { if (getExecutionScope()?.discovery) throw new Error('dataset discovery leaked'); });`
+      );
+      await fs.writeFile(
+        path.join(root, 'unmatched.ts'),
+        `import { defineDataset } from 'viteval/dataset';
+defineDataset({ name: 'unmatched-module', data: async () => { throw new Error('unmatched dataset generated'); } });`
       );
       await fs.writeFile(
         path.join(root, 'second.setup.ts'),
@@ -536,7 +523,9 @@ afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dat
       );
       await fs.writeFile(
         path.join(root, 'questions.eval.ts'),
-        `import { appendFile } from 'node:fs/promises';
+        `import './first.setup';
+import './second.setup';
+import { appendFile } from 'node:fs/promises';
 import { evaluate } from 'viteval';
 import { defineDataset } from 'viteval/dataset';
 import { describe, test } from 'vitest';
@@ -554,14 +543,7 @@ describe('ordinary suite', () => {
 });`
       );
       const result = runCli({
-        args: [
-          'data',
-          'questions.eval.ts',
-          '--root',
-          root,
-          '--overwrite',
-          ...(pool === 'threads' ? ['--project', 'datasets'] : []),
-        ],
+        args: ['data', 'questions.eval.ts', '--root', root, '--overwrite'],
       });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
       expect(`${result.stdout}${result.stderr}`).toContain(
@@ -574,7 +556,7 @@ describe('ordinary suite', () => {
           'utf8'
         )
       );
-      expect(saved.data).toEqual([{ input: 'inline', expected: 'answer' }]);
+      expect(saved.data).toEqual([{ expected: 'answer', input: 'inline' }]);
       expect(
         (await fs.readdir(path.join(root, '.viteval'))).filter((name) =>
           name.startsWith('.data-')
@@ -583,20 +565,18 @@ describe('ordinary suite', () => {
     }
   );
 
-  it('should discard setup-time candidates from a failed matched import', async () => {
+  it('should discard candidates from a caught failed matched import', async () => {
     const root = path.join(DATA_TEST_DIR, 'setup-failed-import');
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(
-      path.join(root, 'vitest.config.ts'),
-      "export default { test: { setupFiles: ['./caught.setup.ts'] } };"
-    );
+    await fs.writeFile(path.join(root, 'viteval.config.ts'), vitevalConfig());
     await fs.writeFile(
       path.join(root, 'caught.setup.ts'),
-      "import './valid.eval';\ntry { await import('./broken.eval'); } catch {}"
+      "try { await import('./broken.eval'); } catch {}"
     );
     await fs.writeFile(
-      path.join(root, 'valid.eval.ts'),
-      `import { defineDataset } from 'viteval/dataset';
+      path.join(root, '00-valid.eval.ts'),
+      `import './caught.setup';
+import { defineDataset } from 'viteval/dataset';
 const dataset = defineDataset({ name: 'valid-setup-import', data: async () => [{ input: 'valid', expected: 'answer' }] });`
     );
     await fs.writeFile(
@@ -623,7 +603,7 @@ throw new Error('setup eval import exploded');`
         'utf8'
       )
     );
-    expect(saved.data).toEqual([{ input: 'valid', expected: 'answer' }]);
+    expect(saved.data).toEqual([{ expected: 'answer', input: 'valid' }]);
   });
 
   it('should reject distinct datasets with the same name before writing either', async () => {
@@ -746,7 +726,14 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
     );
     await fs.mkdir(path.dirname(datasetPath), { recursive: true });
     const original = JSON.stringify({
-      data: [{ input: 'original', expected: 'answer' }],
+      schemaVersion: 1,
+      id: 'rooted',
+      name: 'rooted',
+      version: 1,
+      metadata: {},
+      createdAt: '2026-10-27T12:00:00.000Z',
+      updatedAt: '2026-10-27T12:00:00.000Z',
+      data: [{ expected: 'answer', input: 'original' }],
     });
     await fs.writeFile(datasetPath, original);
     const result = runCli({
@@ -776,7 +763,7 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
           'utf8'
         )
       ).data
-    ).toEqual([{ input: 'question', expected: 'answer' }]);
+    ).toEqual([{ expected: 'answer', input: 'question' }]);
   });
 
   it('should return a failure and diagnostics when generation rejects', async () => {
@@ -795,17 +782,14 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
     expect(`${result.stdout}${result.stderr}`).toContain('dataset exploded');
   });
 
-  it('should support dataset setup modules with native Vitest lifecycle hooks', async () => {
-    const config = path.join(DATA_TEST_DIR, 'vitest.config.ts');
-    const original = await fs.readFile(config, 'utf8');
+  it('should run imported dataset lifecycle cleanup without leaking discovery state', async () => {
+    const dataset = path.join(DATA_TEST_DIR, 'rooted.dataset.ts'),
+      original = await fs.readFile(dataset, 'utf8');
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'hooks.setup.ts'),
-      "import { afterAll } from 'vitest';\nafterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });\n"
+      "import { afterAll } from 'vitest';\nimport { getExecutionScope } from '@viteval/core/internal/execution';\nafterAll(() => { if (getExecutionScope()?.discovery) throw new Error('dataset discovery leaked'); });\n"
     );
-    await fs.writeFile(
-      config,
-      "export default { test: { setupFiles: ['./hooks.setup.ts'] } };\n"
-    );
+    await fs.writeFile(dataset, `import './hooks.setup';\n${original}`);
     try {
       const result = runCli({
         args: [
@@ -818,17 +802,20 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
       });
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
     } finally {
-      await fs.writeFile(config, original);
+      await fs.writeFile(dataset, original);
     }
   });
 });
 
 describe('run', () => {
   beforeAll(async () => {
+    await fs.rm(RUN_TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(RUN_TEST_DIR, { recursive: true });
     await fs.writeFile(
-      path.join(RUN_TEST_DIR, 'vitest.config.ts'),
-      "export default { test: { include: ['failure.eval.ts'] } };\n"
+      path.join(RUN_TEST_DIR, 'viteval.config.ts'),
+      vitevalConfig({
+        eval: { include: ['failure.eval.ts'], results: ['json'] },
+      })
     );
     await fs.writeFile(
       path.join(RUN_TEST_DIR, 'failure.eval.ts'),
@@ -838,20 +825,79 @@ describe('run', () => {
   afterAll(async () => {
     await fs.rm(RUN_TEST_DIR, { force: true, recursive: true });
   });
-  it('should delegate filters and options to the native Vitest CLI', () => {
+  it('should run a failing V1 evaluation with CLI filters and options', () => {
     const result = runCli({
-      args: [
-        'run',
-        '--root',
-        RUN_TEST_DIR,
-        '--reporter=dot',
-        '--testTimeout=10000',
-      ],
+      args: ['run', '--root', RUN_TEST_DIR, '--timeout=10000'],
     });
 
     expect(result.status).toBe(1);
     expect(`${result.stdout}${result.stderr}`).toContain(
       'mean score 0 is below threshold 1'
+    );
+  });
+
+  it('should resolve the default judge from V1 model provider configuration', async () => {
+    await fs.writeFile(
+      path.join(RUN_TEST_DIR, 'judge.eval.ts'),
+      `import { evaluate, scorers } from 'viteval';
+evaluate('configured judge', { data: [{ input: 'q', expected: 'a' }], task: () => 'a', scorers: [scorers.answerCorrectness()] });`
+    );
+    await fs.writeFile(
+      path.join(RUN_TEST_DIR, 'judge.config.ts'),
+      `import { defineConfig } from 'viteval/config';
+export default defineConfig({
+  eval: { include: ['judge.eval.ts'], results: ['json'] },
+  models: { defaults: { language: 'fixture:judge' }, providers: [{
+    languageModel: (modelId) => ({
+      specificationVersion: 'v4', provider: 'fixture.language', modelId, supportedUrls: {},
+      doGenerate: async () => ({
+        content: [{ type: 'text', text: JSON.stringify({ choice: 'A', reasons: 'Correct answer.' }) }],
+        finishReason: { unified: 'stop', raw: undefined },
+        usage: { inputTokens: { total: 1, noCache: 1 }, outputTokens: { total: 1, text: 1 } },
+        warnings: [],
+      }),
+    }),
+    embeddingModel: () => { throw new Error('Embedding model not configured'); },
+    imageModel: () => { throw new Error('Image model not configured'); },
+  }] },
+});`
+    );
+    const result = runCli({
+      args: ['run', '--root', RUN_TEST_DIR, '--config', 'judge.config.ts'],
+    });
+    expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+    const reports = await fs.readdir(
+      path.join(RUN_TEST_DIR, '.viteval/results')
+    );
+    const documents = await Promise.all(
+      reports.map(async (file) =>
+        JSON.parse(
+          await fs.readFile(
+            path.join(RUN_TEST_DIR, '.viteval/results', file),
+            'utf8'
+          )
+        )
+      )
+    );
+    expect(documents).toContainEqual(
+      expect.objectContaining({
+        success: true,
+        numPassedEvals: 1,
+        evalResults: expect.arrayContaining([
+          expect.objectContaining({
+            evalResults: expect.arrayContaining([
+              expect.objectContaining({
+                scores: [
+                  expect.objectContaining({
+                    name: 'AnswerCorrectness',
+                    score: 1,
+                  }),
+                ],
+              }),
+            ]),
+          }),
+        ]),
+      })
     );
   });
 });
@@ -861,21 +907,21 @@ describe('ui', () => {
     'should serve project results and shut down on SIGTERM',
     { timeout: 15_000 },
     async () => {
-      const project = await fs.mkdtemp(path.join(tmpdir(), 'viteval-ui-'));
-      const args = ['ui', '--root', project];
-      const child = spawn(
-        CLI_BINARY ?? process.execPath,
-        CLI_BINARY ? args : [CLI_DIST, ...args],
-        {
-          stdio: 'pipe',
-        }
-      );
-      const exited = new Promise<number | null>((resolve, reject) => {
-        child.once('error', reject);
-        child.once('exit', resolve);
-      });
-      let logs = '';
-      let readyTimer: ReturnType<typeof setTimeout> | undefined;
+      const project = await fs.mkdtemp(path.join(tmpdir(), 'viteval-ui-')),
+        args = ['ui', '--root', project],
+        child = spawn(
+          CLI_BINARY ?? process.execPath,
+          CLI_BINARY ? args : [CLI_DIST, ...args],
+          {
+            stdio: 'pipe',
+          }
+        ),
+        exited = new Promise<number | null>((resolve, reject) => {
+          child.once('error', reject);
+          child.once('exit', resolve);
+        });
+      let logs = '',
+        readyTimer: ReturnType<typeof setTimeout> | undefined;
       try {
         const url = await new Promise<string>((resolve, reject) => {
           readyTimer = setTimeout(
@@ -903,10 +949,10 @@ describe('ui', () => {
         const page = await fetch(`${url}/results`);
         expect(page.status, logs).toBe(200);
         expect(page.headers.get('content-type')).toMatch(/text\/html/);
-        const html = await page.text();
-        const renderedText = html
-          .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-          .replace(/<[^>]+>/g, '');
+        const html = await page.text(),
+          renderedText = html
+            .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<[^>]+>/g, '');
         expect(renderedText).toContain('No results.');
         expect(renderedText).toContain(
           'View and analyze your evaluation results (0 total)'
@@ -949,7 +995,7 @@ describe('ui', () => {
         clearTimeout(readyTimer);
         child.kill('SIGTERM');
         await exited;
-        await fs.rm(project, { recursive: true, force: true });
+        await fs.rm(project, { force: true, recursive: true });
       }
     }
   );
@@ -965,10 +1011,16 @@ function runCli({ args, cwd }: { args: string[]; cwd?: string }) {
       timeout: 10_000,
     }
   );
-  if (result.error)
+  if (result.error) {
     throw new Error(
       `CLI could not complete: ${result.error.message}\n${result.stdout ?? ''}${result.stderr ?? ''}`,
       { cause: result.error }
     );
+  }
   return result;
+}
+
+function vitevalConfig(options: Record<string, unknown> = {}) {
+  return `import { defineConfig } from 'viteval/config';
+export default defineConfig(${JSON.stringify({ eval: { results: ['json'] }, dataset: { providers: ['json'] }, ...options })});\n`;
 }

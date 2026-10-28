@@ -1,6 +1,6 @@
 {
   "name": "@viteval/cli",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "Command line interface for Viteval - Next generation LLM evaluation framework powered by Vitest.",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",
@@ -31,7 +31,7 @@
     "glob": "^13.0.6",
     "ink": "^8.0.0",
     "maltty": "1.0.0-rc.4",
-    "massaman": "^0.5.2",
+    "massaman": "^0.5.5",
     "open": "^11.0.4",
     "react": "^19.3.0",
     "zod": "^4.6.5"

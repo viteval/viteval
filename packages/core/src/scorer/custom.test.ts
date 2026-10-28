@@ -1,7 +1,74 @@
 import { describe, expect, it } from 'vitest';
+import { createProjectRuntime, runWithProjectRuntime } from '#/config/runtime';
 import { createScorer } from './custom';
 
 describe('createScorer', () => {
+  it('should preserve a dependency factory scorer name in metadata and scores', async () => {
+    const scorer = createScorer(({ json }) => ({
+      name: 'context-scorer',
+      score: () => ({ score: typeof json.dataset === 'function' ? 1 : 0 }),
+    }));
+    expect(scorer.name).toBe('context-scorer');
+    expect(await scorer({ output: 'answer' })).toMatchObject({
+      name: 'context-scorer',
+      score: 1,
+    });
+  });
+
+  it('should resolve dependency factories lazily and only once', async () => {
+    let resolutions = 0;
+    const scorer = createScorer(() => {
+      resolutions++;
+      return {
+        name: 'lazy-scorer',
+        score: () => ({ score: 1 }),
+      };
+    });
+    expect(resolutions).toBe(0);
+    expect(scorer.name).toBe('lazy-scorer');
+    expect(scorer.name).toBe('lazy-scorer');
+    const first = await scorer({ output: 'answer' });
+    const second = await scorer({ output: 'answer' });
+    expect(resolutions).toBe(1);
+    expect(first.name).toBe(second.name);
+    expect(first.name).toBe(scorer.name);
+  });
+
+  it('should re-resolve dependency factories when the active runtime changes', async () => {
+    const contexts: unknown[] = [];
+    const scorer = createScorer((context) => {
+      contexts.push(context);
+      return {
+        name: 'runtime-scorer',
+        score: () => ({ score: contexts.length }),
+      };
+    });
+    expect(scorer.name).toBe('runtime-scorer');
+    expect(contexts).toHaveLength(1);
+    const fallback = contexts[0];
+
+    await runWithProjectRuntime({
+      runtime: createProjectRuntime({}),
+      run: async () => {
+        expect(scorer.name).toBe('runtime-scorer');
+        expect(contexts).toHaveLength(2);
+        expect(contexts[1]).not.toBe(fallback);
+        await scorer({ output: 'answer' });
+        expect(contexts).toHaveLength(2);
+      },
+    });
+    await runWithProjectRuntime({
+      runtime: createProjectRuntime({}),
+      run: async () => {
+        await scorer({ output: 'answer' });
+        expect(contexts).toHaveLength(3);
+        expect(contexts[2]).not.toBe(contexts[1]);
+      },
+    });
+    expect(scorer.name).toBe('runtime-scorer');
+    expect(contexts).toHaveLength(3);
+  });
+
   it('should create a basic scorer with synchronous score function', async () => {
     const scorer = createScorer({
       name: 'exact-match',

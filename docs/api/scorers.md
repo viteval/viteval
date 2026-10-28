@@ -2,12 +2,21 @@
 
 Viteval includes deterministic scorers, embedding similarity scorers, and LLM
 judges. Call each factory to create a scorer. LLM and embedding scorers use the
-models initialized in Vitest setup. See [Configuration](/api/configuration).
+defaults in `viteval.config.ts`. See [Configuration](/api/configuration).
 
 The scores in the examples illustrate how to read results. Model-based scores
 vary with the configured model and are not guarantees of correctness or safety.
 
-Judge scorers accept `{ model }` to override the initialized language model.
+Judge and embedding scorers accept `{ model }` to override their configured default
+with a namespaced model ID or a direct AI SDK model instance:
+
+```ts
+scorers.factual({ model: 'openai:gpt-4.1-mini' });
+scorers.embeddingSimilarity({ model: 'openai:text-embedding-3-small' });
+```
+
+Model strings require a registered provider, but are not an exhaustive typed
+catalog of remote model IDs. SDK/API validation remains authoritative.
 Model failures return `score: null` with an error in `metadata`; null scores
 contribute 0 to evaluation aggregation.
 
@@ -97,7 +106,7 @@ scorers.embeddingSimilarity();
 
 **Model setup**:
 
-- Uses the embedding model configured in worker setup
+- Uses `models.defaults.embedding` from Viteval config
 - Compares outputs and expected answers with cosine similarity
 - Language support depends on the selected model
 

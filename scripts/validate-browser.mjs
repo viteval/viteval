@@ -1,25 +1,26 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { setTimeout } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
 import { createJsonProvider } from '../packages/core/dist/provider/index.mjs';
 import { createVitevalServer } from '../packages/ui/server.mjs';
 
-const repository = path.resolve(import.meta.dirname, '..');
-const root = await mkdtemp(
-  path.join(repository, 'packages/viteval/.test-browser-')
-);
-const cli = path.join(repository, 'packages/cli/cli.mjs');
-const executable =
-  process.env.ORCA_CLI_COMMAND ??
-  (process.env.ORCA_DEV_REPO_ROOT
-    ? 'orca-dev'
-    : process.platform === 'linux'
-      ? 'orca-ide'
-      : 'orca');
-const worktree = `path:${repository}`;
-const server = createVitevalServer({ root });
+const repository = path.resolve(import.meta.dirname, '..'),
+  root = await mkdtemp(
+    path.join(repository, 'packages/viteval/.test-browser-')
+  ),
+  cli = path.join(repository, 'packages/cli/cli.mjs'),
+  executable =
+    process.env.ORCA_CLI_COMMAND ??
+    (process.env.ORCA_DEV_REPO_ROOT
+      ? 'orca-dev'
+      : process.platform === 'linux'
+        ? 'orca-ide'
+        : 'orca'),
+  worktree = `path:${repository}`,
+  server = createVitevalServer({ root });
 let page;
 
 try {
@@ -43,8 +44,8 @@ try {
     'dir'
   );
   runCli({ args: ['init', '--cwd', root, '--no-env-file'] });
-  const port = await server.start();
-  const url = `http://localhost:${port}`;
+  const port = await server.start(),
+    url = `http://localhost:${port}`;
   page = orca([
     'tab',
     'create',
@@ -62,44 +63,53 @@ try {
   await writeFile(
     path.join(root, 'vitest.config.ts'),
     `import { defineConfig } from 'vitest/config';
-import { JsonReporter } from 'viteval/reporters';
+import { createJsonReporter } from '@viteval/core/internal/reporter';
 export default defineConfig({ test: {
-  reporters: [new JsonReporter({ outputFile: '.viteval/results/smoke.json' })],
-  projects: ['alpha', 'beta'].map(name => ({ test: { name, include: ['src/**/*.eval.ts'], setupFiles: ['./viteval.setup.ts'] } })),
+  reporters: [createJsonReporter({ outputFile: '.viteval/results/smoke.json' })],
+  projects: ['alpha', 'beta'].map(name => ({ test: { name, include: ['src/**/*.eval.ts'] } })),
 } });`
   );
   await writeFile(
     path.join(root, 'src/failure.eval.ts'),
     `import { evaluate, createScorer } from 'viteval';
 evaluate('failure diagnostics', { data: [{ input: 'broken task', expected: 'answer' }], task: () => { throw new Error('Browser smoke: task failed'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })] });
-evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'answer' }], task: () => { throw new Error('Must not execute'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })], testOptions: { skip: true } });`
+evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'answer' }], task: () => { throw new Error('Must not execute'); }, scorers: [createScorer({ name: 'exact', score: () => ({ score: 1 }) })], skip: true });`
   );
-  runCli({ args: ['run', '--root', root], expectedStatus: 1 });
-  const provider = createJsonProvider({ root });
-  const dataset = await provider.datasets.create({
-    name: 'questions/first,release',
-    items: [
-      {
-        input: 'question',
-        expected: 'answer',
-        extra: { context: ['reference'] },
-      },
-    ],
+  // Exercise internal multi-project snapshot projection, not a public CLI integration.
+  runCli({
+    entry: fileURLToPath(
+      new URL('vitest.mjs', import.meta.resolve('vitest/package.json'))
+    ),
+    args: ['run', '--root', root, '--config', 'vitest.config.ts'],
+    expectedStatus: 1,
   });
-  if (!dataset.ok) throw dataset.error;
+  const provider = createJsonProvider({ root }),
+    dataset = await provider.datasets.create({
+      items: [
+        {
+          input: 'question',
+          expected: 'answer',
+          extra: { context: ['reference'] },
+        },
+      ],
+      name: 'questions/first,release',
+    });
+  if (!dataset.ok) {
+    throw dataset.error;
+  }
   await writeFile(path.join(root, '.viteval/results/broken.json'), '{broken');
   browser(['goto', '--url', `${url}/results`]);
   browser(['wait', '--text', 'Invalid result file: broken.json']);
   waitTableInteractive();
   let snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Failed/);
-  click({ snapshot, role: ['button', 'link'], name: /Failed.*4 2 8/ });
+  click({ name: /Failed.*4 2 8/, role: ['button', 'link'], snapshot });
   browser(['wait', '--text', 'Browser smoke: task failed']);
   snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Uppercase \[alpha\]/);
   assert.match(snapshot.snapshot, /Uppercase \[beta\]/);
   assert.match(snapshot.snapshot, /Skipped/);
-  click({ snapshot, role: 'button', name: /^broken task / });
+  click({ name: /^broken task /, role: 'button', snapshot });
   browser(['wait', '--text', 'Input:']);
   snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /Expected:/);
@@ -107,7 +117,7 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
     (snapshot.snapshot.match(/Browser smoke: task failed/g) ?? []).length >= 2,
     'Expanded case must expose its execution error'
   );
-  click({ snapshot, role: 'button', name: /^hello / });
+  click({ name: /^hello /, role: 'button', snapshot });
   snapshot = browser(['snapshot']);
   assert.match(snapshot.snapshot, /HELLO/);
 
@@ -116,9 +126,9 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   waitTableInteractive();
   snapshot = browser(['snapshot']);
   click({
-    snapshot,
-    role: ['button', 'link'],
     name: /^questions\/first,release /,
+    role: ['button', 'link'],
+    snapshot,
   });
   waitDatasetDetail(dataset.value.id);
   snapshot = browser(['snapshot']);
@@ -136,13 +146,13 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   browser([
     'focus',
     '--element',
-    `@${findRef({ snapshot, role: 'button', name: /^questions\/first,release:0 / })}`,
+    `@${findRef({ name: /^questions\/first,release:0 /, role: 'button', snapshot })}`,
   ]);
   browser(['keypress', '--key', 'Enter']);
   browser(['wait', '--text', 'Expected:']);
   browser(['wait', '--text', 'reference']);
   snapshot = browser(['snapshot']);
-  click({ snapshot, role: 'button', name: /^Tag$/ });
+  click({ name: /^Tag$/, role: 'button', snapshot });
   browser([
     'wait',
     '--selector',
@@ -150,39 +160,41 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   ]);
   snapshot = browser(['snapshot']);
   const input = findRef({
-    snapshot,
-    role: 'textbox',
     name: /Search or create tag/,
+    role: 'textbox',
+    snapshot,
   });
   browser(['fill', '--element', `@${input}`, '--value', 'browser-release']);
   snapshot = browser(['snapshot']);
-  click({ snapshot, role: 'button', name: /^Create .*browser-release/ });
+  click({ name: /^Create .*browser-release/, role: 'button', snapshot });
   browser(['wait', '--selector', '[aria-label="Remove tag browser-release"]']);
   browser(['keypress', '--key', 'Escape']);
   browser(['reload']);
   browser(['wait', '--selector', '[aria-label="Remove tag browser-release"]']);
   const tagged = await provider.tags.listTaggings({
-    entityType: 'dataset',
     entityId: dataset.value.id,
+    entityType: 'dataset',
   });
   assert.equal(tagged.ok, true);
   assert.equal(tagged.value[0].name, 'browser-release');
   snapshot = browser(['snapshot']);
-  findRef({ snapshot, role: 'button', name: /^Remove tag browser-release$/ });
+  findRef({ name: /^Remove tag browser-release$/, role: 'button', snapshot });
   // Orca ref activation does not dispatch this icon-only control; activate its DOM click handler.
   browser([
     'eval',
     '--expression',
     `document.querySelector('[aria-label="Remove tag browser-release"]').click()`,
   ]);
-  const deadline = Date.now() + 5_000;
+  const deadline = Date.now() + 5000;
   while (true) {
     const current = await provider.tags.listTaggings({
-      entityType: 'dataset',
       entityId: dataset.value.id,
+      entityType: 'dataset',
     });
     assert.equal(current.ok, true);
-    if (current.value.length === 0) break;
+    if (current.value.length === 0) {
+      break;
+    }
     assert.ok(
       Date.now() < deadline,
       'Removing a tag in the browser must persist before reloading'
@@ -192,8 +204,8 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
   browser(['reload']);
   waitDatasetDetail(dataset.value.id);
   const removed = await provider.tags.listTaggings({
-    entityType: 'dataset',
     entityId: dataset.value.id,
+    entityType: 'dataset',
   });
   assert.deepEqual(removed.value, []);
   await writeFile(path.join(root, '.viteval/tags.json'), '{broken');
@@ -207,10 +219,10 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
 } catch (error) {
   if (page) {
     try {
-      const snapshot = browser(['snapshot']);
-      const network = browser(['network', '--limit', '10']);
+      const snapshot = browser(['snapshot']),
+        network = browser(['network', '--limit', '10']);
       process.stderr.write(
-        JSON.stringify(
+        `${JSON.stringify(
           {
             origin: snapshot.origin,
             refs: snapshot.refs,
@@ -221,7 +233,7 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
           },
           null,
           2
-        ) + '\n'
+        )}\n`
       );
     } catch (diagnosticsError) {
       process.stderr.write(
@@ -233,9 +245,9 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
 } finally {
   try {
     if (page) {
-      const tabs = orca(['tab', 'list', '--worktree', worktree]).tabs;
+      const { tabs } = orca(['tab', 'list', '--worktree', worktree]);
       const tab = tabs.find((candidate) => candidate.browserPageId === page);
-      if (tab)
+      if (tab) {
         orca([
           'tab',
           'close',
@@ -244,10 +256,11 @@ evaluate('skipped diagnostics', { data: [{ input: 'skipped task', expected: 'ans
           '--index',
           String(tab.index),
         ]);
+      }
     }
   } finally {
     await server.shutdown();
-    await rm(root, { recursive: true, force: true });
+    await rm(root, { force: true, recursive: true });
   }
 }
 
@@ -268,10 +281,10 @@ function browser(args) {
 }
 
 function findRef({ snapshot, role, name }) {
-  const roles = Array.isArray(role) ? role : [role];
-  const match = Object.entries(snapshot.refs).find(
-    ([, ref]) => roles.includes(ref.role) && name.test(ref.name)
-  );
+  const roles = Array.isArray(role) ? role : [role],
+    match = Object.entries(snapshot.refs).find(
+      ([, ref]) => roles.includes(ref.role) && name.test(ref.name)
+    );
   assert.ok(match, `Missing ${role} ${name}: ${snapshot.snapshot}`);
   return match[0];
 }
@@ -309,8 +322,8 @@ function waitTableInteractive() {
 async function verifyRemoteDatasets({ provider, url }) {
   for (let index = 0; index < 25; index++) {
     const created = await provider.datasets.create({
-      name: `Browser page ${String(index).padStart(2, '0')}`,
       items: [{ input: `question-${index}`, expected: `answer-${index}` }],
+      name: `Browser page ${String(index).padStart(2, '0')}`,
     });
     assert.equal(
       created.ok,
@@ -375,9 +388,9 @@ async function verifyRemoteDatasets({ provider, url }) {
   );
 
   activateControl({
+    event: 'pointerdown',
     selector: 'th button',
     text: 'Name',
-    event: 'pointerdown',
   });
   browser(['wait', '--text', 'Desc']);
   activateControl({ selector: '[role="menuitem"]', text: 'Desc' });
@@ -400,7 +413,7 @@ async function verifyRemoteDatasets({ provider, url }) {
   browser(['wait', '--text', 'Browser page 20']);
   waitTableInteractive();
   snapshot = browser(['snapshot']);
-  const input = findRef({ snapshot, role: 'textbox', name: /Search by name/ });
+  const input = findRef({ name: /Search by name/, role: 'textbox', snapshot });
   browser(['fill', '--element', `@${input}`, '--value', 'Browser page 00']);
   browser(['wait', '--text', '1 row(s)']);
   snapshot = browser(['snapshot']);
@@ -413,9 +426,9 @@ async function verifyRemoteDatasets({ provider, url }) {
   ]);
 
   const nextInput = findRef({
-    snapshot,
-    role: 'textbox',
     name: /Search by name/,
+    role: 'textbox',
+    snapshot,
   });
   browser(['fill', '--element', `@${nextInput}`, '--value', 'Browser page 24']);
   browser(['wait', '--text', 'Browser page 24']);
@@ -431,12 +444,12 @@ async function verifyRemoteDatasets({ provider, url }) {
 }
 
 function changePageSize(size) {
-  activateControl({ selector: '[role="combobox"]', event: 'pointerdown' });
+  activateControl({ event: 'pointerdown', selector: '[role="combobox"]' });
   browser(['wait', '--selector', '[role="option"]']);
   activateControl({
+    event: 'keydown',
     selector: '[role="option"]',
     text: size,
-    event: 'keydown',
   });
   browser(['keypress', '--key', 'Escape']);
   browser([
@@ -450,7 +463,9 @@ async function waitForSnapshotText(text) {
   const deadline = Date.now() + 10_000;
   while (true) {
     const snapshot = browser(['snapshot']);
-    if (snapshot.snapshot.includes(text)) return snapshot;
+    if (snapshot.snapshot.includes(text)) {
+      return snapshot;
+    }
     assert.ok(
       Date.now() < deadline,
       `Snapshot did not expose ${text}: ${snapshot.snapshot}`
@@ -476,8 +491,8 @@ function activateControl({ selector, text, event = 'click' }) {
   ]);
 }
 
-function runCli({ args, expectedStatus = 0 }) {
-  const result = spawnSync(process.execPath, [cli, ...args], {
+function runCli({ args, expectedStatus = 0, entry = cli }) {
+  const result = spawnSync(process.execPath, [entry, ...args], {
     encoding: 'utf8',
     timeout: 30_000,
   });

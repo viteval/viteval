@@ -3,7 +3,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { glob } from 'glob';
 import { command } from 'maltty';
-import { createVitest, type Reporter } from 'vitest/node';
+import { type Reporter, createVitest } from 'vitest/node';
+import { createRunnerConfig } from '@viteval/core/internal/runner';
+import { resolveProjectConfig } from '#/lib/config';
 import type { TestArtifactBase } from 'vitest';
 import { createDatasetWorker } from '#/commands/data/worker';
 import {
@@ -19,8 +21,6 @@ import {
 
 export const dataCommand = command({
   description: 'Generate the datasets in your codebase',
-  options: DATA_OPTIONS,
-  positionals: DATA_POSITIONALS,
   handler: async ({ args, log: logger, status, colors }) => {
     const argv = DATA_ARGS.parse(args);
     const outcomes = new Map<string, DatasetOutcome>();
@@ -58,11 +58,13 @@ export const dataCommand = command({
     };
     let matchedFiles = new Set<string>();
     const checkpoint = `__viteval_dataset_${randomUUID().replaceAll('-', '')}`;
+    const selectedConfig = resolveProjectConfig(argv);
+    const runnerConfig = createRunnerConfig(selectedConfig);
     try {
       const vitest = await createVitest(
         {
-          config: argv.config,
-          root: path.resolve(process.cwd(), argv.root ?? '.'),
+          config: selectedConfig.configFile ?? false,
+          root: argv.root ? selectedConfig.root : undefined,
           run: true,
           watch: false,
           testNamePattern: '^viteval dataset: ',
@@ -70,11 +72,12 @@ export const dataCommand = command({
         },
         {
           plugins: [
+            runnerConfig.plugins,
             {
               name: 'viteval-dataset-discovery',
               enforce: 'post',
               transform(code, id) {
-                const file = normalizeDatasetPath(id.split('?')[0] ?? '');
+                const file = normalizeDatasetPath(id.split('?')[0]);
                 if (!file || !matchedFiles.has(file)) return;
                 return {
                   code: instrumentDatasetModule({ code, file, checkpoint }),
@@ -89,14 +92,7 @@ export const dataCommand = command({
       let workerPath: string | undefined;
       let bootstrapPath: string | undefined;
       try {
-        const project = argv.project
-          ? vitest.getProjectByName(argv.project)
-          : vitest.getRootProject();
-        if (argv.project && project.name !== argv.project) {
-          logger.error(`Vitest project "${argv.project}" was not found`);
-          process.exitCode = 1;
-          return;
-        }
+        const project = vitest.getRootProject();
         const rootPath = project.config.root;
         const datasets = await glob(argv.pattern, {
           cwd: rootPath,
@@ -213,6 +209,8 @@ export const dataCommand = command({
       process.exitCode = 1;
     }
   },
+  options: DATA_OPTIONS,
+  positionals: DATA_POSITIONALS,
 });
 
 interface DatasetOutcome extends TestArtifactBase {

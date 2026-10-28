@@ -9,7 +9,6 @@ import { normalizeDatasetPath } from '#/commands/data/bootstrap';
  */
 export function createDatasetWorker({
   files,
-  root,
   overwrite,
   bootstrap,
 }: {
@@ -24,13 +23,6 @@ export function createDatasetWorker({
   }));
   return `import { test, recordArtifact } from 'vitest';
 import { takeCandidates, moduleCandidates, restoreDiscovery } from ${JSON.stringify(pathToFileURL(bootstrap).href)};
-import { createJsonProvider, getDatasetProvider, initializeProvider } from 'viteval/provider';
-
-if (!getDatasetProvider()) {
-  const initialized = await initializeProvider({ datasets: createJsonProvider({ root: ${JSON.stringify(root)} }) });
-  if (!initialized.ok) throw initialized.error;
-}
-
 const discovered = new Map();
 const conflicts = new Set();
 const failures = [];

@@ -19,6 +19,9 @@
     "viteval#test": {
       "dependsOn": ["build"]
     },
+    "@viteval/cli#test": {
+      "dependsOn": ["^build", "viteval#build"]
+    },
     "types": {
       "dependsOn": ["^build", "^types"]
     },
@@ -29,8 +32,8 @@
       "dependsOn": ["build"]
     },
     "@viteval/providers#prisma:generate": {
-      "inputs": ["prisma/schema.prisma", "package.json"],
-      "outputs": ["src/generated/prisma/**"]
+      "inputs": ["prisma/*.prisma", "package.json"],
+      "outputs": ["src/generated/prisma/**", "src/generated/prisma-postgres/**"]
     },
     "@viteval/providers#build": {
       "dependsOn": ["^build", "prisma:generate"],
@@ -40,7 +43,8 @@
       "dependsOn": ["^build", "^types", "prisma:generate"]
     },
     "@viteval/providers#test": {
-      "dependsOn": ["^build", "prisma:generate"]
+      "dependsOn": ["^build", "prisma:generate"],
+      "env": ["VITEVAL_TEST_POSTGRES_URL"]
     },
     "@viteval/ui#build": {
       "dependsOn": ["^build"],

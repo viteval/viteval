@@ -4,15 +4,14 @@ import { evaluate } from './evaluate';
 
 describe('evaluate', () => {
   const mockTask = vi.fn(async ({ input }: { input: string }) =>
-    input.toUpperCase()
-  );
-
-  const mockScorer = createScorer({
-    name: 'test-scorer',
-    score: ({ output, expected }) => ({
-      score: output === expected ? 1 : 0,
-    }),
-  });
+      input.toUpperCase()
+    ),
+    mockScorer = createScorer({
+      name: 'test-scorer',
+      score: ({ output, expected }) => ({
+        score: output === expected ? 1 : 0,
+      }),
+    });
 
   evaluate('basic evaluation with static data', {
     data: [
@@ -55,7 +54,7 @@ describe('evaluate', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
       return input;
     }),
-    testOptions: { timeout: 5000 },
+    timeout: 5000,
   });
 
   evaluate('function-based data', {

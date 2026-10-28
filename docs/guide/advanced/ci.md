@@ -35,8 +35,7 @@ on:
       - 'datasets/**'
       - '**/*.eval.ts'
       - '**/*.dataset.ts'
-      - 'vitest.config.*'
-      - 'viteval.setup.*'
+      - 'viteval.config.*'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/evaluate.yml'
@@ -49,8 +48,7 @@ on:
       - 'datasets/**'
       - '**/*.eval.ts'
       - '**/*.dataset.ts'
-      - 'vitest.config.*'
-      - 'viteval.setup.*'
+      - 'viteval.config.*'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/evaluate.yml'
@@ -79,7 +77,7 @@ jobs:
 
 ## Preserve reports
 
-Configure `JsonReporter` to write `.viteval/results/<id>.json`, then upload the
+Select `eval.results: ['json']` in config, then upload the
 files even when a score or execution failure makes the evaluation step fail:
 
 ```yaml
@@ -94,4 +92,4 @@ files even when a score or execution failure makes the evaluation step fail:
 
 The same `viteval run` command works in GitLab, CircleCI, and other CI systems.
 Install with a lockfile, provide model credentials through the CI environment,
-and retain the JSON reports. A nonzero Vitest exit code fails the job.
+and retain the JSON reports. A nonzero `viteval run` exit code fails the job.

@@ -1,15 +1,14 @@
 import { z } from 'zod';
 
-export const DATASET_FILE_SCHEMA = z.object({
-  schemaVersion: z.literal(1).optional(),
-  id: z.string().optional(),
-  name: z.string().optional(),
+export const DATASET_FILE_SCHEMA = z.strictObject({
+  schemaVersion: z.literal(1),
+  id: z.string().min(1),
+  name: z.string().min(1),
   description: z.string().optional(),
-  version: z.number().int().positive().optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-  timestamp: z.string().optional(),
+  version: z.number().int().positive(),
+  metadata: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   data: z.array(
     z.object({ input: z.unknown(), expected: z.unknown() }).passthrough()
   ),

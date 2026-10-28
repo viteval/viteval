@@ -1,20 +1,18 @@
 import { createFile } from '@viteval/internal';
-import { err, isErr, ok, type Result } from 'massaman/control';
+import { ok, type Result } from 'massaman/control';
 
 const TEMPLATES = {
-  'vitest.config.ts': `import { defineConfig } from 'viteval/config';
-import { JsonReporter } from 'viteval/reporters';
+  'viteval.config.ts': `import { defineConfig } from 'viteval/config';
+import { createJsonProvider } from 'viteval';
 
 export default defineConfig({
-  test: {
-    testTimeout: 100_000,
+  eval: {
+    timeout: 60_000,
     include: ['src/**/*.eval.ts'],
-    reporters: [
-      'default',
-      new JsonReporter({ outputFile: '.viteval/results/<run>.json' }),
-    ],
-    setupFiles: ['./viteval.setup.ts'],
+    results: ['json'],
   },
+  dataset: { providers: ['json'] },
+  providers: [createJsonProvider({ root: import.meta.dirname })],
 });
 `,
   'starter.eval.ts': `import { evaluate, scorers } from 'viteval';
@@ -42,14 +40,7 @@ export async function createFileFromTemplate(
   filePath: string,
   template: TemplateName
 ) {
-  const content = await readTemplateContents(template);
-  if (isErr(content)) {
-    return content;
-  }
-  if (content.value === null) {
-    return err('Template not found');
-  }
-  return await createFile(filePath, content.value);
+  return await createFile(filePath, TEMPLATES[template]);
 }
 
 /**

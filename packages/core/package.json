@@ -1,6 +1,6 @@
 {
   "name": "@viteval/core",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "Core - Next generation LLM evaluation framework powered by Vitest.",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",
@@ -13,6 +13,22 @@
   "main": "dist/main/index.mjs",
   "types": "dist/main/index.d.mts",
   "exports": {
+    "./internal/execution": {
+      "types": "./dist/config/execution.d.mts",
+      "import": "./dist/config/execution.mjs"
+    },
+    "./internal/setup": {
+      "types": "./dist/config/setup.d.mts",
+      "import": "./dist/config/setup.mjs"
+    },
+    "./internal/runner": {
+      "types": "./dist/config/runner.d.mts",
+      "import": "./dist/config/runner.mjs"
+    },
+    "./internal/reporter": {
+      "types": "./dist/reporters/json.d.mts",
+      "import": "./dist/reporters/json.mjs"
+    },
     "./provider": {
       "types": "./dist/provider/index.d.mts",
       "import": "./dist/provider/index.mjs"
@@ -50,7 +66,7 @@
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^5.4.3",
     "linear-sum-assignment": "^1.0.9",
-    "massaman": "^0.5.2",
+    "massaman": "^0.5.5",
     "mustache": "^4.2.0",
     "zod": "^4.6.5"
   },

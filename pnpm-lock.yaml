@@ -291,8 +291,8 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0
       massaman:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
       yargs:
         specifier: ^18.2.0
         version: 18.2.0
@@ -334,8 +334,8 @@ importers:
         specifier: 1.0.0-rc.4
         version: 1.0.0-rc.4(chokidar@5.0.0)(giget@3.3.1)(ink@8.0.0(@types/react@19.3.0)(react@19.3.0))(jiti@2.7.0)(magicast@0.5.5)(react@19.3.0)(vitest@5.0.3)
       massaman:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
       open:
         specifier: ^11.0.4
         version: 11.0.4
@@ -395,8 +395,8 @@ importers:
         specifier: ^1.0.9
         version: 1.0.9
       massaman:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
       mustache:
         specifier: ^4.2.0
         version: 4.2.0
@@ -438,8 +438,8 @@ importers:
   packages/internal:
     dependencies:
       massaman:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
     devDependencies:
       '@types/node':
         specifier: ^26.6.5
@@ -469,8 +469,8 @@ importers:
         specifier: workspace:^
         version: link:../internal
       massaman:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
     devDependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.1149.0
@@ -599,8 +599,8 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       massaman:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.5
+        version: 0.5.5
       radix-ui:
         specifier: ^1.7.0
         version: 1.7.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -7748,6 +7748,10 @@ packages:
     resolution: {integrity: sha512-aMdmsZhkQmqiIyUThWH6/+x+fhRBA2Iy+EhD9ZRnrL3esrqPlvfCtyyo+LLKC9cwkIDO5N8y7hzv8717NBCYVw==}
     engines: {node: '>=26.0.0'}
 
+  massaman@0.5.5:
+    resolution: {integrity: sha512-zfXobEAe1Cu5DHH+i8gCyXus/CLlHqaSEbNscwAVY4cYd4js8m+6FIhvf6dqZLKAfPFfUMJNGwB50iLl4JAFMA==}
+    engines: {node: '>=26.0.0'}
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -9519,6 +9523,9 @@ packages:
 
   ts-pattern@5.9.0:
     resolution: {integrity: sha512-6s5V71mX8qBUmlgbrfL33xDUwO0fq48rxAu2LBE11WBeGdpCPOsXksQbZJHvHwhrd3QjUusd3mAOM5Gg0mFBLg==}
+
+  ts-pattern@5.9.2:
+    resolution: {integrity: sha512-qAf+7M7Jjk7uebZeIo9uEzyintfuRtgHdzM9dqxRKcMi2dt76Ec+FH2wW3bnU9TuGLkZIJLoLs7cCQnU7Tu8ig==}
 
   tsdown@0.22.14:
     resolution: {integrity: sha512-ule7Y+fsAN2iZbLDoo7C4KYljFJNJJ+fLshyn+9gozeTspVersWHxwdGB+Dm2hzA38s6muFnUTl0jK3vJm9ifQ==}
@@ -17702,6 +17709,11 @@ snapshots:
       es-toolkit: 1.51.0
       ts-pattern: 5.9.0
 
+  massaman@0.5.5:
+    dependencies:
+      es-toolkit: 1.52.0
+      ts-pattern: 5.9.2
+
   math-intrinsics@1.1.0: {}
 
   mdast-util-find-and-replace@3.0.4:
@@ -19921,6 +19933,8 @@ snapshots:
       code-block-writer: 13.0.3
 
   ts-pattern@5.9.0: {}
+
+  ts-pattern@5.9.2: {}
 
   tsdown@0.22.14(tsx@4.23.15)(typescript@7.0.2):
     dependencies:

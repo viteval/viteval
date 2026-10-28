@@ -45,7 +45,10 @@ export function jsonDiff(options?: JsonDiffOptions): Scorer {
     name: 'JsonDiff',
     score: ({ output, expected }) => {
       const score = deepCompare(tryParseJson(output), tryParseJson(expected));
-      return { score: score >= threshold ? score : 0 };
+      if (score >= threshold) {
+        return { score };
+      }
+      return { score: 0 };
     },
   });
 }
@@ -88,7 +91,7 @@ function deepCompare(a: unknown, b: unknown): number {
   }
 
   if (typeof a === 'boolean' && typeof b === 'boolean') {
-    return a === b ? 1 : 0;
+    return Number(a === b);
   }
 
   if (isArray(a) && isArray(b)) {
@@ -98,10 +101,9 @@ function deepCompare(a: unknown, b: unknown): number {
     }
 
     const minLen = Math.min(a.length, b.length);
-    let total = 0;
-    for (let i = 0; i < minLen; i++) {
-      total += deepCompare(a[i], b[i]);
-    }
+    const total = Array.from({ length: minLen }, (_, index) =>
+      deepCompare(a[index], b[index])
+    ).reduce((sum, similarity) => sum + similarity, 0);
     return total / maxLen;
   }
 
@@ -114,10 +116,10 @@ function deepCompare(a: unknown, b: unknown): number {
       return 1;
     }
 
-    let total = 0;
-    for (const key of allKeys) {
-      total += deepCompare(a[key], b[key]);
-    }
+    const total = allKeys.reduce(
+      (sum, key) => sum + deepCompare(a[key], b[key]),
+      0
+    );
     return total / allKeys.length;
   }
 

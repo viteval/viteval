@@ -1,6 +1,6 @@
 {
   "name": "@viteval/ui",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "Viteval UI - local UI for viewing the results of your evals",
   "homepage": "https://github.com/viteval/viteval#readme",
   "bugs": "https://github.com/viteval/viteval/issues",
@@ -54,7 +54,7 @@
     "get-port": "^7.2.0",
     "hono": "^4.13.13",
     "lodash-es": "^4.18.1",
-    "massaman": "^0.5.2",
+    "massaman": "^0.5.5",
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
     "react-day-picker": "^10.0.2",

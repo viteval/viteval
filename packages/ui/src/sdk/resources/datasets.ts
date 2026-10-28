@@ -27,7 +27,7 @@ async function parseDatasetSummary(
   }
   const raw = parsed.data;
   return {
-    createdAt: raw.createdAt ?? raw.timestamp,
+    createdAt: raw.createdAt,
     description: raw.description,
     id: resolveDatasetId({ filename: id, storedId: raw.id }),
     itemCount: raw.data ? raw.data.length : 0,

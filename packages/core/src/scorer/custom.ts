@@ -1,5 +1,11 @@
 import type * as TF from 'type-fest';
+import { once } from 'massaman/function';
 import type { Extra, Score, Scorer, ScorerArgs } from '#/types';
+import {
+  type RuntimeContext,
+  getProjectRuntime,
+  getRuntimeContext,
+} from '#/config/runtime';
 
 /**
  * A scorer config for creating a custom scorer.
@@ -32,23 +38,57 @@ export function createScorer<
   EXPECTED = OUTPUT,
   EXTRA extends Extra = Extra,
 >(
-  config: ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+  config:
+    | ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+    | ((context: RuntimeContext) => ScorerConfig<OUTPUT, EXPECTED, EXTRA>)
 ): Scorer<OUTPUT, EXPECTED, EXTRA> {
+  const resolve = createConfigResolver(config);
   return Object.defineProperty(
     async (args: ScorerArgs<OUTPUT, EXPECTED, EXTRA>) => {
-      const result = await config.score(args);
+      const resolved = resolve(),
+        result = await resolved.score(args);
       return {
         metadata: result.metadata,
-        name: config.name,
+        name: resolved.name,
         score: result.score,
       };
     },
     'name',
     {
-      value: config.name,
-      writable: false,
+      get: () => resolve().name,
     }
   );
 }
 
 type ScoreResult = TF.Simplify<TF.SetOptional<Score, 'name'>>;
+
+/*
+|------------------
+| Internals
+|------------------
+*/
+
+function createConfigResolver<OUTPUT, EXPECTED, EXTRA extends Extra>(
+  config:
+    | ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+    | ((context: RuntimeContext) => ScorerConfig<OUTPUT, EXPECTED, EXTRA>)
+): () => ScorerConfig<OUTPUT, EXPECTED, EXTRA> {
+  if (typeof config !== 'function') {
+    return () => config;
+  }
+  const configurations = new WeakMap<
+    RuntimeContext,
+    ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+  >();
+  const fallback = once(getRuntimeContext);
+  return () => {
+    const context = getProjectRuntime()?.context ?? fallback();
+    const existing = configurations.get(context);
+    if (existing) {
+      return existing;
+    }
+    const resolved = config(context);
+    configurations.set(context, resolved);
+    return resolved;
+  };
+}

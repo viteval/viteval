@@ -7,8 +7,12 @@ describe('resolve', () => {
   });
 
   it('handles promise values', async () => {
-    await expect(new Promise((resolve) => resolve('test'))).resolves.toBe(
-      'test'
+    await expect(resolve(Promise.resolve('test'))).resolves.toBe('test');
+  });
+
+  it('should propagate rejected promises', async () => {
+    await expect(resolve(Promise.reject(new Error('failure')))).rejects.toThrow(
+      'failure'
     );
   });
 });

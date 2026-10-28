@@ -1,7 +1,36 @@
 import path from 'node:path';
-import type { PrismaClient } from '#/generated/prisma/client';
+import type { Prisma, PrismaClient } from '#/generated/prisma/client';
 import { attemptAsync } from 'massaman/control';
 import type { VitevalPostgresOptions, VitevalSqliteOptions } from './types';
+
+type DatabaseModels = {
+  dataset: Pick<
+    PrismaClient['dataset'],
+    'create' | 'delete' | 'findUnique' | 'findMany' | 'update'
+  >;
+  datasetItem: Pick<
+    PrismaClient['datasetItem'],
+    'deleteMany' | 'createMany' | 'findFirst' | 'findMany'
+  >;
+  evalRun: Pick<
+    PrismaClient['evalRun'],
+    'create' | 'update' | 'findUnique' | 'findMany'
+  >;
+  evalRunResult: Pick<PrismaClient['evalRunResult'], 'create' | 'createMany'>;
+  tag: Pick<PrismaClient['tag'], 'create' | 'update' | 'delete' | 'findMany'>;
+  tagging: Pick<PrismaClient['tagging'], 'upsert' | 'findMany' | 'deleteMany'>;
+};
+
+/** Database-neutral subset shared by the separately generated clients. */
+export interface DatabaseClient
+  extends
+    DatabaseModels,
+    Pick<PrismaClient, '$disconnect' | '$executeRawUnsafe'> {
+  $transaction(operations: Prisma.PrismaPromise<unknown>[]): Promise<unknown>;
+  $transaction(
+    operation: (client: DatabaseModels) => Promise<void>
+  ): Promise<void>;
+}
 
 /**
  * Create a Prisma client configured for the specified database.
@@ -15,13 +44,17 @@ import type { VitevalPostgresOptions, VitevalSqliteOptions } from './types';
  */
 export async function createPrismaClient(
   options: VitevalSqliteOptions | VitevalPostgresOptions
-): Promise<PrismaClient> {
+): Promise<DatabaseClient> {
   const created = await attemptAsync(async () => {
-    const { PrismaClient } = await import('#/generated/prisma/client');
     if (options.database === 'postgres') {
+      const { PrismaClient } =
+        await import('#/generated/prisma-postgres/client');
       const { PrismaPg } = await import('@prisma/adapter-pg');
-      return new PrismaClient({ adapter: new PrismaPg(options.url) });
+      return new PrismaClient({
+        adapter: new PrismaPg({ connectionString: options.url }),
+      });
     }
+    const { PrismaClient } = await import('#/generated/prisma/client');
     const { PrismaBetterSqlite3 } =
       await import('@prisma/adapter-better-sqlite3');
     return new PrismaClient({

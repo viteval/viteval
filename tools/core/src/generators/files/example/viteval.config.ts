@@ -1,0 +1,11 @@
+import { defineConfig } from 'viteval/config';
+import { createJsonProvider } from 'viteval';
+
+export default defineConfig({
+  eval: {
+    include: ['src/**/*.eval.ts'],
+    results: ['json'],
+  },
+  dataset: { providers: ['json'] },
+  providers: [createJsonProvider({ root: import.meta.dirname })],
+});

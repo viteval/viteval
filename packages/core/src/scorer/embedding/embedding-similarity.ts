@@ -1,10 +1,14 @@
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
-import { computeEmbeddingSimilarity } from './embed';
+import {
+  type EmbeddingScorerOptions,
+  computeEmbeddingSimilarity,
+} from './embed';
 
 /**
  * Create a semantic similarity scorer using embedding cosine similarity.
  *
+ * @param options - Optional embedding model ID or direct SDK model override.
  * @returns A scorer that embeds both strings via the configured embedding model and computes cosine similarity.
  *
  * @example
@@ -14,10 +18,10 @@ import { computeEmbeddingSimilarity } from './embed';
  * scorers: [scorers.embeddingSimilarity()]
  * ```
  */
-export function embeddingSimilarity(): Scorer {
+export function embeddingSimilarity(options?: EmbeddingScorerOptions): Scorer {
   return createScorer({
     name: 'EmbeddingSimilarity',
     score: ({ output, expected }) =>
-      computeEmbeddingSimilarity(output, expected),
+      computeEmbeddingSimilarity(output, expected, options),
   });
 }

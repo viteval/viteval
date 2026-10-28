@@ -38,7 +38,7 @@ const STEPS = [
 const CODE_FILES = [
   'order-extraction.eval.ts',
   'order-extraction.dataset.ts',
-  'vitest.config.ts',
+  'viteval.config.ts',
 ] as const;
 
 /**

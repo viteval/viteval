@@ -1,6 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { viteval } from './provider';
 
@@ -13,8 +14,259 @@ afterEach(async () => {
 });
 
 describe('viteval provider', () => {
+  it('should support dataset CRUD, pagination, and append ordinals in real SQLite', async () => {
+    const provider = viteval({ path: path.join(root, 'crud.db') });
+    try {
+      expect(provider.datasets).toBeUndefined();
+      expect(provider.evals).toBeUndefined();
+      expect(provider.tags).toBeUndefined();
+      await provider.close();
+      expect((await provider.initialize()).ok).toBe(true);
+      expect((await provider.initialize()).ok).toBe(true);
+      const datasets = provider.datasets!;
+      const created = await datasets.create({
+        name: 'empty',
+        description: 'initial',
+        metadata: { source: 'test' },
+      });
+      if (!created.ok) throw created.error;
+      const id = created.value.id;
+      // @ts-expect-error JavaScript callers can omit both selectors.
+      const unselected = await datasets.get({});
+      expect(unselected).toMatchObject({ ok: true, value: null });
+      expect(await datasets.get({ name: 'empty' })).toMatchObject({
+        ok: true,
+        value: { id, description: 'initial' },
+      });
+      expect(
+        await datasets.addItems({
+          datasetId: id,
+          items: [
+            { input: null, expected: null, extra: { context: 'reference' } },
+          ],
+        })
+      ).toMatchObject({ ok: true });
+      expect(
+        await datasets.replaceItems!({
+          datasetId: id,
+          items: [
+            { input: null, expected: null, extra: { replaced: true } },
+            { input: 2, expected: 2 },
+          ],
+        })
+      ).toMatchObject({ ok: true });
+      expect(
+        await datasets.getItems({ datasetId: id, offset: 1, limit: 1 })
+      ).toMatchObject({ ok: true, value: [{ input: 2, ordinal: 1 }] });
+      expect(
+        await datasets.update({
+          id,
+          name: 'renamed',
+          description: 'updated',
+          metadata: { revision: 2 },
+        })
+      ).toMatchObject({
+        ok: true,
+        value: { name: 'renamed', metadata: { revision: 2 } },
+      });
+      expect(
+        await datasets.update({ id, description: 'retained' })
+      ).toMatchObject({ ok: true, value: { metadata: { revision: 2 } } });
+      expect(await datasets.list()).toMatchObject({
+        ok: true,
+        value: [{ id }],
+      });
+      expect(await datasets.list({ offset: 0, limit: 1 })).toMatchObject({
+        ok: true,
+        value: [{ id }],
+      });
+      expect(await datasets.list({ offset: 1, limit: 1 })).toMatchObject({
+        ok: true,
+        value: [],
+      });
+      expect(await datasets.delete({ id })).toMatchObject({ ok: true });
+      expect(await datasets.get({ name: 'renamed' })).toMatchObject({
+        ok: true,
+        value: null,
+      });
+      expect(await datasets.getItems({ datasetId: id })).toMatchObject({
+        ok: true,
+        value: [],
+      });
+      expect(
+        await datasets.addItems({ datasetId: id, items: [] })
+      ).toMatchObject({ ok: false });
+    } finally {
+      await provider.close();
+    }
+  });
+
+  it('should persist tag edits and enforce idempotent associations in real SQLite', async () => {
+    const provider = viteval({
+      database: 'sqlite',
+      path: path.join(root, 'tags.db'),
+    });
+    try {
+      expect((await provider.initialize()).ok).toBe(true);
+      const tags = provider.tags!;
+      const created = await tags.create({
+        name: 'alpha',
+        color: 'red',
+        description: 'release',
+      });
+      if (!created.ok) throw created.error;
+      const id = created.value.id;
+      expect(
+        await tags.update({
+          id,
+          name: 'beta',
+          color: 'blue',
+          description: 'updated',
+        })
+      ).toMatchObject({
+        ok: true,
+        value: { name: 'beta', color: 'blue', description: 'updated' },
+      });
+      expect(await tags.list()).toMatchObject({ ok: true, value: [{ id }] });
+      expect(await tags.list({ offset: 1, limit: 1 })).toMatchObject({
+        ok: true,
+        value: [],
+      });
+      const association = {
+        tagId: id,
+        entityType: 'dataset' as const,
+        entityId: 'dataset',
+      };
+      expect(await tags.addTagging(association)).toMatchObject({ ok: true });
+      expect(await tags.addTagging(association)).toMatchObject({ ok: true });
+      expect(await tags.listEntitiesForTag({ tagId: id })).toMatchObject({
+        ok: true,
+        value: [{ entityId: 'dataset' }],
+      });
+      expect(
+        await tags.listEntitiesForTag({ tagId: id, entityType: 'eval_run' })
+      ).toMatchObject({ ok: true, value: [] });
+      expect(await tags.removeTagging(association)).toMatchObject({ ok: true });
+      expect(
+        await tags.listTaggings({ entityType: 'dataset', entityId: 'dataset' })
+      ).toMatchObject({ ok: true, value: [] });
+      expect(await tags.delete({ id })).toMatchObject({ ok: true });
+      expect(await tags.list()).toMatchObject({ ok: true, value: [] });
+    } finally {
+      await provider.close();
+    }
+  });
+
+  it('should filter and paginate runs and preserve batch result details in real SQLite', async () => {
+    const provider = viteval({
+      database: 'sqlite',
+      path: path.join(root, 'history.db'),
+    });
+    try {
+      expect((await provider.initialize()).ok).toBe(true);
+      const evals = provider.evals!;
+      expect(await evals.get({ id: 'missing' })).toMatchObject({
+        ok: true,
+        value: null,
+      });
+      const created = await evals.create({
+        name: 'history',
+        metadata: { revision: 1 },
+        config: { aggregation: 'median', threshold: 0.5, scorerNames: [] },
+      });
+      if (!created.ok) throw created.error;
+      const id = created.value.id;
+      const result = {
+        evalRunId: id,
+        input: 'q',
+        expected: 'a',
+        output: 'wrong',
+        duration: 25,
+        metadata: { reason: 'mismatch' },
+        scores: [],
+        meanScore: 0,
+        medianScore: 0,
+        sumScore: 0,
+        passed: false,
+      };
+      expect(await evals.addResults!([result])).toMatchObject({
+        ok: true,
+        value: [{ duration: 25, metadata: { reason: 'mismatch' } }],
+      });
+      expect(await evals.addResult(result)).toMatchObject({
+        ok: true,
+        value: { duration: 25 },
+      });
+      expect(await evals.get({ id })).toMatchObject({
+        ok: true,
+        value: { status: 'running' },
+      });
+      expect(await evals.list()).toMatchObject({ ok: true, value: [{ id }] });
+      expect(
+        await evals.list({ offset: 0, limit: 1, status: 'running' })
+      ).toMatchObject({ ok: true, value: [{ id }] });
+      expect(await evals.list({ offset: 1, limit: 1 })).toMatchObject({
+        ok: true,
+        value: [],
+      });
+      expect(
+        await evals.complete({
+          id,
+          status: 'failed',
+          summary: {
+            meanScore: 0,
+            medianScore: 0,
+            sumScore: 0,
+            passedCount: 0,
+            failedCount: 2,
+            totalCount: 2,
+            passed: false,
+          },
+        })
+      ).toMatchObject({ ok: true, value: { status: 'failed' } });
+      expect(await evals.list({ status: 'running' })).toMatchObject({
+        ok: true,
+        value: [],
+      });
+    } finally {
+      await provider.close();
+    }
+  });
+
   it('should use JSON by default', () => {
     expect(viteval().name).toBe('json');
+    expect(viteval({ root }).name).toBe('json');
+    expect(viteval({ database: 'sqlite' }).name).toBe('viteval');
+    expect(
+      viteval({ database: 'postgres', url: 'postgres://localhost/db' }).name
+    ).toBe('viteval');
+  });
+
+  it('should treat unknown persisted run statuses as failed', async () => {
+    const file = path.join(root, 'corrupt-status.db');
+    const provider = viteval({ database: 'sqlite', path: file });
+    try {
+      expect((await provider.initialize()).ok).toBe(true);
+      const run = await provider.evals!.create({
+        name: 'corrupt',
+        config: { aggregation: 'mean', threshold: 1, scorerNames: [] },
+      });
+      if (!run.ok) throw run.error;
+      const database = new Database(file);
+      try {
+        database
+          .prepare('UPDATE eval_runs SET status = ? WHERE id = ?')
+          .run('unknown', run.value.id);
+      } finally {
+        database.close();
+      }
+      expect(await provider.evals!.get({ id: run.value.id })).toMatchObject({
+        ok: true,
+        value: { status: 'failed' },
+      });
+    } finally {
+      await provider.close();
+    }
   });
 
   it('should round-trip undefined dataset and evaluation values through SQLite as null', async () => {

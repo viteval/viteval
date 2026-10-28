@@ -93,12 +93,16 @@ Shared utilities used across packages. Type guards, helpers, and common types. N
 
 Evaluations run as Vitest test suites, leveraging its speed, parallelization, and ecosystem.
 
-The CLI uses Vitest's native CLI for argument parsing, configuration, discovery,
-execution, watch mode, reporting, failure semantics, and exit status. Each
+The CLI owns argument parsing, help, and Viteval configuration. It uses internal
+Vitest programmatic primitives for discovery, execution, and watch mode. Each
 evaluation records its structured result as a custom Vitest artifact, which reporters
 consume from the reported test case. This keeps evaluation data on Vitest's supported
 worker-to-main-process transport instead of mutating internal task metadata.
 
-Viteval uses native `vitest.config.ts` files. Non-serializable model and provider
-instances initialize in Vitest `setupFiles`, inside each worker. Viteval does not
-provide a custom runner, plugin, virtual config module, default reporter, or task transport.
+Viteval owns `viteval.config.ts`. The CLI translates its `eval` options at the
+runner boundary; an internal setup entry loads worker-local model/storage instances.
+Used storage integrations initialize lazily and close after result persistence.
+Destination arrays select independent dataset and result writers. JSON persistence
+produces dashboard-readable snapshots without requiring a reporter. Runner
+configuration, setup, and reporter adapters are internal, not public integrations.
+No custom task transport is used.

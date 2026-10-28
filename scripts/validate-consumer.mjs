@@ -154,12 +154,12 @@ import { voltops } from '@viteval/providers/voltops';
 import { s3 } from '@viteval/providers/s3';
 import { gcs } from '@viteval/providers/gcs';
 const require = createRequire(import.meta.resolve('@viteval/providers'));
-for (const dependency of ['@aws-sdk/client-s3', '@google-cloud/storage', '@braintrust/api', '@langfuse/client', '@voltagent/sdk', '@prisma/client', '@prisma/adapter-better-sqlite3', 'better-sqlite3']) {
+for (const dependency of ['@aws-sdk/client-s3', '@google-cloud/storage', '@braintrust/api', '@langfuse/client', '@voltagent/sdk', '@prisma/client', '@prisma/adapter-better-sqlite3', 'better-sqlite3', '@prisma/adapter-pg', 'pg']) {
   assert.throws(() => require.resolve(dependency), { code: 'MODULE_NOT_FOUND' });
 }
 const json = viteval(); assert.equal((await json.initialize()).ok, true);
 const options = { publicKey: 'fixture-public', secretKey: 'fixture-secret' };
-for (const provider of [braintrust({ project: 'fixture', apiKey: 'fixture' }), langfuse(options), voltops(options), s3({ bucket: 'fixture' }), gcs({ bucket: 'fixture' }), viteval({ database: 'sqlite' })]) {
+for (const provider of [braintrust({ project: 'fixture', apiKey: 'fixture' }), langfuse(options), voltops(options), s3({ bucket: 'fixture' }), gcs({ bucket: 'fixture' }), viteval({ database: 'sqlite' }), viteval({ database: 'postgres', url: 'postgres://fixture:fixture@127.0.0.1:1/fixture' })]) {
   const initialized = await provider.initialize();
   assert.equal(initialized.ok, false, provider.name);
   assert.match(initialized.error.message, /[Ii]nstall|requires/);

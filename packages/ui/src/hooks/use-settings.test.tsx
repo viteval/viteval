@@ -10,6 +10,49 @@ afterEach(() => {
 });
 
 describe('useSettings', () => {
+  it.each(['null', '[]', '1', '"settings"', '{broken'])(
+    'should recover from invalid stored settings %s',
+    (stored) => {
+      localStorage.setItem('viteval:settings', stored);
+      const { result } = renderHook(() => useSettings());
+      expect(result.current.settings).toEqual(result.current.defaults);
+    }
+  );
+  it.each(['null', '[]', '1', '"settings"'])(
+    'should reject a non-object import %s without changing preferences',
+    async (value) => {
+      const { result } = renderHook(() => useSettings());
+      await act(async () =>
+        expect(result.current.importSettings(value)).toEqual({
+          ok: false,
+          error: 'Settings must be a JSON object',
+        })
+      );
+      expect(result.current.settings).toEqual(result.current.defaults);
+    }
+  );
+  it('should refresh settings for relevant cross-tab storage changes and ignore unrelated keys', () => {
+    const { result } = renderHook(() => useSettings());
+    act(() => {
+      localStorage.setItem(
+        'viteval:settings',
+        JSON.stringify({ pageSize: 100 })
+      );
+      window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated' }));
+    });
+    expect(result.current.settings.pageSize).toBe(20);
+    act(() =>
+      window.dispatchEvent(
+        new StorageEvent('storage', { key: 'viteval:settings' })
+      )
+    );
+    expect(result.current.settings.pageSize).toBe(100);
+    act(() => {
+      localStorage.clear();
+      window.dispatchEvent(new StorageEvent('storage', { key: null }));
+    });
+    expect(result.current.settings).toEqual(result.current.defaults);
+  });
   it('should apply identical validation to persisted and imported settings', () => {
     const incoming = JSON.stringify({
       pageSize: 'abc',

@@ -3,6 +3,6 @@
   "compilerOptions": {
     "composite": true
   },
-  "include": ["src/**/*", "vitest.config.ts", "viteval.setup.ts"],
+  "include": ["src/**/*", "viteval.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

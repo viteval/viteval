@@ -14,20 +14,17 @@ afterEach(async () => {
 });
 
 describe('createJsonProvider', () => {
-  it('should retain raw legacy filenames and distinguish encoded-looking names during CRUD', async () => {
-    const directory = path.join(root, '.viteval/datasets');
-    await mkdir(directory, { recursive: true });
+  it('should distinguish encoded-looking dataset names during CRUD', async () => {
     const names = ['my dataset', 'percent%value', 'encoded%20name'];
-    for (const name of names) {
-      await writeFile(
-        path.join(directory, `${name}.json`),
-        JSON.stringify({
-          timestamp: new Date().toISOString(),
-          data: [{ input: name, expected: null }],
-        })
-      );
-    }
     const datasets = createJsonProvider({ root }).datasets!;
+    for (const name of names) {
+      expect(
+        await datasets.create({
+          name,
+          items: [{ input: name, expected: null }],
+        })
+      ).toMatchObject({ ok: true });
+    }
     const listed = await datasets.list();
     if (!listed.ok) throw listed.error;
     expect(listed.value.map((dataset) => dataset.id).toSorted()).toEqual(
@@ -38,7 +35,7 @@ describe('createJsonProvider', () => {
       items: [{ input: 'new', expected: null }],
     });
     if (!collision.ok) throw collision.error;
-    expect(collision.value.id).not.toBe('encoded name');
+    expect(collision.value.id).toBe('encoded name');
     expect(
       await datasets.getItems({ datasetId: 'encoded%20name' })
     ).toMatchObject({ ok: true, value: [{ input: 'encoded%20name' }] });
@@ -257,13 +254,13 @@ describe('createJsonProvider', () => {
     });
   });
 
-  it('should upgrade legacy tag arrays while preserving identifiers', async () => {
+  it('should reject unversioned tag and tagging arrays', async () => {
     await mkdir(path.join(root, '.viteval'), { recursive: true });
     await writeFile(
       path.join(root, '.viteval', 'tags.json'),
       JSON.stringify([
         {
-          id: 'legacy',
+          id: 'tag',
           name: 'release',
           createdAt: '2026-01-01T00:00:00.000Z',
         },
@@ -273,8 +270,8 @@ describe('createJsonProvider', () => {
       path.join(root, '.viteval', 'taggings.json'),
       JSON.stringify([
         {
-          id: 'legacy-tagging',
-          tagId: 'legacy',
+          id: 'tagging',
+          tagId: 'tag',
           entityType: 'dataset',
           entityId: 'questions',
           createdAt: '2026-01-01T00:00:00.000Z',
@@ -282,19 +279,10 @@ describe('createJsonProvider', () => {
       ])
     );
     const tags = createJsonProvider({ root }).tags!;
+    expect(await tags.list()).toMatchObject({ ok: false });
     expect(
       await tags.listTaggings({ entityType: 'dataset', entityId: 'questions' })
-    ).toMatchObject({ ok: true, value: [{ id: 'legacy' }] });
-    expect((await tags.update({ id: 'legacy', color: '#ffffff' })).ok).toBe(
-      true
-    );
-    const file = JSON.parse(
-      await readFile(path.join(root, '.viteval', 'tags.json'), 'utf8')
-    );
-    expect(file).toMatchObject({
-      schemaVersion: 1,
-      tags: [{ id: 'legacy', color: '#ffffff' }],
-    });
+    ).toMatchObject({ ok: false });
   });
   it('should preserve concurrent dataset additions across separate instances', async () => {
     const first = createJsonProvider({ root }).datasets!;
@@ -406,6 +394,7 @@ describe('createJsonProvider', () => {
   it('should exclude skipped native cases from provider score summaries without dropping their outcomes', async () => {
     await mkdir(path.join(root, '.viteval/results'), { recursive: true });
     const report = {
+      schemaVersion: 1,
       runId: 'native-skips',
       runName: 'native skips',
       status: 'finished',

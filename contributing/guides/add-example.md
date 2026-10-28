@@ -16,7 +16,7 @@ The generator creates:
 
 - `examples/my-example/` directory
 - `package.json` with viteval dependency
-- `vitest.config.ts` configuration
+- `viteval.config.ts` configuration
 - Example evaluation file
 
 ### 3. Install dependencies
@@ -74,15 +74,15 @@ mkdir -p examples/my-example
 }
 ```
 
-### 4. Create vitest.config.ts
+### 4. Create viteval.config.ts
 
 ```ts
 import { defineConfig } from 'viteval/config';
 
 export default defineConfig({
-  test: {
+  eval: {
     include: ['src/**/*.eval.ts'],
-    testTimeout: 30_000,
+    timeout: 30_000,
   },
 });
 ```
