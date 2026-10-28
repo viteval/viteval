@@ -9,7 +9,8 @@ import {
   createProjectRuntime,
   getProjectRuntime,
   getRuntimeContext,
-  setProjectRuntime,
+  runWithProjectRuntime,
+  withProjectRuntime,
 } from './runtime';
 
 afterEach(async () => {
@@ -17,6 +18,85 @@ afterEach(async () => {
 });
 
 describe('createProjectRuntime', () => {
+  it('should make concurrent close callers wait for the same cleanup', async () => {
+    const ready = Promise.withResolvers<void>();
+    const close = vi.fn(async () => {
+      await ready.promise;
+      return ok(undefined);
+    });
+    const runtime = createProjectRuntime({
+      providers: [createProvider({ name: 'json', close })],
+    });
+    await runtime.provider('json');
+    const first = runtime.close();
+    const second = runtime.close();
+    expect(second).toBe(first);
+    await expect(runtime.provider('json')).rejects.toThrow('closed');
+    ready.resolve();
+    await Promise.all([first, second]);
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it('should retain execution failures when cleanup also fails', async () => {
+    const executionError = new Error('execution rejected');
+    await expect(
+      withProjectRuntime({
+        config: {
+          providers: [
+            createProvider({
+              name: 'json',
+              close: async () => err('cleanup rejected'),
+            }),
+          ],
+        },
+        run: async () => {
+          await getProjectRuntime()!.provider('json');
+          throw executionError;
+        },
+      })
+    ).rejects.toMatchObject({
+      errors: [executionError, expect.any(AggregateError)],
+    });
+    expect(getProjectRuntime()).toBeUndefined();
+  });
+
+  it('should return scoped operation values after cleanup', async () => {
+    await expect(
+      withProjectRuntime({ config: {}, run: () => 42 })
+    ).resolves.toBe(42);
+  });
+
+  it('should propagate operation failures after successful cleanup', async () => {
+    const failure = new Error('operation rejected');
+    await expect(
+      withProjectRuntime({
+        config: {},
+        run: () => {
+          throw failure;
+        },
+      })
+    ).rejects.toBe(failure);
+  });
+
+  it('should propagate cleanup failures after a successful operation', async () => {
+    await expect(
+      withProjectRuntime({
+        config: {
+          providers: [
+            createProvider({
+              name: 'json',
+              close: async () => err('cleanup rejected'),
+            }),
+          ],
+        },
+        run: async () => {
+          await getProjectRuntime()!.provider('json');
+          return 42;
+        },
+      })
+    ).rejects.toThrow(AggregateError);
+  });
+
   it('should initialize used providers once and leave unused providers unopened', async () => {
     const initialize = vi.fn(async () => ok(undefined)),
       close = vi.fn(async () => ok(undefined)),
@@ -272,16 +352,25 @@ describe('createProjectRuntime', () => {
 });
 
 describe('worker runtime lifecycle', () => {
-  it('should share one active context and reject accidental replacement', async () => {
+  it('should scope nested runtimes without replacing the caller context', async () => {
     expect(getProjectRuntime()).toBeUndefined();
     expect(getRuntimeContext().json.dataset('default').name).toBe('default');
     const runtime = createProjectRuntime({});
-    setProjectRuntime(runtime);
-    expect(getRuntimeContext()).toBe(runtime.context);
-    expect(() => setProjectRuntime(createProjectRuntime({}))).toThrow(
-      'already active'
-    );
-    await closeProjectRuntime();
+    await runWithProjectRuntime({
+      runtime,
+      run: async () => {
+        expect(getRuntimeContext()).toBe(runtime.context);
+        const nested = createProjectRuntime({});
+        runWithProjectRuntime({
+          runtime: nested,
+          run: () => {
+            expect(getProjectRuntime()).toBe(nested);
+          },
+        });
+        expect(getProjectRuntime()).toBe(runtime);
+        await closeProjectRuntime();
+      },
+    });
     expect(getProjectRuntime()).toBeUndefined();
     await closeProjectRuntime();
   });
@@ -297,9 +386,15 @@ describe('worker runtime lifecycle', () => {
         }),
       ],
     });
-    setProjectRuntime(runtime);
-    await runtime.provider('json');
-    await expect(closeProjectRuntime()).rejects.toThrow(AggregateError);
+    await expect(
+      runWithProjectRuntime({
+        runtime,
+        run: async () => {
+          await runtime.provider('json');
+          await closeProjectRuntime();
+        },
+      })
+    ).rejects.toThrow(AggregateError);
     expect(getProjectRuntime()).toBeUndefined();
   });
 });
@@ -329,7 +424,7 @@ describe('model registry', () => {
     );
   });
 
-  it('should initialize the registry lazily when no model configuration exists', () => {
+  it('should reject model lookups when no model providers are configured', () => {
     const runtime = createProjectRuntime({});
     expect(() =>
       runtime.context.models.languageModel('missing:model')

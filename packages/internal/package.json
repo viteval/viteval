@@ -26,7 +26,7 @@
     "types": "tsc --noEmit"
   },
   "dependencies": {
-    "massaman": "^0.5.2"
+    "massaman": "^0.5.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

@@ -40,3 +40,9 @@ Vitest configuration compatibility. Public evaluations return no runner objects.
 Use `--timeout`, `--concurrency`, `--retries`, and `--name` for evaluation overrides;
 execute through internal programmatic runner primitives rather than CLI passthrough.
 Discard datasets registered by failed imports even when another module catches the error.
+
+Separate case execution, dataset resolution, and persistence from the internal
+Vitest adapter. Scope project dependencies to each evaluation file, preserve them
+through deferred collection, and share provider cleanup across concurrent callers.
+Resolve generated discovery imports from the installed CLI so isolated pnpm
+consumers do not need direct dependencies on internal packages.

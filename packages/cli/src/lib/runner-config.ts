@@ -85,30 +85,45 @@ export function extractFileFilters(params: {
   valueFlags: ReadonlySet<string>;
 }): string[] {
   const commandIndex = params.argv.indexOf(params.command, 1);
-  if (commandIndex === -1) return [];
-  const tokens = params.argv.slice(commandIndex + 1);
-  const filters: string[] = [];
-  for (let index = 0; index < tokens.length; index += 1) {
-    const token = tokens[index]!;
-    if (token === '--') {
-      filters.push(...tokens.slice(index + 1));
-      break;
-    }
-    if (token.startsWith('--')) {
-      const [flag, ...value] = token.slice(2).split('=');
-      if (!value.length && params.valueFlags.has(flag!)) index += 1;
-      continue;
-    }
-    if (token.startsWith('-')) continue;
-    filters.push(token);
+  if (commandIndex === -1) {
+    return [];
   }
-  return filters;
+  const tokens = params.argv.slice(commandIndex + 1);
+  return tokens.reduce<{
+    filters: string[];
+    skipNext: boolean;
+    positional: boolean;
+  }>(
+    (state, token) => {
+      if (state.positional) {
+        return { ...state, filters: [...state.filters, token] };
+      }
+      if (state.skipNext) {
+        return { ...state, skipNext: false };
+      }
+      if (token === '--') {
+        return { ...state, positional: true };
+      }
+      if (token.startsWith('--')) {
+        const [flag, ...value] = token.slice(2).split('=');
+        return {
+          ...state,
+          skipNext: !value.length && params.valueFlags.has(flag!),
+        };
+      }
+      if (token.startsWith('-')) {
+        return state;
+      }
+      return { ...state, filters: [...state.filters, token] };
+    },
+    { filters: [], skipNext: false, positional: false }
+  ).filters;
 }
 
 /**
  * Create a Vite plugin that enables dataset-discovery collection inside evaluation modules.
  *
- * The injected global makes the core evaluate() short-circuit into a registered
+ * The collection scope makes the core evaluate() short-circuit into a registered
  * skip suite, so dynamic collection lists evaluation names without running
  * data generators, tasks, or scorers.
  *
@@ -118,16 +133,8 @@ export function extractFileFilters(params: {
 export function createEvaluationDiscoveryPlugin(): Plugin {
   return {
     name: 'viteval-evaluation-discovery',
-    enforce: 'post',
-    transform(code, id) {
-      const file = id.split('?')[0]!;
-      if (!/\.[cm]?[jt]sx?$/.test(file) || file.includes('/node_modules/'))
-        return;
-      const source = code.replace(/^#![^\n]*(?:\n|$)/, '');
-      return {
-        code: `globalThis.__viteval_datasetDiscovery ??= { register: function () {} };\n${source}`,
-        map: null,
-      };
+    config() {
+      return { test: { provide: { vitevalDiscovery: true } } };
     },
   };
 }

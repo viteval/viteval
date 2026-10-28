@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { escapeRegExp } from 'massaman/string';
 import { configDefaults, type ViteUserConfig } from 'vitest/config';
 import type { VitevalConfig } from './types';
 
@@ -57,6 +58,17 @@ export function createRunnerConfig(options: {
               maxConcurrency: defaults.concurrency,
               retry,
               runner: path.join(path.dirname(setupFile), 'lifecycle.mjs'),
+              sequence: { setupFiles: 'list' },
+              server: {
+                deps: {
+                  // Runner instances survive isolation's module-cache reset; their context carrier must too.
+                  external: [
+                    new RegExp(
+                      `${escapeRegExp(path.dirname(path.dirname(setupFile)).replaceAll('\\', '/'))}/execution-[^/]+\\.mjs$`
+                    ),
+                  ],
+                },
+              },
               setupFiles: [setupFile],
               provide: {
                 vitevalConfigFile: options.configFile,

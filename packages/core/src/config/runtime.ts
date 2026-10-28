@@ -1,6 +1,7 @@
 import { createProviderRegistry } from 'ai';
 import type { EmbeddingModel, LanguageModel } from 'ai';
-import { isErr } from 'massaman/control';
+import { attemptAsync, isErr } from 'massaman/control';
+import { once } from 'massaman/function';
 import { createJsonProvider } from '#/provider/json';
 import type { Provider } from '#/provider/types';
 import type {
@@ -11,6 +12,7 @@ import type {
 } from '#/provider/registry';
 import type { DataItem } from '#/types';
 import type { ModelId, ModelProvider, VitevalConfig } from './types';
+import { getExecutionScope, runWithExecution } from './execution';
 
 export type RuntimeContext = Record<DatasetProviderName, DatasetHandle> & {
   models: {
@@ -30,11 +32,10 @@ export type ProjectRuntime = ReturnType<typeof createProjectRuntime>;
 export function createProjectRuntime(config: VitevalConfig) {
   validateOptions(config);
   const providers = config.providers ?? [
-      createJsonProvider({ root: config.root }),
-    ],
-    byName = new Map<string, Provider>();
-  for (const provider of providers) {
-    if (byName.has(provider.name)) {
+    createJsonProvider({ root: config.root }),
+  ];
+  for (const [index, provider] of providers.entries()) {
+    if (providers.slice(0, index).some(({ name }) => name === provider.name)) {
       throw new Error(
         `Duplicate storage provider: ${provider.name}. Use separate configs for separate projects.`
       );
@@ -42,26 +43,21 @@ export function createProjectRuntime(config: VitevalConfig) {
     if (provider.name === 'models') {
       throw new Error('Storage provider name "models" is reserved');
     }
-    byName.set(provider.name, provider);
   }
+  const byName = new Map(
+      providers.map((provider) => [provider.name, provider])
+    ),
+    modelEntries = (config.models?.providers ?? []).map(
+      (provider) => [modelProviderName(provider), provider] as const
+    );
+  for (const [index, [name]] of modelEntries.entries()) {
+    if (modelEntries.slice(0, index).some(([previous]) => previous === name)) {
+      throw new Error(`Duplicate model provider: ${name}`);
+    }
+  }
+  const registry = createProviderRegistry(Object.fromEntries(modelEntries));
   const initialized = new Map<string, Promise<Provider>>();
-  let closed = false,
-    registry: ReturnType<typeof createProviderRegistry> | undefined;
-  function models() {
-    if (registry) {
-      return registry;
-    }
-    const entries = new Map<string, ModelProvider>();
-    for (const provider of config.models?.providers ?? []) {
-      const name = modelProviderName(provider);
-      if (entries.has(name)) {
-        throw new Error(`Duplicate model provider: ${name}`);
-      }
-      entries.set(name, provider);
-    }
-    registry = createProviderRegistry(Object.fromEntries(entries));
-    return registry;
-  }
+  let closed = false;
   async function provider(name: string): Promise<Provider> {
     if (closed) {
       throw new Error('Viteval project runtime is closed');
@@ -72,34 +68,25 @@ export function createProjectRuntime(config: VitevalConfig) {
         `Storage provider "${name}" is not registered in viteval.config.ts`
       );
     }
-    let pending = initialized.get(name);
-    if (!pending) {
-      pending = (async () => {
-        const result = await instance.initialize();
-        if (isErr(result)) {
-          throw new Error(
-            `Failed to initialize provider "${name}": ${result.error.message}`,
-            { cause: result.error }
-          );
-        }
-        return instance;
-      })();
-      initialized.set(name, pending);
+    const existing = initialized.get(name);
+    if (existing) {
+      return existing;
     }
+    const pending = openStorageProvider(instance);
+    initialized.set(name, pending);
     return pending;
   }
   const modelContext = {
     embeddingModel(id: ModelId) {
       validateModelId(id);
-      return models().embeddingModel(id);
+      return registry.embeddingModel(id);
     },
     languageModel(id: ModelId) {
       validateModelId(id);
-      return models().languageModel(id);
+      return registry.languageModel(id);
     },
   };
   if (config.models) {
-    models();
     if (config.models.defaults?.language) {
       modelContext.languageModel(config.models.defaults.language);
     }
@@ -117,20 +104,26 @@ export function createProjectRuntime(config: VitevalConfig) {
             return {
               async load() {
                 const resolved = await provider(instance.name);
-                if (!resolved.datasets)
+                if (!resolved.datasets) {
                   throw new Error(
                     `Provider "${instance.name}" does not support datasets`
                   );
+                }
                 const dataset = await resolved.datasets.get({ name });
-                if (isErr(dataset)) throw dataset.error;
-                if (!dataset.value)
+                if (isErr(dataset)) {
+                  throw dataset.error;
+                }
+                if (!dataset.value) {
                   throw new Error(
                     `Dataset "${name}" not found in provider "${instance.name}"`
                   );
+                }
                 const items = await resolved.datasets.getItems({
                   datasetId: dataset.value.id,
                 });
-                if (isErr(items)) throw items.error;
+                if (isErr(items)) {
+                  throw items.error;
+                }
                 // Remote records are type-erased; the caller owns the declared case shape.
                 return items.value.map(({ input, expected, extra }) => ({
                   ...extra,
@@ -157,43 +150,42 @@ export function createProjectRuntime(config: VitevalConfig) {
         },
       }
     ) as RuntimeContext;
+  const close = once(async () => {
+    closed = true;
+    const results = await Promise.allSettled(
+      [...initialized.entries()].map(async ([name, pending]) => {
+        // Initialization can allocate resources before returning an error.
+        await Promise.allSettled([pending]);
+        const instance = byName.get(name)!;
+        const result = await instance.close();
+        if (isErr(result)) {
+          throw new Error(
+            `Failed to close provider "${instance.name}": ${result.error.message}`,
+            { cause: result.error }
+          );
+        }
+      })
+    );
+    const failures = results
+      .filter((result) => result.status === 'rejected')
+      .map((result) => result.reason);
+    if (failures.length) {
+      throw new AggregateError(failures, 'Failed to close Viteval providers');
+    }
+  });
+  const defaultNames = providers
+    .filter((instance) => instance.name === 'json')
+    .map((instance) => instance.name);
   return {
-    async close() {
-      if (closed) return;
-      closed = true;
-      const results = await Promise.allSettled(
-        [...initialized.entries()].map(async ([name, pending]) => {
-          // Initialization can allocate resources before returning an error.
-          await Promise.allSettled([pending]);
-          const instance = byName.get(name)!;
-          const result = await instance.close();
-          if (isErr(result))
-            throw new Error(
-              `Failed to close provider "${instance.name}": ${result.error.message}`,
-              { cause: result.error }
-            );
-        })
-      );
-      const failures = results
-        .filter((result) => result.status === 'rejected')
-        .map((result) => result.reason);
-      if (failures.length)
-        throw new AggregateError(failures, 'Failed to close Viteval providers');
-    },
+    close,
     config,
     context,
     datasetNames(names?: readonly DatasetProviderName[]) {
-      return selectNames(
-        names ??
-          config.dataset?.providers ??
-          (byName.has('json') ? ['json'] : [])
-      );
+      return selectNames(names ?? config.dataset?.providers ?? defaultNames);
     },
     provider,
     resultNames(names?: readonly ResultProviderName[]) {
-      return selectNames(
-        names ?? config.eval?.results ?? (byName.has('json') ? ['json'] : [])
-      );
+      return selectNames(names ?? config.eval?.results ?? defaultNames);
     },
   };
 
@@ -213,12 +205,12 @@ export function createProjectRuntime(config: VitevalConfig) {
 }
 
 /**
- * Read the runtime shared by module copies in the current isolated worker.
+ * Read the runtime owned by the current asynchronous execution.
  * @returns The active project runtime, if a Viteval config was loaded.
  * @example const context = getProjectRuntime()?.context;
  */
 export function getProjectRuntime(): ProjectRuntime | undefined {
-  return globalThis.__viteval_runtime;
+  return getExecutionScope()?.runtime;
 }
 
 /**
@@ -228,25 +220,57 @@ export function getProjectRuntime(): ProjectRuntime | undefined {
  * @internal
  */
 export async function closeProjectRuntime(): Promise<void> {
-  const runtime = getProjectRuntime();
-  try {
-    await runtime?.close();
-  } finally {
-    globalThis.__viteval_runtime = undefined;
-  }
+  await getProjectRuntime()?.close();
 }
 
 /**
- * Install a runtime for a worker; replacing a live runtime is not allowed.
- * @param runtime - A newly created, worker-local runtime.
- * @returns Nothing.
- * @example setProjectRuntime(createProjectRuntime(config));
+ * Bind a runtime to a callback without changing its caller's context.
+ * @param params - The owned runtime and callback to execute.
+ * @returns The callback's result.
+ * @example runWithProjectRuntime({ runtime, run: () => evaluate('support', options) });
  */
-export function setProjectRuntime(runtime: ProjectRuntime): void {
-  if (globalThis.__viteval_runtime) {
-    throw new Error('Viteval project runtime is already active');
+export function runWithProjectRuntime<T>({
+  runtime,
+  run,
+}: {
+  runtime: ProjectRuntime;
+  run: () => T;
+}): T {
+  return runWithExecution({ scope: { ...getExecutionScope(), runtime }, run });
+}
+
+/**
+ * Own a runtime for the duration of an asynchronous operation.
+ * @param params - Configuration and the operation that consumes it.
+ * @returns The operation's result after resource cleanup.
+ * @example await withProjectRuntime({ config, run: generateDatasets });
+ * @internal
+ */
+export async function withProjectRuntime<T>({
+  config,
+  run,
+}: {
+  config: VitevalConfig;
+  run: () => T | Promise<T>;
+}): Promise<T> {
+  const runtime = createProjectRuntime(config);
+  const result = await attemptAsync(async () =>
+    runWithProjectRuntime({ runtime, run })
+  );
+  const cleanup = await attemptAsync(() => runtime.close());
+  if (isErr(result) && isErr(cleanup)) {
+    throw new AggregateError(
+      [result.error, cleanup.error],
+      'Viteval execution and provider cleanup failed'
+    );
   }
-  globalThis.__viteval_runtime = runtime;
+  if (isErr(cleanup)) {
+    throw cleanup.error;
+  }
+  if (isErr(result)) {
+    throw result.error;
+  }
+  return result.value;
 }
 
 /**
@@ -283,6 +307,17 @@ function modelProviderName(provider: ModelProvider): string {
   );
 }
 
+async function openStorageProvider(instance: Provider): Promise<Provider> {
+  const result = await instance.initialize();
+  if (isErr(result)) {
+    throw new Error(
+      `Failed to initialize provider "${instance.name}": ${result.error.message}`,
+      { cause: result.error }
+    );
+  }
+  return instance;
+}
+
 function validateModelId(id: string): void {
   const separator = id.indexOf(':');
   if (separator <= 0 || separator === id.length - 1) {
@@ -299,10 +334,11 @@ function validateOptions(config: VitevalConfig): void {
     if (value === undefined) {
       continue;
     }
-    if (!Number.isSafeInteger(value) || value < (name === 'retries' ? 0 : 1)) {
-      throw new Error(
-        `eval.${name} must be ${name === 'retries' ? 'a non-negative' : 'a positive'} integer`
-      );
+    if (!Number.isSafeInteger(value) || value < Number(name !== 'retries')) {
+      if (name === 'retries') {
+        throw new Error('eval.retries must be a non-negative integer');
+      }
+      throw new Error(`eval.${name} must be a positive integer`);
     }
   }
   if (

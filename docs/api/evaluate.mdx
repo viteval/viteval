@@ -2,8 +2,9 @@
 
 import { Field, FieldGroup } from '@theme';
 
-`evaluate()` creates a Vitest suite with a test for each case. It runs your task,
-scores the output, and checks the threshold.
+`evaluate()` registers an evaluation with a case for each input. Viteval runs your
+task, scores the output, and checks the threshold using Vitest internally. It
+returns `void`, not a runner suite or test object.
 
 ## Import
 

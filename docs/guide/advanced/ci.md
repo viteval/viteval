@@ -92,4 +92,4 @@ files even when a score or execution failure makes the evaluation step fail:
 
 The same `viteval run` command works in GitLab, CircleCI, and other CI systems.
 Install with a lockfile, provide model credentials through the CI environment,
-and retain the JSON reports. A nonzero Vitest exit code fails the job.
+and retain the JSON reports. A nonzero `viteval run` exit code fails the job.

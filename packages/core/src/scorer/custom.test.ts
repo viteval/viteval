@@ -1,14 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { type ProjectRuntime, createProjectRuntime } from '#/config/runtime';
+import { describe, expect, it } from 'vitest';
+import { createProjectRuntime, runWithProjectRuntime } from '#/config/runtime';
 import { createScorer } from './custom';
-
-const runtimes: ProjectRuntime[] = [];
-
-afterEach(async () => {
-  globalThis.__viteval_runtime = undefined;
-  await Promise.all(runtimes.map((runtime) => runtime.close()));
-  runtimes.length = 0;
-});
 
 describe('createScorer', () => {
   it('should preserve a dependency factory scorer name in metadata and scores', async () => {
@@ -55,22 +47,26 @@ describe('createScorer', () => {
     expect(contexts).toHaveLength(1);
     const fallback = contexts[0];
 
-    useRuntime();
+    await runWithProjectRuntime({
+      runtime: createProjectRuntime({}),
+      run: async () => {
+        expect(scorer.name).toBe('runtime-scorer');
+        expect(contexts).toHaveLength(2);
+        expect(contexts[1]).not.toBe(fallback);
+        await scorer({ output: 'answer' });
+        expect(contexts).toHaveLength(2);
+      },
+    });
+    await runWithProjectRuntime({
+      runtime: createProjectRuntime({}),
+      run: async () => {
+        await scorer({ output: 'answer' });
+        expect(contexts).toHaveLength(3);
+        expect(contexts[2]).not.toBe(contexts[1]);
+      },
+    });
     expect(scorer.name).toBe('runtime-scorer');
-    expect(contexts).toHaveLength(2);
-    expect(contexts[1]).not.toBe(fallback);
-
-    await scorer({ output: 'answer' });
-    expect(contexts).toHaveLength(2);
-
-    useRuntime();
-    await scorer({ output: 'answer' });
     expect(contexts).toHaveLength(3);
-    expect(contexts[2]).not.toBe(contexts[1]);
-
-    globalThis.__viteval_runtime = undefined;
-    expect(scorer.name).toBe('runtime-scorer');
-    expect(contexts).toHaveLength(4);
   });
 
   it('should create a basic scorer with synchronous score function', async () => {
@@ -245,13 +241,6 @@ describe('createScorer', () => {
     expect(result.metadata?.passed).toBeDefined();
   });
 });
-
-function useRuntime(): ProjectRuntime {
-  const runtime = createProjectRuntime({});
-  runtimes.push(runtime);
-  globalThis.__viteval_runtime = runtime;
-  return runtime;
-}
 
 function calculateSimilarity(str1: string, str2: string): number {
   const words1 = str1.split(' ');

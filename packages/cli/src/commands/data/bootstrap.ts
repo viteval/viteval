@@ -5,20 +5,18 @@
  */
 export function createDatasetBootstrap(): string {
   return `import { AsyncLocalStorage } from 'node:async_hooks';
-import { afterAll } from 'vitest';
+import { getExecutionScope } from ${JSON.stringify(import.meta.resolve('@viteval/core/internal/execution'))};
 
-const previousDiscovery = globalThis.__viteval_datasetDiscovery;
 let candidates = [];
 const modules = new Map();
 const owners = new AsyncLocalStorage();
 const completed = new Set();
-let nextOwner = 0;
 const discovery = {
   register(value) {
     candidates = [...candidates, { value, owner: owners.getStore() }];
   },
   startModule() {
-    const owner = nextOwner++;
+    const owner = Symbol('dataset-module');
     owners.enterWith(owner);
     return owner;
   },
@@ -27,8 +25,7 @@ const discovery = {
     modules.set(file, candidates.filter(item => item.owner === checkpoint).map(item => item.value));
   },
 };
-globalThis.__viteval_datasetDiscovery = discovery;
-afterAll(restoreDiscovery);
+export const executionScope = { ...getExecutionScope(), discovery };
 
 export function takeCandidates() {
   const values = candidates.filter(item => item.owner === undefined || completed.has(item.owner)).map(item => item.value);
@@ -42,9 +39,6 @@ export function moduleCandidates(file) {
 
 export function restoreDiscovery() {
   owners.disable();
-  if (globalThis.__viteval_datasetDiscovery === discovery) {
-    globalThis.__viteval_datasetDiscovery = previousDiscovery;
-  }
 }
 `;
 }
@@ -64,11 +58,14 @@ export function instrumentDatasetModule({
   file: string;
   checkpoint: string;
 }): string {
-  const start = `const ${checkpoint} = globalThis.__viteval_datasetDiscovery?.startModule?.();\n`;
-  const finish = `\nglobalThis.__viteval_datasetDiscovery?.finishModule?.(${JSON.stringify(file)}, ${checkpoint});\n`;
+  const scope = `${checkpoint}_scope`;
+  const start = `import { getExecutionScope as ${scope} } from ${JSON.stringify(import.meta.resolve('@viteval/core/internal/execution'))};\nconst ${checkpoint} = ${scope}()?.discovery?.startModule?.();\n`;
+  const finish = `\n${scope}()?.discovery?.finishModule?.(${JSON.stringify(file)}, ${checkpoint});\n`;
   if (code.startsWith('#!')) {
     const lineEnd = code.indexOf('\n');
-    if (lineEnd === -1) return `${code}\n${start}${finish}`;
+    if (lineEnd === -1) {
+      return `${code}\n${start}${finish}`;
+    }
     return `${code.slice(0, lineEnd + 1)}${start}${code.slice(lineEnd + 1)}${finish}`;
   }
   return `${start}${code}${finish}`;

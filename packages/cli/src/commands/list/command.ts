@@ -60,17 +60,11 @@ export async function listEvaluations(params: {
       plugins: [createEvaluationDiscoveryPlugin()],
     }),
     vitest = await createVitest(overrides.test, overrides.vite);
-  let modules: Awaited<ReturnType<typeof vitest.collect>>['testModules'],
-    unhandledErrors: unknown[];
-  try {
-    const collected = await vitest.collect([...(params.filters ?? [])], {
+  const { testModules: modules, unhandledErrors } = await vitest
+    .collect([...(params.filters ?? [])], {
       staticParse: false,
-    });
-    modules = collected.testModules;
-    unhandledErrors = collected.unhandledErrors;
-  } finally {
-    await vitest.close();
-  }
+    })
+    .finally(() => vitest.close());
 
   const errors = [
     ...modules.flatMap((module) =>

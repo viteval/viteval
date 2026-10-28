@@ -8,8 +8,9 @@ Run a passing evaluation, save its JSON report, and inspect it locally. Requires
 
 ## What is Viteval?
 
-Viteval runs LLM evaluations as Vitest tests. Each evaluation combines test cases,
-a task function, and scorers. You can:
+Viteval is an LLM evaluation framework built on Vitest. Each evaluation combines
+test cases, a task function, and scorers. Viteval owns the public API, configuration,
+and CLI; Vitest handles execution internally. You can:
 
 - Run evaluations with Viteval configuration and familiar CLI options
 - Store datasets as JSON or use an optional provider
@@ -85,13 +86,13 @@ The command:
 
 1. Discovers the files matched by `eval.include` in your Viteval configuration
 2. Executes each evaluation
-3. Displays Vitest test results
+3. Displays evaluation results
 4. Exits with a non-zero code if any evaluation fails
 
 ### Understanding the results
 
-Vitest reports three passing cases. The JSON reporter saves inputs, outputs, scores,
-and execution diagnostics under `.viteval/results`. Inspect them with:
+Viteval reports three passing cases. The default JSON destination saves inputs,
+outputs, scores, and execution diagnostics under `.viteval/results`. Inspect them with:
 
 ```bash
 pnpm exec viteval ui

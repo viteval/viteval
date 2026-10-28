@@ -1,5 +1,6 @@
 import { attemptAsync, isErr } from 'massaman/control';
 import { getProjectRuntime, getRuntimeContext } from '#/config/runtime';
+import { getExecutionScope } from '#/config/execution';
 import type {
   DataItem,
   Dataset,
@@ -163,6 +164,6 @@ export function defineDataset<
     },
     storage: finalStorage,
   };
-  globalThis.__viteval_datasetDiscovery?.register(dataset);
+  getExecutionScope()?.discovery?.register(dataset);
   return dataset;
 }

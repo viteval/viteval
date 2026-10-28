@@ -1,7 +1,7 @@
 import type * as TF from 'type-fest';
+import { once } from 'massaman/function';
 import type { Extra, Score, Scorer, ScorerArgs } from '#/types';
 import {
-  type ProjectRuntime,
   type RuntimeContext,
   getProjectRuntime,
   getRuntimeContext,
@@ -76,16 +76,19 @@ function createConfigResolver<OUTPUT, EXPECTED, EXTRA extends Extra>(
   if (typeof config !== 'function') {
     return () => config;
   }
-  let resolved: ScorerConfig<OUTPUT, EXPECTED, EXTRA> | undefined,
-    resolvedRuntime: ProjectRuntime | undefined;
+  const configurations = new WeakMap<
+    RuntimeContext,
+    ScorerConfig<OUTPUT, EXPECTED, EXTRA>
+  >();
+  const fallback = once(getRuntimeContext);
   return () => {
-    const runtime = getProjectRuntime();
-    // Worker runtimes change between runs; resolve once per runtime identity
-    // (or once against the no-runtime fallback) so factories stay lazy and cheap.
-    if (resolved === undefined || resolvedRuntime !== runtime) {
-      resolved = config(getRuntimeContext());
-      resolvedRuntime = runtime;
+    const context = getProjectRuntime()?.context ?? fallback();
+    const existing = configurations.get(context);
+    if (existing) {
+      return existing;
     }
+    const resolved = config(context);
+    configurations.set(context, resolved);
     return resolved;
   };
 }

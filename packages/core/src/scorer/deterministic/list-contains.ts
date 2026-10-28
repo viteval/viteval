@@ -56,42 +56,47 @@ export function listContains(options?: ListContainsOptions): Scorer {
       // Handle 1x1 case directly (library doesn't support 1x1 matrices)
       if (rows === 1 && cols === 1) {
         const score = levenshteinSimilarity(outputList[0]!, expectedList[0]!);
-        return { score: score >= threshold ? score : 0 };
+        if (score >= threshold) {
+          return { score };
+        }
+        return { score: 0 };
       }
 
       const maxDim = Math.max(rows, cols);
 
       // Build similarity matrix padded to square
-      const similarityMatrix: number[][] = [];
-      for (let i = 0; i < maxDim; i++) {
-        const row: number[] = [];
-        for (let j = 0; j < maxDim; j++) {
-          if (i < rows && j < cols) {
-            row.push(levenshteinSimilarity(outputList[i]!, expectedList[j]!));
-          } else {
-            row.push(0);
+      const similarityMatrix = Array.from({ length: maxDim }, (_, row) =>
+        Array.from({ length: maxDim }, (_, column) => {
+          if (row < rows && column < cols) {
+            return levenshteinSimilarity(
+              outputList[row]!,
+              expectedList[column]!
+            );
           }
-        }
-        similarityMatrix.push(row);
-      }
+          return 0;
+        })
+      );
 
       const { rowAssignments } = linearSumAssignment(similarityMatrix, {
         maximaze: true,
       });
 
-      let totalSimilarity = 0;
-      for (let i = 0; i < rows; i++) {
-        const j = rowAssignments[i]!;
-        if (j < cols) {
-          totalSimilarity += similarityMatrix[i]![j]!;
+      const totalSimilarity = outputList.reduce((total, _, row) => {
+        const column = rowAssignments[row]!;
+        if (column < cols) {
+          return total + similarityMatrix[row]![column]!;
         }
-      }
+        return total;
+      }, 0);
 
       const score =
         totalSimilarity / Math.max(outputList.length, expectedList.length);
       const clampedScore = clamp(score, 0, 1);
 
-      return { score: clampedScore >= threshold ? clampedScore : 0 };
+      if (clampedScore >= threshold) {
+        return { score: clampedScore };
+      }
+      return { score: 0 };
     },
   });
 }

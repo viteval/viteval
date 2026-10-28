@@ -192,26 +192,13 @@ describe('extractFileFilters', () => {
 });
 
 describe('createEvaluationDiscoveryPlugin', () => {
-  it('should enable discovery in script modules including custom evaluation filenames', () => {
+  it('should select collection-only scope without transforming user modules', () => {
     const plugin = createEvaluationDiscoveryPlugin();
     if (typeof plugin !== 'object' || plugin === null)
       throw new Error('expected a plugin object');
-    const transform = (id: string) =>
-      plugin.transform?.('export const value = 1;', id);
-    expect(transform('/app/basic.eval.ts?v=1')).toMatchObject({
-      map: null,
-      code: expect.stringContaining('__viteval_datasetDiscovery'),
+    expect(plugin.config?.({}, { command: 'serve', mode: 'test' })).toEqual({
+      test: { provide: { vitevalDiscovery: true } },
     });
-    expect(transform('/app/basic.json')).toBeUndefined();
-    expect(transform('/lib/node_modules/basic.eval.js?')).toBeUndefined();
-    expect(transform('/app/custom-checks.ts')).toMatchObject({
-      code: expect.stringContaining('__viteval_datasetDiscovery'),
-    });
-    expect(
-      plugin.transform?.(
-        '#!/usr/bin/env node\nexport {};',
-        '/app/custom-checks.ts'
-      )
-    ).toMatchObject({ code: expect.not.stringContaining('#!') });
+    expect(plugin.transform).toBeUndefined();
   });
 });

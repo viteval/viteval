@@ -393,7 +393,7 @@ ${options.config ?? "export default defineConfig({ providers: [json], eval: { re
     `import config from './viteval.config.ts';
 import { createRunnerConfig } from '@viteval/core/internal/runner';
 import { createJsonReporter } from '@viteval/core/internal/reporter';
-export default { ...config, plugins: createRunnerConfig({ root: ${JSON.stringify(root)}, configFile: ${JSON.stringify(path.join(root, 'viteval.config.ts'))} }).plugins, test: { reporters: ['default', ${blob ? `['blob', { outputFile: ${JSON.stringify(blob)} }],` : ''} createJsonReporter({ outputFile: 'report.json' })] } };`
+export default { ...config, resolve: { alias: { '#/config/execution': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/dist/config/execution.mjs'))}, './execution': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/dist/config/execution.mjs'))} } }, plugins: createRunnerConfig({ root: ${JSON.stringify(root)}, configFile: ${JSON.stringify(path.join(root, 'viteval.config.ts'))} }).plugins, test: { reporters: ['default', ${blob ? `['blob', { outputFile: ${JSON.stringify(blob)} }],` : ''} createJsonReporter({ outputFile: 'report.json' })] } };`
   );
   const evaluator = coverage.length
     ? path.resolve(import.meta.dirname, '../core/src/evaluate/evaluate.ts')

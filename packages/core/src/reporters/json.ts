@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { createId } from '@paralleldrive/cuid2';
 import { humanId } from 'human-id';
+import { groupBy } from 'massaman/array';
+import { match, P } from 'massaman/match';
 import { serializeJson, writeJsonAtomic } from '@viteval/internal';
 import type {
   Reporter,
@@ -104,19 +106,18 @@ export function createJsonReporter(options: JsonReporterOptions = {}) {
   let results = createResults(run);
   let root = process.cwd();
   let iteration = 0;
-  let outputPath: string | null = null;
 
   return {
     onInit(vitest: Vitest) {
       root = vitest.config.root;
     },
     onTestRunStart() {
-      results = createResults(
-        iteration++ === 0
-          ? { id: results.runId, name: results.runName }
-          : createRunIdentity()
-      );
-      outputPath = null;
+      if (iteration === 0) {
+        results = createResults({ id: results.runId, name: results.runName });
+      } else {
+        results = createResults(createRunIdentity());
+      }
+      iteration += 1;
     },
     onTestRunEnd,
   } satisfies Reporter;
@@ -144,7 +145,10 @@ export function createJsonReporter(options: JsonReporterOptions = {}) {
       schemaVersion: 1,
       errors: [
         ...unhandledErrors.map((error) => error.message),
-        ...(reason === 'interrupted' ? ['Evaluation run interrupted'] : []),
+        ...match(reason)
+          .with('interrupted', () => ['Evaluation run interrupted'])
+          .with(P._, () => [])
+          .exhaustive(),
       ],
       duration: endTime - results.startTime,
       endTime,
@@ -177,15 +181,13 @@ export function createJsonReporter(options: JsonReporterOptions = {}) {
       return;
     }
 
-    outputPath =
-      outputPath ??
-      path.resolve(
-        root,
-        outputFile
-          .replaceAll('<run>', encodeURIComponent(results.runName))
-          .replaceAll('<id>', encodeURIComponent(results.runId))
-          .replaceAll('<timestamp>', String(results.startTime))
-      );
+    const outputPath = path.resolve(
+      root,
+      outputFile
+        .replaceAll('<run>', encodeURIComponent(results.runName))
+        .replaceAll('<id>', encodeURIComponent(results.runId))
+        .replaceAll('<timestamp>', String(results.startTime))
+    );
     await writeJsonAtomic({ filePath: outputPath, value: results });
   }
 }
@@ -211,114 +213,127 @@ function createResults(run: { id: string; name: string }): JsonEvalResults {
 function collectSuiteProjections(
   testModules: readonly TestModule[]
 ): Map<string, SuiteProjection> {
-  const suites = new Map<string, SuiteProjection>();
-
-  for (const testModule of testModules) {
-    const testCases = Array.from(testModule.children.allTests()).filter(
-      (testCase) => testCase.meta().viteval === true
-    );
-    for (const testCase of testCases) {
-      const suite = getOrCreateSuite(suites, testCase);
-      const result = testCase.result();
-      suite.totalTests++;
-
-      if (result.state === 'passed') {
-        suite.passedTests++;
-      } else if (result.state === 'failed') {
-        suite.failedTests++;
-        suite.errorMessages.push(
-          ...result.errors.map((error) => error.message)
-        );
-      } else if (result.state === 'skipped') {
-        suite.skippedTests++;
-      }
-
-      suite.hasFailed ||=
-        !testCase.ok() ||
-        (testCase.parent.type === 'suite' && !testCase.parent.ok());
-      const artifact = testCase.artifacts().findLast(isEvalResultArtifact);
-      if (artifact) {
-        suite.evalResults.push({
-          ...artifact.result,
-          id: testCase.id,
-          state:
-            result.state === 'passed'
-              ? 'passed'
-              : result.state === 'failed'
-                ? 'failed'
-                : 'skipped',
-          error:
-            result.state === 'failed'
-              ? result.errors.map((error) => error.message).join('\n')
-              : undefined,
-        });
-      }
-
-      const diagnostic = testCase.diagnostic();
-      if (diagnostic) {
-        suite.startTime = Math.min(suite.startTime, diagnostic.startTime);
-        suite.endTime = Math.max(
-          suite.endTime,
-          diagnostic.startTime + diagnostic.duration
-        );
-      }
-    }
-
-    const moduleErrors = isEvalModule(testModule, testCases)
-      ? testModule.errors()
-      : [];
-    if (moduleErrors.length > 0) {
-      let suite = Array.from(suites.values()).find(
-        (candidate) =>
-          candidate.moduleId === testModule.moduleId &&
-          candidate.projectName === (testModule.project?.name || undefined)
+  return new Map(
+    testModules.flatMap((testModule) => {
+      const testCases = Array.from(testModule.children.allTests()).filter(
+        (testCase) => testCase.meta().viteval === true
       );
-      if (!suite) {
-        suite = createModuleProjection(testModule);
-        suites.set(getModuleKey(testModule), suite);
+      const suites = Object.entries(groupBy(testCases, getSuiteKey)).map(
+        ([key, cases]) => [key, createSuiteProjection(cases)] as const
+      );
+      const moduleErrors = match(isEvalModule(testModule, testCases))
+        .with(true, () => testModule.errors())
+        .with(false, () => [])
+        .exhaustive();
+      if (!moduleErrors.length) {
+        return suites;
       }
-      suite.hasFailed = true;
-      suite.errorMessages.push(...moduleErrors.map((error) => error.message));
-    }
-  }
-
-  return suites;
+      const entries = match(Boolean(suites.length))
+        .with(true, () => suites)
+        .with(false, () => [
+          [
+            getModuleKey(testModule),
+            createModuleProjection(testModule),
+          ] as const,
+        ])
+        .exhaustive();
+      return entries.map(([key, suite], index) => {
+        if (index !== 0) {
+          return [key, suite] as const;
+        }
+        return [
+          key,
+          {
+            ...suite,
+            hasFailed: true,
+            errorMessages: [
+              ...suite.errorMessages,
+              ...moduleErrors.map((error) => error.message),
+            ],
+          },
+        ] as const;
+      });
+    })
+  );
 }
 
-function getOrCreateSuite(
-  suites: Map<string, SuiteProjection>,
-  testCase: TestCase
+function createSuiteProjection(
+  testCases: readonly TestCase[]
 ): SuiteProjection {
-  const key = getSuiteKey(testCase);
-  const existing = suites.get(key);
-  if (existing) {
-    return existing;
-  }
-
+  const testCase = testCases[0]!;
   const now = Date.now();
-  const suiteErrors =
-    testCase.parent.type === 'suite'
-      ? testCase.parent.errors().map((error) => error.message)
-      : [];
-  const suite: SuiteProjection = {
+  const suiteErrors = match(testCase.parent)
+    .with({ type: 'suite' }, (parent) =>
+      parent.errors().map((error) => error.message)
+    )
+    .with(P._, () => [])
+    .exhaustive();
+  const results = testCases.map((entry) => entry.result());
+  const diagnostics = testCases.flatMap((entry) => {
+    const diagnostic = entry.diagnostic();
+    if (diagnostic) {
+      return [diagnostic];
+    }
+    return [];
+  });
+  return {
     projectName: testCase.module.project?.name || undefined,
-    endTime: 0,
-    errorMessages: suiteErrors,
-    evalResults: [],
-    failedTests: 0,
-    hasFailed: testCase.parent.type === 'suite' && !testCase.parent.ok(),
+    endTime: diagnostics.reduce(
+      (latest, diagnostic) =>
+        Math.max(latest, diagnostic.startTime + diagnostic.duration),
+      0
+    ),
+    errorMessages: [
+      ...suiteErrors,
+      ...results.flatMap((result) => {
+        if (result.state === 'failed') {
+          return result.errors.map((error) => error.message);
+        }
+        return [];
+      }),
+    ],
+    evalResults: testCases.flatMap((entry) => {
+      const artifact = entry.artifacts().findLast(isEvalResultArtifact);
+      if (!artifact) {
+        return [];
+      }
+      const result = entry.result();
+      return [
+        {
+          ...artifact.result,
+          id: entry.id,
+          state: match(result.state)
+            .with('passed', () => 'passed' as const)
+            .with('failed', () => 'failed' as const)
+            .with(P._, () => 'skipped' as const)
+            .exhaustive(),
+          error: match(result)
+            .with({ state: 'failed' }, (failure) =>
+              failure.errors.map((error) => error.message).join('\n')
+            )
+            .with(P._, () => undefined)
+            .exhaustive(),
+        },
+      ];
+    }),
+    failedTests: results.filter((result) => result.state === 'failed').length,
+    hasFailed: testCases.some(
+      (entry) =>
+        !entry.ok() || (entry.parent.type === 'suite' && !entry.parent.ok())
+    ),
     moduleId: testCase.module.moduleId,
-    name:
-      testCase.parent.type === 'suite'
-        ? testCase.parent.name
-        : testCase.module.relativeModuleId,
-    passedTests: 0,
-    skippedTests: 0,
-    startTime: now,
-    totalTests: 0,
+    name: match(testCase.parent)
+      .with({ type: 'suite' }, (parent) => parent.name)
+      .with(P._, () => testCase.module.relativeModuleId)
+      .exhaustive(),
+    passedTests: results.filter((result) => result.state === 'passed').length,
+    skippedTests: results.filter((result) => result.state === 'skipped').length,
+    startTime: diagnostics.reduce(
+      (earliest, diagnostic) => Math.min(earliest, diagnostic.startTime),
+      now
+    ),
+    totalTests: testCases.length,
   };
-  suites.set(key, suite);
-  return suite;
 }
 
 function createModuleProjection(testModule: TestModule): SuiteProjection {
@@ -350,13 +365,16 @@ function toJsonEvalSuite(
     endTime,
     evalResults: suite.evalResults,
     filepath: path.relative(root, suite.moduleId),
-    message:
-      suite.errorMessages.length > 0
-        ? suite.errorMessages.join('\n')
-        : undefined,
+    message: match(Boolean(suite.errorMessages.length))
+      .with(true, () => suite.errorMessages.join('\n'))
+      .with(false, () => undefined)
+      .exhaustive(),
     name: suite.name,
     startTime: suite.startTime,
-    status: suite.hasFailed ? 'failed' : 'passed',
+    status: match(suite.hasFailed)
+      .with(true, () => 'failed' as const)
+      .with(false, () => 'passed' as const)
+      .exhaustive(),
     summary: {
       ...calculateSuiteSummary(
         suite.evalResults.filter((result) => result.state !== 'skipped'),
@@ -374,16 +392,14 @@ function calculateSuiteSummary(
   totalCount: number,
   passedCount: number
 ) {
-  let totalMean = 0;
-  let totalSum = 0;
-
-  for (const result of evalResults) {
-    totalMean += result.mean;
-    totalSum += result.sum;
-  }
+  const totalMean = evalResults.reduce(
+    (total, result) => total + result.mean,
+    0
+  );
+  const totalSum = evalResults.reduce((total, result) => total + result.sum, 0);
 
   return {
-    meanScore: evalResults.length > 0 ? totalMean / evalResults.length : 0,
+    meanScore: totalMean / (evalResults.length || 1),
     medianScore: getMedianScore(
       evalResults.map((result) => ({ name: result.name, score: result.median }))
     ),
@@ -404,9 +420,10 @@ function sum(
 }
 
 function getSuiteKey(testCase: TestCase): string {
-  return testCase.parent.type === 'suite'
-    ? `${getModuleKey(testCase.module)}::${testCase.parent.id}`
-    : getModuleKey(testCase.module);
+  if (testCase.parent.type === 'suite') {
+    return `${getModuleKey(testCase.module)}::${testCase.parent.id}`;
+  }
+  return getModuleKey(testCase.module);
 }
 
 function getModuleKey(testModule: TestModule): string {

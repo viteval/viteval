@@ -3,7 +3,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { err } from 'massaman/control';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createProjectRuntime, setProjectRuntime } from '#/config/runtime';
+import { getProjectRuntime, withProjectRuntime } from '#/config/runtime';
+import { runWithExecution } from '#/config/execution';
 import { createJsonProvider } from '#/provider/json';
 import type { Provider } from '#/provider/types';
 import { defineDataset } from './dataset';
@@ -22,9 +23,6 @@ beforeEach(async () => {
 });
 afterEach(async () => {
   vi.restoreAllMocks();
-  await globalThis.__viteval_runtime?.close();
-  globalThis.__viteval_runtime = undefined;
-  globalThis.__viteval_datasetDiscovery = undefined;
   await rm(root, { recursive: true, force: true });
 });
 
@@ -56,45 +54,47 @@ describe('dataset lifecycle', () => {
   );
 
   it('should return absent data unless creation is explicitly requested', async () => {
-    useJsonRuntime();
-    let generations = 0;
-    const dataset = defineDataset({
-      name: 'generated',
-      data: () => {
-        generations++;
-        return ITEMS;
-      },
+    await useJsonRuntime(async () => {
+      let generations = 0;
+      const dataset = defineDataset({
+        name: 'generated',
+        data: () => {
+          generations++;
+          return ITEMS;
+        },
+      });
+      expect(await dataset.exists()).toMatchObject({ ok: true, value: false });
+      expect(await dataset.load()).toMatchObject({ ok: true, value: null });
+      expect(generations).toBe(0);
+      expect(await dataset.load({ create: true })).toMatchObject({
+        ok: true,
+        value: ITEMS,
+      });
+      expect(await dataset.load({ create: true })).toMatchObject({
+        ok: true,
+        value: ITEMS,
+      });
+      expect(generations).toBe(1);
+      expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
     });
-    expect(await dataset.exists()).toMatchObject({ ok: true, value: false });
-    expect(await dataset.load()).toMatchObject({ ok: true, value: null });
-    expect(generations).toBe(0);
-    expect(await dataset.load({ create: true })).toMatchObject({
-      ok: true,
-      value: ITEMS,
-    });
-    expect(await dataset.load({ create: true })).toMatchObject({
-      ok: true,
-      value: ITEMS,
-    });
-    expect(generations).toBe(1);
-    expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
   });
 
   it('should not regenerate stored data unless overwrite is requested', async () => {
-    useJsonRuntime();
-    let generations = 0;
-    const dataset = defineDataset({
-      name: 'once',
-      data: () => {
-        generations++;
-        return ITEMS;
-      },
+    await useJsonRuntime(async () => {
+      let generations = 0;
+      const dataset = defineDataset({
+        name: 'once',
+        data: () => {
+          generations++;
+          return ITEMS;
+        },
+      });
+      await dataset.save();
+      await dataset.save();
+      expect(generations).toBe(1);
+      await dataset.save({ overwrite: true });
+      expect(generations).toBe(2);
     });
-    await dataset.save();
-    await dataset.save();
-    expect(generations).toBe(1);
-    await dataset.save({ overwrite: true });
-    expect(generations).toBe(2);
   });
 
   it('should return generator rejection through load and save Results', async () => {
@@ -138,81 +138,99 @@ describe('dataset lifecycle', () => {
 
   it('should expose dataset declarations to discovery without generating them', () => {
     const registered: unknown[] = [];
-    globalThis.__viteval_datasetDiscovery = {
+    const discovery = {
       register: (value) => {
         registered.push(value);
       },
     };
-    const dataset = defineDataset({ name: 'discovered', data: ITEMS });
-    expect(registered).toEqual([dataset]);
+    runWithExecution({
+      scope: { discovery },
+      run: () => {
+        const dataset = defineDataset({ name: 'discovered', data: ITEMS });
+        expect(registered).toEqual([dataset]);
+      },
+    });
   });
 
   it('should initialize configured destinations and load generated data', async () => {
-    globalThis.__viteval_runtime = createProjectRuntime({ root });
-    const dataset = defineDataset({
-      name: 'configured',
-      data: ({ json }) => {
-        expect(json.dataset('configured').name).toBe('configured');
-        return ITEMS;
+    await withProjectRuntime({
+      config: { root },
+      run: async () => {
+        const dataset = defineDataset({
+          name: 'configured',
+          data: ({ json }) => {
+            expect(json.dataset('configured').name).toBe('configured');
+            return ITEMS;
+          },
+        });
+        expect(await dataset.load({ create: true })).toMatchObject({
+          ok: true,
+          value: ITEMS,
+        });
+        expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
       },
     });
-    expect(await dataset.load({ create: true })).toMatchObject({
-      ok: true,
-      value: ITEMS,
-    });
-    expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
   });
 
   it('should reject configured providers that cannot store datasets', async () => {
     const { datasets: _datasets, ...provider } = createJsonProvider({ root });
-    globalThis.__viteval_runtime = createProjectRuntime({
-      providers: [provider],
-    });
-    expect(
-      await defineDataset({ name: 'unsupported', data: ITEMS }).load()
-    ).toMatchObject({
-      ok: false,
-      error: { message: 'Provider "json" does not support datasets' },
+    await withProjectRuntime({
+      config: {
+        providers: [provider],
+      },
+      run: async () => {
+        expect(
+          await defineDataset({ name: 'unsupported', data: ITEMS }).load()
+        ).toMatchObject({
+          ok: false,
+          error: { message: 'Provider "json" does not support datasets' },
+        });
+      },
     });
   });
 
   it('should save once to every destination while requiring an explicit read source', async () => {
     const mirror = createJsonProvider({ root: path.join(root, 'mirror') });
-    globalThis.__viteval_runtime = createProjectRuntime({
-      root,
-      providers: [
-        createJsonProvider({ root }),
-        { ...mirror, name: 'datasetMirror' },
-      ],
-      dataset: { providers: ['json', 'datasetMirror'] },
-    });
-    let generations = 0;
-    const dataset = defineDataset({
-      name: 'replicated',
-      data: () => {
-        generations++;
-        return ITEMS;
+    await withProjectRuntime({
+      config: {
+        root,
+        providers: [
+          createJsonProvider({ root }),
+          { ...mirror, name: 'datasetMirror' },
+        ],
+        dataset: { providers: ['json', 'datasetMirror'] },
+      },
+      run: async () => {
+        let generations = 0;
+        const dataset = defineDataset({
+          name: 'replicated',
+          data: () => {
+            generations++;
+            return ITEMS;
+          },
+        });
+        expect(await dataset.exists()).toMatchObject({
+          ok: true,
+          value: false,
+        });
+        expect(await dataset.load({ create: true })).toMatchObject({
+          ok: false,
+          error: { message: expect.stringContaining('multiple destinations') },
+        });
+        expect(generations).toBe(0);
+        expect(await dataset.save()).toMatchObject({ ok: true });
+        expect(generations).toBe(1);
+        expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
+        expect(
+          await getProjectRuntime()!.context.json.dataset('replicated').load()
+        ).toEqual(ITEMS);
+        expect(
+          await getProjectRuntime()!
+            .context.datasetMirror.dataset('replicated')
+            .load()
+        ).toEqual(ITEMS);
       },
     });
-    expect(await dataset.exists()).toMatchObject({ ok: true, value: false });
-    expect(await dataset.load({ create: true })).toMatchObject({
-      ok: false,
-      error: { message: expect.stringContaining('multiple destinations') },
-    });
-    expect(generations).toBe(0);
-    expect(await dataset.save()).toMatchObject({ ok: true });
-    expect(generations).toBe(1);
-    expect(await dataset.exists()).toMatchObject({ ok: true, value: true });
-    expect(
-      await globalThis.__viteval_runtime.context.json
-        .dataset('replicated')
-        .load()
-    ).toEqual(ITEMS);
-    expect(
-      await globalThis.__viteval_runtime.context.datasetMirror
-        .dataset('replicated')
-        .load()
-    ).toEqual(ITEMS);
   });
 
   it.each(['lookup', 'items', 'create'] as const)(
@@ -233,59 +251,82 @@ describe('dataset lifecycle', () => {
           ? { create: async () => err('create rejected') }
           : {}),
       };
-      globalThis.__viteval_runtime = createProjectRuntime({
-        providers: [{ ...provider, datasets }],
-      });
-      expect(
-        await defineDataset({ name: 'broken', data: ITEMS }).load({
-          create: true,
-        })
-      ).toMatchObject({
-        ok: false,
-        error: { message: `${operation} rejected` },
+      await withProjectRuntime({
+        config: {
+          providers: [{ ...provider, datasets }],
+        },
+        run: async () => {
+          expect(
+            await defineDataset({ name: 'broken', data: ITEMS }).load({
+              create: true,
+            })
+          ).toMatchObject({
+            ok: false,
+            error: { message: `${operation} rejected` },
+          });
+        },
       });
     }
   );
 
   it('should preserve lookup failures in exists and save Results', async () => {
-    installBrokenProvider({ get: async () => err('lookup rejected') });
-    const dataset = defineDataset({ name: 'broken', data: ITEMS });
-    expect(await dataset.exists()).toMatchObject({
-      ok: false,
-      error: { message: 'lookup rejected' },
-    });
-    expect(await dataset.save()).toMatchObject({
-      ok: false,
-      error: { message: 'lookup rejected' },
+    await installBrokenProvider({
+      overrides: { get: async () => err('lookup rejected') },
+      run: async () => {
+        const dataset = defineDataset({ name: 'broken', data: ITEMS });
+        expect(await dataset.exists()).toMatchObject({
+          ok: false,
+          error: { message: 'lookup rejected' },
+        });
+        expect(await dataset.save()).toMatchObject({
+          ok: false,
+          error: { message: 'lookup rejected' },
+        });
+      },
     });
   });
 
   it('should aggregate dataset save failures with their original errors', async () => {
-    installBrokenProvider({ create: async () => err('save rejected') });
-    const result = await defineDataset({ name: 'broken', data: ITEMS }).save();
-    expect(result).toMatchObject({
-      ok: false,
-      error: {
-        message: 'Failed to save dataset "broken": save rejected',
-        errors: [{ message: 'save rejected' }],
+    await installBrokenProvider({
+      overrides: { create: async () => err('save rejected') },
+      run: async () => {
+        const result = await defineDataset({
+          name: 'broken',
+          data: ITEMS,
+        }).save();
+        expect(result).toMatchObject({
+          ok: false,
+          error: {
+            message: 'Failed to save dataset "broken": save rejected',
+            errors: [{ message: 'save rejected' }],
+          },
+        });
       },
     });
   });
 });
 
-function useJsonRuntime(): void {
-  setProjectRuntime(
-    createProjectRuntime({ providers: [createJsonProvider({ root })] })
-  );
+function useJsonRuntime(run: () => Promise<void>): Promise<void> {
+  return withProjectRuntime({
+    config: { providers: [createJsonProvider({ root })] },
+    run,
+  });
 }
 
-function installBrokenProvider(
-  overrides: Partial<NonNullable<Provider['datasets']>>
-) {
+function installBrokenProvider({
+  overrides,
+  run,
+}: {
+  overrides: Partial<NonNullable<Provider['datasets']>>;
+  run: () => Promise<void>;
+}) {
   const provider = createJsonProvider({ root });
-  globalThis.__viteval_runtime = createProjectRuntime({
-    providers: [
-      { ...provider, datasets: { ...provider.datasets!, ...overrides } },
-    ],
+  return withProjectRuntime({
+    config: {
+      providers: [
+        { ...provider, datasets: { ...provider.datasets!, ...overrides } },
+      ],
+    },
+    run,
   });
 }

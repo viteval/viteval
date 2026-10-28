@@ -4,7 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { defineDataset } from './dataset';
 import { DATASET_FILE_SCHEMA } from './file';
-import { createProjectRuntime } from '#/config/runtime';
+import { withProjectRuntime } from '#/config/runtime';
 
 const V1_DATASET = {
   schemaVersion: 1,
@@ -76,50 +76,53 @@ describe('DATASET_FILE_SCHEMA', () => {
 
   it('should validate documents produced by dataset.save and preserve V1 on overwrite', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'viteval-v1-dataset-'));
-    const previousRuntime = globalThis.__viteval_runtime;
-    const runtime = createProjectRuntime({ root });
-    globalThis.__viteval_runtime = runtime;
     try {
-      const dataset = defineDataset({ name: 'support', data: V1_DATASET.data });
-      expect(await dataset.save()).toMatchObject({ ok: true });
-      const original = DATASET_FILE_SCHEMA.parse(
-        JSON.parse(
-          await readFile(
-            path.join(root, '.viteval/datasets/support.json'),
-            'utf8'
-          )
-        )
-      );
-      expect(original).toMatchObject({
-        schemaVersion: 1,
-        id: 'support',
-        name: 'support',
-        version: 1,
-        metadata: {},
-        data: V1_DATASET.data,
+      await withProjectRuntime({
+        config: { root },
+        run: async () => {
+          const dataset = defineDataset({
+            name: 'support',
+            data: V1_DATASET.data,
+          });
+          expect(await dataset.save()).toMatchObject({ ok: true });
+          const original = DATASET_FILE_SCHEMA.parse(
+            JSON.parse(
+              await readFile(
+                path.join(root, '.viteval/datasets/support.json'),
+                'utf8'
+              )
+            )
+          );
+          expect(original).toMatchObject({
+            schemaVersion: 1,
+            id: 'support',
+            name: 'support',
+            version: 1,
+            metadata: {},
+            data: V1_DATASET.data,
+          });
+          expect(await dataset.save({ overwrite: true })).toMatchObject({
+            ok: true,
+          });
+          const replacement = DATASET_FILE_SCHEMA.parse(
+            JSON.parse(
+              await readFile(
+                path.join(root, '.viteval/datasets/support.json'),
+                'utf8'
+              )
+            )
+          );
+          expect(replacement).toMatchObject({
+            schemaVersion: 1,
+            id: original.id,
+            createdAt: original.createdAt,
+            version: 2,
+            data: V1_DATASET.data,
+          });
+          expect(replacement).not.toHaveProperty('timestamp');
+        },
       });
-      expect(await dataset.save({ overwrite: true })).toMatchObject({
-        ok: true,
-      });
-      const replacement = DATASET_FILE_SCHEMA.parse(
-        JSON.parse(
-          await readFile(
-            path.join(root, '.viteval/datasets/support.json'),
-            'utf8'
-          )
-        )
-      );
-      expect(replacement).toMatchObject({
-        schemaVersion: 1,
-        id: original.id,
-        createdAt: original.createdAt,
-        version: 2,
-        data: V1_DATASET.data,
-      });
-      expect(replacement).not.toHaveProperty('timestamp');
     } finally {
-      globalThis.__viteval_runtime = previousRuntime;
-      await runtime.close();
       await rm(root, { recursive: true, force: true });
     }
   });

@@ -54,7 +54,7 @@
     "@paralleldrive/cuid2": "^3.3.0",
     "@viteval/core": "workspace:^",
     "@viteval/internal": "workspace:^",
-    "massaman": "^0.5.2"
+    "massaman": "^0.5.5"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1149.0",

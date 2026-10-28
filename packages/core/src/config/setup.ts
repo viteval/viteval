@@ -1,15 +1,13 @@
 import { aroundAll, inject } from 'vitest';
-import {
-  closeProjectRuntime,
-  createProjectRuntime,
-  setProjectRuntime,
-} from './runtime';
+import { createProjectRuntime } from './runtime';
+import { getExecutionScope, runWithExecution } from './execution';
 import type { EvalOptions, VitevalConfig } from './types';
 
 declare module 'vitest' {
   interface ProvidedContext {
     vitevalConfigFile: string | undefined;
     vitevalProjectRoot: string;
+    vitevalDiscovery: boolean | undefined;
     vitevalEvalDefaults: Pick<
       EvalOptions,
       'timeout' | 'concurrency' | 'retries'
@@ -29,13 +27,17 @@ const configFile = inject('vitevalConfigFile'),
     },
     root: inject('vitevalProjectRoot'),
   });
-setProjectRuntime(runtime);
+export const executionScope = {
+  ...getExecutionScope(),
+  runtime,
+  ...(inject('vitevalDiscovery') && { discovery: { register() {} } }),
+};
 
 // Registered first, this wraps evaluation persistence and all user cleanup hooks.
 aroundAll(async (runSuite) => {
   try {
-    await runSuite();
+    await runWithExecution({ scope: { runtime }, run: runSuite });
   } finally {
-    await closeProjectRuntime();
+    await runtime.close();
   }
 });

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   closeProjectRuntime,
   createProjectRuntime,
-  setProjectRuntime,
+  runWithProjectRuntime,
 } from '#/config/runtime';
 import {
   getEmbeddingModel,
@@ -51,8 +51,8 @@ describe('model selection', () => {
   it('should resolve configured defaults and explicit namespaced selections', () => {
     const language = new MockLanguageModelV4({ provider: 'local.chat' }),
       embedding = new MockEmbeddingModelV4({ provider: 'local.embedding' });
-    setProjectRuntime(
-      createProjectRuntime({
+    runWithProjectRuntime({
+      runtime: createProjectRuntime({
         models: {
           providers: [
             {
@@ -63,25 +63,34 @@ describe('model selection', () => {
           ],
           defaults: { language: 'local:chat', embedding: 'local:embed' },
         },
-      })
-    );
-    expect(getModel()).toBe(language);
-    expect(getEmbeddingModel()).toBe(embedding);
-    expect(resolveLanguageModel()).toMatchObject({ ok: true, value: language });
-    expect(resolveEmbeddingModel()).toMatchObject({
-      ok: true,
-      value: embedding,
+      }),
+      run: () => {
+        expect(getModel()).toBe(language);
+        expect(getEmbeddingModel()).toBe(embedding);
+        expect(resolveLanguageModel()).toMatchObject({
+          ok: true,
+          value: language,
+        });
+        expect(resolveEmbeddingModel()).toMatchObject({
+          ok: true,
+          value: embedding,
+        });
+        expect(resolveLanguageModel('local:other')).toMatchObject({
+          ok: true,
+          value: language,
+        });
+        expect(resolveEmbeddingModel('local:other')).toMatchObject({
+          ok: true,
+          value: embedding,
+        });
+        expect(resolveLanguageModel('missing:other')).toMatchObject({
+          ok: false,
+        });
+        expect(resolveEmbeddingModel('missing:other')).toMatchObject({
+          ok: false,
+        });
+      },
     });
-    expect(resolveLanguageModel('local:other')).toMatchObject({
-      ok: true,
-      value: language,
-    });
-    expect(resolveEmbeddingModel('local:other')).toMatchObject({
-      ok: true,
-      value: embedding,
-    });
-    expect(resolveLanguageModel('missing:other')).toMatchObject({ ok: false });
-    expect(resolveEmbeddingModel('missing:other')).toMatchObject({ ok: false });
   });
 
   it('should preserve registry failures in the Result contract', () => {
@@ -99,23 +108,35 @@ describe('model selection', () => {
           : undefined;
       },
     });
-    setProjectRuntime(runtime);
-    unavailable = true;
-    expect(requireModel()).toMatchObject({ ok: false });
-    expect(requireEmbeddingModel()).toMatchObject({ ok: false });
+    runWithProjectRuntime({
+      runtime,
+      run: () => {
+        unavailable = true;
+        expect(requireModel()).toMatchObject({ ok: false });
+        expect(requireEmbeddingModel()).toMatchObject({ ok: false });
+      },
+    });
   });
 
   it('should report missing models when a project has no model configuration', () => {
-    setProjectRuntime(createProjectRuntime({}));
-    expect(getModel()).toBeNull();
-    expect(getEmbeddingModel()).toBeNull();
-    expect(requireModel()).toMatchObject({
-      ok: false,
-      error: { message: expect.stringContaining('models.defaults.language') },
-    });
-    expect(requireEmbeddingModel()).toMatchObject({
-      ok: false,
-      error: { message: expect.stringContaining('models.defaults.embedding') },
+    runWithProjectRuntime({
+      runtime: createProjectRuntime({}),
+      run: () => {
+        expect(getModel()).toBeNull();
+        expect(getEmbeddingModel()).toBeNull();
+        expect(requireModel()).toMatchObject({
+          ok: false,
+          error: {
+            message: expect.stringContaining('models.defaults.language'),
+          },
+        });
+        expect(requireEmbeddingModel()).toMatchObject({
+          ok: false,
+          error: {
+            message: expect.stringContaining('models.defaults.embedding'),
+          },
+        });
+      },
     });
   });
 });

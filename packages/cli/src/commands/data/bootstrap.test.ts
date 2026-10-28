@@ -1,18 +1,16 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   createDatasetBootstrap,
   instrumentDatasetModule,
   normalizeDatasetPath,
 } from './bootstrap';
 
-afterEach(() => vi.unstubAllGlobals());
-
 describe('instrumentDatasetModule', () => {
   it.each([
     '',
-    'globalThis.moduleRan = true;',
-    '#!/usr/bin/env node\nglobalThis.moduleRan = true;',
+    'const moduleRan = true;',
+    '#!/usr/bin/env node\nconst moduleRan = true;',
     '#!/usr/bin/env node',
   ])(
     'should checkpoint successful module imports without breaking shebangs: %j',
@@ -20,19 +18,19 @@ describe('instrumentDatasetModule', () => {
       const startModule = vi.fn(() => 4),
         finishModule = vi.fn(),
         file = '/app/quoted "module".eval.ts';
-      vi.stubGlobal('__viteval_datasetDiscovery', {
+      const discovery = {
         startModule,
         finishModule,
-      });
-      vi.stubGlobal('moduleRan', false);
+      };
       const instrumented = instrumentDatasetModule({
         code,
         file,
         checkpoint: '__checkpoint',
       });
-      if (code.startsWith('#!'))
+      if (code.startsWith('#!')) {
         expect(instrumented.split('\n')[0]).toBe('#!/usr/bin/env node');
-      new Function(instrumented.replace(/^#![^\n]*\n/, ''))();
+      }
+      executeModule({ code: instrumented, discovery });
       expect(startModule).toHaveBeenCalledOnce();
       expect(finishModule).toHaveBeenCalledExactlyOnceWith(file, 4);
     }
@@ -40,29 +38,28 @@ describe('instrumentDatasetModule', () => {
 
   it('should omit successful checkpoints when a module throws', () => {
     const finishModule = vi.fn();
-    vi.stubGlobal('__viteval_datasetDiscovery', {
+    const discovery = {
       startModule: () => 0,
       finishModule,
-    });
+    };
     const code = instrumentDatasetModule({
       code: "throw new Error('import failed');",
       file: '/broken.eval.ts',
       checkpoint: '__checkpoint',
     });
-    expect(() => new Function(code)()).toThrow('import failed');
+    expect(() => executeModule({ code, discovery })).toThrow('import failed');
     expect(finishModule).not.toHaveBeenCalled();
   });
 
   it('should remain usable when discovery is not installed', () => {
-    vi.stubGlobal('__viteval_datasetDiscovery', undefined);
     expect(() =>
-      new Function(
-        instrumentDatasetModule({
+      executeModule({
+        code: instrumentDatasetModule({
           code: '',
           file: '/app/eval.ts',
           checkpoint: '__checkpoint',
-        })
-      )()
+        }),
+      })
     ).not.toThrow();
   });
 });
@@ -79,28 +76,26 @@ describe('normalizeDatasetPath', () => {
 });
 
 describe('createDatasetBootstrap', () => {
-  it('should capture only successful matched imports and restore previous discovery', async () => {
-    const previous = { register: vi.fn() },
-      hooks: (() => void)[] = [];
-    vi.stubGlobal('__viteval_datasetDiscovery', previous);
+  it('should own discovery registrations and capture only successful matched imports', async () => {
     const source = createDatasetBootstrap()
         .replace("import { AsyncLocalStorage } from 'node:async_hooks';", '')
-        .replace("import { afterAll } from 'vitest';", '')
-        .replaceAll('export function', 'function'),
+        .replace(/^import \{ getExecutionScope \} from [^\n]+;$/m, '')
+        .replaceAll('export function', 'function')
+        .replace('export const executionScope', 'const executionScope'),
       bootstrap: {
         takeCandidates(): unknown[];
         moduleCandidates(file: string): unknown[];
         restoreDiscovery(): void;
         discovery: {
           register(value: unknown): void;
-          startModule(): number;
-          finishModule(file: string, checkpoint: number): void;
+          startModule(): symbol;
+          finishModule(file: string, checkpoint: symbol): void;
         };
       } = new Function(
-        'afterAll',
+        'getExecutionScope',
         'AsyncLocalStorage',
         `${source}\nreturn { takeCandidates, moduleCandidates, restoreDiscovery, discovery };`
-      )((hook: () => void) => hooks.push(hook), AsyncLocalStorage),
+      )(() => undefined, AsyncLocalStorage),
       discovery = bootstrap.discovery;
     discovery.register('unmatched');
     const checkpoint = discovery.startModule();
@@ -121,15 +116,27 @@ describe('createDatasetBootstrap', () => {
       'successful parent',
     ]);
     expect(bootstrap.takeCandidates()).toEqual(['successful parent']);
-    hooks[0]();
-    expect(Reflect.get(globalThis, '__viteval_datasetDiscovery')).toBe(
-      previous
-    );
-    vi.stubGlobal('__viteval_datasetDiscovery', { register: vi.fn() });
-    const replacement = Reflect.get(globalThis, '__viteval_datasetDiscovery');
     bootstrap.restoreDiscovery();
-    expect(Reflect.get(globalThis, '__viteval_datasetDiscovery')).toBe(
-      replacement
-    );
   });
 });
+
+function executeModule({
+  code,
+  discovery,
+}: {
+  code: string;
+  discovery?: {
+    startModule(): number;
+    finishModule(file: string, checkpoint: number): void;
+  };
+}): void {
+  const source = code
+    .replace(/^#![^\n]*(?:\n|$)/, '')
+    .replace(/^import[^\n]*\n/, '');
+  new Function('__checkpoint_scope', source)(() => {
+    if (discovery) {
+      return { discovery };
+    }
+    return undefined;
+  });
+}

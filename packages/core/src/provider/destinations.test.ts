@@ -1,13 +1,8 @@
 import { err, ok } from 'massaman/control';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createProjectRuntime } from '#/config/runtime';
+import { describe, expect, it, vi } from 'vitest';
+import { withProjectRuntime } from '#/config/runtime';
 import { createJsonProvider } from './json';
 import { getResultDestinations, writeDestinations } from './destinations';
-
-afterEach(async () => {
-  await globalThis.__viteval_runtime?.close();
-  globalThis.__viteval_runtime = undefined;
-});
 
 describe('getResultDestinations', () => {
   it('should return no writers without a project runtime', async () => {
@@ -23,22 +18,30 @@ describe('getResultDestinations', () => {
 
   it('should resolve configured writers and allow disabling them', async () => {
     const provider = createJsonProvider();
-    globalThis.__viteval_runtime = createProjectRuntime({
-      providers: [provider],
+    await withProjectRuntime({
+      config: {
+        providers: [provider],
+      },
+      run: async () => {
+        expect(await getResultDestinations()).toEqual([provider.evals]);
+        expect(await getResultDestinations(['json'])).toEqual([provider.evals]);
+        expect(await getResultDestinations([])).toEqual([]);
+      },
     });
-    expect(await getResultDestinations()).toEqual([provider.evals]);
-    expect(await getResultDestinations(['json'])).toEqual([provider.evals]);
-    expect(await getResultDestinations([])).toEqual([]);
   });
 
   it('should reject destinations without evaluation capabilities', async () => {
     const { evals: _evals, ...provider } = createJsonProvider();
-    globalThis.__viteval_runtime = createProjectRuntime({
-      providers: [provider],
+    await withProjectRuntime({
+      config: {
+        providers: [provider],
+      },
+      run: async () => {
+        await expect(getResultDestinations()).rejects.toThrow(
+          'does not support evaluation results'
+        );
+      },
     });
-    await expect(getResultDestinations()).rejects.toThrow(
-      'does not support evaluation results'
-    );
   });
 });
 

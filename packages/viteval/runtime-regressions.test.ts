@@ -12,6 +12,35 @@ afterAll(async () => {
 });
 
 describe('worker runtime cleanup regressions', () => {
+  it('should preserve project dependencies through deferred nested suite collection', async () => {
+    const root = await fixture({
+      evaluation: `import { describe } from 'vitest';
+import { evaluate, createScorer } from 'viteval';
+describe('outer collection', async () => {
+  await Promise.resolve();
+  describe('nested collection', () => {
+    evaluate('nested persistence', {
+      data: ({ json }) => {
+        if (typeof json.dataset !== 'function') throw new Error('collection context lost');
+        return [{ input: 'answer', expected: 'answer' }];
+      },
+      results: ['json'],
+      task: ({ input }) => input,
+      scorers: [createScorer(({ json }) => ({
+        name: 'scoped scorer',
+        score: ({ output, expected }) => ({ score: typeof json.dataset === 'function' && output === expected ? 1 : 0 }),
+      }))],
+    });
+  });
+});`,
+    });
+    const result = run(root);
+    expect(result.status, result.logs).toBe(0);
+    expect(await readFile(path.join(root, 'events'), 'utf8')).toBe(
+      'initialize\nclose\n'
+    );
+  });
+
   it('should preserve a dotted raw SDK provider name without a wrapper', async () => {
     const sdk = path.resolve(
         import.meta.dirname,

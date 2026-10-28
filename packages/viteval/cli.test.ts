@@ -474,8 +474,9 @@ export const shared = defineDataset({ name: 'shared-discovery', data: async () =
       path.join(root, 'datasets.setup.ts'),
       `import { defineDataset } from 'viteval/dataset';
 import { afterAll } from 'vitest';
+import { getExecutionScope } from '@viteval/core/internal/execution';
 export const dataset = defineDataset({ name: 'setup-discovery', data: async () => [{ input: 'setup', expected: 'answer' }] });
-afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });`
+afterAll(() => { if (getExecutionScope()?.discovery) throw new Error('dataset discovery leaked'); });`
     );
     await fs.writeFile(
       path.join(root, 'questions.eval.ts'),
@@ -508,7 +509,8 @@ evaluate('questions', { data: dataset, task: () => { throw new Error('task ran')
         path.join(root, 'first.setup.ts'),
         `import './questions.eval';
 import { afterAll } from 'vitest';
-afterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });`
+import { getExecutionScope } from '@viteval/core/internal/execution';
+afterAll(() => { if (getExecutionScope()?.discovery) throw new Error('dataset discovery leaked'); });`
       );
       await fs.writeFile(
         path.join(root, 'unmatched.ts'),
@@ -785,7 +787,7 @@ evaluate('array data', { data: [{ input: 'q', expected: 'a' }], task: () => { th
       original = await fs.readFile(dataset, 'utf8');
     await fs.writeFile(
       path.join(DATA_TEST_DIR, 'hooks.setup.ts'),
-      "import { afterAll } from 'vitest';\nafterAll(() => { if (globalThis.__viteval_datasetDiscovery) throw new Error('dataset discovery leaked'); });\n"
+      "import { afterAll } from 'vitest';\nimport { getExecutionScope } from '@viteval/core/internal/execution';\nafterAll(() => { if (getExecutionScope()?.discovery) throw new Error('dataset discovery leaked'); });\n"
     );
     await fs.writeFile(dataset, `import './hooks.setup';\n${original}`);
     try {

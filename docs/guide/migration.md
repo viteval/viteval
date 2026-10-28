@@ -49,7 +49,7 @@ V1 uses separate `tags` and `taggings` tables. It does not import pre-V1
 `eval_runs.tags` values. Back up earlier databases and export tag associations
 before upgrading, then reapply them through the V1 tag provider.
 
-Reports carry `schemaVersion: 1`, run identity, final Vitest case state, and
+Reports carry `schemaVersion: 1`, run identity, final evaluation case state, and
 execution diagnostics. Only V1 files are supported; the dashboard reports
 malformed or incompatible files as warnings.
 The JSON provider preserves run history under `.viteval/results` without a
@@ -57,10 +57,10 @@ separate output filename or reporter.
 
 ## CLI
 
-`viteval run` delegates evaluation flags and file filters to Vitest. Use
-`viteval run --help --expand-help` for native options and `viteval --help` for
-project commands. For init, data, and UI commands, `--cwd` selects the working
-directory.
+`viteval run` owns its options and file filters. Use `viteval run --help` for
+evaluation options and `viteval --help` for project commands. Replace native
+runner flags with `--timeout`, `--concurrency`, `--retries`, and `--name`.
+For init, data, and UI commands, `--cwd` selects the working directory.
 
 Replace output-path/reporter configuration with `eval.results: ['json']`.
 Destination arrays replace inherited selections; `[]` disables persistence.

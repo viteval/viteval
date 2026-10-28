@@ -1,4 +1,5 @@
 import { err, ok, type Result } from 'massaman/control';
+import { mapAsync } from 'massaman/array';
 import type { DataGenerator, DataItem, SampleItemsParams } from '#/types';
 
 /**
@@ -32,13 +33,11 @@ export function sampleItems<DATA_ITEM extends DataItem>(
     );
   }
 
-  return ok(async () => {
-    const items: DATA_ITEM[] = [];
-
-    for (let i = 0; i < count; i++) {
-      items.push(await item(i));
-    }
-
-    return items;
-  });
+  return ok(() =>
+    mapAsync(
+      Array.from({ length: count }, (_, index) => index),
+      async (index) => item(index),
+      { concurrency: 1 }
+    )
+  );
 }

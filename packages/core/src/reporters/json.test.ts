@@ -383,6 +383,38 @@ describe('createJsonReporter', () => {
     ]);
   });
 
+  it('should attach module errors only once when a file contains multiple evaluation suites', async () => {
+    const reporter = createReporter();
+    await reporter.onTestRunEnd(
+      [
+        createMockModule(
+          [
+            {
+              state: 'passed',
+              suiteId: 'first',
+              evalResult: createEvalResult(),
+            },
+            {
+              state: 'passed',
+              suiteId: 'second',
+              evalResult: createEvalResult(),
+            },
+          ],
+          [{ message: 'module cleanup failed' }]
+        ),
+      ],
+      [],
+      'failed'
+    );
+    const report = await readResults();
+    expect(report.numTotalEvalSuites).toBe(2);
+    expect(report.evalResults).toMatchObject([
+      { status: 'failed', message: 'module cleanup failed' },
+      { status: 'passed' },
+    ]);
+    expect(report.evalResults[1].message).toBeUndefined();
+  });
+
   it('should produce V1 snapshots that the JSON provider reads without reconstructing outcomes', async () => {
     const reporter = createReporter({
       outputFile: '.viteval/results/snapshot.json',
@@ -461,6 +493,7 @@ interface MockTestOptions {
   noDiagnostic?: boolean;
   suiteErrors?: { message: string }[];
   suiteFailed?: boolean;
+  suiteId?: string;
 }
 
 function createMockModule(
@@ -495,7 +528,7 @@ function createMockTestCase(
   const errors = options.errors ?? [];
   const parent = {
     errors: () => options.suiteErrors ?? [],
-    id: 'suite',
+    id: options.suiteId ?? 'suite',
     name: 'evaluation suite',
     ok: () => !options.suiteFailed && options.state !== 'failed',
     type: 'suite',

@@ -22,6 +22,21 @@ afterAll(async () => {
 });
 
 describe('internal evaluation engine and report projections', () => {
+  it('should collect discovery declarations without invoking dataset generators', async () => {
+    const configuration = CONFIG.replace(
+      'test: {',
+      'test: { provide: { vitevalDiscovery: true },'
+    );
+    const result = await run(
+      `evaluate('discovery only', { data: () => { throw new Error('generator must not run'); }, task: () => { throw new Error('task must not run'); }, scorers: [score(1)] });`,
+      '',
+      configuration
+    );
+    expect(result.exitCode, result.logs).toBe(0);
+    expect(result.report.numTotalEvals).toBe(0);
+    expect(result.logs).not.toContain('must not run');
+  });
+
   it('should initialize default worker state without a project configuration', async () => {
     const configuration = CONFIG.replace(
       `, configFile: ${JSON.stringify(path.join(ROOT, 'viteval.config.ts'))}`,
@@ -496,7 +511,7 @@ async function run(body: string, options = '', configuration = CONFIG) {
   if (inject('integrationCoverage')) {
     configuration = configuration.replace(
       /test:\s*\{/g,
-      `resolve: { alias: { '#': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/src'))} } }, test: {`
+      `resolve: { alias: { '#/config/execution': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/dist/config/execution.mjs'))}, './execution': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/dist/config/execution.mjs'))}, '#': ${JSON.stringify(path.resolve(import.meta.dirname, '../core/src'))} } }, test: {`
     );
     const id = ++invocation,
       coverage = {
