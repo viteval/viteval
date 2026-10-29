@@ -11,6 +11,10 @@
 }
 
 @media (max-width: 640px) {
+  .cp-header .cp-header-logo {
+    --cp-header-logo-height: 32px;
+  }
+
   .cp-header .cp-nav-search,
   .cp-header .cp-nav-hamburger {
     min-width: 44px;
@@ -33,5 +37,34 @@
   .cp-site-footer .cp-site-footer__bottom-end {
     flex-basis: auto;
     width: 100%;
+    justify-content: center;
+  }
+
+  .cp-site-footer .cp-site-footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+    text-align: left;
+  }
+
+  .cp-site-footer .cp-site-footer__brand {
+    grid-column: 1 / -1;
+    max-width: none;
+    margin: 0;
+  }
+
+  .cp-site-footer .cp-site-footer__brand-mark {
+    margin-inline: 0;
+  }
+
+  .cp-site-footer .cp-site-footer__socials {
+    justify-content: flex-start;
+  }
+
+  .cp-site-footer .cp-site-footer__bottom {
+    margin-top: 32px;
+  }
+
+  .cp-site-footer .cp-site-footer__tagline {
+    text-align: center;
   }
 }

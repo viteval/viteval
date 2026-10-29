@@ -166,3 +166,40 @@ html[data-cp-variant='dark'] {
     font-size: 12px;
   }
 }
+
+@media (max-width: 480px) {
+  .cp-page-rail
+    :is(
+      .cp-hero__cta,
+      .cp-cta__row,
+      .vv-feature-hero__actions,
+      .vv-feature-detail__links
+    ) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .cp-page-rail .cp-cta__inner {
+    padding-inline: var(--vv-section-inset);
+  }
+
+  .cp-page-rail .vv-feature-detail__links .vv-feature-detail__link {
+    margin-top: 0;
+  }
+
+  .cp-page-rail
+    :is(
+      .cp-hero__btn,
+      .cp-cta__btn,
+      .vv-feature-detail__link,
+      .vv-integrations__cta
+    ) {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+  }
+}

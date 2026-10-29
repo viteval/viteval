@@ -9,7 +9,6 @@ html[data-cp-variant='light'] .cp-header-logo__img {
 }
 
 .cp-topbar-cta[href='https://github.com/viteval/viteval'] {
-  display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 9px 14px;
