@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type Braintrust from '@braintrust/api';
 import { attemptAsync } from 'massaman/control';
+import { omit } from 'massaman/object';
 import type {
   DatasetProvider,
   StoredDataItem,
@@ -300,11 +301,7 @@ function mapDataset(
     description: dataset.description ?? undefined,
     version: 1, // Braintrust doesn't expose a version counter
     itemCount,
-    metadata: Object.fromEntries(
-      Object.entries(dataset.metadata ?? {}).filter(
-        ([key]) => key !== INITIAL_UPLOAD
-      )
-    ),
+    metadata: omit(dataset.metadata ?? {}, [INITIAL_UPLOAD]),
     createdAt: dataset.created ? new Date(dataset.created) : new Date(),
     updatedAt: dataset.created ? new Date(dataset.created) : new Date(),
   };

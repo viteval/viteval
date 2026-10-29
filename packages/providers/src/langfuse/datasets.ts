@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { LangfuseClient } from '@langfuse/client';
 import { attemptAsync, err } from 'massaman/control';
+import { omit } from 'massaman/object';
 import type {
   CreateDatasetParams,
   DatasetProvider,
@@ -129,11 +130,7 @@ export function createLangfuseDatasets(
       description: dataset.description ?? undefined,
       version: 1,
       itemCount: (await activeItems(dataset)).length,
-      metadata: Object.fromEntries(
-        Object.entries(recordMetadata(dataset.metadata)).filter(
-          ([key]) => key !== INITIAL_UPLOAD
-        )
-      ),
+      metadata: omit(recordMetadata(dataset.metadata), [INITIAL_UPLOAD]),
       createdAt: new Date(dataset.createdAt),
       updatedAt: new Date(dataset.updatedAt),
     };

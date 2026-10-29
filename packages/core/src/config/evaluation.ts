@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { mapAsync } from 'massaman/array';
+import { mapAsync, uniq } from 'massaman/array';
 import { attemptAsync, isErr } from 'massaman/control';
 import { once } from 'massaman/function';
 import { match } from 'massaman/match';
@@ -190,13 +190,11 @@ export function registerEvaluation<
       const persist: EvaluationPersistence = {
         async complete(suite, scope) {
           const persistence = await openPersistence(suite);
-          const suiteErrors = [
-            ...new Set([
-              ...persistence.errors,
-              ...(suite.result?.errors?.map((error) => error.message) ?? []),
-              ...(scope.result?.errors?.map((error) => error.message) ?? []),
-            ]),
-          ];
+          const suiteErrors = uniq([
+            ...persistence.errors,
+            ...(suite.result?.errors?.map((error) => error.message) ?? []),
+            ...(scope.result?.errors?.map((error) => error.message) ?? []),
+          ]);
           const tasks = suite.tasks.filter(
             (task): task is TestContext['task'] =>
               task.type === 'test' &&

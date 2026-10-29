@@ -1,3 +1,4 @@
+import { isFiniteNumber } from 'massaman/predicate';
 import type { EvalResults, ResultFile } from '@/types';
 import { EVAL_RESULTS_SCHEMA } from '@viteval/core/reporters';
 import { suiteName } from '@/lib/suite-name';
@@ -124,7 +125,7 @@ export function createResultsResource(fsHelper: FsHelper): ResultsResource {
       ] as const) {
         if (!value) continue;
         const timestamp = Date.parse(value);
-        if (!Number.isFinite(timestamp)) continue;
+        if (!isFiniteNumber(timestamp)) continue;
         items = items.filter((r) =>
           bound === 'from'
             ? (r.summary?.startTime ?? 0) >= timestamp

@@ -3,6 +3,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { humanId } from 'human-id';
 import { groupBy } from 'massaman/array';
 import { match, P } from 'massaman/match';
+import { meanBy, medianBy, sumBy } from 'massaman/math';
 import { serializeJson, writeJsonAtomic } from '@viteval/internal';
 import type {
   Reporter,
@@ -14,7 +15,6 @@ import type {
 } from 'vitest/node';
 import { isEvalResultArtifact } from '#/evaluate/artifact';
 import type { EvalResult } from '#/types';
-import { getMedianScore } from '#/scorer/aggregation';
 
 /** JSON output for a complete evaluation run. */
 export interface JsonEvalResults {
@@ -392,19 +392,15 @@ function calculateSuiteSummary(
   totalCount: number,
   passedCount: number
 ) {
-  const totalMean = evalResults.reduce(
-    (total, result) => total + result.mean,
-    0
-  );
-  const totalSum = evalResults.reduce((total, result) => total + result.sum, 0);
-
   return {
-    meanScore: totalMean / (evalResults.length || 1),
-    medianScore: getMedianScore(
-      evalResults.map((result) => ({ name: result.name, score: result.median }))
-    ),
+    meanScore: match(evalResults)
+      .with([], () => 0)
+      .otherwise((items) => meanBy(items, (result) => result.mean)),
+    medianScore: match(evalResults)
+      .with([], () => 0)
+      .otherwise((items) => medianBy(items, (result) => result.median)),
     passedCount,
-    sumScore: totalSum,
+    sumScore: sumBy(evalResults, (result) => result.sum),
     totalCount,
   };
 }
@@ -413,10 +409,7 @@ function sum(
   suites: Map<string, SuiteProjection>,
   select: (suite: SuiteProjection) => number
 ) {
-  return Array.from(suites.values()).reduce(
-    (total, suite) => total + select(suite),
-    0
-  );
+  return sumBy(Array.from(suites.values()), select);
 }
 
 function getSuiteKey(testCase: TestCase): string {

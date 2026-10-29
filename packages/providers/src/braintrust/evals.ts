@@ -1,6 +1,7 @@
 import type Braintrust from '@braintrust/api';
 import { randomUUID } from 'node:crypto';
 import { attemptAsync, err, ok } from 'massaman/control';
+import { omitBy } from 'massaman/object';
 import type {
   AddEvalResultParams,
   CompleteEvalRunParams,
@@ -254,9 +255,7 @@ function mapExperiment(
       }) as StoredEvalRun['config'],
     datasetId: experiment.dataset_id ?? undefined,
     id: experiment.id,
-    metadata: Object.fromEntries(
-      Object.entries(metadata).filter(([k]) => !k.startsWith('_viteval_'))
-    ),
+    metadata: omitBy(metadata, (_value, key) => key.startsWith('_viteval_')),
     name:
       createParams?.name ??
       (typeof metadata._viteval_name === 'string'
@@ -287,9 +286,7 @@ function mapExperimentEvent(
     input: event.input,
     meanScore: (metadata._viteval_mean_score as number) ?? 0,
     medianScore: (metadata._viteval_median_score as number) ?? 0,
-    metadata: Object.fromEntries(
-      Object.entries(metadata).filter(([k]) => !k.startsWith('_viteval_'))
-    ),
+    metadata: omitBy(metadata, (_value, key) => key.startsWith('_viteval_')),
     output: event.output,
     passed: (metadata._viteval_passed as boolean) ?? false,
     scores: Object.entries(scores)

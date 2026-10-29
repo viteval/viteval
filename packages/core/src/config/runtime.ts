@@ -1,7 +1,9 @@
 import { createProviderRegistry } from 'ai';
 import type { EmbeddingModel, LanguageModel } from 'ai';
+import { uniq } from 'massaman/array';
 import { attemptAsync, isErr } from 'massaman/control';
 import { once } from 'massaman/function';
+import { isFiniteNumber } from 'massaman/predicate';
 import { createJsonProvider } from '#/provider/json';
 import type { Provider } from '#/provider/types';
 import type {
@@ -200,7 +202,7 @@ export function createProjectRuntime(config: VitevalConfig) {
         );
       }
     }
-    return [...new Set(names)];
+    return uniq(names);
   }
 }
 
@@ -343,7 +345,7 @@ function validateOptions(config: VitevalConfig): void {
   }
   if (
     config.eval?.threshold !== undefined &&
-    !Number.isFinite(config.eval.threshold)
+    !isFiniteNumber(config.eval.threshold)
   ) {
     throw new Error('eval.threshold must be finite');
   }

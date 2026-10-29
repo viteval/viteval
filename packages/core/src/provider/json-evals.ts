@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { attemptAsync } from 'massaman/control';
+import { match } from 'massaman/match';
+import { meanBy, medianBy, sumBy } from 'massaman/math';
 import { z } from 'zod';
 import { EVAL_RESULTS_SCHEMA } from '#/reporters/schema';
 import type { JsonStore } from './json-store';
@@ -140,12 +142,15 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
       completedAt:
         report.endTime === undefined ? undefined : new Date(report.endTime),
       summary: {
-        meanScore: scored.length
-          ? scored.reduce((sum, result) => sum + result.meanScore, 0) /
-            scored.length
-          : 0,
-        medianScore: median(scored.map((result) => result.medianScore)),
-        sumScore: scored.reduce((sum, result) => sum + result.sumScore, 0),
+        meanScore: match(scored)
+          .with([], () => 0)
+          .otherwise((items) => meanBy(items, (result) => result.meanScore)),
+        medianScore: match(scored)
+          .with([], () => 0)
+          .otherwise((items) =>
+            medianBy(items, (result) => result.medianScore)
+          ),
+        sumScore: sumBy(scored, (result) => result.sumScore),
         passedCount: report.numPassedEvals,
         failedCount: report.numFailedEvals,
         totalCount: report.numTotalEvals,
@@ -339,13 +344,4 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
         })
       ),
   };
-}
-
-function median(values: number[]): number {
-  if (!values.length) return 0;
-  const sorted = values.toSorted((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2
-    ? sorted[middle]
-    : (sorted[middle - 1] + sorted[middle]) / 2;
 }

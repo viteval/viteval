@@ -1,6 +1,7 @@
 import * as React from "react"
 import { format } from "date-fns"
 import { Icon } from "@iconify/react"
+import { isFiniteNumber } from "massaman/predicate"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -46,8 +47,8 @@ function DateTimePicker({
   function handleTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
     const [rawHours, rawMinutes] = e.target.value.split(":").map(Number)
     if (
-      !Number.isFinite(rawHours) ||
-      !Number.isFinite(rawMinutes) ||
+      !isFiniteNumber(rawHours) ||
+      !isFiniteNumber(rawMinutes) ||
       rawHours < 0 ||
       rawHours > 23 ||
       rawMinutes < 0 ||

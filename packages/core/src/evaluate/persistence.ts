@@ -1,12 +1,12 @@
 import { attemptAsync, isErr } from 'massaman/control';
 import { match } from 'massaman/match';
+import { meanBy, medianBy, sumBy } from 'massaman/math';
 import { writeDestinations } from '#/provider/destinations';
 import type {
   AddEvalResultParams,
   CreateEvalRunParams,
   EvalProvider,
 } from '#/provider/types';
-import { getMeanScore, getMedianScore } from '#/scorer/aggregation';
 import type { NormalizedEvalResult } from './case';
 
 interface OpenEvaluationPersistenceParams {
@@ -143,19 +143,17 @@ export async function openEvaluationPersistence({
               .with(false, () => 'failed' as const)
               .exhaustive(),
             summary: {
-              meanScore: getMeanScore(
-                scored.map((result) => ({ name: '', score: result.meanScore }))
-              ),
-              medianScore: getMedianScore(
-                scored.map((result) => ({
-                  name: '',
-                  score: result.medianScore,
-                }))
-              ),
-              sumScore: scored.reduce(
-                (sum, result) => sum + result.sumScore,
-                0
-              ),
+              meanScore: match(scored)
+                .with([], () => 0)
+                .otherwise((items) =>
+                  meanBy(items, (result) => result.meanScore)
+                ),
+              medianScore: match(scored)
+                .with([], () => 0)
+                .otherwise((items) =>
+                  medianBy(items, (result) => result.medianScore)
+                ),
+              sumScore: sumBy(scored, (result) => result.sumScore),
               passedCount: results.filter((result) => result.passed).length,
               failedCount,
               totalCount: results.length,

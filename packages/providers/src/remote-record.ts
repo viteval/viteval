@@ -1,3 +1,4 @@
+import { isFiniteNumber } from 'massaman/predicate';
 import type {
   StoredEvalConfig,
   StoredEvalResult,
@@ -120,9 +121,6 @@ export function jsonValue(value: unknown): unknown {
   return JSON.parse(serializeJson(value));
 }
 
-function isFiniteNumber(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value);
-}
 function isRunStatus(value: unknown): value is StoredEvalRun['status'] {
   return value === 'running' || value === 'completed' || value === 'failed';
 }
@@ -132,7 +130,7 @@ function isAggregation(
   return value === 'mean' || value === 'median' || value === 'sum';
 }
 function requireDate(value: unknown): Date {
-  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value)))
+  if (typeof value !== 'string' || !isFiniteNumber(Date.parse(value)))
     throw new Error('Invalid provider timestamp');
   return new Date(value);
 }

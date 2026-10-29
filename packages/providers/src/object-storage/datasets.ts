@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
 import { attemptAsync } from 'massaman/control';
+import { isFiniteNumber } from 'massaman/predicate';
 import type {
   CreateDatasetParams,
   DatasetProvider,
@@ -398,7 +399,7 @@ function normalizeItems(items: CreateDatasetParams['items']): Item[] {
   });
 }
 function date(value: unknown): Date {
-  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value)))
+  if (typeof value !== 'string' || !isFiniteNumber(Date.parse(value)))
     throw new Error('Invalid dataset catalog timestamp');
   return new Date(value);
 }

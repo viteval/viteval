@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { union } from 'massaman/array';
 import { escapeRegExp } from 'massaman/string';
 import { configDefaults, type ViteUserConfig } from 'vitest/config';
 import type { VitevalConfig } from './types';
@@ -48,12 +49,10 @@ export function createRunnerConfig(options: {
             test: {
               root,
               include: config.eval?.include ?? ['**/*.eval.{ts,mts,js,mjs}'],
-              exclude: [
-                ...new Set([
-                  ...configDefaults.exclude,
-                  ...(config.eval?.exclude ?? []),
-                ]),
-              ],
+              exclude: union(
+                configDefaults.exclude,
+                config.eval?.exclude ?? []
+              ),
               testTimeout: timeout,
               maxConcurrency: defaults.concurrency,
               retry,
