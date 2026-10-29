@@ -393,12 +393,12 @@ function calculateSuiteSummary(
   passedCount: number
 ) {
   return {
-    meanScore: evalResults.length
-      ? meanBy(evalResults, (result) => result.mean)
-      : 0,
-    medianScore: evalResults.length
-      ? medianBy(evalResults, (result) => result.median)
-      : 0,
+    meanScore: match(evalResults)
+      .with([], () => 0)
+      .otherwise((items) => meanBy(items, (result) => result.mean)),
+    medianScore: match(evalResults)
+      .with([], () => 0)
+      .otherwise((items) => medianBy(items, (result) => result.median)),
     passedCount,
     sumScore: sumBy(evalResults, (result) => result.sum),
     totalCount,

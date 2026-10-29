@@ -143,12 +143,16 @@ export async function openEvaluationPersistence({
               .with(false, () => 'failed' as const)
               .exhaustive(),
             summary: {
-              meanScore: scored.length
-                ? meanBy(scored, (result) => result.meanScore)
-                : 0,
-              medianScore: scored.length
-                ? medianBy(scored, (result) => result.medianScore)
-                : 0,
+              meanScore: match(scored)
+                .with([], () => 0)
+                .otherwise((items) =>
+                  meanBy(items, (result) => result.meanScore)
+                ),
+              medianScore: match(scored)
+                .with([], () => 0)
+                .otherwise((items) =>
+                  medianBy(items, (result) => result.medianScore)
+                ),
               sumScore: sumBy(scored, (result) => result.sumScore),
               passedCount: results.filter((result) => result.passed).length,
               failedCount,

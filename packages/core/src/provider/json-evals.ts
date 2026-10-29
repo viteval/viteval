@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { attemptAsync } from 'massaman/control';
+import { match } from 'massaman/match';
 import { meanBy, medianBy, sumBy } from 'massaman/math';
 import { z } from 'zod';
 import { EVAL_RESULTS_SCHEMA } from '#/reporters/schema';
@@ -141,12 +142,14 @@ export function createJsonEvals(store: JsonStore): EvalProvider {
       completedAt:
         report.endTime === undefined ? undefined : new Date(report.endTime),
       summary: {
-        meanScore: scored.length
-          ? meanBy(scored, (result) => result.meanScore)
-          : 0,
-        medianScore: scored.length
-          ? medianBy(scored, (result) => result.medianScore)
-          : 0,
+        meanScore: match(scored)
+          .with([], () => 0)
+          .otherwise((items) => meanBy(items, (result) => result.meanScore)),
+        medianScore: match(scored)
+          .with([], () => 0)
+          .otherwise((items) =>
+            medianBy(items, (result) => result.medianScore)
+          ),
         sumScore: sumBy(scored, (result) => result.sumScore),
         passedCount: report.numPassedEvals,
         failedCount: report.numFailedEvals,
