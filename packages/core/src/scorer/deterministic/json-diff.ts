@@ -1,10 +1,7 @@
-import {
-  isArray,
-  isNil,
-  isNumber,
-  isPlainObject,
-  isString,
-} from '@viteval/internal';
+import { union } from 'massaman/array';
+import { sum, sumBy } from 'massaman/math';
+import { isFiniteNumber } from 'massaman/predicate';
+import { isArray, isNil, isPlainObject, isString } from '@viteval/internal';
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { levenshteinSimilarity, numericSimilarity } from './similarity';
@@ -82,7 +79,7 @@ function deepCompare(a: unknown, b: unknown): number {
     return 0;
   }
 
-  if (isNumber(a) && isNumber(b)) {
+  if (isFiniteNumber(a) && isFiniteNumber(b)) {
     return numericSimilarity(a, b);
   }
 
@@ -101,25 +98,24 @@ function deepCompare(a: unknown, b: unknown): number {
     }
 
     const minLen = Math.min(a.length, b.length);
-    const total = Array.from({ length: minLen }, (_, index) =>
-      deepCompare(a[index], b[index])
-    ).reduce((sum, similarity) => sum + similarity, 0);
+    const total = sum(
+      Array.from({ length: minLen }, (_, index) =>
+        deepCompare(a[index], b[index])
+      )
+    );
     return total / maxLen;
   }
 
   if (isPlainObject(a) && isPlainObject(b)) {
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
-    const allKeys = [...new Set([...keysA, ...keysB])];
+    const allKeys = union(keysA, keysB);
 
     if (allKeys.length === 0) {
       return 1;
     }
 
-    const total = allKeys.reduce(
-      (sum, key) => sum + deepCompare(a[key], b[key]),
-      0
-    );
+    const total = sumBy(allKeys, (key) => deepCompare(a[key], b[key]));
     return total / allKeys.length;
   }
 

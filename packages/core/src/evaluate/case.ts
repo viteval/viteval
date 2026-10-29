@@ -2,6 +2,7 @@ import { serializeJson } from '@viteval/internal';
 import { attempt, attemptAsync, err, isErr, ok } from 'massaman/control';
 import type { Result } from 'massaman/control';
 import { match } from 'massaman/match';
+import { isFiniteNumber } from 'massaman/predicate';
 import {
   getMeanScore,
   getMedianScore,
@@ -71,7 +72,7 @@ export function validateEvaluationOptions({
 }: ValidateEvaluationParams): Result<void> {
   const checks = [
     {
-      valid: Number.isFinite(threshold),
+      valid: isFiniteNumber(threshold),
       message: 'Evaluation threshold must be finite',
     },
     {
@@ -83,7 +84,7 @@ export function validateEvaluationOptions({
       message: 'Evaluation concurrency must be a positive integer',
     },
     {
-      valid: timeout === undefined || (Number.isFinite(timeout) && timeout > 0),
+      valid: timeout === undefined || (isFiniteNumber(timeout) && timeout > 0),
       message: 'Evaluation timeout must be positive',
     },
     {
@@ -155,7 +156,7 @@ export async function runEvaluationCase<DATA extends Data, OUTPUT>({
     name: score.name || scorers[index].name,
     score: score.score ?? 0,
   }));
-  const invalid = scores.find((score) => !Number.isFinite(score.score));
+  const invalid = scores.find((score) => !isFiniteNumber(score.score));
   if (invalid) {
     return err(`Scorer ${invalid.name} returned a non-finite score`);
   }

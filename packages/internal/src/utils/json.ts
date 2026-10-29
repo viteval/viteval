@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { isFiniteNumber } from 'massaman/predicate';
 
 /**
  * Serialize JSON without silently accepting unsupported values.
@@ -13,7 +14,7 @@ export function serializeJson(value: unknown): string {
   const json = JSON.stringify(
     value,
     (_key, item: unknown) => {
-      if (typeof item === 'number' && !Number.isFinite(item)) {
+      if (typeof item === 'number' && !isFiniteNumber(item)) {
         throw new Error('JSON values must contain finite numbers');
       }
       if (['bigint', 'function', 'symbol'].includes(typeof item)) {

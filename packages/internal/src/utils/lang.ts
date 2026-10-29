@@ -1,3 +1,11 @@
+import {
+  isArray as isArrayValue,
+  isFiniteNumber,
+  isFunction as isFunctionValue,
+  isNil as isNilValue,
+  isPlainObject as isPlainObjectValue,
+  isString as isStringValue,
+} from 'massaman/predicate';
 import type { EmptyObject } from 'type-fest';
 import type { AnyFunction, Nil, PlainObject } from '../types';
 
@@ -8,7 +16,7 @@ import type { AnyFunction, Nil, PlainObject } from '../types';
  * @returns True if the value is an array, false otherwise
  */
 export function isArray<T extends unknown[]>(value: unknown): value is T {
-  return Array.isArray(value);
+  return isArrayValue(value);
 }
 
 /**
@@ -18,7 +26,7 @@ export function isArray<T extends unknown[]>(value: unknown): value is T {
  * @returns True if the value is nil, false otherwise
  */
 export function isNil(obj: unknown): obj is Nil {
-  return obj === null || obj === undefined;
+  return isNilValue(obj);
 }
 
 /**
@@ -38,7 +46,7 @@ export function isObject<T extends object>(obj: unknown): obj is T {
  * @returns True if the value is a function, false otherwise
  */
 export function isFunction<T extends AnyFunction>(obj: unknown): obj is T {
-  return typeof obj === 'function';
+  return isFunctionValue(obj);
 }
 
 /**
@@ -48,12 +56,7 @@ export function isFunction<T extends AnyFunction>(obj: unknown): obj is T {
  * @returns True if the object is a plain object, false otherwise.
  */
 export function isPlainObject<T extends PlainObject>(obj: unknown): obj is T {
-  if (!isObject(obj)) {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(obj);
-  return prototype === Object.prototype || prototype === null;
+  return isPlainObjectValue(obj);
 }
 
 /**
@@ -95,7 +98,7 @@ export function isPromise<T>(value: unknown): value is Promise<T> {
  * @returns True if the value is a string, false otherwise
  */
 export function isString(value: unknown): value is string {
-  return typeof value === 'string';
+  return isStringValue(value);
 }
 
 /**
@@ -114,5 +117,5 @@ export function isString(value: unknown): value is string {
  * ```
  */
 export function isNumber(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value);
+  return isFiniteNumber(value);
 }

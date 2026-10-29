@@ -120,6 +120,24 @@ describe('Aggregation Functions', () => {
       expect(getMedianScore(scores)).toBe(30);
     });
 
+    it('should calculate the median without changing the input order', () => {
+      const scores: Score[] = [
+        { name: 'high', score: 30 },
+        { name: 'missing', score: null },
+        { name: 'low', score: 10 },
+        { name: 'middle', score: 20 },
+      ];
+      Object.freeze(scores);
+
+      expect(getMedianScore(scores)).toBe(15);
+      expect(scores.map((score) => score.name)).toEqual([
+        'high',
+        'missing',
+        'low',
+        'middle',
+      ]);
+    });
+
     it('should return 0 for empty array', () => {
       const scores: Score[] = [];
 

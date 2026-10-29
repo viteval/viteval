@@ -1,3 +1,4 @@
+import { isFiniteNumber } from 'massaman/predicate';
 import type { Scorer } from '#/types';
 import { createScorer } from '#/scorer/custom';
 import { numericSimilarity } from './similarity';
@@ -41,7 +42,7 @@ export function numericDiff(options?: NumericDiffOptions): Scorer {
       const a = Number(output);
       const b = Number(expected);
 
-      if (!Number.isFinite(a) || !Number.isFinite(b)) {
+      if (!isFiniteNumber(a) || !isFiniteNumber(b)) {
         return { metadata: { error: 'non-numeric input' }, score: 0 };
       }
 

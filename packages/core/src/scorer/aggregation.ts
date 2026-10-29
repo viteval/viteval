@@ -1,3 +1,4 @@
+import { meanBy, medianBy, sumBy } from 'massaman/math';
 import type { Score } from '#/types';
 
 /**
@@ -11,10 +12,7 @@ export function getMeanScore(results: Score[]): number {
     return 0;
   }
 
-  return (
-    results.reduce((acc, result) => acc + defaultScore(result.score), 0) /
-    results.length
-  );
+  return meanBy(results, (result) => result.score ?? 0);
 }
 
 /**
@@ -28,19 +26,7 @@ export function getMedianScore(results: Score[]): number {
     return 0;
   }
 
-  const sortedScores = results
-    .map((result) => defaultScore(result.score))
-    .toSorted((a, b) => a - b);
-
-  const mid = Math.floor(sortedScores.length / 2);
-
-  if (sortedScores.length % 2 === 0) {
-    // Even number of scores - average the two middle values
-    return (sortedScores[mid - 1] + sortedScores[mid]) / 2;
-  }
-
-  // Odd number of scores - return the middle value
-  return sortedScores[mid];
+  return medianBy(results, (result) => result.score ?? 0);
 }
 
 /**
@@ -50,19 +36,5 @@ export function getMedianScore(results: Score[]): number {
  * @returns The sum score, or 0 if the array is empty.
  */
 export function getSumScore(results: Score[]): number {
-  if (results.length === 0) {
-    return 0;
-  }
-
-  return results.reduce((acc, result) => acc + defaultScore(result.score), 0);
-}
-
-/*
-|------------------
-| Internals
-|------------------
-*/
-
-function defaultScore(score?: number | null) {
-  return score ?? 0;
+  return sumBy(results, (result) => result.score ?? 0);
 }

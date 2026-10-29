@@ -1,3 +1,5 @@
+import { clamp } from 'massaman/math';
+import { isFiniteNumber } from 'massaman/predicate';
 import type { VitevalListResponse } from './types';
 
 const DEFAULT_LIMIT = 20;
@@ -62,15 +64,8 @@ function clampInt(
   max: number
 ): number {
   const parsed = typeof raw === 'number' ? raw : Number(raw);
-  if (!Number.isFinite(parsed)) {
+  if (!isFiniteNumber(parsed)) {
     return fallback;
   }
-  const floored = Math.floor(parsed);
-  if (floored < min) {
-    return min;
-  }
-  if (floored > max) {
-    return max;
-  }
-  return floored;
+  return clamp(Math.floor(parsed), min, max);
 }

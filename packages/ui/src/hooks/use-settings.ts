@@ -1,3 +1,4 @@
+import { isFiniteNumber } from 'massaman/predicate';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 const SETTINGS_KEY = 'viteval:settings';
@@ -182,5 +183,5 @@ function normalizeSettings(incoming: Record<string, unknown>): VitevalSettings {
 }
 
 function isNonNegativeNumber(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+  return isFiniteNumber(value) && value >= 0;
 }
