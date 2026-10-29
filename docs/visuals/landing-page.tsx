@@ -99,7 +99,7 @@ export function LandingPage({ children }: { children: ReactNode }) {
         backgroundContent={<HeroBackground />}
         demo={<HeroRun />}
       />
-      <TrustStrip lead="Used by" names={USERS} />
+      <TrustStrip lead="Trusted by" names={USERS} />
       <FeaturePanels />
       <Workflow>{children}</Workflow>
       <section
