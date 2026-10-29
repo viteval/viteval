@@ -1,4 +1,11 @@
-# Providers
+---
+title: Set up storage providers
+description: Select dataset and result destinations, run a storage check, and verify persistence.
+---
+
+import { Steps, Step } from '@theme';
+
+# Set up storage providers
 
 Viteval is open source and uses local JSON storage by default. You do not need a
 hosted evaluation account. With the default JSON provider, datasets live under
@@ -30,7 +37,21 @@ These providers store evaluation data. They do not choose the model used by your
 task. Call your model client inside the task function; configure models for
 built-in judges and embedding scorers with `models.providers` and `models.defaults`.
 
-## Combine providers
+## Prerequisites
+
+- Complete [Getting started](/getting-started) and keep a passing evaluation.
+- Run commands from the project root containing `viteval.config.ts`.
+- For an optional backend, install its SDK or driver from [Backend setup](#backend-setup)
+  and provide its credentials in the process environment.
+- Use JSON alone if you want to verify storage without external credentials.
+
+## Steps
+
+<Steps>
+<Step title="Register storage destinations">
+
+With no `providers` array, JSON is registered and selected automatically. Keep
+that default for local-only storage, or configure multiple destinations:
 
 Register integrations once in `viteval.config.ts`, then select destinations:
 
@@ -65,7 +86,86 @@ You can replace the JSON dataset provider with S3 or Google Cloud Storage withou
 changing the results provider. Each integration's supported operations and
 limitations are listed below.
 
-## Default JSON setup
+</Step>
+<Step title="Write a storage-check evaluation">
+
+Create `src/storage-check.eval.ts`. This deterministic check needs no model API key
+and inherits the result destinations from your configuration:
+
+```ts
+import { evaluate, scorers } from 'viteval';
+import { defineDataset } from 'viteval/dataset';
+
+const storageCases = defineDataset({
+  name: 'storage-check',
+  data: () => [
+    { input: 'hello', expected: 'HELLO' },
+    { input: 'storage', expected: 'STORAGE' },
+  ],
+});
+
+evaluate('Storage check', {
+  data: storageCases,
+  task: ({ input }) => input.toUpperCase(),
+  scorers: [scorers.exactMatch()],
+  threshold: 1,
+});
+```
+
+The dataset inherits `dataset.providers`. With multiple dataset destinations,
+select a read source explicitly in the evaluation, such as
+`data: ({ json }) => json.dataset('storage-check')`. Generation destinations and
+evaluation read sources are independent.
+
+</Step>
+<Step title="Generate cases and persist a run">
+
+```bash
+pnpm exec viteval data "src/storage-check.eval.ts"
+pnpm exec viteval run storage-check.eval.ts
+```
+
+Generation writes the two cases to the selected dataset destinations. The
+evaluation loads them and writes case outcomes to the selected result destinations.
+
+</Step>
+<Step title="Inspect the saved results">
+
+If JSON results are selected, open the local dashboard:
+
+```bash
+pnpm exec viteval ui
+```
+
+For a hosted backend, inspect the run in its console too. The local dashboard does
+not download hosted results or read database-only runs.
+
+</Step>
+</Steps>
+
+## Verification
+
+```bash
+pnpm exec viteval data "src/storage-check.eval.ts" --verbose
+pnpm exec viteval run storage-check.eval.ts
+```
+
+- [ ] Dataset generation succeeds and the selected backend contains two `storage-check` cases.
+- [ ] The evaluation reports two passing cases with exact-match scores of 1.
+- [ ] Every selected result backend contains the completed run and its case outcomes.
+- [ ] With JSON selected, `.viteval/datasets` contains the dataset and `.viteval/results` contains the run.
+- [ ] The dashboard shows the same inputs, outputs, and scores as the CLI for the local JSON copy.
+
+Run the evaluation again. Confirm a new run is retained while the existing
+dataset remains unchanged. For object storage, check the dataset catalog and
+use your separate results backend to verify the run.
+
+## Backend setup
+
+Choose the backend below, then use its factory in the registration step. The
+configuration examples select destinations explicitly.
+
+### JSON
 
 With no `providers` array, Viteval registers JSON automatically. To configure it:
 
@@ -83,7 +183,7 @@ The default JSON root follows the selected project. Explicit provider roots are
 owned by their factory options. JSON operations read both V1 provider records and
 V1 reporter snapshots. Both require `schemaVersion: 1`.
 
-## SQLite
+### SQLite
 
 Install the optional provider package:
 
@@ -115,7 +215,7 @@ provider. Keep JSON selected to inspect a local copy in the
 dashboard. SQLite and PostgreSQL client assets are included in the package; consumers
 do not run Prisma generation. `viteval()` with no database option returns JSON.
 
-## PostgreSQL
+### PostgreSQL
 
 Install the PostgreSQL driver and adapter instead of the SQLite dependencies:
 
@@ -140,7 +240,7 @@ The provider creates its tables on initialization. Use a database user permitted
 to create those tables. PostgreSQL contract tests exercise persistence, rollback,
 reconnects, cascades, and concurrent initialization against a real server.
 
-## Braintrust
+### Braintrust
 
 ```bash
 pnpm add -D @viteval/providers@rc @braintrust/api
@@ -170,7 +270,7 @@ experiment creation, result writes, completion metadata, and result pagination.
 They do not use a live Braintrust account. Supply your own credentials to use
 the provider with your account.
 
-## Langfuse
+### Langfuse
 
 ```bash
 pnpm add -D @viteval/providers@rc @langfuse/client @opentelemetry/api @opentelemetry/sdk-trace-base @opentelemetry/exporter-trace-otlp-http
@@ -209,7 +309,7 @@ The SDK does not expose dataset rename/update or deletion. Atomic item replaceme
 is not supported. These operations return explicit errors; manage those operations
 in Langfuse or create a new dataset.
 
-## VoltOps hosted evaluations
+### VoltOps hosted evaluations
 
 ```bash
 pnpm add -D @viteval/providers@rc @voltagent/sdk
@@ -257,7 +357,7 @@ Langfuse and VoltOps tests use official SDKs with local HTTP fixtures, not live
 accounts. Keep JSON registered and selected
 for local dashboard inspection alongside hosted persistence.
 
-## S3 and Google Cloud Storage datasets
+### S3 and Google Cloud Storage datasets
 
 Object storage providers handle datasets independently of your results backend.
 Choose the optional SDK for your bucket:
@@ -313,7 +413,7 @@ Both providers support create, read, list, rename, metadata updates, item additi
 replacement, and deletion from the active catalog. They expose only the dataset
 domain. You can combine them with JSON, Braintrust, Langfuse, or VoltOps results.
 
-### Atomic publication and retained versions
+### Object storage publication and retained versions
 
 The default namespace is `viteval/datasets`. Each namespace contains:
 
@@ -361,3 +461,42 @@ original failure and identifies the dataset that needs manual cleanup.
 
 Provider operations return `Result` values. Check `ok` before reading `value`;
 initialization and persistence errors fail the evaluation run.
+
+## Troubleshooting
+
+### A provider SDK or driver is missing
+
+Install the packages listed for your backend above. Importing a factory does not
+load its SDK; the initialization error identifies missing packages. Supply any
+required credentials to the process running Viteval.
+
+### A registered provider receives no data
+
+Select its name in `dataset.providers` or `eval.results`. Explicit arrays replace
+defaults, and `[]` disables persistence. S3 and GCS support datasets, not results.
+
+### The dataset has multiple destinations
+
+Select one read source with `data: ({ json }) => json.dataset('storage-check')`,
+using the handle for the provider you want to read. Generate it with `viteval data`
+before evaluation.
+
+### The dashboard has no runs
+
+Register JSON and include `'json'` in `eval.results`. Open the dashboard at the
+same project root. Hosted-only and database-only results are not local JSON inputs.
+
+### A write fails after another provider succeeds
+
+Cross-provider writes are not transactional. Inspect each destination before
+retrying. Do not assume a failed upload removed prior writes; follow the backend's
+replacement and recovery limits above.
+
+## References
+
+- [Storage and results](/concepts/storage)
+- [Configuration](/api/configuration) for registration and destination inheritance
+- [Provider contracts](/api/storage/create-provider)
+- [Provider types](/api/storage/provider-types)
+- [Dataset generation](/cli/data)
+- [Inspect results](/guide/results)

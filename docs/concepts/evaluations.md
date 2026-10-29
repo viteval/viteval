@@ -48,6 +48,8 @@ Task errors, scorer errors, and timeouts fail the case. A score below the thresh
 also fails it. Viteval reports the final outcome, and the JSON destination saves
 evaluation inputs, outputs, scores, and diagnostics for inspection.
 
-See [scoring and thresholds](/concepts/scoring) for pass/fail rules,
-[configure models](/guide/models) for model setup, and
-[`evaluate()`](/api/evaluate) for the parameter contract.
+## References
+
+- [Scoring and thresholds](/concepts/scoring) for pass/fail rules
+- [Configure models](/guide/models) for model setup
+- [`evaluate()`](/api/evaluate) for the parameter contract

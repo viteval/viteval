@@ -1,45 +1,14 @@
+---
+title: Configuration
+description: Reference project settings, evaluation defaults, storage destinations, and scorer models.
+---
+
 # Configuration
 
 import { Field, FieldGroup } from '@theme';
 
 Create `viteval.config.ts` with Viteval's own settings. No worker setup file,
 manual initialization, or Vitest configuration is required.
-
-```ts
-import { openai } from '@ai-sdk/openai';
-import { braintrust } from '@viteval/providers/braintrust';
-import { createJsonProvider, defineConfig } from 'viteval';
-
-export default defineConfig({
-  eval: {
-    include: ['src/**/*.eval.ts'],
-    exclude: ['**/*.draft.eval.ts'],
-    timeout: 60_000,
-    concurrency: 5,
-    retries: 2,
-    threshold: 0.8,
-    aggregation: 'mean',
-    results: ['json', 'braintrust'],
-  },
-  dataset: { providers: ['json'] },
-  models: {
-    providers: [openai],
-    defaults: {
-      language: 'openai:gpt-4.1-mini',
-      embedding: 'openai:text-embedding-3-small',
-    },
-  },
-  providers: [
-    createJsonProvider({ root: import.meta.dirname }),
-    braintrust({ project: 'support', apiKey: process.env.BRAINTRUST_API_KEY }),
-  ],
-});
-```
-
-`defineConfig` is also exported from `viteval/config`. Config modules may run in
-the coordinating process and again in workers. Do not make model calls, generate
-datasets, or open resources at module scope. Viteval initializes selected storage
-integrations lazily and closes them after evaluation persistence.
 
 ## Project settings
 
@@ -146,3 +115,48 @@ need no model configuration.
 Storage integration imports contribute typed names and dataset handles. Type
 visibility does not prove an integration is active in the selected config;
 registration and capabilities are also checked at runtime.
+
+## Example
+
+```ts
+import { openai } from '@ai-sdk/openai';
+import { braintrust } from '@viteval/providers/braintrust';
+import { createJsonProvider, defineConfig } from 'viteval';
+
+export default defineConfig({
+  eval: {
+    include: ['src/**/*.eval.ts'],
+    exclude: ['**/*.draft.eval.ts'],
+    timeout: 60_000,
+    concurrency: 5,
+    retries: 2,
+    threshold: 0.8,
+    aggregation: 'mean',
+    results: ['json', 'braintrust'],
+  },
+  dataset: { providers: ['json'] },
+  models: {
+    providers: [openai],
+    defaults: {
+      language: 'openai:gpt-4.1-mini',
+      embedding: 'openai:text-embedding-3-small',
+    },
+  },
+  providers: [
+    createJsonProvider({ root: import.meta.dirname }),
+    braintrust({ project: 'support', apiKey: process.env.BRAINTRUST_API_KEY }),
+  ],
+});
+```
+
+`defineConfig` is also exported from `viteval/config`. Config modules may run in
+the coordinating process and again in workers. Do not make model calls, generate
+datasets, or open resources at module scope. Viteval initializes selected storage
+integrations lazily and closes them after evaluation persistence.
+
+## References
+
+- [Getting started](/getting-started)
+- [Configure models](/guide/models)
+- [Set up storage providers](/guide/providers)
+- [`evaluate()`](/api/evaluate)

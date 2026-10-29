@@ -48,6 +48,8 @@ execution failures from low-scoring outputs.
 Suite summaries describe completed case outcomes. They do not replace the
 per-case threshold check.
 
-See [built-in scorers](/api/scoring/scorers),
-[write a custom scorer](/guide/custom-scorers), and
-[inspect results](/guide/results).
+## References
+
+- [Built-in scorers](/api/scoring/scorers)
+- [Write a custom scorer](/guide/custom-scorers)
+- [Inspect results](/guide/results)

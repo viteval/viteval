@@ -1,6 +1,11 @@
+---
+title: defineDataset()
+description: Define reusable evaluation cases, generate them on demand, and select storage destinations.
+---
+
 # `defineDataset()`
 
-import { Field, FieldGroup } from '@theme';
+import { Field, FieldGroup, PackageManagerTabs } from '@theme';
 
 `defineDataset()` defines how cases are generated and where to save them, including
 hosted integrations such as Langfuse. Run generation with `viteval data`; importing
@@ -42,79 +47,45 @@ function defineDataset<DATA_FUNC extends DatasetData>(
   </Field>
 </FieldGroup>
 
-## DatasetConfig
+## Example
+
+Save this as `src/order-extraction.eval.ts`. The two cases check a lowercase ID
+and a message without an ID. No model or API key is required:
 
 ```ts
-interface DatasetConfig<DATA extends DatasetData = DatasetData> {
-  providers?: readonly DatasetProviderName[];
-  /**
-   * The name of the dataset.
-   */
-  name: string;
-  /**
-   * The description of the dataset.
-   */
-  description?: string;
-  /**
-   * The data generator of the dataset.
-   */
-  data: DATA;
-}
-```
+import { evaluate, scorers } from 'viteval';
+import { defineDataset } from 'viteval/dataset';
 
-### `name`
+const orderMessages = defineDataset({
+  name: 'order-extraction',
+  description: 'Order ID normalization and missing IDs',
+  data: () => [
+    { input: 'Please cancel ord-2087.', expected: 'ORD-2087' },
+    { input: 'How do I update my address?', expected: '' },
+  ],
+});
 
-Unique identifier for the dataset.
-
-**Type**: `string`  
-**Required**: Yes
-
-```ts
-defineDataset({
-  name: 'math-problems',
-  data: async () => [{ input: '2 + 2', expected: '4' }],
+evaluate('Order extraction', {
+  data: orderMessages,
+  task: ({ input }) => input.match(/\bORD-\d+\b/i)?.[0].toUpperCase() ?? '',
+  scorers: [scorers.exactMatch()],
+  threshold: 1,
 });
 ```
 
-### `data`
-
-Cases, or a function that generates cases once per generation operation. A callback
-can access direct dataset handles and the model registry.
-
-**Type**: `DatasetData`
-**Required**: Yes
-
-```ts
-// Static data
-data: async () => [
-  { input: '2 + 2', expected: '4' },
-  { input: '3 + 3', expected: '6' },
-];
-
-// Async data loading
-data: async () => {
-  const response = await fetch('https://example.com/api/datasets/math');
-  if (!response.ok)
-    throw new Error(`Dataset request failed: ${response.status}`);
-  return response.json();
-};
-
-// Generated data
-data: async () => {
-  const problems = [];
-  for (let i = 0; i < 1000; i++) {
-    const a = Math.floor(Math.random() * 100);
-    const b = Math.floor(Math.random() * 100);
-    problems.push({
-      input: `${a} + ${b}`,
-      expected: String(a + b),
-    });
-  }
-  return problems;
-};
+```bash
+pnpm exec viteval data "src/order-extraction.eval.ts"
+pnpm exec viteval run order-extraction.eval.ts
 ```
 
-### `providers` (optional)
+Both cases pass. With the default JSON provider, generation saves the cases under
+`.viteval/datasets`; subsequent evaluations reuse them. Use `viteval data --overwrite`
+when you deliberately want to replace saved cases after changing the generator.
+
+## Generation and destinations
+
+The callback can be synchronous or asynchronous and runs once per generation
+operation. It can access direct dataset handles and the model registry:
 
 ```ts
 defineDataset({
@@ -132,16 +103,6 @@ Without `--overwrite`, existing destinations are preserved and only missing ones
 are populated. Overwrite requires replacement support; Langfuse and VoltOps do not
 support atomic replacement. Cross-provider saves are not transactional: successful
 writes remain if another provider fails.
-
-### `description` (optional)
-
-An optional description of the cases in the dataset.
-
-**Type**: `string`
-
-```ts
-description: 'Math problems for basic arithmetic evaluation';
-```
 
 ## DataItem interface
 
@@ -213,3 +174,61 @@ generate it twice; distinct objects must have unique names.
 Evaluation tasks and scorers are not executed during generation. See
 [CLI datasets](/cli/data) for patterns, overwrite behavior, and module
 import semantics.
+
+## `DATASET_FILE_SCHEMA`
+
+The exported Zod schema validates V1 dataset files used by JSON storage, object
+storage snapshots, and the dashboard. It is available from `@viteval/core/dataset`,
+not re-exported by `viteval/dataset`. Install `@viteval/core` as a direct dependency
+before using this import (pnpm does not expose Viteval's transitive dependencies):
+
+<PackageManagerTabs
+  command={{
+    npm: 'npm install --save-dev @viteval/core@rc',
+    pnpm: 'pnpm add -D @viteval/core@rc',
+    yarn: 'yarn add --dev @viteval/core@rc',
+  }}
+/>
+
+Keep `@viteval/core` at the same version as your installed `viteval` package.
+Then validate the saved dataset:
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { DATASET_FILE_SCHEMA } from '@viteval/core/dataset';
+
+const text = await readFile('.viteval/datasets/order-extraction.json', 'utf8');
+const parsed = DATASET_FILE_SCHEMA.safeParse(JSON.parse(text));
+if (!parsed.success) throw parsed.error;
+const cases = parsed.data.data;
+```
+
+`safeParse()` returns `{ success: true, data }` or `{ success: false, error }`,
+not a provider `Result`. Invalid JSON throws before schema validation.
+
+| Field           | Required | Contract                                                                               |
+| --------------- | -------- | -------------------------------------------------------------------------------------- |
+| `schemaVersion` | Yes      | Literal `1`                                                                            |
+| `id`            | Yes      | Nonempty string                                                                        |
+| `name`          | Yes      | Nonempty string                                                                        |
+| `description`   | No       | String                                                                                 |
+| `version`       | Yes      | Positive integer dataset revision, independent of `schemaVersion`                      |
+| `metadata`      | Yes      | String-keyed object; use `{}` when empty                                               |
+| `createdAt`     | Yes      | ISO datetime string in UTC, such as `2026-10-26T12:00:00.000Z`                         |
+| `updatedAt`     | Yes      | ISO datetime string in UTC                                                             |
+| `data`          | Yes      | Array of objects with required `input` and `expected`; extra case fields are preserved |
+
+The top-level object is strict: unknown fields, missing required fields, and
+pre-V1 or unknown schema versions are rejected. Case values may be `null`. An
+empty `data` array is valid as a stored file, but cannot be evaluated. The schema
+does not validate your application's input or expected-value types; validate those
+separately. See [Providers](/guide/providers#serialization-and-failures) for
+serialization limits.
+
+## References
+
+- [Datasets](/concepts/datasets)
+- [`evaluate()`](/api/evaluate)
+- [`sampleItems()`](/api/sample-items) for fixed-count generators
+- [Dataset generation](/cli/data)
+- [Set up storage providers](/guide/providers)

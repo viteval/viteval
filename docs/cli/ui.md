@@ -43,5 +43,7 @@ viteval ui --root ./app
 viteval ui --port 6274 --open
 ```
 
-See [inspect results](/guide/results) for report configuration and the inspection
-workflow.
+## References
+
+- [Inspect results](/guide/results) for report configuration and inspection
+- [Set up storage providers](/guide/providers) for local and hosted destinations

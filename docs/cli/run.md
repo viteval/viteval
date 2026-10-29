@@ -71,3 +71,9 @@ dataset, and UI commands use the project's installed `viteval` package through
 Node >=26. Install `viteval` in the project before using those commands.
 
 For all project commands, use `viteval --help`.
+
+## References
+
+- [Configuration](/api/configuration)
+- [Run in CI](/guide/ci)
+- [Inspect results](/guide/results)
