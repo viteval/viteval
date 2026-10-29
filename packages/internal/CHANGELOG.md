@@ -1,5 +1,11 @@
 # @viteval/internal
 
+## 1.0.0-rc.6
+
+### Patch Changes
+
+- 780fb20: Replace custom numeric, aggregation, metadata, and deduplication helpers with massaman utilities while preserving evaluation defaults.
+
 ## 1.0.0-rc.5
 
 No changes in this release.
