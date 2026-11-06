@@ -44,7 +44,7 @@
     "@types/node": "26.6.5",
     "@types/react": "^19.3.0",
     "@vitest/coverage-v8": "^5.0.3",
-    "@vitest/ui": "^5.0.3",
+    "@vitest/ui": "^5.0.5",
     "ciderpress": "1.0.0-rc.17",
     "nuka-code": "^0.1.13",
     "oxfmt": "^0.72.0",
